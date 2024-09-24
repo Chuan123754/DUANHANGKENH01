@@ -1,0 +1,68 @@
+﻿<table class="table">
+    <thead>
+    <tr>
+        <th>
+                <button class="table-sort" @onclick='() => OnSort.InvokeAsync("Id")'>ID</button>
+        </th>
+        <th>
+                <button class="table-sort" @onclick='() => OnSort.InvokeAsync("Title")'>Tiêu đề</button>
+        </th>
+        <th>
+                <button class="table-sort" @onclick='() => OnSort.InvokeAsync("Slug")'>Đường dẫn</button>
+        </th>
+        <th>
+                <button class="table-sort" @onclick='() => OnSort.InvokeAsync("CreatedAt")'>Thời gian</button>
+        </th>
+    </tr>
+    </thead>
+    <tbody class="table-tbody">
+    @if (Categories != null && Categories.Any())
+    {
+        @foreach (var attr in Categories)
+        {
+            <tr>
+                <td class="sort-id">@attr.Id</td>
+                <td class="sort-title position-relative">
+                    @if (attr.Parent_id == 0)
+                    {
+                        <a href="@($"admin/manager-attribute?parent_id={attr.Id}")">@attr.Title</a>
+                    }
+                    else
+                    {
+                        <span>@attr.Title</span>
+                    }
+                    <div class="cell-actions">
+                            <button class="btn btn-primary" @onclick="() => OnEdit.InvokeAsync(attr.Id)">Sửa</button>
+                            <button class="btn btn-danger" @onclick="() => OnDelete.InvokeAsync(attr.Id)">Xóa</button>
+                    </div>
+                </td>
+                <td class="sort-city">@attr.Slug</td>
+                <td class="sort-date" data-date="@attr.Created_at">@attr.Created_at.ToString("yyyy-MM-dd")</td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr>
+            <td colspan="6" class="text-center">Không có dữ liệu</td>
+        </tr>
+    }
+    </tbody>
+</table>
+<div class="mt-4">
+    @* Phân trang có thể được triển khai sau, tùy thuộc vào logic của bạn *@
+</div>
+
+@code {
+    [Parameter]
+    public List<Categories> Categories { get; set; }
+
+    [Parameter]
+    public EventCallback<long> OnEdit { get; set; }
+
+    [Parameter]
+    public EventCallback<long> OnDelete { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnSort { get; set; }
+}

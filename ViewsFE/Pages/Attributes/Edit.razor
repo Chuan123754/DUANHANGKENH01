@@ -1,0 +1,75 @@
+﻿@page "/admin/list/edit/{id:long}"
+@inject IAttributesServices sev
+@inject NavigationManager nav
+<h3>Edit</h3>
+<EditForm Model="SinhVien" OnValidSubmit="SubmitForm" FormName="sưa">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+    <div>
+        <label>Tiêu đề: </label>
+        <InputText @bind-Value="SinhVien.Title"></InputText>
+    </div>
+    <div>
+        <label>Đường dẫn </label>
+        <InputText @bind-Value="SinhVien.Slug"></InputText>
+    </div>
+    <div>
+        <label>Danh mục cha </label>
+        <InputNumber @bind-Value="SinhVien.Parent_Id"></InputNumber>
+    </div>
+    <div>
+        <label>Danh Dept </label>
+        <InputNumber @bind-Value="SinhVien.Dept"></InputNumber>
+    </div>
+    <div>
+        <label>Mô tả </label>
+        <InputTextArea @bind-Value="SinhVien.Description"></InputTextArea>
+    </div>
+    <div>
+        <label>ảnh</label>
+        <InputText @bind-Value="SinhVien.Feature_Image"></InputText>
+    </div>
+    <div>
+        <label>Màu</label>
+        <InputText @bind-Value="SinhVien.Color"></InputText>
+    </div>
+    <div>
+        <label>Mẫu </label>
+        <InputText @bind-Value="SinhVien.Template"></InputText>
+    </div>
+    <div>
+        <label>số in_order </label>
+        <InputNumber @bind-Value="SinhVien.In_Order"></InputNumber>
+    </div>
+    <div>
+        <label>Thời gian thêm</label>
+        <InputDate @bind-Value="SinhVien.Created_at"></InputDate>
+    </div>
+    <div>
+        <label>Thời gian sửa</label>
+        <InputDate @bind-Value="SinhVien.Updated_at"></InputDate>
+    </div>
+    <div>
+        <label>Thời gian xoá</label>
+        <InputDate @bind-Value="SinhVien.Deleted_at"></InputDate>
+    </div>
+    <button type="submit">Sửa</button>
+</EditForm>
+
+
+@code {
+    [Parameter]
+    public long Id { get; set; }
+
+    private Attributes SinhVien = new Attributes();
+
+    protected async override Task OnInitializedAsync()
+    {
+        SinhVien = await sev.GetById(Id);
+    }
+    private async Task SubmitForm()
+    {
+        await sev.Update(SinhVien);
+        nav.NavigateTo("/admin/list");
+    }
+}

@@ -1,0 +1,182 @@
+//
+// Footer
+// --------------------------------------------------
+@import 'variables';
+
+.footer {
+    .top-footer, .middle-footer, .bottom-footer {
+        position: relative;
+        z-index: 2;
+    }
+
+    .bg-footer {
+        position: absolute;
+        z-index: 1;
+        right: 0
+    }
+
+    background: $primary-darker;
+    padding-top: 50px;
+    padding-bottom: 50px;
+    font-family: $font-prata;
+    color: $primary-lighter;
+    margin-top: 80px;
+
+    a {
+        color: var(--Accent, #919296);
+        font: normal normal normal $fs-sm/normal $font-poppins;
+    }
+
+    ul {
+        //margin: 0;
+        padding: 0;
+    }
+
+    .place {
+        font-family: $font-poppins;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+    }
+
+    .place .bg-white {
+        width: 25px;
+        height: 1px;
+        background: #242424;
+    }
+
+    .middle-footer {
+        margin-top: 50px;
+    }
+
+    .bottom-footer {
+        margin-top: 50px;
+        color: var(--Accent, #919296);
+
+        .copyright {
+            font: normal normal normal $fs-sm/normal $font-poppins;
+        }
+
+        .social {
+            font: normal normal normal $fs-sm/normal $font-poppins;
+        }
+    }
+}
+
+.social {
+    svg {
+        margin-left: 12px;
+        cursor: pointer;
+    }
+}
+
+.footer ul li {
+    list-style: none;
+    line-height: 36px;
+    color: var(--Accent, #919296);
+    font: normal normal normal $fs-sm/normal $font-poppins;
+    text-decoration: none;
+
+    p {
+        font-family: $font-plus-jakarta;
+        font-size: $fs-sm;
+        font-weight: 400;
+        //line-height: $text-body-line-height;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+}
+
+.footer ul li:first-child h5 {
+    color: $primary-lighter;
+    font-family: $font-prata;
+    font-size: 13px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.footer ul li:not(:first-child) {
+    padding-top: 8px;
+}
+
+
+.footer .right h6 {
+    color: rgba(255, 255, 255, 0.6);
+    font-family: $font-prata;
+    font-size: 12px;
+    font-style: normal;
+    text-transform: uppercase;
+    text-align: right;
+}
+
+.footer-bottom {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    height: 61px;
+    flex-shrink: 0;
+    background: $primary-lighter;
+    color: var(--Accent, #919296);
+    font-family: $font-poppins;
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.footer-info-contact {
+    margin-right: 40px;
+    width: 428px;
+
+    ul {
+        margin-top: 24px;
+    }
+}
+
+.footer-title {
+    color: $primary-lighter;
+    font-family: $font-prata;
+    font-size: $fs-sm;
+    text-transform: uppercase;
+}
+
+
+.footer .place {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 11px;
+    align-self: stretch;
+    margin-top: 20px;
+}
+
+.footer .place div {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.footer .place span {
+    color: var(--white, #FFF);
+    font-family: $font-plus-jakarta;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-transform: uppercase;
+}
+
+.footer .place label {
+    color: var(--Accent, #919296);
+    font-family: $font-plus-jakarta;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-transform: initial;
+}

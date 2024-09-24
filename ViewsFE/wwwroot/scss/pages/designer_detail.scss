@@ -1,0 +1,44 @@
+//Designer detail
+
+.designer-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 48px
+}
+
+.designer-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid var(--Stroke, #F0F0F0);
+    border-radius: unset;
+    margin-bottom: 0;
+
+    .designer-info {
+        padding: 24px;
+
+        .designer-name {
+            color: var(--Primary, #242424);
+            text-align: center;
+            -webkit-text-stroke-width: 0.5;
+            -webkit-text-stroke-color: #000;
+            font-family: $font-prata;
+            font-size: 25px;
+        }
+    }
+}
+
+.icon-control {
+    margin-top: 5px;
+    float: right;
+    font-size: 80%;
+}
+
+.filter-title {
+    color: var(--Primary, #242424);
+    font-family: $font-poppins;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.256px;
+    text-transform: uppercase;
+}

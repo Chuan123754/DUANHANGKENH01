@@ -1,0 +1,176 @@
+//Magazine
+
+.dropdown-icon {
+    width: 36px;
+    height: 36px;
+}
+
+.post-intro {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+
+    .post-category {
+        color: var(--Drak-gray-1, #575757);
+        font-family: $font-plus-jakarta;
+        font-size: 14px;
+        text-transform: uppercase;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+
+        span:first-child {
+            width: 25px;
+            height: 1px;
+            background: #242424;
+            display: block;
+        }
+    }
+
+    .post-title {
+        color: var(--Primary, #242424);
+        -webkit-text-stroke-color: #000;
+        font-family: $font-prata;
+        font-size: 25px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        text-transform: uppercase;
+    }
+
+    .post-big-title {
+        color: var(--Primary, #242424);
+        font-family: $font-prata;
+        font-size: 48px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        text-transform: uppercase;
+    }
+
+    .post-author {
+        color: var(--Drak-gray-1, #575757);
+        font-family: $font-plus-jakarta;
+        font-size: 14px;
+    }
+
+    .post-project-by {
+        color: var(--Drak-gray-1, $primary-darker);
+        font-family: $font-plus-jakarta;
+        font-size: 14px;
+    }
+
+    .post-desc {
+        color: var(--Dark-gray, var(--Primary, #242424));
+        text-overflow: ellipsis;
+        font-family: $font-prata;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        display: -webkit-box;
+    }
+
+    .post-big-desc {
+        overflow: hidden;
+        color: var(--Dark-gray, var(--Primary, #242424));
+        text-overflow: ellipsis;
+        font-family: $font-prata;
+        font-size: 21px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal; /* 187.5% */
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        display: -webkit-box;
+    }
+}
+
+.post-image {
+    position: relative;
+    display: inline-block;
+    //height: 512px;
+    width: 100%;
+}
+
+.post-date-tag {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 3px 8px;
+    background: #fff;
+    transform: rotate(360deg);
+    color: var(--Primary, $primary-darker);
+    font-family: $font-plus-jakarta;
+    font-size: $fs-sm;
+}
+
+.menu-magazine-dropdown {
+    background-color: $primary-lighter;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    height: 324px;
+    width: 540px;
+    padding: 12px;
+    font-family: $font-prata;
+    color: $primary-lighter;
+    top: 35px;
+
+    a {
+        color: var(--Dark-gray, var(--Primary, $primary-darker));
+        font-family: $font-prata;
+        font-size: 25px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        text-transform: uppercase;
+        text-decoration: none;
+    }
+
+    ul {
+        li {
+            padding: 10px;
+            line-height: 26px;
+            text-align: right;
+        }
+
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        color: var(--Accent, #919296);
+        font: normal normal normal $fs-sm/normal $font-poppins;
+        text-decoration: none;
+
+        p {
+            font-family: $font-prata;
+            font-size: $fs-sm;
+            font-weight: 400;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+    }
+}
+
+.magazine-post {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.quote {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 80px;
+
+    .quote-content {
+        color: var(--Accent, #919296);
+        font-family: $font-prata;
+        font-size: 48px;
+    }
+}

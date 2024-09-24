@@ -1,0 +1,40 @@
+//
+// Hangkenh
+// --------------------------------------------------
+
+//Bootstrap
+@import 'bootstrap/scss/bootstrap';
+
+//Fontawesome
+@import '@fortawesome/fontawesome-free/css/fontawesome.css';
+@import '@fortawesome/fontawesome-free/css/regular.css';
+@import '@fortawesome/fontawesome-free/css/solid.css';
+@import '@fortawesome/fontawesome-free/css/brands.css';
+
+//Components
+@import "components/variables";
+@import "components/common";
+@import "components/header";
+@import "components/footer";
+@import "components/elements";
+
+//Pages
+@import "pages/home";
+@import "pages/category";
+@import "pages/product";
+@import "pages/designer_detail";
+@import "pages/project";
+@import "pages/magazine";
+@import "pages/article";
+@import "pages/article_detail";
+@import "pages/introduce";
+@import "pages/contact";
+@import "pages/collection_detail";
+
+// Responsive
+@import "responsive/pages/home";
+@import "responsive/pages/category";
+@import "responsive/components/common";
+@import "responsive/pages/product";
+@import "responsive/pages/project";
+@import "responsive/pages/project_detail";

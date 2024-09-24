@@ -1,0 +1,140 @@
+//
+// Variables
+// --------------------------------------------------
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display');
+@import url('https://fonts.googleapis.com/css2?family=Prata&display=swap');
+
+@font-face {
+    font-family: "Prata";
+    font-style: normal;
+    src: url("~font/prata/Prata-Regular.ttf");
+}
+
+@font-face {
+    font-family: "Poppins";
+    font-style: normal;
+    src: url("~font/poppins/Poppins-Regular.ttf") format('truetype');
+    font-weight: 400;
+    font-display: swap
+}
+
+@font-face {
+    font-family: "Poppins";
+    font-style: normal;
+    src: url("~font/poppins/Poppins-Medium.ttf") format('truetype');
+    font-weight: 500;
+    font-display: swap
+}
+
+@font-face {
+    font-family: "Poppins";
+    font-style: normal;
+    src: url("~font/poppins/Poppins-Bold.ttf") format('truetype');
+    font-weight: 700;
+    font-display: swap
+}
+
+@font-face {
+    font-family: Poppins;
+    font-style: normal;
+    src: url("~font/poppins/Poppins-Regular.ttf") format('truetype');
+    font-weight: 400;
+    font-display: swap
+}
+
+@font-face {
+    font-family: Poppins-m;
+    font-style: normal;
+    src: url("~font/poppins/Poppins-Medium.ttf") format('truetype');
+    font-weight: 500;
+    font-display: swap
+}
+
+@font-face {
+    font-family: Poppins-b;
+    font-style: normal;
+    src: url("~font/poppins/Poppins-Bold.ttf") format('truetype');
+    font-weight: 700;
+    font-display: swap
+}
+
+// Colors
+$primary-darker: #242424 !default;
+$primary-dark: #E4E3E8 !default;
+$primary-grey: #919296 !default;
+$primary-light: #F5F5F5 !default;
+$primary-lighter: #FFFFFF !default;
+$dark-grey: #575757 !default;
+$bg-top-header-color: #F5F5F3;
+$bg-bottom-header-color: $primary-lighter;
+
+// Text
+$fs-xs: 11px;
+$fs-13px: 13px;
+$fs-sm: 14px;
+$fs-16px: 16px;
+$fs-21px: 21px;
+$fs-22px: 22px;
+$fs-24px: 24px;
+$fs-md: 25px;
+$fs-36px: 36px;
+$fs-lg: 39px;
+$fs-48px: 48px;
+$fs-56px: 56px;
+$fs-xl: 95px;
+$font-poppins: 'Poppins', sans-serif;
+$font-prata: 'Prata', sans-serif;
+$font-plus-jakarta: 'Plus Jakarta Sans', sans-serif;
+$banner-line-height: 101 !default;
+$heading-line-height: 52 !default;
+$text-banner-line-height: 40 !default;
+$text-body-line-height: 23 !default;
+$text-category-line-height: 23 !default;
+$text-author-line-height: 23 !default;
+
+//Text button:
+$fs-btn-default: 22px;
+
+// Text components
+$banner: $font-prata, $fs-xl, $banner-line-height;
+$heading: $font-prata, $fs-lg, $heading-line-height;
+$text-banner: $font-prata, $fs-md, $text-banner-line-height;
+$text-body: $font-poppins, $fs-sm, $text-body-line-height;
+$text-category: $font-poppins, $fs-xs, $text-category-line-height;
+$text-author: $font-poppins, $fs-sm, $text-author-line-height;
+
+
+// Header
+$top-header-height: 40px !default;
+$center-header-height: 191px !default;
+$bottom-header-height: 52px !default;
+$header-bg: #F5F5F3 !default;
+
+//Button
+@mixin btnWhite {
+    border-radius: 6px;
+    border: 1px solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    color: $primary-darker;
+    font-family: $font-prata;
+    font-size: $fs-sm;
+    letter-spacing: 1.6px;
+    width: 150px;
+    margin: auto;
+    transition: all 0.3s ease;
+    svg path {
+        fill: $primary-darker;
+    }
+    &:hover {
+        svg path {
+            fill: $primary-lighter;
+        }
+
+        background: $primary-darker;
+        color: $primary-lighter;
+    }
+}

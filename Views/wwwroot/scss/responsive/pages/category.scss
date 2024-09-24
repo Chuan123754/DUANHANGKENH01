@@ -1,0 +1,110 @@
+//Category
+
+.product-detail-mobile {
+    display: none;
+}
+
+@include media-breakpoint-down(sm) {
+    .title-banner {
+        h1 {
+            color: var(--Background-Button-link, #F2F6FF);
+            text-align: center;
+            font-family: $font-plus-jakarta;
+            font-size: 32px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+            text-transform: uppercase;
+        }
+    }
+
+    .content-header {
+        display: none;
+    }
+
+    .price {
+        font-size: 22px;
+    }
+
+    .product-img {
+        height: auto !important;
+    }
+
+    .product-action {
+        height: auto;
+        flex-direction: column;
+
+        .contact {
+            width: 100%;
+            height: 52px;
+        }
+
+        .action {
+            height: 52px;
+
+            .favourite {
+                padding-right: 10px;
+            }
+
+            .search {
+                padding-left: 10px;
+            }
+        }
+
+        .action-icon {
+            width: auto;
+            border-top: none;
+        }
+    }
+
+    .sidebar-filter {
+        .filter-group {
+            padding-left: 22px;
+            padding-right: 22px;
+        }
+
+        .sidebar-filter-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+
+            .sidebar-filter-title {
+                text-transform: uppercase;
+                font: $font-prata;
+                font-size: $fs-md;
+            }
+        }
+
+        display: none;
+        position: fixed;
+        z-index: 999;
+        top: 0;
+        height: 100%;
+        padding-right: 0;
+        padding-left: 100px;
+
+        .accordion {
+            height: 100%;
+            border-radius: 0;
+        }
+
+        .input-search {
+            display: none
+        }
+    }
+
+    .active {
+        display: block;
+    }
+
+    .btn-contract-mobile {
+        color: var(--headlines-body-subheads, #161616);
+        text-align: center;
+        font-family: $font-plus-jakarta;
+        font-size: 16px;
+        font-weight: 600;
+        text-transform: uppercase;
+        height: 40px;
+        padding: 10px 30px 10px 30px;
+    }
+}

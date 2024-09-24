@@ -1,0 +1,53 @@
+﻿using appAPI.Models;
+using AppAPI.IRepository;
+using AppAPI.Repository;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace AppAPI.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class OrdersController : ControllerBase
+    {
+        private readonly OrderReponsitory _repo;
+        public OrdersController()
+        {
+            _repo = new OrderReponsitory();
+        }
+        // GET: api/<OrdersController>
+        [HttpGet("All-Orders")]
+        public async Task<List<Orders>> GetAllOrders()
+        {
+            return await _repo.GetAll();
+        }
+
+        [HttpGet("OrdersDetails")]
+        public async Task<Orders> DetailsOrders(long id)
+        {
+            return await _repo.GetByIdOrders(id);
+        }
+        // POST api/<OrdersController>
+        [HttpPost("Create")]
+        public async Task Post(Orders orders)
+        {
+            await _repo.Create(orders);
+        }
+
+        // PUT api/<OrdersController>/5
+        [HttpPut("Update")]
+        public async Task Put(Orders orders)
+        {
+            await _repo.Update(orders);
+        }
+
+        // DELETE api/<OrdersController>/5
+        [HttpDelete("Delete")]
+        public async Task Delete(long id)
+        {
+            await _repo.Delete(id);
+        }
+    }
+}

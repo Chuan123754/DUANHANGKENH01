@@ -1,0 +1,74 @@
+﻿@inherits LayoutComponentBase
+
+<EditForm Model="Category" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <input type="hidden" name="type" value="@Type">
+
+    <div class="form-group mb-3">
+        <label for="category-short-title" class="form-label">Tiêu đề ngắn</label>
+        <InputText id="category-short-title" class="form-control" @bind-Value="Category.Short_title" />
+        <ValidationMessage For="@(() => Category.Short_title)" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="category-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+        <InputText id="category-title" class="form-control" @bind-Value="Category.Title" required />
+        <ValidationMessage For="@(() => Category.Title)" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="category-slug" class="form-label">Đường dẫn</label>
+        <InputText id="category-slug" class="form-control" @bind-Value="Category.Slug" />
+        <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
+        <ValidationMessage For="@(() => Category.Slug)" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="category_parent_id" class="form-label">Chuyên mục cha</label>
+        <InputSelect id="category_parent_id" class="form-control" @bind-Value="Category.Parent_id">
+            <option value="">Chọn danh mục cha</option>
+            @if (Categories != null && Categories.Any())
+            {
+                @foreach (var cate in Categories)
+                {
+                    <option value="@cate.Id" selected="@(Category?.Parent_id == cate.Id || RequestParentId == cate.Id)">
+                        @cate.Title
+                    </option>
+                }
+            }
+        </InputSelect>
+        <small class="text-gray-100">Chuyên mục khác với thẻ, bạn có thể sử dụng nhiều cấp chuyên mục. Ví dụ: Trong chuyên mục nhạc, bạn có chuyên mục con là nhạc Pop, nhạc Jazz. Việc này hoàn toàn là tùy theo ý bạn.</small>
+        <ValidationMessage For="@(() => Category.Parent_id)" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="category-description" class="form-label">Mô tả</label>
+        <InputTextArea id="category-description" class="form-control" @bind-Value="Category.Description" rows="3" />
+        <ValidationMessage For="@(() => Category.Description)" />
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">@ButtonLabel</button>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Categories? Category { get; set; }
+
+    [Parameter]
+    public List<Categories>? Categories { get; set; }
+
+    [Parameter]
+    public string? Type { get; set; }
+
+    [Parameter]
+    public int? RequestParentId { get; set; }
+
+    [Parameter]
+    public string ButtonLabel { get; set; } = "Lưu";
+    [Parameter]
+    public EventCallback OnValidSubmit { get; set; }
+}

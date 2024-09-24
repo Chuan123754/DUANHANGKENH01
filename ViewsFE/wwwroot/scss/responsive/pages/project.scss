@@ -1,0 +1,70 @@
+#project {
+    @media (max-width: 1400px) {
+        .project-content {
+            gap: 70px;
+
+            img {
+                width: 100%;
+            }
+        }
+
+        .nav-menu {
+            margin-bottom: 56px;
+        }
+
+        .project-article-title p {
+            font-size: 25px
+        }
+
+        .sub-title {
+            font-size: 18px;
+        }
+
+        .nav-menu-item .nav-link {
+            font-size: 13px;
+        }
+
+        main article {
+            margin-bottom: 56px;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .nav-menu {
+            flex-wrap: wrap;
+            margin-bottom: 0;
+            gap: 12px;
+            padding: 0 24px;
+        }
+
+        .project-content {
+            gap: 32px;
+            flex-direction: column !important;
+        }
+
+        main article {
+            margin-bottom: 32px;
+        }
+        .category-font-header {
+            display: none;
+        }
+        //.project-main-block, .project-sub-block {
+        //    flex: 1 0 0;
+        //    align-self: stretch;
+        //}
+
+        .sub-title, .project-article-title {
+            font-size: 25px;
+        }
+
+        .project-article-contract {
+            font-size: 16px;
+        }
+        .project-main-block-image, .project-sub-image {
+            width: 100% !important;
+            height: 531px;
+        }
+
+    }
+
+}

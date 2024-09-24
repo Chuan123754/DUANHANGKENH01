@@ -1,0 +1,38 @@
+﻿@page "/admin/categories/create/{type}"
+@using AppViews.IServices
+
+@inject ICategoriesServices CategoriesServices
+@inject NavigationManager NavigationManager
+
+<h3>Thêm Chuyên Mục</h3>
+<Form Category="categories" Categories="categoriesList" ButtonLabel="Thêm chuyên mục" OnValidSubmit="HandleValidSubmit" />
+
+@code {
+    private Categories categories = new Categories();
+    private List<Categories> categoriesList = new List<Categories>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            categoriesList = await CategoriesServices.GetAll();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi lấy danh sách chuyên mục: {ex.Message}");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            await CategoriesServices.Create(categories);
+            NavigationManager.NavigateTo("/admin/categories");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi: {ex.Message}");
+        }
+    }
+}

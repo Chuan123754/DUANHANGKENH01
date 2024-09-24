@@ -1,0 +1,106 @@
+//
+// Header
+// --------------------------------------------------
+
+.home-page section {
+    margin-top: 90px;
+}
+
+.logo {
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px 0;
+}
+
+.header .top-header {
+    background-color: $bg-top-header-color;
+    width: 100%;
+    height: $top-header-height;
+
+    a {
+        line-height: 22px;
+        font-family: $font-poppins;
+        font-size: $fs-xs;
+        color: $primary-darker;
+    }
+}
+
+.header .middle-header {
+    img {
+        text-align: center;
+    }
+}
+
+.header .bottom-header {
+    .quick-access {
+        a {
+            font: normal normal normal $fs-13px/normal $font-prata;
+            color: $primary-darker;
+            text-transform: uppercase;
+        }
+    }
+
+    .quick-access li {
+        font-family: $font-prata;
+        display: flex;
+        align-items: center;
+        white-space: nowrap;
+    }
+
+    .quick-action li {
+        padding: 8px 18px;
+        display: flex;
+        align-items: center;
+        border-right: 1px solid var(--Stroke, #F0F0F0);
+
+    }
+}
+
+.header .menu-dropdown {
+    background-color: #F5F5F3;;
+}
+
+.menu-dropdown {
+    height: 584px;
+    padding-top: 58px;
+    font-family: $font-prata;
+    color: $primary-lighter;
+
+    a {
+        color: $primary-darker;
+        font: normal normal normal $fs-sm/normal $font-plus-jakarta;
+    }
+
+    ul {
+        li {
+            padding: 4px 0;
+            line-height: 26px;
+        }
+
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        color: var(--Accent, #919296);
+        font: normal normal normal $fs-sm/normal $font-poppins;
+        text-decoration: none;
+
+        p {
+            font-family: $font-prata;
+            font-size: $fs-sm;
+            font-weight: 400;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+    }
+}
+
+.title-sub-menu {
+    color: $primary-darker;
+    font-family: $font-prata;
+    font-size: $fs-21px;
+    line-height: 30px;
+    margin-bottom: 12px;
+    white-space: nowrap;
+}

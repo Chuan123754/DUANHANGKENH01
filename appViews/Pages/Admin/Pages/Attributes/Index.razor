@@ -1,0 +1,143 @@
+﻿@page "/admin/attribute"
+
+@inject IAttributesServices AttributeSVE
+@inject NavigationManager nav
+
+<div class="page-wrapper">
+    <!-- Page header -->
+   @*  <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">Thuộc tính</h2>
+                </div>
+            </div>
+            <div id="breadcrumb">
+                <Breadcrumb pageParentTitle="Sản phẩm" pageTitle="Thuộc tính" pageRoute="/admin/attributes" />
+            </div>
+        </div>
+    </div> *@
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row">
+              @*   <!-- Create Form -->
+                <div class="col-md-3">
+                    <div class="card">
+                        <div id="formAttribute" class="card-body">
+                          
+                        </div>
+                    </div>
+                </div> *@
+                <!-- Search and Table -->
+                <div class="col-md-9 col-12">
+                    <div class="card">
+                        <div class="card-body">
+                           @*  <!-- Search Box -->
+                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                <div></div>
+                                <EditForm Model="attributes" OnValidSubmit="@OnSearch">
+                                    <div class="form-group d-flex gap-2">
+                                        <InputText id="searchInput" class="form-control" @bind-Value="searchQuery" placeholder="Nhập từ khóa tìm kiếm" />
+                                        <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                    </div>
+                                </EditForm>
+                            </div> *@
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <button class="table-sort">ID</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Tiêu đề</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Đường dẫn</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Thời gian</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (attributesList != null && attributesList.Any())
+                                    {
+                                        @foreach (var attr in attributesList)
+                                        {
+                                            <tr class="post-row">
+                                                <td>@attr.Id</td>
+                                                <td>
+                                                    
+                                                        <span>@attr.Title</span>
+                                                    
+                                                    <br />
+                                                    <!-- Tạo các hành động sửa và xóa -->
+                                                    <div class="action-buttons">
+                                                        <a class="text-primary" @onclick="() => EditAttribute(attr.Id)">Sửa</a>
+                                                        <button class="text-danger ms-3" @onclick="() => DeleteAttribute(attr.Id)">Xóa</button>
+                                                    </div>
+                                                </td>
+                                                <td class="sort-city">@attr.Slug</td>
+                                                <td class="sort-date">@attr.Created_at?.ToString("dd/MM/yyyy HH:mm")</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="4" class="text-center">Không có dữ liệu</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+     List<Attributes> attributesList;
+     string searchQuery = string.Empty;
+     Attributes attributes = new Attributes();
+
+    protected override async Task OnInitializedAsync()
+    {
+        attributesList = await AttributeSVE.GetAll();
+    }
+
+    protected async Task OnSearch()
+    {
+        attributesList = await AttributeSVE.Search(searchQuery);  // Thực hiện tìm kiếm với từ khóa
+    }
+
+    protected async Task EditAttribute(long id)
+    {
+        nav.NavigateTo($"/admin/attribute/edit/{id}");  // Điều hướng đến trang chỉnh sửa
+    }
+
+    protected async Task DeleteAttribute(long id)
+    {
+            await AttributeSVE.Delete(id);
+            attributesList = await AttributeSVE.GetAll();
+    }
+}
+
+<style>
+    .action-buttons {
+        display: none; /* Ẩn các nút hành động mặc định */
+        font-size: 0.675rem; /* Kích thước chữ nhỏ hơn, 0.875rem tương đương với 14px */
+    }
+
+    .post-row:hover .action-buttons {
+        display: inline; /* Hiển thị các nút khi hover vào hàng */
+    }
+
+    .post-row {
+        position: relative; /* Cần để các nút hành động được hiển thị chính xác */
+    }
+</style>

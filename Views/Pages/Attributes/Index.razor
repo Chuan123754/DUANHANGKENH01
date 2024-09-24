@@ -1,0 +1,59 @@
+﻿@page "/admin/list"
+@inject NavigationManager nav
+@inject IAttributesServices sev
+<h3>List</h3>
+
+@if (lstProduct == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div>
+        <Create></Create>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tiêu đề</th>
+                <th>ĐƯờng dẫn</th>
+                <th>Thời gian</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in lstProduct)
+            {
+                <tr>
+                    <td>@product.Id</td>
+                    <td>@product.Title</td>
+                    <td>@product.Slug</td>
+                    <td>@product.Created_at</td>
+                    <td>
+                        <button @onclick="() => NavigateToEdit(product.Id)">Sửa</button>
+                        <button @onclick="() => ClickDelete(product.Id)" class="btn btn-danger">Xóa</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    List<Attributes> lstProduct;
+    protected override async Task OnInitializedAsync()
+    {
+        lstProduct = await sev.GetAll();
+    }
+    protected async Task NavigateToEdit(long id)
+    {
+        nav.NavigateTo($"/admin/list/edit/{id}");
+    }
+
+    protected async Task ClickDelete(long id)
+    {
+        await sev.Delete(id);
+        lstProduct = await sev.GetAll();
+    }
+}
+

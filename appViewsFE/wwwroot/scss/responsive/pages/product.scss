@@ -1,0 +1,173 @@
+.product-detail {
+    @media (max-width: 1200px) {
+        .title-banner h1, .title-banner h2 {
+            font-size: 80px;
+        }
+
+        .image-slider img {
+            width: 500px;
+            height: 600px;
+            object-fit: cover;
+        }
+
+        .trending-box .tblock-left, .trending-box .tblock-right .img-desc {
+            padding: 40px;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .image-slider img {
+            width: 400px;
+            height: 500px;
+        }
+
+        .body {
+            gap: 28px;
+        }
+
+        .trending-box .tblock-description {
+            font-size: 16px;
+        }
+
+        .trending-box .author {
+            font-size: 20px;
+        }
+
+        .trending-box .tblock-right .img-desc h2 {
+            width: 400px;
+        }
+
+        .pagination {
+            margin-top: 50px;
+        }
+    }
+
+    @media (max-width: 767px) {
+        .header-product-detail {
+            display: flex;
+            padding: 0px 24px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+            align-self: stretch;
+        }
+
+        .header-product-detail .product-title {
+            margin-bottom: 0;
+            font-size: 48px;
+            color: var(--secondary-text, #353535);
+            /* PRATA/48: Regular */
+            font-family: Prata;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+        }
+
+        .header-product-detail .product-desc {
+            color: var(--Primary, #242424);
+
+            /* PLUS JAKATAR/14: Regular */
+            font-family: "Plus Jakarta Sans";
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+        }
+
+        .header-product-detail .d-flex {
+            display: flex;
+            align-items: center;
+            gap: 21px;
+            align-self: stretch;
+        }
+
+        .header-product-detail .product-price {
+            color: var(--Primary, #242424);
+
+            /* PLUS JAKATAR/22: Uppercase */
+            font-family: "Plus Jakarta Sans";
+            font-size: 22px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+            text-transform: uppercase;
+        }
+
+        .slider-product-items img {
+            width: 100%;
+        }
+
+        .slider-product {
+            margin-top: 12px;
+        }
+
+        .product-block-info {
+            display: flex;
+            padding: 0px 24px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 19px;
+            align-self: stretch;
+        }
+
+        .product-size-selector {
+            padding: 10px 24px;
+        }
+
+        .add-to-cart-text {
+            font-size: 16px;
+        }
+
+        .btn-add-to-cart {
+            padding: 8px 16px;
+            gap: 12px;
+        }
+
+        .product-detail-btn-like, .product-detail-btn-zoom {
+            width: 36px;
+            height: 36px;
+            padding: 8px;
+        }
+
+         .trending-box {
+            flex-direction: column-reverse;
+            gap: unset;
+        }
+
+        .trending-box .tblock-right .img-desc {
+            padding: 24px 24px 12px 24px;
+        }
+
+        .trending-box .tblock-right .img-desc h2 {
+            text-shadow: unset;
+            margin-bottom: 0;
+            width: auto;
+        }
+
+        .trending-box .tblock-left {
+            padding: 0 24px 24px 24px;
+            gap: 12px;
+        }
+
+        .trending-box .tblock-description {
+            font-size: 21px;
+        }
+
+        .trending-box .date {
+            font-size: 14px;
+        }
+
+        .trending-box .author {
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .text-underline {
+            margin: 32px 0;
+        }
+
+        .slick-arrow {
+            display: none;
+        }
+    }
+}
