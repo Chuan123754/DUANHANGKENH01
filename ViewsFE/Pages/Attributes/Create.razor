@@ -1,7 +1,7 @@
 ﻿@page "/admin/list/create"
 @inject IAttributesServices sev
 @inject NavigationManager nav
-<h3>Create</h3>
+<h3>Thêm thuộc tính</h3>
 <EditForm Model="attribute" OnValidSubmit="SubmitForm" FormName="them">
     <DataAnnotationsValidator></DataAnnotationsValidator>
     <ValidationSummary></ValidationSummary>
@@ -75,6 +75,7 @@
     private async Task SubmitForm()
     {
         await sev.Create(attribute);
-        nav.NavigateTo("/admin/list");
+        attribute = new Attributes(); // Reset lại form
+        nav.NavigateTo("/admin/list", forceLoad: true); // Tải lại trang
     }
 }

@@ -1,75 +1,105 @@
 ﻿@page "/admin/list/edit/{id:long}"
 @inject IAttributesServices sev
 @inject NavigationManager nav
-<h3>Edit</h3>
-<EditForm Model="SinhVien" OnValidSubmit="SubmitForm" FormName="sưa">
-    <DataAnnotationsValidator></DataAnnotationsValidator>
-    <ValidationSummary></ValidationSummary>
-    <div>
-        <label>Tiêu đề: </label>
-        <InputText @bind-Value="SinhVien.Title"></InputText>
-    </div>
-    <div>
-        <label>Đường dẫn </label>
-        <InputText @bind-Value="SinhVien.Slug"></InputText>
-    </div>
-    <div>
-        <label>Danh mục cha </label>
-        <InputNumber @bind-Value="SinhVien.Parent_Id"></InputNumber>
-    </div>
-    <div>
-        <label>Danh Dept </label>
-        <InputNumber @bind-Value="SinhVien.Dept"></InputNumber>
-    </div>
-    <div>
-        <label>Mô tả </label>
-        <InputTextArea @bind-Value="SinhVien.Description"></InputTextArea>
-    </div>
-    <div>
-        <label>ảnh</label>
-        <InputText @bind-Value="SinhVien.Feature_Image"></InputText>
-    </div>
-    <div>
-        <label>Màu</label>
-        <InputText @bind-Value="SinhVien.Color"></InputText>
-    </div>
-    <div>
-        <label>Mẫu </label>
-        <InputText @bind-Value="SinhVien.Template"></InputText>
-    </div>
-    <div>
-        <label>số in_order </label>
-        <InputNumber @bind-Value="SinhVien.In_Order"></InputNumber>
-    </div>
-    <div>
-        <label>Thời gian thêm</label>
-        <InputDate @bind-Value="SinhVien.Created_at"></InputDate>
-    </div>
-    <div>
-        <label>Thời gian sửa</label>
-        <InputDate @bind-Value="SinhVien.Updated_at"></InputDate>
-    </div>
-    <div>
-        <label>Thời gian xoá</label>
-        <InputDate @bind-Value="SinhVien.Deleted_at"></InputDate>
-    </div>
-    <button type="submit">Sửa</button>
-</EditForm>
+<h3>Sửa thuộc tính </h3>
 
+@if (isDataLoaded)
+{
+    <EditForm Model="attribute" OnValidSubmit="SubmitForm" FormName="sua">
+        <DataAnnotationsValidator></DataAnnotationsValidator>
+        <ValidationSummary></ValidationSummary>
+        <div class="form-group mb-3">
+            <label for="attribute-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+            <InputText id="attribute-title" class="form-control" @bind-Value="attribute.Title" required />
+            <ValidationMessage For="@(() => attribute.Title)" />
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="attribute-slug" class="form-label">Đường dẫn</label>
+            <InputText id="attribute-slug" class="form-control" @bind-Value="attribute.Slug" />
+            <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="attribute_parent_id" class="form-label">Chuyên mục cha</label>
+            <InputSelect id="attribute_parent_id" class="form-control" @bind-Value="attribute.Parent_Id">
+                <option value="">Chọn danh mục cha</option>
+                @if (attributesList != null && attributesList.Any())
+                {
+                    @foreach (var attr in attributesList)
+                    {
+                        <option value="@attr.Id">@attr.Title</option>
+                    }
+                }
+            </InputSelect>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="attribute-color" class="form-label">Mã màu</label>
+            <InputText id="attribute-color" class="form-control" @bind-Value="attribute.Color" />
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="attribute-template" class="form-label">Mẫu</label>
+            <InputSelect id="attribute-template" class="form-control" @bind-Value="attribute.Template">
+                <option value="default">Mặc định</option>
+                <option value="color">Màu</option>
+            </InputSelect>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="attribute-in-order" class="form-label">Thứ tự</label>
+            <InputNumber id="attribute-in-order" class="form-control" @bind-Value="attribute.In_Order" Min="0" />
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="attribute-description" class="form-label">Mô tả</label>
+            <InputTextArea id="attribute-description" class="form-control" @bind-Value="attribute.Description" rows="3" />
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Cập nhật</button>
+        </div>
+    </EditForm>
+}
+else
+{
+    <p>Đang tải dữ liệu...</p>
+}
 
 @code {
     [Parameter]
     public long Id { get; set; }
-
-    private Attributes SinhVien = new Attributes();
+    private List<Attributes> attributesList = new();
+    private Attributes attribute = new Attributes();
+    private bool isDataLoaded = false;
 
     protected async override Task OnInitializedAsync()
     {
-        SinhVien = await sev.GetById(Id);
+        try
+        {
+            // Tải dữ liệu từ API
+            attribute = await sev.GetById(Id);
+            attributesList = await sev.GetAll();
+
+            // Đánh dấu dữ liệu đã được tải
+            isDataLoaded = true;
+
+            // Sau khi dữ liệu được tải, cập nhật trạng thái giao diện
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            // Xử lý lỗi nếu có
+            Console.WriteLine($"Lỗi khi tải dữ liệu: {ex.Message}");
+        }
     }
+
+
     private async Task SubmitForm()
     {
-        await sev.Update(SinhVien);
-        nav.NavigateTo("/admin/list");
+        await sev.Update(attribute);
+        attribute = new Attributes(); // Reset lại form
+        nav.NavigateTo("/admin/list", forceLoad: true); // Điều hướng lại về danh sách
     }
 }
