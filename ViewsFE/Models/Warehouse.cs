@@ -26,5 +26,7 @@ namespace Views.Models
         public DateTime? Deleted_at { get; set; }
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set; }
+        public string AccountId { get; set; }
+        public virtual Account Account { get; set; }
     }
 }
