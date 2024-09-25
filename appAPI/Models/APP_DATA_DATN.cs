@@ -40,7 +40,7 @@ namespace appAPI.Models
         public DbSet<Warehouse> Warehouse { get; set; }
         public DbSet<Wishlist> Wishlist { get; set; }
         public DbSet<Designer> Designers { get; set; }
-        public DbSet<OrderVouchers> OrderVouchers { get; set; }
+        public DbSet<Order_Vouchers> OrderVouchers { get; set; }
         public DbSet<Vouchers> Vouchers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

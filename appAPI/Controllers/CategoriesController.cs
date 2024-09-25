@@ -65,7 +65,6 @@ namespace AppAPI.Controllers
                     return BadRequest("Category already exists. Try another name.");
                 }
                 c.Created_at = DateTime.UtcNow;
-                c.Updated_at = DateTime.UtcNow;
                 await _repo.Create(c);
 
                 return Ok();
@@ -95,7 +94,7 @@ namespace AppAPI.Controllers
                 existingCategory.Dept = c.Dept;
                 existingCategory.Description = c.Description;
                 existingCategory.Type = c.Type;
-                existingCategory.Type = c.Type;
+                existingCategory.Created_at = c.Created_at;
                 existingCategory.Updated_at = DateTime.UtcNow;
 
                 await _repo.Update(existingCategory);

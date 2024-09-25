@@ -45,6 +45,7 @@ namespace AppAPI.Controllers
 
             try
             {
+                
                 _postCategoryRepository.Add(postCategory);
                 return Ok(new { message = "Thêm category cho bài viết thành công" });
             }

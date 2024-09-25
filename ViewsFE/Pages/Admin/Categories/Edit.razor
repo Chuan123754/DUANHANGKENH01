@@ -3,9 +3,9 @@
 @inject NavigationManager nav
 <h3>Sửa chuyên mục </h3>
 
-@* @if (isDataLoaded)
-{ *@
-<EditForm Model="categorie" OnValidSubmit="SubmitForm" FormName="sua">
+@if (isDataLoaded)
+{
+<EditForm Model="categorie" OnValidSubmit="SubmitForm">
         <DataAnnotationsValidator></DataAnnotationsValidator>
         <ValidationSummary></ValidationSummary>
         <div class="form-group mb-3">
@@ -54,19 +54,18 @@
             <button type="submit" class="btn btn-primary">Sửa chuyên mục</button>
         </div>
     </EditForm>
-@* }
+}
 else
 {
     <p>Đang tải dữ liệu...</p>
-} *@
+}
 
 @code {
-    // [Parameter]
-    // public Categories categorie { get; set; } // Nhận dữ liệu từ trang Index
+    [Parameter]
+    public Categories categorie { get; set; } // Nhận dữ liệu từ trang Index
 
     [Parameter]
     public long Id { get; set; }
-    private Categories categorie = new Categories(); // Khởi tạo đối tượng
     private List<Categories> categoriesList = new();
     private bool isDataLoaded = false;
 
@@ -74,11 +73,10 @@ else
     {
         try
         {
-            // Tải dữ liệu thuộc tính cần chỉnh sửa
+            Console.WriteLine($"Attempting to load category with ID: {Id}");
             categorie = await sev.Details(Id);
             if (categorie != null)
             {
-                // Nếu dữ liệu hợp lệ, đánh dấu là đã tải
                 isDataLoaded = true;
             }
             else
@@ -86,17 +84,15 @@ else
                 Console.WriteLine("Không tìm thấy chuyên mục với ID này.");
             }
 
-            // Tải danh sách các thuộc tính cha
             categoriesList = await sev.GetAll();
-
-            // Cập nhật giao diện sau khi tải
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Lỗi khi tải dữ liệu: {ex.Message}");
+            Console.WriteLine($"Lỗi khi tải dữ liệu: {ex.ToString()}");
         }
     }
+
 
 
     private async Task SubmitForm()

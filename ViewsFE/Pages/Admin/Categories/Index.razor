@@ -142,7 +142,10 @@
     }
     protected async Task NavEditCtgr(long id)
     {
-        nav.NavigateTo($"/admin/categorie/edit/{id}"); // Điều hướng đến trang sửa với ID
+        isEditing = true; // Kích hoạt trạng thái chỉnh sửa
+        editingId = id; // Lưu ID của thuộc tính cần chỉnh sửa
+        categories = await sev.Details(id); // Lấy dữ liệu thuộc tính cần chỉnh sửa
+        StateHasChanged(); // Cập nhật giao diện// Điều hướng đến trang sửa với ID
     }
 
 
@@ -160,15 +163,11 @@
         categories = new Categories(); // Reset form sau khi hoàn thành
         categoriesList = await sev.GetAll(); // Cập nhật danh sách thuộc tính
     }
-
-
-
     protected async Task NavDeleteCtgr(long id)
     {
         await sev.Delete(id);
         categoriesList = await sev.GetAll(); // Cập nhật danh sách sau khi xóa
     }
-
     protected async Task OnSearch()
     {
         categoriesList = await sev.Search(searchQuery); // Thực hiện tìm kiếm với từ khóa

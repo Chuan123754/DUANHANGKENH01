@@ -29,7 +29,7 @@ namespace Views.Services
 
         public async Task<Categories> Details(long id)
         {
-            return await _client.GetFromJsonAsync<Categories>($"{_baseUrl}/api/Category/details?id={id}");
+            return await _client.GetFromJsonAsync<Categories>($"{_baseUrl}/api/Category/details/{id}");
         }
 
         public async Task<List<Categories>> GetAll()

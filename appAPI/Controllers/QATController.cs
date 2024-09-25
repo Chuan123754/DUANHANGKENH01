@@ -39,6 +39,7 @@ namespace AppAPI.Controllers
         {
             try
             {
+                qa.Created_at = DateTime.Now;
                 _qaRepository.Add(qa);
                 return Ok(new { message = "Thêm QA thành công" });
             }
@@ -62,7 +63,7 @@ namespace AppAPI.Controllers
             item.Created_by = qa.Created_by;
             item.Updated_by = qa.Updated_by;
             item.Created_at = qa.Created_at;
-            item.Updated_at = qa.Updated_at;
+            item.Updated_at = DateTime.Now;
 
             _qaRepository.Update(item);
             return Ok(new { message = "Cập nhật QA thành công" });

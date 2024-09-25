@@ -8,11 +8,11 @@ namespace AppAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PostProductsController : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly APP_DATA_DATN context;
 
-        public PostProductsController(APP_DATA_DATN context)
+        public ProductsController(APP_DATA_DATN context)
         {
             this.context = context;
         }
@@ -40,8 +40,6 @@ namespace AppAPI.Controllers
             try
             {
                 postProduct.Created_at = DateTime.Now;
-                postProduct.Updated_at = null;
-                postProduct.Deleted_at = null;
                 context.Products.Add(postProduct);
                 context.SaveChanges();
                 return Ok(new { message = "Thêm sản phẩm cho bài viết thành công" });

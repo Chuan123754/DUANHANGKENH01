@@ -36,6 +36,7 @@ namespace AppAPI.Controllers
         {
             try
             {
+                banner.Created_at = DateTime.Now;
                 context.Banner.Add(banner);
                 context.SaveChanges();
                 return Ok();
@@ -62,7 +63,7 @@ namespace AppAPI.Controllers
             item.Created_by = banner.Created_by;
             item.Updated_by = banner.Updated_by;
             item.Created_at = banner.Created_at;
-            item.Updated_at = banner.Updated_at;
+            item.Updated_at = DateTime.Now;
             context.SaveChanges();
             return Ok(new { message = "Cập nhật thành công" });
         }

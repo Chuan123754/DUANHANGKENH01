@@ -55,7 +55,7 @@ namespace appAPI.Models
         [JsonIgnore]
         public virtual ICollection<order_trackings> Order_trackings { get; set; } = new List<order_trackings>();
         [JsonIgnore]
-        public virtual ICollection<OrderVouchers> OrderVouchers { get; set; } = new List<OrderVouchers>();
+        public virtual ICollection<Order_Vouchers> OrderVouchers { get; set; } = new List<Order_Vouchers>();
     }
 }
 

@@ -53,7 +53,6 @@ namespace AppAPI.Controllers
                     return BadRequest("Existed. Try another product or make a quantity edit");
                 }
                 op.Created_at = DateTime.UtcNow;
-                op.Updated_at = DateTime.UtcNow;
                 context.Options.Add(op);
                 context.SaveChanges();
                 return Ok();
@@ -77,6 +76,7 @@ namespace AppAPI.Controllers
                 }
                 data.Optin_name = op.Optin_name;
                 data.Option_value = op.Option_value;
+                data.Created_at = op.Created_at;
                 data.Updated_at = DateTime.UtcNow;
 
                 context.Options.Update(data);

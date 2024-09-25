@@ -93,7 +93,7 @@ namespace AppAPI.Controllers
             item.Updated_by = post.Updated_by;
             item.Deleted_at = post.Deleted_at;
             item.Created_at = post.Created_at;
-            item.Updated_at = post.Updated_at;
+            item.Updated_at = DateTime.Now;
 
             _postRepository.Update(item);
             return Ok(new { message = "Cập nhật bài viết thành công" });
