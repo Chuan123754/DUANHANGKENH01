@@ -9,6 +9,6 @@ namespace Views.IServices
         Task Create(Attributes cartDetails);
         Task Update(Attributes cartDetails);
         Task Delete(long id);
-        Task<List<Attributes>> Search(string keyword);
+        Task<List<Attributes>> Search(string keyword);        
     }
 }

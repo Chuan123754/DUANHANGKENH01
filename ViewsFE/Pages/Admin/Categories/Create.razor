@@ -1,0 +1,72 @@
+﻿@page "/admin/categorie/create"
+@inject ICategoriesServices sev
+@inject NavigationManager nav
+<h3>Thêm chuyên mục</h3>
+<EditForm Model="categories" OnValidSubmit="SubmitForm">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+    <div class="form-group mb-3">
+        <label for="categories-short-title" class="form-label">Tiêu đề ngắn <span class="text-danger">*</span></label>
+        <InputText id="categories-short-title" class="form-control" @bind-Value="categories.Short_title" required />
+        <ValidationMessage For="@(() => categories.Short_title)" />
+    </div>
+    <div class="form-group mb-3">
+        <label for="categories-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+        <InputText id="categories-title" class="form-control" @bind-Value="categories.Title" required />
+        <ValidationMessage For="@(() => categories.Title)" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="categories-slug" class="form-label">Đường dẫn</label>
+        <InputText id="categories-slug" class="form-control" @bind-Value="categories.Slug" />
+        <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
+    </div>
+
+    <div class="form-group mb-3">
+        <label for="categories_parent_id" class="form-label">Chuyên mục cha</label>
+        <InputSelect id="categories_parent_id" class="form-control" @bind-Value="categories.Parent_id">
+            <option value="">Chọn danh mục cha</option>
+            @if (categoriesList != null && categoriesList.Any())
+            {
+                @foreach (var attr in categoriesList)
+                {
+                    <option value="@attr.Id">@attr.Title</option>
+                }
+            }
+        </InputSelect>
+        <small class="text-gray-100">
+            Chuyên mục khác với thẻ, bạn có thể sử dụng nhiều
+            cấp
+            chuyên mục. Ví dụ: Trong chuyên mục nhạc, bạn có chuyên mục con là nhạc Pop,
+            nhạc
+            Jazz. Việc này hoàn toàn là tùy theo ý bạn.
+        </small>
+    </div>
+    <div class="form-group mb-3">
+        <label for="categories-description" class="form-label">Mô tả</label>
+        <InputTextArea id="categories-description" class="form-control" @bind-Value="categories.Description" rows="3" />
+    </div>
+
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Thêm chuyên mục</button>
+    </div>
+</EditForm>
+
+
+@code {
+    private List<Categories> categoriesList = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Tải danh sách thuộc tính nếu chưa có
+        categoriesList = await sev.GetAll();
+    }
+    private Categories categories = new Categories();
+    private async Task SubmitForm()
+    {
+        await sev.Create(categories);
+        categories = new Categories(); // Reset lại form
+        nav.NavigateTo("/admin/categorie", forceLoad: true); // Tải lại trang
+    }
+}

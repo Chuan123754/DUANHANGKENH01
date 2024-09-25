@@ -9,5 +9,6 @@ namespace AppViews.IServices
         Task Create(Categories c);
         Task Update(Categories c);
         Task Delete(long id);
+        Task<List<Categories>> Search(string keyword);
     }
 }

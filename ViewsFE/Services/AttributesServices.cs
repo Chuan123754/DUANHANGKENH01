@@ -20,7 +20,7 @@ namespace Views.Services
 
         public async Task Create(Attributes at)
         {
-            string requestURL = $"https://localhost:7011/api/Attributes/Attributes-post";
+            string requestURL = $"{_baseUrl}/api/Attributes/Attributes-post";
             await _httpClient.PostAsJsonAsync(requestURL, at);
         }
 
@@ -32,7 +32,7 @@ namespace Views.Services
 
         public async Task<List<Attributes>> GetAll()
         {        
-            string requestURL = $"https://localhost:7011/api/Attributes/Attributes-get";
+            string requestURL = $"{_baseUrl}/api/Attributes/Attributes-get";
             return await _httpClient.GetFromJsonAsync<List<Attributes>>(requestURL);
         }
 

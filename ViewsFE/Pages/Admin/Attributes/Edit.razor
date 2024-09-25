@@ -1,4 +1,4 @@
-﻿@page "/admin/list/edit/{id:long}"
+﻿@page "/admin/attribute/edit/{id:long}"
 @inject IAttributesServices sev
 @inject NavigationManager nav
 <h3>Sửa thuộc tính </h3>
@@ -58,7 +58,7 @@
         </div>
 
         <div class="form-group">
-            <button type="submit" class="btn btn-primary">Cập nhật</button>
+            <button type="submit" class="btn btn-primary">Sửa thuộc tính</button>
         </div>
     </EditForm>
 }
@@ -69,28 +69,36 @@ else
 
 @code {
     [Parameter]
+    public Attributes attribute { get; set; } // Nhận dữ liệu từ trang Index
+    [Parameter]
     public long Id { get; set; }
     private List<Attributes> attributesList = new();
-    private Attributes attribute = new Attributes();
     private bool isDataLoaded = false;
 
     protected async override Task OnInitializedAsync()
     {
         try
         {
-            // Tải dữ liệu từ API
+            // Tải dữ liệu thuộc tính cần chỉnh sửa
             attribute = await sev.GetById(Id);
+            if (attribute != null)
+            {
+                // Nếu dữ liệu hợp lệ, đánh dấu là đã tải
+                isDataLoaded = true;
+            }
+            else
+            {
+                Console.WriteLine("Không tìm thấy thuộc tính với ID này.");
+            }
+
+            // Tải danh sách các thuộc tính cha
             attributesList = await sev.GetAll();
 
-            // Đánh dấu dữ liệu đã được tải
-            isDataLoaded = true;
-
-            // Sau khi dữ liệu được tải, cập nhật trạng thái giao diện
+            // Cập nhật giao diện sau khi tải
             StateHasChanged();
         }
         catch (Exception ex)
         {
-            // Xử lý lỗi nếu có
             Console.WriteLine($"Lỗi khi tải dữ liệu: {ex.Message}");
         }
     }
@@ -100,6 +108,6 @@ else
     {
         await sev.Update(attribute);
         attribute = new Attributes(); // Reset lại form
-        nav.NavigateTo("/admin/list", forceLoad: true); // Điều hướng lại về danh sách
+        nav.NavigateTo("/admin/attribute", forceLoad: true); // Điều hướng lại về danh sách
     }
 }

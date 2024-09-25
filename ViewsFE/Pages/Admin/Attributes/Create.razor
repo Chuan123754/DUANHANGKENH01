@@ -1,4 +1,4 @@
-﻿@page "/admin/list/create"
+﻿@page "/admin/attribute/create"
 @inject IAttributesServices sev
 @inject NavigationManager nav
 <h3>Thêm thuộc tính</h3>
@@ -76,6 +76,6 @@
     {
         await sev.Create(attribute);
         attribute = new Attributes(); // Reset lại form
-        nav.NavigateTo("/admin/list", forceLoad: true); // Tải lại trang
+        nav.NavigateTo("/admin/attribute", forceLoad: true); // Tải lại trang
     }
 }

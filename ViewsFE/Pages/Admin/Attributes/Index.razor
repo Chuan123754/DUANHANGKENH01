@@ -1,0 +1,176 @@
+﻿@page "/admin/attribute"
+@inject NavigationManager nav
+@inject IAttributesServices sev
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">Thuộc tính</h2>
+                </div>
+            </div>
+            <div id="breadcrumb">
+                <Breadcrumb pageParentTitle="Sản phẩm" pageTitle="Thuộc tính" pageRoute="/admin/attributes" />
+            </div>
+        </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row">
+                <!-- Create Form -->
+                <div class="col-md-3">
+                    <div class="card">
+                        <div id="formAttribute" class="card-body">
+                            @if (isEditing)
+                            {
+                                <Edit attribute="attributes" Id="editingId"></Edit>
+                                // Truyền đối tượng attributes cho Edit
+                            }
+                            else
+                            {
+                                <Create></Create>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <!-- Search and Table -->
+                <div class="col-md-9 col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Search Box -->
+                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                <div></div>
+                                <EditForm Model="attributes" OnValidSubmit="@OnSearch">
+                                    <div class="form-group d-flex gap-2">
+                                        <InputText id="searchInput" class="form-control" @bind-Value="searchQuery" placeholder="Nhập từ khóa tìm kiếm" />
+                                        <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                    </div>
+                                </EditForm>
+                            </div>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <button class="table-sort" @* @onclick='() => SortBy("id")' *@>ID</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @* @onclick='() => SortBy("title")' *@>Tiêu đề</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @* @onclick='() => SortBy("slug")' *@>Đường dẫn</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort"@*  @onclick='() => SortBy("create_at")' *@>Thời gian</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (attributesList != null && attributesList.Any())
+                                    {
+                                        foreach (var attr in attributesList)
+                                        {
+                                            if (attr.Parent_Id == 0)
+                                            {
+                                                // Hiển thị sản phẩm cha
+                                                <tr class="post-row">
+                                                    <td>@attr.Id</td>
+                                                    <td>
+                                                        <a href="@($"/admin/manager-attribute?parent_id={attr.Id}")">@attr.Title</a>
+                                                        <br />
+                                                        <!-- Tạo các hành động sửa và xóa -->
+                                                        <div class="cell-action">
+                                                            <a class=" cell-action-edit text-primary" @onclick="() => NavigateToEdit(attr.Id)">Chỉnh sửa</a>
+                                                            <a class=" cell-action-delete text-danger" @onclick="() => ClickDelete(attr.Id)">Thùng rác</a>
+                                                        </div>
+                                                    </td>
+                                                    <td>@attr.Slug</td>
+                                                    <td>@attr.Created_at?.ToString("dd/MM/yyyy")</td>
+                                                </tr>
+                                                @foreach (var childAttr in attributesList.Where(x => x.Parent_Id == attr.Id))
+                                                {
+                                                    // Hiển thị sản phẩm con
+                                                    <tr class="post-row">
+                                                        <td>@childAttr.Id</td>
+                                                        <td style="padding-left: 20px;">
+                                                            <span>@childAttr.Title</span>
+                                                            <br />
+                                                            <!-- Tạo các hành động sửa và xóa cho sản phẩm con -->
+                                                            <div class="cell-action">
+                                                                <a class="cell-action-edit text-primary" @onclick="() => NavigateToEdit(childAttr.Id)">Chỉnh sửa</a>
+                                                                <a class="cell-action-delete text-danger" @onclick="() => ClickDelete(childAttr.Id)">Thùng rác</a>
+                                                            </div>
+                                                        </td>
+                                                        <td>@childAttr.Slug</td>
+                                                        <td>@childAttr.Created_at?.ToString("dd/MM/yyyy")</td>
+                                                    </tr>
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="4" class="text-center">Không có dữ liệu</td>
+                                        </tr>
+                                    }
+                                </tbody>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    List<Attributes> attributesList;
+    private Attributes attributes = new Attributes();
+    private string searchQuery = string.Empty;
+    private bool isEditing = false; // Biến để theo dõi trạng thái chỉnh sửa
+    private long editingId = 0; // Lưu ID của thuộc tính đang chỉnh sửa
+
+    protected override async Task OnInitializedAsync()
+    {
+        attributesList = await sev.GetAll();
+    }
+
+    protected async Task NavigateToEdit(long id)
+    {
+        isEditing = true; // Kích hoạt trạng thái chỉnh sửa
+        editingId = id; // Lưu ID của thuộc tính cần chỉnh sửa
+        attributes = await sev.GetById(id); // Lấy dữ liệu thuộc tính cần chỉnh sửa
+        StateHasChanged(); // Cập nhật giao diện
+    }
+
+
+    protected async Task SubmitForm()
+    {
+        if (isEditing)
+        {
+            // Cập nhật thuộc tính nếu đang ở chế độ chỉnh sửa
+            await sev.Update(attributes);
+            isEditing = false; // Quay lại chế độ tạo mới sau khi cập nhật
+        }
+        else
+        {
+            // Thêm mới thuộc tính nếu không phải chỉnh sửa
+            await sev.Create(attributes);
+        }
+        attributes = new Attributes(); // Reset form sau khi hoàn thành
+        attributesList = await sev.GetAll(); // Cập nhật danh sách thuộc tính
+    }
+
+    protected async Task ClickDelete(long id)
+    {
+        await sev.Delete(id);
+        attributesList = await sev.GetAll(); // Cập nhật danh sách sau khi xóa
+    }
+
+    protected async Task OnSearch()
+    {
+        attributesList = await sev.Search(searchQuery); // Thực hiện tìm kiếm với từ khóa
+    }
+}

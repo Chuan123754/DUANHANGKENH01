@@ -126,5 +126,12 @@ namespace AppAPI.Controllers
                 return StatusCode(500, "Error: " + e.Message);
             }
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(string query)
+        {
+            var result = await _repo.Search(query);
+            return Ok(result);
+        }
     }
 }

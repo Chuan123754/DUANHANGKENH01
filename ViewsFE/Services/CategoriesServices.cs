@@ -1,6 +1,8 @@
 ﻿using AppViews.IServices;
 using Views.Models;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using System.Net.Http;
 
 namespace Views.Services
 {
@@ -33,6 +35,13 @@ namespace Views.Services
         public async Task<List<Categories>> GetAll()
         {
             return await _client.GetFromJsonAsync<List<Categories>>($"{_baseUrl}/api/Category/show");
+        }
+
+        public async Task<List<Categories>> Search(string keyword)
+        {
+            string requestURL = $@"{_baseUrl}/api/Category/search?query={keyword}";
+            var response = await _client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<List<Categories>>(response);
         }
 
         public async Task Update(Categories c)

@@ -1,0 +1,108 @@
+﻿@page "/admin/categorie/edit/{id:long}"
+@inject ICategoriesServices sev
+@inject NavigationManager nav
+<h3>Sửa chuyên mục </h3>
+
+@* @if (isDataLoaded)
+{ *@
+<EditForm Model="categorie" OnValidSubmit="SubmitForm" FormName="sua">
+        <DataAnnotationsValidator></DataAnnotationsValidator>
+        <ValidationSummary></ValidationSummary>
+        <div class="form-group mb-3">
+            <label for="categories-short-title" class="form-label">Tiêu đề ngắn <span class="text-danger">*</span></label>
+            <InputText id="categories-short-title" class="form-control" @bind-Value="categorie.Short_title" required />
+            <ValidationMessage For="@(() => categorie.Short_title)" />
+        </div>
+        <div class="form-group mb-3">
+            <label for="categories-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+            <InputText id="categories-title" class="form-control" @bind-Value="categorie.Title" required />
+            <ValidationMessage For="@(() => categorie.Title)" />
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="categories-slug" class="form-label">Đường dẫn</label>
+            <InputText id="categories-slug" class="form-control" @bind-Value="categorie.Slug" />
+            <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="categories_parent_id" class="form-label">Chuyên mục cha</label>
+            <InputSelect id="categories_parent_id" class="form-control" @bind-Value="categorie.Parent_id">
+                <option value="">Chọn danh mục cha</option>
+                @if (categoriesList != null && categoriesList.Any())
+                {
+                    @foreach (var attr in categoriesList)
+                    {
+                        <option value="@attr.Id">@attr.Title</option>
+                    }
+                }
+            </InputSelect>
+            <small class="text-gray-100">
+                Chuyên mục khác với thẻ, bạn có thể sử dụng nhiều
+                cấp
+                chuyên mục. Ví dụ: Trong chuyên mục nhạc, bạn có chuyên mục con là nhạc Pop,
+                nhạc
+                Jazz. Việc này hoàn toàn là tùy theo ý bạn.
+            </small>
+        </div>
+        <div class="form-group mb-3">
+            <label for="categories-description" class="form-label">Mô tả</label>
+            <InputTextArea id="categories-description" class="form-control" @bind-Value="categorie.Description" rows="3" />
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Sửa chuyên mục</button>
+        </div>
+    </EditForm>
+@* }
+else
+{
+    <p>Đang tải dữ liệu...</p>
+} *@
+
+@code {
+    // [Parameter]
+    // public Categories categorie { get; set; } // Nhận dữ liệu từ trang Index
+
+    [Parameter]
+    public long Id { get; set; }
+    private Categories categorie = new Categories(); // Khởi tạo đối tượng
+    private List<Categories> categoriesList = new();
+    private bool isDataLoaded = false;
+
+    protected async override Task OnInitializedAsync()
+    {
+        try
+        {
+            // Tải dữ liệu thuộc tính cần chỉnh sửa
+            categorie = await sev.Details(Id);
+            if (categorie != null)
+            {
+                // Nếu dữ liệu hợp lệ, đánh dấu là đã tải
+                isDataLoaded = true;
+            }
+            else
+            {
+                Console.WriteLine("Không tìm thấy chuyên mục với ID này.");
+            }
+
+            // Tải danh sách các thuộc tính cha
+            categoriesList = await sev.GetAll();
+
+            // Cập nhật giao diện sau khi tải
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi tải dữ liệu: {ex.Message}");
+        }
+    }
+
+
+    private async Task SubmitForm()
+    {
+        await sev.Update(categorie);
+        categorie = new Categories(); // Reset lại form
+        nav.NavigateTo("/admin/categorie", forceLoad: true); // Điều hướng lại về danh sách
+    }
+}

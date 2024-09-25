@@ -34,6 +34,18 @@ namespace AppAPI.Repository
             return await _context.Categories.ToListAsync();
         }
 
+        public async Task<List<Categories>> Search(string keyword)
+        {
+            if (string.IsNullOrEmpty(keyword))
+            {
+                return new List<Categories>();
+            }
+
+            return await _context.Categories
+                .Where(f => f.Title.Contains(keyword) || f.Slug.Contains(keyword))
+                .ToListAsync();
+        }
+
         public async Task Update(Categories c)
         {
             if (_context.Categories.Any(c => c.Id == c.Id))

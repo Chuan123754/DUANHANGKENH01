@@ -1,12 +1,16 @@
+﻿/* Mặc định ẩn các hành động */
 .cell-action {
     font-size: 13px;
     opacity: 0;
+    transition: opacity 0.2s ease-in-out;
 }
 
-#table-default tr:hover .cell-action {
+/* Hiển thị các hành động khi hover vào hàng */
+.post-row:hover .cell-action {
     opacity: 1;
 }
 
+/* Định dạng khoảng cách giữa các hành động */
 .cell-action a:not(:last-child):after {
     content: "";
     position: absolute;
@@ -20,6 +24,22 @@
 .cell-action a {
     position: relative;
     padding-right: 10px;
+    color: #007bff;
+    cursor: pointer;
+}
+
+.cell-action-edit {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.cell-action-delete {
+    color: #dc3545;
+    text-decoration: none;
+}
+
+.cell-action a:hover {
+    text-decoration: underline;
 }
 
 .image-post-box {
