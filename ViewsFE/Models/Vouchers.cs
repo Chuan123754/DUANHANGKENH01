@@ -21,6 +21,6 @@ namespace Views.Models
         public DateTime End_time { get; set; }
         public string? Status { get; set; }
         [JsonIgnore]
-        public virtual ICollection<OrderVouchers> OrderVouchers { get; set; } = new List<OrderVouchers>();
+        public virtual ICollection<Order_Vouchers> OrderVouchers { get; set; } = new List<Order_Vouchers>();
     }
 }

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
+using ViewsFE.Models;
 
 namespace Views.Models
 {
@@ -37,5 +38,7 @@ namespace Views.Models
         [InverseProperty("Users")]
         [JsonIgnore]
         public ICollection<Wishlist> Wishlist { get; set; } = new List<Wishlist>();
+        [JsonIgnore]
+        public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
     }
 }

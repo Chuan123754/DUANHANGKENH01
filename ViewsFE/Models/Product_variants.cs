@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
+using ViewsFE.Models;
 
 namespace Views.Models
 {
@@ -39,5 +40,7 @@ namespace Views.Models
         [ForeignKey("Product_Id")]
         [JsonIgnore]
         public virtual Products? Product { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<P_variants_discount> p_variants_discount { get; set; } = new List<P_variants_discount>();
     }
 }
