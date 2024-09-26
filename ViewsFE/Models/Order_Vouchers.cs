@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Views.Models
 {
-    public class OrderVouchers
+    public class Order_Vouchers
     {
         [Key]
         public long Id { get; set; }

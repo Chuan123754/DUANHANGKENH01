@@ -71,7 +71,8 @@ namespace appAPI.Models
         // Nội dung bài viết
         public string Content { get; set; }
 
-
+        public string AccountId { get; set; }
+        public virtual Account Account { get; set; }
 
     }
 

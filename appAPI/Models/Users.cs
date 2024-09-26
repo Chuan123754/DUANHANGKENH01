@@ -37,5 +37,7 @@ namespace appAPI.Models
         [InverseProperty("Users")]
         [JsonIgnore]
         public ICollection<Wishlist> Wishlist { get; set; } = new List<Wishlist>();
+        [JsonIgnore]
+        public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
     }
 }

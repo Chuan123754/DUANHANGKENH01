@@ -1,7 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using Views.Models;
 
-namespace appAPI.Models
+namespace ViewsFE.Models
 {
     public class P_variants_discount
     {
@@ -14,9 +15,7 @@ namespace appAPI.Models
         [ForeignKey("Discount_Id")]
         public virtual Discount Discount { get; set; }
         public decimal Old_price { get; set; }
-        public decimal New_price { get; set;}
+        public decimal New_price { get; set; }
         public string Status { get; set; }
-
-
     }
 }

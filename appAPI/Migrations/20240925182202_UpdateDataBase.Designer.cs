@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using appAPI.Models;
 
@@ -11,9 +12,10 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    partial class APP_DATA_DATNModelSnapshot : ModelSnapshot
+    [Migration("20240925182202_UpdateDataBase")]
+    partial class UpdateDataBase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -101,10 +103,6 @@ namespace appAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<string>("AccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -118,8 +116,6 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
 
                     b.ToTable("Activity_history");
                 });
@@ -974,10 +970,6 @@ namespace appAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<string>("AccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<long>("AuthorId")
                         .HasColumnType("bigint");
 
@@ -1021,8 +1013,6 @@ namespace appAPI.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
 
                     b.HasIndex(new[] { "AuthorId" }, "IX_posts_author_id");
 
@@ -1374,10 +1364,6 @@ namespace appAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<string>("AccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Address")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -1404,8 +1390,6 @@ namespace appAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
 
                     b.ToTable("warehouse");
                 });
@@ -1585,17 +1569,6 @@ namespace appAPI.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("appAPI.Models.Activity_history", b =>
-                {
-                    b.HasOne("appAPI.Models.Account", "Account")
-                        .WithMany("Activity_history")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("appAPI.Models.Address", b =>
@@ -1794,17 +1767,6 @@ namespace appAPI.Migrations
                     b.Navigation("Tag");
                 });
 
-            modelBuilder.Entity("appAPI.Models.Posts", b =>
-                {
-                    b.HasOne("appAPI.Models.Account", "Account")
-                        .WithMany("Posts")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-                });
-
             modelBuilder.Entity("appAPI.Models.Product_attributes", b =>
                 {
                     b.HasOne("appAPI.Models.Products", "Product")
@@ -1859,17 +1821,6 @@ namespace appAPI.Migrations
                     b.HasOne("appAPI.Models.Posts", null)
                         .WithMany("Tags")
                         .HasForeignKey("PostsId");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Warehouse", b =>
-                {
-                    b.HasOne("appAPI.Models.Account", "Account")
-                        .WithMany("Warehouse")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("appAPI.Models.Wishlist", b =>
@@ -1955,15 +1906,6 @@ namespace appAPI.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("appAPI.Models.Account", b =>
-                {
-                    b.Navigation("Activity_history");
-
-                    b.Navigation("Posts");
-
-                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("appAPI.Models.Attributes", b =>

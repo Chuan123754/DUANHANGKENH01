@@ -39,5 +39,6 @@ namespace appAPI.Models
         [ForeignKey("Product_Id")]
         [JsonIgnore]
         public virtual Products? Product { get; set; }
+        public virtual ICollection<P_variants_discount> p_variants_discount { get; set; } = new List<P_variants_discount>();
     }
 }
