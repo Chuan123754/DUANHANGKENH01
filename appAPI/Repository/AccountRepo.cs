@@ -33,7 +33,7 @@ namespace AppAPI.Repository
                 return string.Empty;
             }
 
-            var authClaim = new List<Claim> // role 
+            var authClaim = new List<Claim>
             {
                 new Claim(ClaimTypes.Email , model.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
@@ -48,9 +48,9 @@ namespace AppAPI.Repository
             var token = new JwtSecurityToken(
                 issuer: configuration["JWT:ValidIssuer"],
                 audience: configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddMinutes(10), // time hết hạn token 
+                expires: DateTime.Now.AddMinutes(10), 
                 claims: authClaim,
-                signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512) // MÃ HÓA
+                signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512) 
                 );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
@@ -85,7 +85,6 @@ namespace AppAPI.Repository
                     {
                         await roleManager.CreateAsync(new IdentityRole(model.Role));
                     }
-                    // Gán vai trò cho người dùng
                     await userManager.AddToRoleAsync(account, model.Role);
                 }
                 return result;
@@ -95,6 +94,10 @@ namespace AppAPI.Repository
                 Console.WriteLine($"Xảy ra lỗi khi tạo tài khoản: {ex.Message}");
                 throw;
             }
+        }
+        public async Task SignOutAsync()
+        {
+            await signInManager.SignOutAsync();
         }
     }
 }

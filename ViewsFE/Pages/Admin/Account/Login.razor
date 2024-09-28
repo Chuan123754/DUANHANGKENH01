@@ -1,0 +1,57 @@
+﻿@page "/login"
+@using Views.Models
+@inject NavigationManager Navigation
+@inject HttpClient Http
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IAccountService accountService
+
+<h3>Đăng nhập</h3>
+
+<EditForm Model="loginModel" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label>Email:</label>
+        <InputText @bind-Value="loginModel.Email" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label>Mật khẩu:</label>
+        <InputText @bind-Value="loginModel.Password" type="password" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Đăng nhập</button>
+</EditForm>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@code {
+    private SignInModel loginModel = new SignInModel();
+    private string? errorMessage;
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            var token = await accountService.SignInAsync(loginModel);
+            if (!string.IsNullOrEmpty(token))
+            {
+                await sessionStorage.SetItemAsync("authToken", token);
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                errorMessage = "Đăng nhập không thành công. Vui lòng kiểm tra lại email và mật khẩu.";
+                Console.WriteLine(errorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi xảy ra khi đăng nhập: {ex.Message}";
+            Console.WriteLine(errorMessage); 
+        }
+    }
+}

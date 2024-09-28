@@ -37,7 +37,7 @@ namespace Views.Services
             string requestURL = $"https://localhost:7015/api/Comment/Update?id={id}";
             var jsonContent = JsonConvert.SerializeObject(comments);
             var content = new StringContent(jsonContent, Encoding.UTF8,"application/json");
-            await _httpClient.PostAsync(requestURL, content);
+            await _httpClient.PutAsync(requestURL, content);
         }
         public async Task Delete(long id)
         {

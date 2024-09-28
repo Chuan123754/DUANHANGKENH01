@@ -42,5 +42,11 @@ namespace AppAPI.Controllers
             }
             return Ok(result);
         }
+        [HttpPost("SignOut")]
+        public async Task<IActionResult> SignOutAsync()
+        {
+            await _repo.SignOutAsync();
+            return Ok();
+        }
     }
 }

@@ -7,5 +7,6 @@ namespace AppAPI.IRepository
     {
         public Task<IdentityResult> SignUpAsync(SignUpModel model);
         public Task<string> SignInAsync(SignInModel model); // trả về True / False hoặc chuỗi Token
+        public Task SignOutAsync();
     }
 }

@@ -1,4 +1,4 @@
-﻿using AppViews.IServices;
+﻿ using AppViews.IServices;
 using Views.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -14,7 +14,7 @@ namespace Views.Services
         }
         public async Task<string> SignInAsync(SignInModel model)
         {
-            string requestURL = "https://localhost:7015/api/Account/Login";
+            string requestURL = "https://localhost:7011/api/Account/Login";
             var response = await _client.PostAsJsonAsync(requestURL, model);
             if (response.IsSuccessStatusCode)
             {
@@ -25,7 +25,7 @@ namespace Views.Services
 
         public async Task<IdentityResult> SignUpAsync(SignUpModel model)
         {
-            string requestURL = "https://localhost:7015/api/Account/SignUp";
+            string requestURL = "https://localhost:7011/api/Account/SignUp";
             var response = await _client.PostAsJsonAsync(requestURL, model);
             if (response.IsSuccessStatusCode)
             {
@@ -33,7 +33,15 @@ namespace Views.Services
             }
             var errors = await response.Content.ReadFromJsonAsync<IEnumerable<string>>();
             return IdentityResult.Failed(errors.Select(error => new IdentityError { Description = error }).ToArray());
-
+        }
+        public async Task SignOutAsync()
+        {
+            string requestURL = "https://localhost:7011/api/Account/SignOut";
+            var response = await _client.PostAsync(requestURL,null);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception("Đăng xuất không thành công");
+            }
         }
     }
 }
