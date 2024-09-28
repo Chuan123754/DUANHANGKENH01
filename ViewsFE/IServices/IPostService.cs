@@ -1,9 +1,9 @@
-﻿using Views.Models;
+﻿using ViewsFE.Models;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AppViews.IServices
+namespace ViewsFE.IServices
 {
     public interface IPostService
     {

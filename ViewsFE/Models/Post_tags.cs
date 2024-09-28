@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
-namespace Views.Models
+namespace ViewsFE.Models
 {
     [Table("post_tags")]
     [Index("Post_Id", Name = "IX_post_tags_post_id")]

@@ -1,5 +1,5 @@
-﻿using AppViews.IServices;
-using Views.Models;
+﻿using ViewsFE.IServices;
+using ViewsFE.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Views.Services
+namespace ViewsFE.Services
 {
     public class CartDetailsService : ICartDetailsService
     {

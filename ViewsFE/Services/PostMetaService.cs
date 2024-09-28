@@ -1,12 +1,12 @@
-﻿using AppViews.IServices;
-using Views.Models;
+﻿using ViewsFE.IServices;
+using ViewsFE.Models;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AppViews.Services
+namespace ViewsFE.Services
 {
     public class PostMetaService : IPostMetaService
     {

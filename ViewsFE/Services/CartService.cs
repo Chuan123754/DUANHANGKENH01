@@ -1,9 +1,9 @@
-﻿using AppViews.IServices;
+﻿using ViewsFE.IServices;
 using System.Text;
-using Views.Models;
+using ViewsFE.Models;
 using Newtonsoft.Json;
 
-namespace Views.Services
+namespace ViewsFE.Services
 {
     public class CartService : ICartService
     {

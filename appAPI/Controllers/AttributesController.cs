@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using appAPI.Repository;
-using AppAPI.IRepository;
+using appAPI.IRepository;
 
 
-namespace AppAPI.Controllers
+namespace appAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

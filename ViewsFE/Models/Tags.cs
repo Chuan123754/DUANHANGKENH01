@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 
-namespace Views.Models
+namespace ViewsFE.Models
 {
     [Table("tags")]
     [Index("Type", Name = "tags_type_index")]

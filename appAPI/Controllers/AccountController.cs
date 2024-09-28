@@ -1,9 +1,9 @@
 ﻿using appAPI.Models;
-using AppAPI.IRepository;
+using appAPI.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AppAPI.Controllers
+namespace appAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]

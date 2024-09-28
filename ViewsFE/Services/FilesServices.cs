@@ -1,5 +1,5 @@
-﻿using AppViews.IServices;
-using Views.Models;
+﻿using ViewsFE.IServices;
+using ViewsFE.Models;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace AppViews.Services
+namespace ViewsFE.Services
 {
     public class FilesServices : FilesIServices
     {
@@ -47,23 +47,19 @@ namespace AppViews.Services
             return JsonConvert.DeserializeObject<List<Files>>(response);
         }
 
-        public async Task<object> Upload(IFormFile file)
+        public async Task<object> Upload(MultipartFormDataContent content)
         {
-            using (var content = new MultipartFormDataContent())
-            {
-                content.Add(new StreamContent(file.OpenReadStream()), "file", file.FileName);
-                string requestURL = $@"{_baseUrl}/api/Files/upload";
-                var response = await _httpClient.PostAsync(requestURL, content);
+            string requestURL = $@"{_baseUrl}/api/Files/upload";
+            var response = await _httpClient.PostAsync(requestURL, content);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseData = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject(responseData);
-                }
-                else
-                {
-                    throw new HttpRequestException("Upload thất bại.");
-                }
+            if (response.IsSuccessStatusCode)
+            {
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject(responseData);
+            }
+            else
+            {
+                throw new HttpRequestException("Upload thất bại.");
             }
         }
     }

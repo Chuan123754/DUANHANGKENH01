@@ -1,7 +1,7 @@
-﻿using AppViews.IServices;
-using Views.Models;
+﻿using ViewsFE.IServices;
+using ViewsFE.Models;
 
-namespace AppViews.Services
+namespace ViewsFE.Services
 {
     public class TagsServices : ITagsServices
     {

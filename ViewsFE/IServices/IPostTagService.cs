@@ -1,8 +1,8 @@
-﻿using Views.Models;
+﻿using ViewsFE.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace AppViews.IServices
+namespace ViewsFE.IServices
 {
     public interface IPostTagService
     {

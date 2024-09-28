@@ -1,9 +1,9 @@
-﻿using AppAPI.IRepository;
+﻿using appAPI.IRepository;
 using appAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace AppAPI.Repository
+namespace appAPI.Repository
 {
     public class TagsRepository : ITagsRepository
     {

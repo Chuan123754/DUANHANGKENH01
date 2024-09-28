@@ -1,12 +1,12 @@
-﻿using Views.Models;
-using Views.IServices;
+﻿using ViewsFE.Models;
+using ViewsFE.IServices;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
-namespace Views.Services
+namespace ViewsFE.Services
 {
     public class AttributesService : IAttributesServices
     {

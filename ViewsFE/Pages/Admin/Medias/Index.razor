@@ -1,0 +1,89 @@
+﻿@page "/admin/media"
+@inject FilesIServices sev
+@inject IJSRuntime JS
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">Media</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-body">
+        <div class="container-xl">
+            <div id="dropzone" class="dropzone"></div> <!-- Khu vực kéo và thả -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                        <div class="form-group d-flex gap-2">
+                            <input type="text" class="form-control" @bind="searchQuery" placeholder="Nhập từ khóa tìm kiếm" />
+                            <button class="btn btn-outline-primary" @onclick="PerformSearch">Tìm kiếm</button>
+                        </div>
+                    </div>
+                    <div id="table-default">
+                        <FilesList FileItems="listFiles" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Files> listFiles = new();
+    private string searchQuery = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        listFiles = await sev.GetAll(); // Tải danh sách file từ API
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) // Chỉ khởi tạo Dropzone khi component lần đầu được render
+        {
+            await JS.InvokeVoidAsync("initializeDropzone"); // Khởi tạo Dropzone
+        }
+    }
+
+    private async Task PerformSearch()
+    {
+        listFiles = await sev.Search(searchQuery); // Tìm kiếm file theo từ khóa
+    }
+}
+
+<script>
+    window.initializeDropzone = () => {
+        var dropzone = new Dropzone("#dropzone", {
+            url: '/api/upload',  // Cập nhật URL tương ứng
+            autoProcessQueue: true,
+            parallelUploads: 20,
+            maxFilesize: 15, // 15 MB
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value
+            },
+            success: function (file, response) {
+                if (response && response.success) {
+                    toastr.success(response.message || 'Upload thành công');
+                } else {
+                    toastr.error(response.message || 'Upload thất bại.');
+                }
+                this.removeFile(file);
+            },
+            error: function (file, message) {
+                toastr.error(message);
+                const element = file.previewElement;
+                element.classList.add("dz-error");
+                element.querySelector('.dz-error-message').textContent = message;
+                this.removeFile(file);
+            },
+            maxfilesexceeded: function (file) {
+                toastr.error('Tệp vượt quá kích thước tối đa cho phép.');
+                this.removeFile(file);
+            }
+        });
+    };
+</script>
