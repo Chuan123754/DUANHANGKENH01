@@ -1,6 +1,7 @@
 ﻿using appAPI.Models;
 using AppAPI.IRepository;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AppAPI.Controllers
@@ -47,6 +48,87 @@ namespace AppAPI.Controllers
         {
             await _repo.SignOutAsync();
             return Ok();
+        }
+        [HttpPut("UpdateAccount")]
+        public async Task<IActionResult> UpdateAccountAsync(Account account)
+        {
+            try
+            {
+                var result = await _repo.UpdateAccountAsync(account);
+                if (result.Succeeded)
+                {
+                    return Ok(result);
+                }
+                return BadRequest(result.Errors);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        [HttpDelete("DeleteAccount")]
+        public async Task<IActionResult> DeleteAccountAsync(string idAccount)
+        {
+            try
+            {
+                var result = await _repo.DeleteAccountAsync(idAccount);
+                if (result.Succeeded)
+                {
+                    return Ok(result);
+                }    
+                return BadRequest(result.Errors);   
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        [HttpGet("GetById")]
+        public async Task<IActionResult> GetAccountById(string idAccount)
+        {
+            try
+            {
+                var result = await _repo.GetAccountById(idAccount);
+                if(result == null)
+                {
+                    return NotFound();
+                }    
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        [HttpGet("GetAllAccount")]
+        public async Task<IActionResult> GetAllAccountsAsync()
+        {
+            try
+            {
+                var lstAccount = await _repo.GetAllAccountsAsync();
+                return Ok(lstAccount);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        [HttpPatch("ToggleLock/{idAccount}")]
+        public async Task<IActionResult> ToggleLockAccountAsync(string idAccount)
+        {
+            try
+            {
+                var result = await _repo.ToggleLockAccountAsync(idAccount);
+                if (result.Succeeded)
+                {
+                    return NotFound(result.Errors);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
     }
 }

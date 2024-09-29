@@ -6,22 +6,25 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 namespace AppAPI.Repository
 {
-    public class AccountRepo: IAccountRepo
+    public class AccountRepo : IAccountRepo
     {
         private readonly UserManager<Account> userManager;
         private readonly SignInManager<Account> signInManager;
         private readonly IConfiguration configuration;
         private readonly RoleManager<IdentityRole> roleManager;
+        private readonly APP_DATA_DATN context;
 
-        public AccountRepo(UserManager<Account> userManager , SignInManager<Account> signInManager , IConfiguration configuration, RoleManager<IdentityRole> roleManager)
+        public AccountRepo(UserManager<Account> userManager, SignInManager<Account> signInManager, IConfiguration configuration, RoleManager<IdentityRole> roleManager , APP_DATA_DATN context)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.configuration = configuration;
             this.roleManager = roleManager;
+            this.context = context;
         }
 
         public async Task<string> SignInAsync(SignInModel model)
@@ -48,9 +51,9 @@ namespace AppAPI.Repository
             var token = new JwtSecurityToken(
                 issuer: configuration["JWT:ValidIssuer"],
                 audience: configuration["JWT:ValidAudience"],
-                expires: DateTime.Now.AddMinutes(10), 
+                expires: DateTime.Now.AddMinutes(10),
                 claims: authClaim,
-                signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512) 
+                signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512)
                 );
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
@@ -66,7 +69,7 @@ namespace AppAPI.Repository
                     Email = model.Email,
                     UserName = model.Email
                 };
-                var result =  await userManager.CreateAsync(account , model.Password);
+                var result = await userManager.CreateAsync(account, model.Password);
                 if (result.Succeeded)
                 {
                     var validRoles = new List<string>
@@ -89,7 +92,7 @@ namespace AppAPI.Repository
                 }
                 return result;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"Xảy ra lỗi khi tạo tài khoản: {ex.Message}");
                 throw;
@@ -98,6 +101,102 @@ namespace AppAPI.Repository
         public async Task SignOutAsync()
         {
             await signInManager.SignOutAsync();
+        }
+        public async Task<IdentityResult> UpdateAccountAsync(Account account)
+        {
+            try
+            {
+                var exitingAccount = await userManager.FindByIdAsync(account.Id);
+                if (exitingAccount == null)
+                {
+                    return IdentityResult.Failed(new IdentityError { Description = "Not Found" });
+                }
+                exitingAccount.FirstName = account.FirstName;
+                exitingAccount.LastName = account.LastName;
+                exitingAccount.UserName = account.UserName;
+                exitingAccount.PhoneNumber = account.PhoneNumber;
+                exitingAccount.Email = account.Email;
+                var result = await userManager.UpdateAsync(exitingAccount);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}");
+                throw;
+            }
+        }
+        public async Task<IdentityResult> DeleteAccountAsync(string idAccount)
+        {
+            try
+            {
+                var deleteItem = await userManager.FindByIdAsync(idAccount);
+                if (deleteItem == null)
+                {
+                    return IdentityResult.Failed(new IdentityError { Description = "Not Found" });
+                }
+                var result = await userManager.DeleteAsync(deleteItem);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}");
+                throw;
+            }
+        }
+        public async Task<Account> GetAccountById(string idAccount)
+        {
+            try
+            {
+                var account = await userManager.FindByIdAsync(idAccount);
+                if (account == null)
+                {
+                    return null;
+                }
+                return account;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}");
+                throw;
+            }
+        }
+        public async Task<List<Account>> GetAllAccountsAsync()
+        {
+            try
+            {
+                var lstAccount = await userManager.Users.ToListAsync();
+                return lstAccount;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}");
+                throw;
+            }
+        }
+        public async Task<IdentityResult> ToggleLockAccountAsync(string idAccount)
+        {
+            try
+            {
+                var account = await userManager.FindByIdAsync(idAccount);
+                if (account == null)
+                {
+                    return IdentityResult.Failed(new IdentityError { Description = "Account not found" });
+                }
+                if (account.LockoutEnd != null && account.LockoutEnd > DateTimeOffset.UtcNow)
+                {
+                    account.LockoutEnd = null;
+                }
+                else
+                {
+                    account.LockoutEnd = DateTimeOffset.UtcNow.AddHours(1); // khóa trong vòng 1 giờ
+                }
+                return await userManager.UpdateAsync(account);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw;
+            }
         }
     }
 }
