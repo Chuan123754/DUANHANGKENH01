@@ -3,11 +3,14 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using ViewsFE.Data;
 using ViewsFE.Services;
+using ViewsFE.IServices;
+using Blazored.SessionStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddHttpClient();
@@ -24,6 +27,7 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddScoped<IAttributesServices, AttributesService>();
 builder.Services.AddScoped<ICategoriesServices, CategoriesServices>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<FilesIServices, FilesServices>();
 
 
@@ -38,7 +42,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 
 app.UseRouting();
