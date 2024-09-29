@@ -1,6 +1,6 @@
-﻿using AppAPI.IRepository;
-using AppAPI.Repositories;
-using AppAPI.Repository;
+﻿using appAPI.IRepository;
+using appAPI.Repositories;
+using appAPI.Repository;
 using appAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;

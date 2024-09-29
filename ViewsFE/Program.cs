@@ -1,9 +1,9 @@
-﻿using Views.IServices;
+﻿using ViewsFE.IServices;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using ViewsFE.Data;
-using Views.Services;
-using AppViews.IServices;
+using ViewsFE.Services;
+using ViewsFE.IServices;
 using Blazored.SessionStorage;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +28,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<IAttributesServices, AttributesService>();
 builder.Services.AddScoped<ICategoriesServices, CategoriesServices>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<FilesIServices, FilesServices>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

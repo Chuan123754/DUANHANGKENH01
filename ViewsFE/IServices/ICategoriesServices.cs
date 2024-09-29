@@ -1,6 +1,6 @@
-﻿using Views.Models;
+﻿using ViewsFE.Models;
 
-namespace AppViews.IServices
+namespace ViewsFE.IServices
 {
     public interface ICategoriesServices
     {

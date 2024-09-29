@@ -56,13 +56,14 @@
 
 @code {
     private List<Categories> categoriesList = new();
-
+    private Categories categories = new Categories();
     protected override async Task OnInitializedAsync()
     {
         // Tải danh sách thuộc tính nếu chưa có
         categoriesList = await sev.GetAll();
     }
-    private Categories categories = new Categories();
+   
+
     private async Task SubmitForm()
     {
         await sev.Create(categories);

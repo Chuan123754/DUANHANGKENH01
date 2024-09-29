@@ -1,9 +1,9 @@
-using Views.Models;
-using AppViews.IServices;
+using ViewsFE.Models;
+using ViewsFE.IServices;
 using Newtonsoft.Json;
 using System.Text;
 
-namespace Views.Services
+namespace ViewsFE.Services
 {
     public class CommentServices: ICommentServices
     {

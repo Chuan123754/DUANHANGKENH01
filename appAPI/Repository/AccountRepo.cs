@@ -1,4 +1,4 @@
-﻿using AppAPI.IRepository;
+﻿using appAPI.IRepository;
 using appAPI.Helper;
 using appAPI.Models;
 using Microsoft.AspNetCore.Identity;
@@ -8,7 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 
-namespace AppAPI.Repository
+namespace appAPI.Repository
 {
     public class AccountRepo : IAccountRepo
     {

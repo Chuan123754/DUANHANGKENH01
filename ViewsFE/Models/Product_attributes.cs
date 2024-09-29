@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Views.Models
+namespace ViewsFE.Models
 {
     [Table("product_attributes")]
     [Index("Attribute_Id", Name = "IX_product_attributes_attribute_id")]

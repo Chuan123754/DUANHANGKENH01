@@ -1,7 +1,7 @@
-﻿using Views.Models;
+﻿using ViewsFE.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace AppViews.IServices
+namespace ViewsFE.IServices
 {
     public interface IAccountService
     {

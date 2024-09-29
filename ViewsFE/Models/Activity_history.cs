@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Views.Models;
+using ViewsFE.Models;
 
 namespace ViewsFE.Models
 {

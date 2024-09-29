@@ -1,19 +1,23 @@
-﻿using AppAPI.IRepository;
+﻿using appAPI.IRepository;
 using appAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Headers;
+using System.Net.Http;
 using static AppAPI.Base.Dictionary;
 
-namespace AppAPI.Repository
+namespace appAPI.Repository
 {
     public class FilesReponsetory : FilesIRepository
     {
         private readonly APP_DATA_DATN _context;
         private string _getfilePath = $@"https://localhost:7007/FileMedia/";
         private string _uploadFolderPath = $@"D:\DATN\DATNHK\AppAPI\FileMedia";
+
         public FilesReponsetory()
         {
             _context = new APP_DATA_DATN();
         }
+
         public async Task Delete(long id)
         {
             var fileItem = await GetById(id);
@@ -22,7 +26,7 @@ namespace AppAPI.Repository
         }
 
         public async Task<List<Files>> GetAll()
-        {      
+        {
             var lstFile = await _context.Files.Select(x => new Files
             {
                 Id = x.Id,
@@ -55,22 +59,27 @@ namespace AppAPI.Repository
                 .Where(f => f.Name.Contains(keyword) || f.Slug.Contains(keyword))
                 .ToListAsync();
         }
-        public async Task Upload(IFormFile file)
+
+        public async Task Upload(MultipartFormDataContent content)
         {
-            if (file == null || file.Length == 0)
+            if (content == null || !content.Any())
             {
-                throw new ArgumentException("Không có tệp nào được tải lên");
+                throw new ArgumentException("Không có dữ liệu nào được tải lên");
             }
 
-            long fileSizeInBytes = file.Length;
-            double fileSizeInKB = fileSizeInBytes / 1024.0;
+            var fileContent = content.FirstOrDefault(c => c.Headers.ContentDisposition != null && c.Headers.ContentDisposition.DispositionType.Equals("form-data"));
+            if (fileContent == null)
+            {
+                throw new ArgumentException("Không tìm thấy tệp trong dữ liệu tải lên");
+            }
 
-            var fileName = Path.GetFileName(file.FileName);
+            var fileName = ContentDispositionHeaderValue.Parse(fileContent.Headers.ContentDisposition.ToString()).FileName.Trim('"');
             var filePath = Path.Combine(_uploadFolderPath, fileName);
 
+            // Lưu file vào server
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                await file.CopyToAsync(stream);
+                await fileContent.CopyToAsync(stream);
             }
 
             string mime = GetMimeType(Path.GetExtension(fileName));
@@ -80,7 +89,7 @@ namespace AppAPI.Repository
                 Name = fileName,
                 Slug = Path.GetFileNameWithoutExtension(fileName),
                 Mine = mime,
-                Size = (int)fileSizeInKB,
+                Size = (int)(new FileInfo(filePath).Length / 1024),  // Kích thước file tính bằng KB
                 Ext = Path.GetExtension(fileName),
                 Path = filePath,
                 Created_at = DateTime.Now,

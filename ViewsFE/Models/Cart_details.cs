@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Views.Models
+namespace ViewsFE.Models
 {
     [Table("Cartdetails")]
     public partial class Cart_details

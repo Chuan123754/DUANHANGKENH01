@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using ViewsFE.Models;
 
-namespace Views.Models
+namespace ViewsFE.Models
 {
     public class Account : IdentityUser
     {

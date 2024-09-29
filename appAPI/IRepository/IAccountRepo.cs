@@ -1,7 +1,7 @@
 ﻿using appAPI.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace AppAPI.IRepository
+namespace appAPI.IRepository
 {
     public interface IAccountRepo
     {

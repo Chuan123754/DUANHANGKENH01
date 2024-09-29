@@ -1,6 +1,6 @@
 ﻿using appAPI.Models;
 
-namespace AppAPI.IRepository
+namespace appAPI.IRepository
 {
     public interface ICommentRepository
     {

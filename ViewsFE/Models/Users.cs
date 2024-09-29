@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 using ViewsFE.Models;
 
-namespace Views.Models
+namespace ViewsFE.Models
 {
     [Table("users")]
     [Index("Email", Name = "users_email_unique", IsUnique = true)]

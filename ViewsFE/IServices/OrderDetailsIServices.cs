@@ -1,6 +1,6 @@
-﻿using Views.Models;
+﻿using ViewsFE.Models;
 
-namespace Views.IServices
+namespace ViewsFE.IServices
 {
     public interface OrderDetailsIServices
     {
