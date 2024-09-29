@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Components.Web;
 using ViewsFE.Data;
 using Views.Services;
 using AppViews.IServices;
+using Microsoft.JSInterop;
+using AppViews.Services;
+using ViewsFE.IServices;
+using ViewsFE.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +29,13 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddScoped<IAttributesServices, AttributesService>();
 builder.Services.AddScoped<ICategoriesServices, CategoriesServices>();
+builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IPostTagService, PostTagService>();
+builder.Services.AddScoped<ITagsServices, TagsServices>();
+builder.Services.AddScoped<IPostMetaService, PostMetaService>();
+builder.Services.AddScoped<IQaService, QaService>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

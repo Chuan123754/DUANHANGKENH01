@@ -116,7 +116,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"D:\DATN\DuAnHangKenh\appAPI\FileMedia"),
+    FileProvider = new PhysicalFileProvider(@"I:\Test"),
     RequestPath = "/FileMedia"
 });
 

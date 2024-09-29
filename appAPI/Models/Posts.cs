@@ -48,31 +48,17 @@ namespace appAPI.Models
 
         public DateTime? Updated_at { get; set; }
 
-        [InverseProperty("Posts")]
         [JsonIgnore]
-        public virtual ICollection<Post_metas> Post_metas { get; set; }
-        [InverseProperty("Posts")]
+        public virtual ICollection<Post_metas> Post_metas { get; set; } = new List<Post_metas>();
+
         [JsonIgnore]
         public virtual ICollection<Products> Post_products { get; set; } = new List<Products>();
-        [InverseProperty("Posts")]
+
         [JsonIgnore]
-        public virtual ICollection<Post_tags> Post_tags { get; set; }
-
-        // Quan hệ với bảng Categories (nếu cần, nhưng thường không trực tiếp)
-        public virtual ICollection<Categories> Categories { get; set; }
-
-        [InverseProperty("Posts")]
+        public virtual ICollection<Post_tags> Post_tags { get; set; } = new List<Post_tags>();
         [JsonIgnore]
-        public virtual ICollection<Post_categories> Post_categories { get; set; }
+        public virtual ICollection<Post_categories> Post_categories { get; set; } = new List<Post_categories>();
 
-        // Quan hệ với bảng Tags (nếu cần, nhưng thường không trực tiếp)
-        public virtual ICollection<Tags> Tags { get; set; }
-
-        // Nội dung bài viết
-        public string Content { get; set; }
-
-        public string AccountId { get; set; }
-        public virtual Account Account { get; set; }
 
     }
 

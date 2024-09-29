@@ -47,7 +47,6 @@ namespace Views.Models
         public DateTime? Created_at { get; set; }
 
         public DateTime? Updated_at { get; set; }
-
         [InverseProperty("Posts")]
         [JsonIgnore]
         public virtual ICollection<Post_metas> Post_metas { get; set; }
@@ -70,9 +69,13 @@ namespace Views.Models
 
         // Nội dung bài viết
         public string Content { get; set; }
-        public string AccountId { get; set; }
-        public virtual Account Account { get; set; }
-    }
 
+        // để lấy Id bên View.
+        public List<long> SelectedCategoryId { get; set; }
+        public List<long> SelectedTagId { get; set; }
+
+    }
 }
+
+
 
