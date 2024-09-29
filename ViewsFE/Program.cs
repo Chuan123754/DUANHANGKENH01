@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using ViewsFE.Data;
 using ViewsFE.Services;
-using ViewsFE.IServices;
 using Blazored.SessionStorage;
 
 var builder = WebApplication.CreateBuilder(args);
