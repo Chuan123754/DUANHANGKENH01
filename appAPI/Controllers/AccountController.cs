@@ -19,18 +19,27 @@ namespace AppAPI.Controllers
         [HttpPost("SignUp")]
         public async Task<IActionResult> SignUp(SignUpModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
                 var result = await _repo.SignUpAsync(model);
-                if (result.Succeeded)
+                if (!result.Succeeded)
                 {
-                    return Ok(result);
+                    return BadRequest(result.Errors);
                 }
-                return BadRequest(result.Errors);
+                return Ok("Tạo tài khoản thành công");
+            }
+            catch (InvalidOperationException ex) // ex bên repo
+            {
+                return BadRequest(ex.Message); // Trả về thông báo mật khẩu không hợp lệ
             }
             catch (Exception ex)
             {
-                 return StatusCode(500, $"Internal server error: {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
         [HttpPost("Login")]

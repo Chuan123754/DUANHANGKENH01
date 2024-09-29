@@ -31,7 +31,7 @@ namespace AppAPI.Repository
         {
             var user = await userManager.FindByEmailAsync(model.Email);
             var passwordValid = await userManager.CheckPasswordAsync(user, model.Password);
-            if (user == null || !passwordValid)
+            if (user == null || (user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.UtcNow) || !passwordValid )
             {
                 return string.Empty;
             }
@@ -62,6 +62,10 @@ namespace AppAPI.Repository
         {
             try
             {
+                if (model.Password != model.ConfirmPassword)
+                {
+                    throw new InvalidOperationException("Mật khẩu không hợp lệ");
+                }
                 var account = new Account
                 {
                     FirstName = model.FirstName,
