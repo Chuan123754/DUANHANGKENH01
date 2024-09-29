@@ -58,12 +58,17 @@ namespace AppAPI.Controllers
             await _repo.SignOutAsync();
             return Ok();
         }
-        [HttpPut("UpdateAccount")]
-        public async Task<IActionResult> UpdateAccountAsync(Account account)
+        [HttpPut("UpdateAccount/{id}")]
+        public async Task<IActionResult> UpdateAccountAsync(Account account , string id)
         {
             try
             {
-                var result = await _repo.UpdateAccountAsync(account);
+                var updateAccount = _repo.GetAccountById(id);
+                if (updateAccount == null)
+                {
+                    return NotFound();
+                }                   
+                var result = await _repo.UpdateAccountAsync(account,id);
                 if (result.Succeeded)
                 {
                     return Ok(result);

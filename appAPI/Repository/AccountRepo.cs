@@ -106,11 +106,11 @@ namespace AppAPI.Repository
         {
             await signInManager.SignOutAsync();
         }
-        public async Task<IdentityResult> UpdateAccountAsync(Account account)
+        public async Task<IdentityResult> UpdateAccountAsync(Account account , string id)
         {
             try
             {
-                var exitingAccount = await userManager.FindByIdAsync(account.Id);
+                var exitingAccount = await userManager.FindByIdAsync(id);
                 if (exitingAccount == null)
                 {
                     return IdentityResult.Failed(new IdentityError { Description = "Not Found" });
