@@ -25,6 +25,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<IAttributesServices, AttributesService>();
 builder.Services.AddScoped<ICategoriesServices, CategoriesServices>();
 builder.Services.AddScoped<FilesIServices, FilesServices>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

@@ -1,5 +1,4 @@
 ﻿using appAPI.IRepository;
-using appAPI.Repositories;
 using appAPI.Repository;
 using appAPI.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -116,7 +115,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"D:\DATN\DuAnHangKenh\appAPI\FileMedia"),
+    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
     RequestPath = "/FileMedia"
 });
 

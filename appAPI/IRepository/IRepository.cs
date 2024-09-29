@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
-namespace appAPI.Repositories
+namespace appAPI.Repository
 {
     public interface IRepository<T> where T : class
     {
         IEnumerable<T> GetAll();
         T GetById(long id);
+        IEnumerable<T> GetPaged(int pageIndex, int pageSize);
         IEnumerable<T> Find(Expression<Func<T, bool>> predicate);
         void Add(T entity);
         void AddRange(IEnumerable<T> entities);
