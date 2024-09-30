@@ -15,36 +15,35 @@ namespace appAPI.Controllers
         {
             _repon = new DesignerRepon();
         }
-        // GET: api/<DesignerController>
+        // GET: api/Designer
         [HttpGet]
         public async Task<List<Designer>> GetAll()
         {
             return await _repon.GetAll();
         }
-
-        // GET api/<DesignerController>/5
-        [HttpGet]
+        // GET: api/Designer/{id}
+        [HttpGet("{id}")]
         public async Task<Designer> GetById(long id)
         {
             return await _repon.GetById(id);
         }
-
-        // POST api/<DesignerController>
+        // POST: api/Designer
         [HttpPost]
         public async Task Post(Designer d)
         {
             await _repon.Create(d);
         }
 
-        // PUT api/<DesignerController>/5
-        [HttpPut]
-        public async Task Put(Designer d)
+        // PUT: api/Designer/{id}
+        [HttpPut("{id}")]
+        public async Task Put(long id, Designer d)
         {
+            //d.Id = id; // Đảm bảo đối tượng `d` có `id` cần cập nhật
             await _repon.Update(d);
         }
 
-        // DELETE api/<DesignerController>/5
-        [HttpDelete]
+        // DELETE: api/Designer/{id}
+        [HttpDelete("{id}")]
         public async Task Delete(long id)
         {
             await _repon.Delete(id);
@@ -52,8 +51,9 @@ namespace appAPI.Controllers
         [HttpGet("search")]
         public async Task<IActionResult> Search(string query)
         {
-            var relut = await _repon.Search(query);
-            return Ok(relut);
+            var result = await _repon.Search(query);
+            return Ok(result);
         }
+
     }
 }

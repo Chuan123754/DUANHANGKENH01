@@ -15,6 +15,7 @@ namespace appAPI.Models
         [Key]
         public long id_Designer { get; set; }
         public string? Name { get; set; }
+        public string? ShortName { get; set; }
         public string? slug { get; set; }
         public string? short_description { get; set; }
         public string? description { get; set; }

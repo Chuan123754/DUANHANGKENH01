@@ -1,0 +1,98 @@
+﻿@page "/admin/qa"
+@using ViewsFE.IServices
+@inject NavigationManager Navigation
+@inject IQaService QaService
+@inject IJSRuntime JS
+
+<h1>Q&A</h1>
+
+<p>
+    <button class="btn btn-primary" @onclick="CreateQa">Tạo câu hỏi mới</button>
+</p>
+
+<div id="qa-list">
+    @if (qaList != null)
+    {
+        @foreach (var qa in qaList)
+        {
+            <div class="qa-item">
+                <div class="qa-question" @onclick="() => ToggleAnswer(qa.Id)">
+                    <h3>@qa.Question</h3>
+                </div>
+                <div class="qa-answer" id="answer-@qa.Id" style="display: @(qa.IsAnswerVisible ? "block" : "none")">
+                    <p>@qa.Answer</p>
+                </div>
+                <div>
+                    <button @onclick="() => EditQa(qa.Id)">Chỉnh sửa</button>
+                    <button @onclick="() => DeleteQa(qa.Id)">Xóa</button>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>Loading...</p>
+    }
+</div>
+
+@code {
+    private List<Q_A> qaList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadQaList();
+    }
+
+    private async Task LoadQaList()
+    {
+        qaList = await QaService.GetAll();
+    }
+
+    private void CreateQa()
+    {
+        Navigation.NavigateTo("/qa/create");
+    }
+
+    private void EditQa(long id)
+    {
+        Navigation.NavigateTo($"/qa/edit/{id}");
+    }
+
+    private async Task DeleteQa(long id)
+    {
+        var confirm = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa câu hỏi này?");
+        if (confirm)
+        {
+            await QaService.Delete(id);
+            await LoadQaList();
+        }
+    }
+
+    private void ToggleAnswer(long id)
+    {
+        var qa = qaList.FirstOrDefault(q => q.Id == id);
+        if (qa != null)
+        {
+            qa.IsAnswerVisible = !qa.IsAnswerVisible;
+        }
+    }
+}
+
+<style>
+    .qa-item {
+        margin-bottom: 20px;
+    }
+
+    .qa-question {
+        cursor: pointer;
+        background-color: #f1f1f1;
+        padding: 10px;
+        border: 1px solid #ccc;
+    }
+
+    .qa-answer {
+        padding: 10px;
+        border-left: 3px solid #007bff;
+        margin-left: 10px;
+    }
+</style>

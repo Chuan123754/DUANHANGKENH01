@@ -1,0 +1,61 @@
+﻿@page "/admin/qa/edit/{id:long}"
+@inject IQaService QaService
+@inject NavigationManager Navigation
+
+<h1>Chỉnh Sửa Câu Hỏi</h1>
+
+<div class="form-group mb-4">
+    <label for="question">Câu hỏi</label>
+    <input type="text" @bind="qa.Question" class="form-control" placeholder="Nhập câu hỏi" />
+    <span class="text-danger">@((validationErrors.ContainsKey("Question")) ? validationErrors["Question"] : "")</span>
+</div>
+
+<div class="form-group mb-4">
+    <label for="answer">Trả lời</label>
+    <textarea @bind="qa.Answer" class="form-control" placeholder="Nhập câu trả lời"></textarea>
+    <span class="text-danger">@((validationErrors.ContainsKey("Answer")) ? validationErrors["Answer"] : "")</span>
+</div>
+
+<button @onclick="Edits" class="btn btn-primary">Lưu</button>
+<button @onclick="Cancel" class="btn btn-secondary">Hủy</button>
+
+@code {
+    [Parameter]
+    public long id { get; set; }
+
+    private Q_A qa = new Q_A();
+    private Dictionary<string, string> validationErrors = new Dictionary<string, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        qa = await QaService.GetById(id);
+    }
+
+    private async Task Edits()
+    {
+        validationErrors.Clear();
+
+        if (string.IsNullOrWhiteSpace(qa.Question))
+        {
+            validationErrors["Question"] = "Câu hỏi là bắt buộc.";
+        }
+
+        if (string.IsNullOrWhiteSpace(qa.Answer))
+        {
+            validationErrors["Answer"] = "Câu trả lời là bắt buộc.";
+        }
+
+        if (validationErrors.Any())
+        {
+            return;
+        }
+
+        await QaService.Update(qa);
+        Navigation.NavigateTo("/qa");
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/qa");
+    }
+}

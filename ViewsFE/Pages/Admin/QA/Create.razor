@@ -1,0 +1,53 @@
+﻿@page "/admin/qa/create"
+@inject IQaService QaService
+@inject NavigationManager Navigation
+
+<h1>Tạo Câu Hỏi Mới</h1>
+
+<div class="form-group mb-4">
+    <label for="question">Câu hỏi</label>
+    <input type="text" @bind="qa.Question" class="form-control" placeholder="Nhập câu hỏi" />
+    <span class="text-danger">@((validationErrors.ContainsKey("Question")) ? validationErrors["Question"] : "")</span>
+</div>
+
+<div class="form-group mb-4">
+    <label for="answer">Trả lời</label>
+    <textarea @bind="qa.Answer" class="form-control" placeholder="Nhập câu trả lời"></textarea>
+    <span class="text-danger">@((validationErrors.ContainsKey("Answer")) ? validationErrors["Answer"] : "")</span>
+</div>
+
+<button @onclick="Createt" class="btn btn-primary">Tạo</button>
+<button @onclick="Cancel" class="btn btn-secondary">Hủy</button>
+
+@code {
+    private Q_A qa = new Q_A();
+    private Dictionary<string, string> validationErrors = new Dictionary<string, string>();
+
+    private async Task Createt()
+    {
+        validationErrors.Clear();
+
+        if (string.IsNullOrWhiteSpace(qa.Question))
+        {
+            validationErrors["Question"] = "Câu hỏi là bắt buộc.";
+        }
+
+        if (string.IsNullOrWhiteSpace(qa.Answer))
+        {
+            validationErrors["Answer"] = "Câu trả lời là bắt buộc.";
+        }
+
+        if (validationErrors.Any())
+        {
+            return;
+        }
+
+        await QaService.Create(qa);
+        Navigation.NavigateTo("/qa");
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/qa");
+    }
+}
