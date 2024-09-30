@@ -1,5 +1,5 @@
-﻿using Views.Models;
-namespace Views.IServices
+﻿using ViewsFE.Models;
+namespace ViewsFE.IServices
 {
     public interface MenuIServices
     {

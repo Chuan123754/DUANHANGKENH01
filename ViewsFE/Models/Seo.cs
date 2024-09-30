@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Views.Models
+namespace ViewsFE.Models
 {
     [Table("seo")]
     public partial class Seo

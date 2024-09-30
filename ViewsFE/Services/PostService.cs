@@ -1,4 +1,4 @@
-﻿using AppViews.IServices;
+using AppViews.IServices;
 using Views.Models;
 using Newtonsoft.Json;
 using System.Collections.Generic;

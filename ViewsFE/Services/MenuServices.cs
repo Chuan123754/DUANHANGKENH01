@@ -1,9 +1,9 @@
-﻿using Views.IServices;
-using Views.Models;
+﻿using ViewsFE.IServices;
+using ViewsFE.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Net.Http;
-namespace AppViews.Services
+namespace ViewsFE.Services
 {
     public class MenuServices : MenuIServices
     {

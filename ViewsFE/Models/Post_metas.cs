@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 
-namespace Views.Models
+namespace ViewsFE.Models
 {
     [Table("post_metas")]
     [Index("Meta_key", Name = "IX_post_metas_meta_key")]

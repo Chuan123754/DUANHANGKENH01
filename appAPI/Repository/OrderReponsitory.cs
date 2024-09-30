@@ -1,9 +1,9 @@
-﻿using AppAPI.IRepository;
+﻿using appAPI.IRepository;
 using appAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
-namespace AppAPI.Repository
+namespace appAPI.Repository
 {
     public class OrderReponsitory : OrderIReponsitory
     {

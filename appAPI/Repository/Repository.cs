@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace AppAPI.Repositories
+namespace appAPI.Repository
 {
     public class Repository<T> : IRepository<T> where T : class
     {
@@ -61,6 +61,12 @@ namespace AppAPI.Repositories
         {
             _entities.RemoveRange(entities);
             _context.SaveChanges();
+        }
+
+        public IEnumerable<T> GetPaged(int pageIndex, int pageSize)
+        {
+            return _entities.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+
         }
     }
 }

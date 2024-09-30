@@ -1,9 +1,9 @@
-using Views.Models;
-using AppViews.IServices;
+using ViewsFE.Models;
+using ViewsFE.IServices;
 using Newtonsoft.Json;
 using System.Text;
 
-namespace Views.Services
+namespace ViewsFE.Services
 {
     public class CommentServices: ICommentServices
     {
@@ -37,7 +37,7 @@ namespace Views.Services
             string requestURL = $"https://localhost:7015/api/Comment/Update?id={id}";
             var jsonContent = JsonConvert.SerializeObject(comments);
             var content = new StringContent(jsonContent, Encoding.UTF8,"application/json");
-            await _httpClient.PostAsync(requestURL, content);
+            await _httpClient.PutAsync(requestURL, content);
         }
         public async Task Delete(long id)
         {

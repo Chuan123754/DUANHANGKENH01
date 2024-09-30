@@ -1,12 +1,12 @@
-﻿using AppViews.IServices;
-using Views.Models;
+﻿using ViewsFE.IServices;
+using ViewsFE.Models;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
-namespace AppViews.Services
+namespace ViewsFE.Services
 {
     public class OptionServices : IOptionsServices
     {
