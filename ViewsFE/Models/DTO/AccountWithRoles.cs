@@ -1,4 +1,4 @@
-﻿using Views.Models;
+﻿using ViewsFE.Models;
 
 namespace ViewsFE.Models.DTO
 {
