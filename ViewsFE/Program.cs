@@ -5,6 +5,7 @@ using ViewsFE.Data;
 using ViewsFE.Services;
 using ViewsFE.IServices;
 using Blazored.SessionStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +31,8 @@ builder.Services.AddScoped<ICategoriesServices, CategoriesServices>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<FilesIServices, FilesServices>();
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

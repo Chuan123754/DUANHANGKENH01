@@ -210,6 +210,7 @@
 
                             <a href="#" class="dropdown-item">Logout</a>
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -381,7 +382,7 @@
                             </div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-              @*               <a @onclick="Logout" class="dropdown-item" style="cursor: pointer;">Logout</a> *@
+                            <a href="javascript:void(0)" onclick="logout()" class="dropdown-item" style="cursor: pointer;">Logout</a>
                         </div>
                     </div>
                 </div>
@@ -733,9 +734,8 @@
                             <div class="dropdown-menu ">
                                 <div class="dropdown-menu-columns">
                                     <div class="dropdown-menu-column">
-                                        <a class="dropdown-item " href="">
+                                        <a class="dropdown-item " href="https://localhost:7277/Account/AllAccount">
                                             Danh sách quản trị viên
-
                                         </a>
                                     </div>
                                 </div>
@@ -772,27 +772,3 @@
     @RenderSection("Scripts", required: false)
 </body>
 </html>
-// code {
-//     [Inject] private NavigationManager Navigation { get; set; }
-//     [Inject] private IAccountService accountService { get; set; }
-//     [Inject] private Blazored.SessionStorage.ISessionStorageService sessionStorage { get; set; }
-
-//     private async Task Logout()
-//     {
-//         try
-//         {
-//             // Gọi hàm đăng xuất từ service
-//             await accountService.SignOutAsync();
-
-//             // Xóa token lưu trong session storage
-//             await sessionStorage.RemoveItemAsync("authToken");
-
-//             // Điều hướng về trang đăng nhập
-//             Navigation.NavigateTo("/login");
-//         }
-//         catch (Exception ex)
-//         {
-//             Console.WriteLine($"Đăng xuất thất bại: {ex.Message}");
-//         }
-//     }
-// }

@@ -7,6 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using appAPI.Models.DTO;
 
 namespace appAPI.Repository
 {
@@ -164,12 +165,24 @@ namespace appAPI.Repository
                 throw;
             }
         }
-        public async Task<List<Account>> GetAllAccountsAsync()
+        public async Task<List<AccountWithRoles>> GetAllAccountsAsync()
         {
             try
             {
                 var lstAccount = await userManager.Users.ToListAsync();
-                return lstAccount;
+                var accountsWithRoles = new List<AccountWithRoles>();
+
+                foreach (var account in lstAccount)
+                {
+                    var roles = await userManager.GetRolesAsync(account);
+                    accountsWithRoles.Add(new AccountWithRoles
+                    {
+                        Account = account,
+                        Roles = roles.ToList()
+                    });
+                }
+
+                return accountsWithRoles;
             }
             catch (Exception ex)
             {
