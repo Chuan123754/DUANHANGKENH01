@@ -1,5 +1,41 @@
-﻿<h3>Create</h3>
+﻿@page "/admin/designer/create"
+@inject IDesignerServices designerService
+@inject HttpClient Http
+<link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.default.min.css" rel="stylesheet" />
+
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        Thêm nhà thiết kế
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-body">
+        <div class="container-xl">
+            <EditForm Model="@designer" OnValidSubmit="HandleValidSubmit" enctype="multipart/form-data">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                @* Include the form fields *@
+                <Form />
+
+                <button type="submit" class="btn btn-primary">Lưu</button>
+            </EditForm>
+        </div>
+    </div>
+</div>
 
 @code {
+    private Designer designer = new Designer();
 
+    private async Task HandleValidSubmit()
+    {
+      
+    }
 }
