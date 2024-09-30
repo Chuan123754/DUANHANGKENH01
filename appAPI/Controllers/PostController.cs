@@ -15,17 +15,26 @@ namespace appAPI.Controllers
         private readonly IRepository<Post_metas> _postMetaRepository;
         private readonly IRepository<Products> _postProductRepository;
         private readonly IRepository<Post_tags> _postTagRepository;
+        private readonly IRepository<Post_categories> _postcategorieRepository;
+        private readonly IRepository<Categories> _categoryRepository;
+        private readonly IRepository<Tags> _tagRepository;
 
         public PostsController(
             IRepository<Posts> postRepository,
             IRepository<Post_metas> postMetaRepository,
             IRepository<Products> postProductRepository,
-            IRepository<Post_tags> postTagRepository)
+            IRepository<Post_tags> postTagRepository,
+            IRepository<Post_categories> postcategorieRepository,
+            IRepository<Categories> categoryRepository,
+            IRepository<Tags> tagRepository)
         {
             _postRepository = postRepository;
             _postMetaRepository = postMetaRepository;
             _postProductRepository = postProductRepository;
             _postTagRepository = postTagRepository;
+            _postcategorieRepository = postcategorieRepository;
+            _categoryRepository = categoryRepository;
+            _tagRepository = tagRepository;
         }
 
         [HttpGet("posts-get")]
@@ -93,7 +102,7 @@ namespace appAPI.Controllers
             item.Updated_by = post.Updated_by;
             item.Deleted_at = post.Deleted_at;
             item.Created_at = post.Created_at;
-            item.Updated_at = DateTime.Now;
+            item.Updated_at = post.Updated_at;
 
             _postRepository.Update(item);
             return Ok(new { message = "Cập nhật bài viết thành công" });
@@ -115,9 +124,16 @@ namespace appAPI.Controllers
         [HttpGet("get-tags-by-post-id")]
         public IActionResult GetTagsByPostId(long postId)
         {
-            var tags = _postTagRepository.GetAll()
-                         .Where(pt => pt.Post_Id == postId)
-                         .ToList();
+            // Bước 1: Lấy danh sách Tag_Id từ bảng post_tags theo Post_Id
+            var tagIds = _postTagRepository.GetAll()
+                            .Where(pt => pt.Post_Id == postId)
+                            .Select(pt => pt.Tag_Id)
+                            .ToList();
+
+            // Bước 2: Dùng danh sách Tag_Id để tìm các đối tượng Tag từ bảng tags
+            var tags = _tagRepository.GetAll()
+                        .Where(t => tagIds.Contains(t.Id))
+                        .ToList();
 
             if (tags == null || !tags.Any())
             {
@@ -127,5 +143,49 @@ namespace appAPI.Controllers
             return Ok(tags);
         }
 
+
+        [HttpGet("get-categories-by-post-id")]
+        public IActionResult GetCategoriesByPostId(long postId)
+        {
+            // Bước 1: Lấy danh sách Category_Id từ bảng post_categories theo Post_Id
+            var categoryIds = _postcategorieRepository.GetAll()
+                                .Where(pc => pc.Post_Id == postId)
+                                .Select(pc => pc.Category_Id)
+                                .ToList();
+
+            // Bước 2: Dùng danh sách Category_Id để tìm các đối tượng Category từ bảng categories
+            var categories = _categoryRepository.GetAll()
+                                .Where(c => categoryIds.Contains(c.Id))
+                                .ToList();
+
+            if (categories == null || !categories.Any())
+            {
+                return NotFound("No categories found for the specified post.");
+            }
+
+            return Ok(categories);
+        }
+
+        // Thêm phương thức SearchPosts
+        [HttpGet("search")]
+        public IActionResult SearchPosts(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return BadRequest("Keyword is required for searching.");
+            }
+
+            var posts = _postRepository.GetAll()
+                        .Where(p => p.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase) ||
+                                    p.Slug.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+            if (!posts.Any())
+            {
+                return NotFound("No posts found matching the given keyword.");
+            }
+
+            return Ok(posts);
+        }
     }
 }
