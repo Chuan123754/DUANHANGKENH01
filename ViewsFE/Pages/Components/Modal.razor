@@ -1,0 +1,34 @@
+﻿<div class="modal modal-blur fade" id="@Id" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <EditForm Action="@FormAction" Method="post" enctype="multipart/form-data">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @((MarkupString)BodyContent)
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                        @ButtonCancelText
+                    </a>
+                    <button type="@ButtonType" class="btn btn-primary ms-auto">
+                        @((MarkupString)ButtonConfirmIcon)
+                        @ButtonConfirmLabel
+                    </button>
+                </div>
+            </div>
+        </EditForm>
+    </div>
+</div>
+@code {
+    [Parameter] public string Id { get; set; }
+    [Parameter] public string Title { get; set; }
+    [Parameter] public string BodyContent { get; set; }
+    [Parameter] public string ButtonCancelText { get; set; }
+    [Parameter] public string ButtonType { get; set; }
+    [Parameter] public string ButtonConfirmLabel { get; set; }
+    [Parameter] public string ButtonConfirmIcon { get; set; }
+    [Parameter] public string FormAction { get; set; }
+}

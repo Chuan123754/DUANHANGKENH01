@@ -1,0 +1,126 @@
+﻿@page "/designer-form"
+@inject DesignerServices designerService
+
+<div class="accordion bg-white mb-3 mt-3 mt-md-0">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#action-1" aria-expanded="true">
+                Đăng
+            </button>
+        </h2>
+        <div id="action-1" class="accordion-collapse collapse show">
+            <div class="accordion-body">
+                <div class="form-group mb-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select @bind="designer.status" class="form-control">
+                        @foreach (var status in statuses)
+                        {
+                            <option value="@status.Key" selected="@(designer.status == status.Key)">
+                                @status.Value
+                            </option>
+                        }
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary" style="float: right" @onclick="SubmitForm">Đăng</button>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="accordion bg-white mb-3">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#designerImage" aria-expanded="true">
+                Ảnh nhà thiết kế
+            </button>
+        </h2>
+        <div id="designerImage" class="accordion-collapse collapse show">
+            <div class="accordion-body pt-0">
+                <div id="feature_image"
+                     class="image-post-box d-flex align-items-center justify-content-center open-media-modal"
+                     data-multiple="false"
+                     data-refer-id="#feature_image"
+                     data-input-name="ImageId"
+                     data-image-ids="@designer.GetImage()?.ImageUrl">
+                    @if (designer.GetImage() != null)
+                    {
+                        <input type="hidden" name="ImageId" value="@designer.GetImage()?.ImageUrl" />
+                        <img src="@designer.GetImage()?.ImageUrl" class="w-100 h-100 object-cover" />
+                    }
+                    else
+                    {
+                        <div class="icon d-flex align-items-center justify-content-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="accordion bg-white mb-3">
+    <div class="accordion-item">
+        <h2 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#imageLibrary" aria-expanded="true">
+                Thư viện ảnh
+            </button>
+        </h2>
+        <div id="imageLibrary" class="accordion-collapse collapse show">
+            <div class="accordion-body pt-0">
+                <div class="image-box-libs">
+                    <div id="image_library" class="image-libs d-grid gap-2 align-items-center" style="grid-template-columns: repeat(@(designer.GetImageLibrary()?.Count ?? 1), 1fr);">
+                        @if (designer.GetImageLibrary() != null)
+                        {
+                            @foreach (var image in designer.GetImageLibrary())
+                            {
+                                <input type="hidden" name="ImageLibrary[@image.Id]" value="@image.ImageUrl" />
+                                <img src="@image.ImageUrl" class="w-100 h-100 object-cover" alt="@image.Title" style="height: 120px !important;" />
+                            }
+                        }
+
+                        <div class="image-post-box d-flex align-items-center justify-content-center open-media-modal">
+                            <div class="icon d-flex align-items-center justify-content-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M12 5l0 14" />
+                                    <path d="M5 12l14 0" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Designer designer = new Designer();
+    private Dictionary<string, string> statuses = new Dictionary<string, string>
+    {
+        { "1", "Active" },
+        { "0", "Inactive" }
+    };
+
+    private async Task SubmitForm()
+    {
+        // Xử lý lưu dữ liệu Designer
+        await designerService.Create(designer);
+    }
+
+    private void OpenImageModal()
+    {
+        // Mở modal để chọn ảnh
+    }
+
+    private void OpenImageLibraryModal()
+    {
+        // Mở modal để chọn thư viện ảnh
+    }
+}

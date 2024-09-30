@@ -1,0 +1,99 @@
+﻿<EditForm Model="@designer" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="card">
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="ShortName" class="form-label">Tên ngắn nhà thiết kế</label>
+                <InputText @bind-Value="designer.ShortName" class="form-control" id="ShortName" placeholder="Tên ngắn nhà thiết kế" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="Name" class="form-label">Tên nhà thiết kế <span class="text-danger">*</span></label>
+                <InputText @bind-Value="designer.Name" class="form-control" id="Name" placeholder="Tên nhà thiết kế" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="Slug" class="form-label">Đường dẫn <span class="text-danger">*</span></label>
+                <InputText @bind-Value="designer.slug" class="form-control" id="Slug" placeholder="Đường dẫn" required />
+            </div>
+
+            <div class="mb-3">
+                <label for="ShortDescription" class="form-label">Mô tả ngắn</label>
+                <InputTextArea @bind-Value="designer.short_description" class="form-control" id="ShortDescription" rows="3" />
+            </div>
+
+            <div class="mb-3">
+                <label for="Description" class="form-label">Mô tả</label>
+                <InputTextArea @bind-Value="designer.description" class="form-control" id="Description" rows="5" />
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="Facebook" class="form-label">Facebook</label>
+                <InputText @bind-Value="metaData.facebook" class="form-control" id="Facebook" placeholder="Link facebook" />
+            </div>
+
+            <div class="mb-3">
+                <label for="Twitter" class="form-label">Twitter</label>
+                <InputText @bind-Value="metaData.twitter" class="form-control" id="Twitter" placeholder="Link twitter" />
+            </div>
+
+            <div class="mb-3">
+                <label for="Instagram" class="form-label">Instagram</label>
+                <InputText @bind-Value="metaData.instagram" class="form-control" id="Instagram" placeholder="Link instagram" />
+            </div>
+
+            <div class="mb-3">
+                <label for="Youtube" class="form-label">Youtube</label>
+                <InputText @bind-Value="metaData.youtube" class="form-control" id="Youtube" placeholder="Link youtube" />
+            </div>
+
+            <div class="mb-3">
+                <label for="Tiktok" class="form-label">Tiktok</label>
+                <InputText @bind-Value="metaData.tiktok" class="form-control" id="Tiktok" placeholder="Link tiktok" />
+            </div>
+
+            <div class="mb-3">
+                <label for="Linkedin" class="form-label">Linkedin</label>
+                <InputText @bind-Value="metaData.linkedin" class="form-control" id="Linkedin" placeholder="Link linkedin" />
+            </div>
+
+            <div class="mb-3">
+                <label for="Pinterest" class="form-label">Pinterest</label>
+                <InputText @bind-Value="metaData.pinterest" class="form-control" id="Pinterest" placeholder="Link pinterest" />
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Lưu</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Designer designer { get; set; } = new Designer();
+
+    private MetaData metaData = new MetaData();
+
+    protected override void OnInitialized()
+    {
+        if (designer != null)
+        {
+            metaData = designer.GetMetaData();
+        }
+    }
+
+    private void HandleValidSubmit()
+    {
+        designer.SetMetaData(metaData);
+        // Gọi hành động thêm hoặc sửa từ file khác
+        OnSubmit.InvokeAsync(designer);
+    }
+
+    [Parameter]
+    public EventCallback<Designer> OnSubmit { get; set; }
+}

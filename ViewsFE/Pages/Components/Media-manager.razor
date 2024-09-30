@@ -1,0 +1,96 @@
+﻿@page "/media-upload"
+@inject HttpClient Http
+@using System.Net.Http.Json
+
+<div>
+    <!-- Dropzone CSS -->
+    <link href="~/assets/libs/tabler/libs/dropzone/dist/dropzone.css" rel="stylesheet" />
+
+    <!-- Dropzone Upload Form -->
+    <form class="dropzone mb-5" id="dropzone-default" autocomplete="off" novalidate>
+        <div class="fallback">
+            <input @bind="UploadedFile" type="file" accept="image/*" />
+        </div>
+    </form>
+
+    <!-- Media Table -->
+    <div class="card">
+        <div class="card-body">
+            <div id="table-default">
+                @if (MediaTable != null)
+                {
+                    @* Render media table content here *@
+                    @((MarkupString)MediaTable)
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Dropzone JS -->
+    <script src="~/assets/libs/tabler/libs/dropzone/dist/dropzone-min.js" defer></script>
+
+    <!-- Script to initialize Dropzone and handle media actions -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            new Dropzone("#dropzone-default", {
+                url: '/admin/media',
+                autoProcessQueue: true,
+                acceptedFiles: 'image/*',
+                maxFilesize: 10 * 1024, // 10 MB
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                success: async function (file, response) {
+                    const res = await fetch('/admin/media/datatable?type=in_component', {
+                        method: 'GET'
+                    });
+                    const data = await res.text();
+                    document.getElementById('table-default').innerHTML = data;
+                    this.removeFile(file);
+                    alert('Upload thành công');
+                },
+                error: function (file, message) {
+                    alert('Error: ' + message.message);
+                }
+            });
+
+            // Pagination
+            document.querySelectorAll('.pagination .page-item a.page-link').forEach((link) => {
+                link.addEventListener('click', async function (e) {
+                    e.preventDefault();
+                    let page = link.innerText;
+                    let currentPage = document.querySelector('.pagination .page-item.active .page-link').innerText;
+
+                    if (page === '›') {
+                        page = parseInt(currentPage) + 1;
+                    } else if (page === '‹') {
+                        page = parseInt(currentPage) - 1;
+                    }
+
+                    const res = await fetch('/admin/media/datatable?page=' + page, {
+                        method: 'GET'
+                    });
+                    const data = await res.text();
+                    document.getElementById('table-default').innerHTML = data;
+                });
+            });
+        });
+    </script>
+</div>
+
+@code {
+    private string? MediaTable { get; set; }
+    private IBrowserFile? UploadedFile { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMediaTable();
+    }
+
+    private async Task LoadMediaTable()
+    {
+        // Fetch the media table content from the server and load it into the UI
+        var response = await Http.GetStringAsync("/admin/media/datatable?type=in_component");
+        MediaTable = response;
+    }
+}

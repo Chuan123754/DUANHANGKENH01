@@ -21,15 +21,12 @@ namespace appAPI.Controllers
         {
             return await _repon.GetAll();
         }
-
         // GET: api/Designer/{id}
         [HttpGet("{id}")]
         public async Task<Designer> GetById(long id)
         {
             return await _repon.GetById(id);
         }
-
-
         // POST: api/Designer
         [HttpPost]
         public async Task Post(Designer d)
@@ -50,6 +47,12 @@ namespace appAPI.Controllers
         public async Task Delete(long id)
         {
             await _repon.Delete(id);
+        }
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(string query)
+        {
+            var result = await _repon.Search(query);
+            return Ok(result);
         }
 
     }
