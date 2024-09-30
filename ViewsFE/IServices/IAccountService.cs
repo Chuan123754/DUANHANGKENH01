@@ -1,5 +1,6 @@
 ﻿using ViewsFE.Models;
 using Microsoft.AspNetCore.Identity;
+using ViewsFE.Models.DTO;
 
 namespace ViewsFE.IServices
 {
@@ -11,7 +12,7 @@ namespace ViewsFE.IServices
         public Task<IdentityResult> UpdateAccountAsync(Account account , string id);
         public Task<IdentityResult> DeleteAccountAsync(string idAccount);
         public Task<Account> GetAccountById(string idAccount);
-        public Task<List<Account>> GetAllAccountsAsync();
+        public Task<List<AccountWithRoles>> GetAllAccountsAsync();
         public Task<IdentityResult> ToggleLockAccountAsync(string idAccount);
     }
 }

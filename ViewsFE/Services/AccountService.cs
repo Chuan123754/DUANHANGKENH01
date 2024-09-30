@@ -3,6 +3,7 @@ using ViewsFE.Models;
 using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using System.Text;
+using ViewsFE.Models.DTO;
 
 namespace ViewsFE.Services
 {
@@ -82,11 +83,11 @@ namespace ViewsFE.Services
             var response = await _client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<Account>(response);
         }
-        public async Task<List<Account>> GetAllAccountsAsync()
+        public async Task<List<AccountWithRoles>> GetAllAccountsAsync()
         {
             string requestURL = $"https://localhost:7011/api/Account/GetAllAccount";
             var response = await _client.GetStringAsync(requestURL);
-            return JsonConvert.DeserializeObject<List<Account>>(response);
+            return JsonConvert.DeserializeObject<List<AccountWithRoles>>(response);
         }
         public async Task<IdentityResult> ToggleLockAccountAsync(string idAccount)
         {
