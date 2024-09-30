@@ -6,7 +6,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Views.Services
+namespace ViewsFE.Services
 {
     public class PostService : IPostService
     {
