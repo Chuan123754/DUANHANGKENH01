@@ -1,0 +1,214 @@
+﻿@page "/posts/edit/{postId:long}"
+@inject NavigationManager Navigation
+@inject IPostService PostService
+@inject ICategoriesServices _categoryService;
+@inject ITagsServices _tagService;
+@inject IPostMetaService _postMetaService;
+@inject IJSRuntime JS
+
+<h1>Chỉnh sửa bài viết</h1>
+
+<form @onsubmit="EditPost" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card bg-white p-4 mb-4">
+                <div class="text-danger mb-4">@validationSummary</div>
+
+                <!-- Tên bài viết -->
+                <div class="form-group mb-4">
+                    <label for="title">Tên bài viết *</label>
+                    <input type="text" @bind="post.Title" class="form-control" placeholder="Tên bài viết" />
+                    <span class="text-danger">@(validationErrors.ContainsKey("Title") ? validationErrors["Title"] : "")</span>
+                </div>
+
+                <!-- Đường dẫn -->
+                <div class="form-group mb-4">
+                    <label for="slug">Đường dẫn *</label>
+                    <input type="text" @bind="post.Slug" class="form-control" placeholder="Đường dẫn" />
+                    <span class="text-danger">@(validationErrors.ContainsKey("Slug") ? validationErrors["Slug"] : "")</span>
+                </div>
+
+                <!-- Mô tả ngắn -->
+                <div class="form-group mb-4">
+                    <label for="content">Mô tả ngắn</label>
+                    <textarea @bind="post.Content" class="form-control" rows="3"></textarea>
+                    <span class="text-danger">@(validationErrors.ContainsKey("Content") ? validationErrors["Content"] : "")</span>
+                </div>
+
+                <!-- Mô tả -->
+                <div class="form-group mb-4">
+                    <label for="type">Mô tả</label>
+                    <textarea @bind="post.Type" class="form-control" rows="10" style="font-family: system-ui; font-size: 14px;"></textarea>
+                    <span class="text-danger">@(validationErrors.ContainsKey("Type") ? validationErrors["Type"] : "")</span>
+                </div>
+            </div>
+
+            <!-- Phần SEO -->
+            <div class="card bg-white p-4 mb-4">
+                <h5>Seo</h5>
+
+                <!-- Tiêu đề SEO -->
+                <div class="form-group mb-4">
+                    <label for="seoTitle">Tiêu đề SEO</label>
+                    <input type="text" @bind="seoTitle" class="form-control" placeholder="Tiêu đề SEO" />
+                    <span class="text-danger">@(validationErrors.ContainsKey("SeoTitle") ? validationErrors["SeoTitle"] : "")</span>
+                </div>
+
+                <!-- Mô tả SEO -->
+                <div class="form-group mb-4">
+                    <label for="seoDescription">Mô tả</label>
+                    <textarea @bind="seoDescription" class="form-control" rows="3"></textarea>
+                    <span class="text-danger">@(validationErrors.ContainsKey("SeoDescription") ? validationErrors["SeoDescription"] : "")</span>
+                </div>
+
+                <!-- Từ khóa SEO -->
+                <div class="form-group mb-4">
+                    <label for="seoKeywords">Keywords</label>
+                    <input type="text" @bind="seoKeywords" class="form-control" placeholder="Keywords" />
+                    <span class="text-danger">@(validationErrors.ContainsKey("SeoKeywords") ? validationErrors["SeoKeywords"] : "")</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-white p-4 mb-4">
+                <!-- Trạng thái -->
+                <div class="form-group mb-4">
+                    <label for="status">Trạng thái</label>
+                    <select @bind="post.Status" class="form-control">
+                        <option value="Công khai">Công khai</option>
+                        <option value="Chờ duyệt">Chờ duyệt</option>
+                        <option value="Nháp">Nháp</option>
+                    </select>
+                    <span class="text-danger">@(validationErrors.ContainsKey("Status") ? validationErrors["Status"] : "")</span>
+                </div>
+
+                <!-- Danh mục bài viết -->
+                <div class="form-group mb-4">
+                    <label>Danh mục bài viết</label>
+                    @foreach (var category in categories)
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" value="@category.Id"
+                                   @onchange="(e) => HandleCategorySelection(category.Id)"
+                                   class="form-check-input"
+                                   checked="@selectedCategories.Contains(category.Id)" />
+                            <label class="form-check-label">@category.Title</label>
+                        </div>
+                    }
+                </div>
+
+                <!-- Từ khóa -->
+                <div class="form-group mb-4">
+                    <label>Từ khóa</label>
+                    @foreach (var tag in tags)
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" value="@tag.Id"
+                                   @onchange="(e) => HandleTagSelection(tag.Id)"
+                                   class="form-check-input"
+                                   checked="@selectedTags.Contains(tag.Id)" />
+                            <label class="form-check-label">@tag.Title</label>
+                        </div>
+                    }
+                </div>
+
+                <!-- Nút cập nhật -->
+                <div class="form-group mb-4">
+                    <input type="submit" value="Cập nhật" class="btn btn-primary" />
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <button @onclick="Cancel" class="btn btn-secondary">Quay lại danh sách</button>
+</div>
+
+@code {
+    [Parameter]
+    public long postId { get; set; }
+
+    private Posts post = new Posts();
+    private string seoTitle, seoDescription, seoKeywords;
+    private List<long> selectedCategories = new List<long>();
+    private List<long> selectedTags = new List<long>();
+    private string validationSummary;
+    private Dictionary<string, string> validationErrors = new Dictionary<string, string>();
+    private List<Categories> categories = new List<Categories>();
+    private List<Tags> tags = new List<Tags>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Lấy bài viết và thông tin liên quan
+        post = await PostService.GetById(postId);
+        categories = await _categoryService.GetAll();
+        tags = await _tagService.GetAll();
+
+        // Lấy danh sách các danh mục và từ khóa đã chọn của bài viết
+        selectedCategories = (await PostService.GetCategoriesByPostId(post.Id)).Select(c => c.Id).ToList();
+        selectedTags = (await PostService.GetTagsByPostId(post.Id)).Select(t => t.Id).ToList();
+    }
+
+    private async Task EditPost()
+    {
+        // Kiểm tra và xử lý validation nếu cần thiết
+        validationErrors.Clear();
+
+        if (string.IsNullOrWhiteSpace(post.Title))
+        {
+            validationErrors["Title"] = "Tiêu đề là bắt buộc.";
+        }
+
+        if (string.IsNullOrWhiteSpace(post.Slug))
+        {
+            validationErrors["Slug"] = "Đường dẫn là bắt buộc.";
+        }
+
+        if (validationErrors.Any())
+        {
+            validationSummary = "Vui lòng kiểm tra lại các trường bắt buộc.";
+            return; // Dừng lại nếu có lỗi validation
+        }
+
+        // Gán các danh mục và từ khóa đã chọn vào post
+        post.SelectedCategoryId = selectedCategories;
+        post.SelectedTagId = selectedTags;
+
+        try
+        {
+            // Gửi yêu cầu cập nhật bài viết lên API
+            await PostService.Update(post);
+
+            // Điều hướng quay lại trang danh sách bài viết sau khi cập nhật thành công
+            Navigation.NavigateTo("/admin/posts");
+        }
+        catch (Exception ex)
+        {
+            // Xử lý lỗi nếu có, ví dụ ghi log hoặc hiển thị thông báo lỗi
+            validationSummary = "Có lỗi xảy ra khi cập nhật bài viết: " + ex.Message;
+        }
+    }
+
+    private void HandleCategorySelection(long categoryId)
+    {
+        if (selectedCategories.Contains(categoryId))
+            selectedCategories.Remove(categoryId);
+        else
+            selectedCategories.Add(categoryId);
+    }
+
+    private void HandleTagSelection(long tagId)
+    {
+        if (selectedTags.Contains(tagId))
+            selectedTags.Remove(tagId);
+        else
+            selectedTags.Add(tagId);
+    }
+
+    private void Cancel()
+    {
+        Navigation.NavigateTo("/admin/posts");
+    }
+}

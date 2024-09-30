@@ -12,27 +12,27 @@ namespace ViewsFE.Services
         }
         public async Task Create(Tags tag)
         {
-            await client.PostAsJsonAsync("https://localhost:7015/api/Tags/add", tag);
+            await client.PostAsJsonAsync("https://localhost:7011/api/Tags/add", tag);
         }
 
         public async Task Delete(long id)
         {
-            await client.DeleteAsync("$https://localhost:7015/api/Tags/delete?id={id}");
+            await client.DeleteAsync("$https://localhost:7011/api/Tags/delete?id={id}");
         }
 
         public async Task<Tags> Details(long id)
         {
-            return await client.GetFromJsonAsync<Tags>($"https://localhost:7015/api/Tags/details?id={id}");
+            return await client.GetFromJsonAsync<Tags>($"https://localhost:7011/api/Tags/details?id={id}");
         }
 
         public async Task<List<Tags>> GetAll()
         {
-            return await client.GetFromJsonAsync<List<Tags>>("https://localhost:7015/api/Tags/show");
+            return await client.GetFromJsonAsync<List<Tags>>("https://localhost:7011/api/Tags/show");
         }
 
         public async Task Update(Tags tag)
         {
-            await client.PutAsJsonAsync("https://localhost:7015/api/Tags/edit", tag);
+            await client.PutAsJsonAsync("https://localhost:7011/api/Tags/edit", tag);
         }
     }
 }
