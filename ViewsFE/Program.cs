@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using ViewsFE.Data;
 using Microsoft.JSInterop;
-using ViewsFE.IServices;
 using ViewsFE.Services;
 using Blazored.SessionStorage;
 
