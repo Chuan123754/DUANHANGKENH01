@@ -349,9 +349,6 @@ namespace appAPI.Migrations
                     b.Property<long>("Parent_id")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("PostsId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Short_title")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -373,14 +370,6 @@ namespace appAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PostsId");
-
-                    b.HasIndex(new[] { "Slug" }, "categories_slug_unique")
-                        .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL");
-
-                    b.HasIndex(new[] { "Type" }, "categories_type_index");
 
                     b.ToTable("categories");
                 });
@@ -445,6 +434,9 @@ namespace appAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("id_Designer"), 1L, 1);
 
                     b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ShortName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("create_at")
@@ -666,10 +658,6 @@ namespace appAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Optin_name" }, "UQ__options__A2E9140E2B971836")
-                        .IsUnique()
-                        .HasFilter("[Optin_name] IS NOT NULL");
-
                     b.ToTable("options");
                 });
 
@@ -690,12 +678,12 @@ namespace appAPI.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<long>("ProductId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("ProductTitle")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<long>("ProductVariants_Id")
+                        .HasColumnType("bigint");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -715,6 +703,8 @@ namespace appAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductVariants_Id");
 
                     b.ToTable("order_details");
                 });
@@ -794,9 +784,6 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Approved_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<long?>("CartId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Code")
                         .HasMaxLength(50)
                         .IsUnicode(false)
@@ -833,28 +820,9 @@ namespace appAPI.Migrations
                     b.Property<long?>("User_id")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("Warehouse_id")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("CartId");
-
-                    b.HasIndex(new[] { "Address" }, "orders_address_fulltext");
-
-                    b.HasIndex(new[] { "Approved_at" }, "orders_approved_at_index");
-
-                    b.HasIndex(new[] { "Code" }, "orders_code_index");
-
-                    b.HasIndex(new[] { "Name" }, "orders_name_index");
-
-                    b.HasIndex(new[] { "Phone_number" }, "orders_phone_number_index");
-
-                    b.HasIndex(new[] { "Status" }, "orders_status_index");
-
-                    b.HasIndex(new[] { "User_id" }, "orders_user_id_index");
-
-                    b.HasIndex(new[] { "Warehouse_id" }, "orders_warehouse_id_index");
+                    b.HasIndex("User_id");
 
                     b.ToTable("orders");
                 });
@@ -908,9 +876,9 @@ namespace appAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Category_Id" }, "IX_post_categories_category_id");
+                    b.HasIndex("Category_Id");
 
-                    b.HasIndex(new[] { "Post_Id" }, "IX_post_categories_post_id");
+                    b.HasIndex("Post_Id");
 
                     b.ToTable("post_categories");
                 });
@@ -938,8 +906,6 @@ namespace appAPI.Migrations
 
                     b.HasIndex("Post_Id");
 
-                    b.HasIndex(new[] { "Meta_key" }, "IX_post_metas_meta_key");
-
                     b.ToTable("post_metas");
                 });
 
@@ -959,9 +925,9 @@ namespace appAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Post_Id" }, "IX_post_tags_post_id");
+                    b.HasIndex("Post_Id");
 
-                    b.HasIndex(new[] { "Tag_Id" }, "IX_post_tags_tag_id");
+                    b.HasIndex("Tag_Id");
 
                     b.ToTable("post_tags");
                 });
@@ -975,15 +941,10 @@ namespace appAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<string>("AccountId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<long>("AuthorId")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("Created_at")
                         .HasColumnType("datetime2");
@@ -1024,18 +985,6 @@ namespace appAPI.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.HasIndex(new[] { "AuthorId" }, "IX_posts_author_id");
-
-                    b.HasIndex(new[] { "Slug" }, "IX_posts_slug");
-
-                    b.HasIndex(new[] { "Status" }, "IX_posts_status");
-
-                    b.HasIndex(new[] { "Type" }, "IX_posts_type");
-
-                    b.HasIndex(new[] { "Slug", "Deleted_at" }, "UK_posts_slug_deleted_at")
-                        .IsUnique()
-                        .HasFilter("[Slug] IS NOT NULL AND [Deleted_at] IS NOT NULL");
-
                     b.ToTable("posts");
                 });
 
@@ -1050,14 +999,14 @@ namespace appAPI.Migrations
                     b.Property<long>("Attribute_Id")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("Product_Id")
+                    b.Property<long>("Product_Variants_Id")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Attribute_Id" }, "IX_product_attributes_attribute_id");
+                    b.HasIndex("Attribute_Id");
 
-                    b.HasIndex(new[] { "Product_Id" }, "IX_product_attributes_product_id");
+                    b.HasIndex("Product_Variants_Id");
 
                     b.ToTable("product_attributes");
                 });
@@ -1070,20 +1019,26 @@ namespace appAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<long>("Attribute_Id")
+                    b.Property<long?>("AttributesId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("Created_at")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime?>("Deleted_at")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("Designerid_Designer")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Image")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<long>("Product_Id")
+                    b.Property<long>("Post_Id")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("Regular_price")
@@ -1109,18 +1064,16 @@ namespace appAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Attribute_Id" }, "IX_product_variants_attribute_id");
+                    b.HasIndex("AttributesId");
 
-                    b.HasIndex(new[] { "Product_Id" }, "IX_product_variants_product_id");
+                    b.HasIndex("Designerid_Designer");
 
-                    b.HasIndex(new[] { "Sku" }, "UK_product_variants_sku")
-                        .IsUnique()
-                        .HasFilter("[Sku] IS NOT NULL");
+                    b.HasIndex("Post_Id");
 
                     b.ToTable("product_variants");
                 });
 
-            modelBuilder.Entity("appAPI.Models.Products", b =>
+            modelBuilder.Entity("appAPI.Models.Product_variants_wishlist", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -1128,39 +1081,19 @@ namespace appAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<DateTime?>("Created_at")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("Deleted_at")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("Designer_Id")
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
+                    b.Property<long>("Product_variants_id")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("Post_Id")
+                    b.Property<long>("Wishlist_id")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("Sku")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Status")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime?>("Updated_at")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex(new[] { "Post_Id" }, "IX_post_products_post_id");
+                    b.HasIndex("Product_variants_id");
 
-                    b.HasIndex(new[] { "Sku" }, "UK_post_products_sku")
-                        .IsUnique()
-                        .HasFilter("[Sku] IS NOT NULL");
+                    b.HasIndex("Wishlist_id");
 
-                    b.ToTable("post_products");
+                    b.ToTable("Product_Variants_Wishlists");
                 });
 
             modelBuilder.Entity("appAPI.Models.Q_A", b =>
@@ -1245,9 +1178,6 @@ namespace appAPI.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("PostsId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Slug")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -1264,10 +1194,6 @@ namespace appAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PostsId");
-
-                    b.HasIndex(new[] { "Type" }, "tags_type_index");
 
                     b.ToTable("tags");
                 });
@@ -1315,10 +1241,6 @@ namespace appAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex(new[] { "Email" }, "users_email_unique")
-                        .IsUnique()
-                        .HasFilter("[Email] IS NOT NULL");
 
                     b.ToTable("users");
                 });
@@ -1421,9 +1343,6 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Create_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("Product_id")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime?>("Updated_at")
                         .HasColumnType("datetime2");
 
@@ -1432,26 +1351,10 @@ namespace appAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Product_id");
-
-                    b.HasIndex("User_id");
+                    b.HasIndex("User_id")
+                        .IsUnique();
 
                     b.ToTable("wishlist");
-                });
-
-            modelBuilder.Entity("DesignerProducts", b =>
-                {
-                    b.Property<long>("Designerid_Designer")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("Post_productsId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Designerid_Designer", "Post_productsId");
-
-                    b.HasIndex("Post_productsId");
-
-                    b.ToTable("DesignerProducts");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1617,7 +1520,7 @@ namespace appAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("appAPI.Models.Products", "Post_Products")
+                    b.HasOne("appAPI.Models.Product_variants", "Product_Variants")
                         .WithMany()
                         .HasForeignKey("Product_id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1625,7 +1528,7 @@ namespace appAPI.Migrations
 
                     b.Navigation("Carts");
 
-                    b.Navigation("Post_Products");
+                    b.Navigation("Product_Variants");
                 });
 
             modelBuilder.Entity("appAPI.Models.Carts", b =>
@@ -1637,13 +1540,6 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Categories", b =>
-                {
-                    b.HasOne("appAPI.Models.Posts", null)
-                        .WithMany("Categories")
-                        .HasForeignKey("PostsId");
                 });
 
             modelBuilder.Entity("appAPI.Models.Comments", b =>
@@ -1684,7 +1580,15 @@ namespace appAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("appAPI.Models.Product_variants", "ProductVariants")
+                        .WithMany()
+                        .HasForeignKey("ProductVariants_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Orders");
+
+                    b.Navigation("ProductVariants");
                 });
 
             modelBuilder.Entity("appAPI.Models.order_trackings", b =>
@@ -1719,11 +1623,11 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Orders", b =>
                 {
-                    b.HasOne("appAPI.Models.Carts", "Cart")
-                        .WithMany("Orders")
-                        .HasForeignKey("CartId");
+                    b.HasOne("appAPI.Models.Users", "Users")
+                        .WithMany()
+                        .HasForeignKey("User_id");
 
-                    b.Navigation("Cart");
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("appAPI.Models.P_variants_discount", b =>
@@ -1796,57 +1700,42 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Posts", b =>
                 {
-                    b.HasOne("appAPI.Models.Account", "Account")
+                    b.HasOne("appAPI.Models.Account", null)
                         .WithMany("Posts")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
+                        .HasForeignKey("AccountId");
                 });
 
             modelBuilder.Entity("appAPI.Models.Product_attributes", b =>
                 {
-                    b.HasOne("appAPI.Models.Products", "Product")
+                    b.HasOne("appAPI.Models.Attributes", "Attributes")
                         .WithMany()
                         .HasForeignKey("Attribute_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("appAPI.Models.Attributes", "Attribute")
-                        .WithMany()
-                        .HasForeignKey("Product_Id")
+                    b.HasOne("appAPI.Models.Product_variants", "Product_Variants")
+                        .WithMany("Product_attributes")
+                        .HasForeignKey("Product_Variants_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Attribute");
+                    b.Navigation("Attributes");
 
-                    b.Navigation("Product");
+                    b.Navigation("Product_Variants");
                 });
 
             modelBuilder.Entity("appAPI.Models.Product_variants", b =>
                 {
-                    b.HasOne("appAPI.Models.Attributes", "Attribute")
+                    b.HasOne("appAPI.Models.Attributes", null)
                         .WithMany("Product_Variants")
-                        .HasForeignKey("Attribute_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AttributesId");
 
-                    b.HasOne("appAPI.Models.Products", "Product")
-                        .WithMany("Product_variants")
-                        .HasForeignKey("Product_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("appAPI.Models.Designer", null)
+                        .WithMany("Product_Variants")
+                        .HasForeignKey("Designerid_Designer");
 
-                    b.Navigation("Attribute");
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Products", b =>
-                {
                     b.HasOne("appAPI.Models.Posts", "Posts")
-                        .WithMany("Post_products")
+                        .WithMany("Product_Variants")
                         .HasForeignKey("Post_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1854,11 +1743,23 @@ namespace appAPI.Migrations
                     b.Navigation("Posts");
                 });
 
-            modelBuilder.Entity("appAPI.Models.Tags", b =>
+            modelBuilder.Entity("appAPI.Models.Product_variants_wishlist", b =>
                 {
-                    b.HasOne("appAPI.Models.Posts", null)
-                        .WithMany("Tags")
-                        .HasForeignKey("PostsId");
+                    b.HasOne("appAPI.Models.Product_variants", "Product_Variants")
+                        .WithMany("Product_Variants_Wishlists")
+                        .HasForeignKey("Product_variants_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("appAPI.Models.Wishlist", "Wishlist")
+                        .WithMany("Product_Variants_Wishlists")
+                        .HasForeignKey("Wishlist_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product_Variants");
+
+                    b.Navigation("Wishlist");
                 });
 
             modelBuilder.Entity("appAPI.Models.Warehouse", b =>
@@ -1874,36 +1775,13 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Wishlist", b =>
                 {
-                    b.HasOne("appAPI.Models.Products", "Post_Products")
-                        .WithMany("Wishlist")
-                        .HasForeignKey("Product_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("appAPI.Models.Users", "Users")
-                        .WithMany("Wishlist")
-                        .HasForeignKey("User_id")
+                        .WithOne("Wishlist")
+                        .HasForeignKey("appAPI.Models.Wishlist", "User_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Post_Products");
 
                     b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("DesignerProducts", b =>
-                {
-                    b.HasOne("appAPI.Models.Designer", null)
-                        .WithMany()
-                        .HasForeignKey("Designerid_Designer")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("appAPI.Models.Products", null)
-                        .WithMany()
-                        .HasForeignKey("Post_productsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1974,8 +1852,11 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Carts", b =>
                 {
                     b.Navigation("Cart_Details");
+                });
 
-                    b.Navigation("Orders");
+            modelBuilder.Entity("appAPI.Models.Designer", b =>
+                {
+                    b.Navigation("Product_Variants");
                 });
 
             modelBuilder.Entity("appAPI.Models.Discount", b =>
@@ -1999,29 +1880,22 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Posts", b =>
                 {
-                    b.Navigation("Categories");
-
                     b.Navigation("Post_categories");
 
                     b.Navigation("Post_metas");
 
-                    b.Navigation("Post_products");
-
                     b.Navigation("Post_tags");
 
-                    b.Navigation("Tags");
+                    b.Navigation("Product_Variants");
                 });
 
             modelBuilder.Entity("appAPI.Models.Product_variants", b =>
                 {
+                    b.Navigation("Product_Variants_Wishlists");
+
+                    b.Navigation("Product_attributes");
+
                     b.Navigation("p_variants_discount");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Products", b =>
-                {
-                    b.Navigation("Product_variants");
-
-                    b.Navigation("Wishlist");
                 });
 
             modelBuilder.Entity("appAPI.Models.Users", b =>
@@ -2034,6 +1908,11 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Vouchers", b =>
                 {
                     b.Navigation("OrderVouchers");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Wishlist", b =>
+                {
+                    b.Navigation("Product_Variants_Wishlists");
                 });
 #pragma warning restore 612, 618
         }

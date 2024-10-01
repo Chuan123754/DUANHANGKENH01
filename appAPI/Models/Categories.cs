@@ -13,8 +13,6 @@ using System.Threading.Tasks;
 namespace appAPI.Models
 {
     [Table("categories")]
-    [Index("Slug", Name = "categories_slug_unique", IsUnique = true)]
-    [Index("Type", Name = "categories_type_index")]
     public partial class Categories
     {
         [Key]

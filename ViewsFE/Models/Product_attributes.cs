@@ -17,13 +17,13 @@ namespace ViewsFE.Models
     {
         [Key]
         public long Id { get; set; }
-        public long Product_Id { get; set; }
+        public long Product_Variants_Id { get; set; }
         public long Attribute_Id { get; set; }
-        [ForeignKey("Product_Id")]
+        [ForeignKey("Product_Variants_Id")]
         [JsonIgnore]
-        public virtual Attributes? Attribute { get; set; }
+        public virtual Product_variants? Product_Variants { get; set; }
         [ForeignKey("Attribute_Id")]
         [JsonIgnore]
-        public virtual Products? Product { get; set; }
+        public virtual Attributes? Attributes { get; set; }
     }
 }

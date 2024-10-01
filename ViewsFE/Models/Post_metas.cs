@@ -11,7 +11,6 @@ using System.Text.Json.Serialization;
 namespace ViewsFE.Models
 {
     [Table("post_metas")]
-    [Index("Meta_key", Name = "IX_post_metas_meta_key")]
     public partial class Post_metas
     {
         [Key]

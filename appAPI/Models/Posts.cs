@@ -11,11 +11,6 @@ using System.Text.Json.Serialization;
 namespace appAPI.Models
 {
     [Table("posts")]
-    [Index("AuthorId", Name = "IX_posts_author_id")]
-    [Index("Slug", Name = "IX_posts_slug")]
-    [Index("Status", Name = "IX_posts_status")]
-    [Index("Type", Name = "IX_posts_type")]
-    [Index("Slug", "Deleted_at", Name = "UK_posts_slug_deleted_at", IsUnique = true)]
     public partial class Posts
     {
         [Key]
@@ -50,17 +45,13 @@ namespace appAPI.Models
 
         [JsonIgnore]
         public virtual ICollection<Post_metas> Post_metas { get; set; } = new List<Post_metas>();
-
         [JsonIgnore]
-        public virtual ICollection<Products> Post_products { get; set; } = new List<Products>();
-
+        public virtual ICollection<Product_variants> Product_Variants { get; set; } = new List<Product_variants>();
         [JsonIgnore]
         public virtual ICollection<Post_tags> Post_tags { get; set; } = new List<Post_tags>();
         [JsonIgnore]
         public virtual ICollection<Post_categories> Post_categories { get; set; } = new List<Post_categories>();
-
-
+     
     }
-
 }
 

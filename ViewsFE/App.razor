@@ -1,6 +1,3 @@
-
-﻿@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
-@inject NavigationManager Navigation
 ﻿<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
@@ -13,22 +10,3 @@
         </LayoutView>
     </NotFound>
 </Router>
-
-@* @code {
-    private bool isInitialized = false;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender && !isInitialized)
-        {
-            isInitialized = true; // Đảm bảo chỉ gọi một lần
-            var token = await sessionStorage.GetItemAsync<string>("authToken");
-
-            if (string.IsNullOrEmpty(token))
-            {
-                Navigation.NavigateTo("/login");
-            }
-        }
-    }
-} *@
-

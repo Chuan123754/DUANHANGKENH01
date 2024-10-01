@@ -20,13 +20,13 @@ namespace appAPI.Controllers
         [HttpGet("postproducts-get")]
         public IActionResult Get()
         {
-            return Ok(context.Products.ToList());
+            return Ok(context.product_variants.ToList());
         }
 
         [HttpGet("postproducts-get-id/{id}")]
         public IActionResult Get(long id)
         {
-            var postProduct = context.Products.Find(id);
+            var postProduct = context.product_variants.Find(id);
             if (postProduct == null)
             {
                 return NotFound("Post product not found");
@@ -35,12 +35,12 @@ namespace appAPI.Controllers
         }
 
         [HttpPost("postproducts-post")]
-        public ActionResult Post(Products postProduct)
+        public ActionResult Post(Product_variants postProduct)
         {
             try
             {
                 postProduct.Created_at = DateTime.Now;
-                context.Products.Add(postProduct);
+                context.product_variants.Add(postProduct);
                 context.SaveChanges();
                 return Ok(new { message = "Thêm sản phẩm cho bài viết thành công" });
             }
@@ -51,9 +51,9 @@ namespace appAPI.Controllers
         }
 
         [HttpPut("postproducts-put")]
-        public IActionResult Put(Products postProduct)
+        public IActionResult Put(Product_variants postProduct)
         {
-            var item = context.Products.Find(postProduct.Id);
+            var item = context.product_variants.Find(postProduct.Id);
             if (item == null)
             {
                 return NotFound("Post product not found");
@@ -73,7 +73,7 @@ namespace appAPI.Controllers
         [HttpDelete("postproducts-delete/{id}")]
         public IActionResult Delete(long id)
         {
-            var delete = context.Products.Find(id);
+            var delete = context.product_variants.Find(id);
             if (delete == null)
             {
                 return NotFound("Post product not found");

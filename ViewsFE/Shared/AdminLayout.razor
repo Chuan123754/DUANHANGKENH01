@@ -756,10 +756,6 @@
     </div>
 
     <!-- Libs JS -->
-    <script src="assets/libs/apexcharts/dist/apexcharts.min.js?1692870487" defer></script>
-    <script src="assets/libs/jsvectormap/dist/js/jsvectormap.min.js?1692870487" defer></script>
-    <script src="assets/libs/jsvectormap/dist/maps/world.js?1692870487" defer></script>
-    <script src="assets/libs/jsvectormap/dist/maps/world-merc.js?1692870487" defer></script>
     <script src="assets/libs/tabler/js/tabler.min.js" defer></script>
     <script src="assets/js/http.js" defer></script>
     <script src="assets/js/dom.js" defer></script>
@@ -768,27 +764,3 @@
     <script src="_framework/blazor.server.js"></script>
 </body>
 </html>
-// code {
-//     [Inject] private NavigationManager Navigation { get; set; }
-//     [Inject] private IAccountService accountService { get; set; }
-//     [Inject] private Blazored.SessionStorage.ISessionStorageService sessionStorage { get; set; }
-
-//     private async Task Logout()
-//     {
-//         try
-//         {
-//             // Gọi hàm đăng xuất từ service
-//             await accountService.SignOutAsync();
-
-//             // Xóa token lưu trong session storage
-//             await sessionStorage.RemoveItemAsync("authToken");
-
-//             // Điều hướng về trang đăng nhập
-//             Navigation.NavigateTo("/login");
-//         }
-//         catch (Exception ex)
-//         {
-//             Console.WriteLine($"Đăng xuất thất bại: {ex.Message}");
-//         }
-//     }
-// }
