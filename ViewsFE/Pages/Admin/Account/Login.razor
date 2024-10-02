@@ -4,8 +4,6 @@
 @inject HttpClient Http
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject IAccountService accountService
-
-
 <div class="login-form">
 
     <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
