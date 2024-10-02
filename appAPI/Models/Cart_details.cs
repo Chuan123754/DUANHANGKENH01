@@ -23,6 +23,6 @@ namespace appAPI.Models
         public virtual Carts? Carts { get; set; }
         [ForeignKey("Product_id")]
         [JsonIgnore]
-        public virtual Products? Post_Products { get; set; }
+        public virtual Product_variants? Product_Variants { get; set; }
     }
 }

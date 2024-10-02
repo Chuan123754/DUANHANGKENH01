@@ -48,7 +48,7 @@
                         </div>
                     </td>
                     <td>@post.AuthorId</td>
-                    <td>@(post.Categories != null && post.Categories.Any() ? string.Join(", ", post.Categories.Select(c => c.Title)) : "Không có danh mục")</td>
+                    <td>@(post.Post_categories)</td>
                     <td>@(post.Tags != null && post.Tags.Any() ? string.Join(", ", post.Tags.Select(t => t.Title)) : "Không có thẻ")</td>
                     <td>
                         @if (post.Status == "Công khai")

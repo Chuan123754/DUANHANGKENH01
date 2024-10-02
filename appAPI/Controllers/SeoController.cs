@@ -15,6 +15,11 @@ namespace appAPI.Controllers
         {
             _repon = new SeoReponsitory();
         }
+        [HttpGet("Get-id")]
+        public async Task<Seo> GetById(long id)
+        {
+            return await _repon.GetById(id);
+        }
         [HttpPost("Create")]
         public async Task Create(Seo seo)
         {

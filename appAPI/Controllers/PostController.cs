@@ -13,7 +13,7 @@ namespace appAPI.Controllers
     {
         private readonly IRepository<Posts> _postRepository;
         private readonly IRepository<Post_metas> _postMetaRepository;
-        private readonly IRepository<Products> _postProductRepository;
+        private readonly IRepository<Product_variants> _postProductRepository;
         private readonly IRepository<Post_tags> _postTagRepository;
         private readonly IRepository<Post_categories> _postcategorieRepository;
         private readonly IRepository<Categories> _categoryRepository;
@@ -22,7 +22,7 @@ namespace appAPI.Controllers
         public PostsController(
             IRepository<Posts> postRepository,
             IRepository<Post_metas> postMetaRepository,
-            IRepository<Products> postProductRepository,
+            IRepository<Product_variants> postProductRepository,
             IRepository<Post_tags> postTagRepository,
             IRepository<Post_categories> postcategorieRepository,
             IRepository<Categories> categoryRepository,
@@ -64,9 +64,9 @@ namespace appAPI.Controllers
                     _postMetaRepository.AddRange(post.Post_metas);
                 }
 
-                if (post.Post_products != null && post.Post_products.Any())
+                if (post.Product_Variants != null && post.Product_Variants.Any())
                 {
-                    _postProductRepository.AddRange(post.Post_products);
+                    _postProductRepository.AddRange(post.Product_Variants);
                 }
 
                 if (post.Post_tags != null && post.Post_tags.Any())

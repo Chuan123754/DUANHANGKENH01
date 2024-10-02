@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using ViewsFE.Data;
 using Microsoft.JSInterop;
-using ViewsFE.IServices;
 using ViewsFE.Services;
 using Blazored.SessionStorage;
 
@@ -35,6 +34,9 @@ builder.Services.AddScoped<IPostMetaService, PostMetaService>();
 builder.Services.AddScoped<IQaService, QaService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<FilesIServices, FilesServices>();
+builder.Services.AddScoped<IDesignerServices, DesignerServices>();
+builder.Services.AddScoped<SeoIServices, SeoServices>();
+builder.Services.AddScoped<IOptionsServices, OptionServices>();
 
 var app = builder.Build();
 

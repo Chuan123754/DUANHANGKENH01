@@ -58,7 +58,6 @@ namespace appAPI.Controllers
             }
 
             item.User_id = wishlist.User_id;
-            item.Product_id = wishlist.Product_id;
             item.Create_at = wishlist.Create_at;
             item.Updated_at = wishlist.Updated_at;
             context.SaveChanges();

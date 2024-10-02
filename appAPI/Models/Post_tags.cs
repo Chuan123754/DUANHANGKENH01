@@ -5,8 +5,6 @@ using System.Text.Json.Serialization;
 namespace appAPI.Models
 {
     [Table("post_tags")]
-    [Index("Post_Id", Name = "IX_post_tags_post_id")]
-    [Index("Tag_Id", Name = "IX_post_tags_tag_id")]
     public partial class Post_tags
     {
         public long Id { get; set; }

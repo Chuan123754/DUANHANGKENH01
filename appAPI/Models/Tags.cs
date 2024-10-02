@@ -11,7 +11,6 @@ using System.Text.Json.Serialization;
 namespace appAPI.Models
 {
     [Table("tags")]
-    [Index("Type", Name = "tags_type_index")]
     public partial class Tags
     {
         [Key]

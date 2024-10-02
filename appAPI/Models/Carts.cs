@@ -21,7 +21,5 @@ namespace appAPI.Models
         public virtual ICollection<Cart_details> Cart_Details { get; set; } = new List<Cart_details>();
         [ForeignKey("UserId")]
         public virtual Users? Users { get; set; }
-        [InverseProperty("Cart")]
-        public virtual ICollection<Orders> Orders { get; set; } = new List<Orders>();
     }
 }

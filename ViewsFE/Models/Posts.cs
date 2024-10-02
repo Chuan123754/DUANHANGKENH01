@@ -1,21 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace ViewsFE.Models
 {
     [Table("posts")]
-    [Index("AuthorId", Name = "IX_posts_author_id")]
-    [Index("Slug", Name = "IX_posts_slug")]
-    [Index("Status", Name = "IX_posts_status")]
-    [Index("Type", Name = "IX_posts_type")]
-    [Index("Slug", "Deleted_at", Name = "UK_posts_slug_deleted_at", IsUnique = true)]
     public partial class Posts
     {
         [Key]
@@ -47,35 +39,31 @@ namespace ViewsFE.Models
         public DateTime? Created_at { get; set; }
 
         public DateTime? Updated_at { get; set; }
-        [InverseProperty("Posts")]
-        [JsonIgnore]
-        public virtual ICollection<Post_metas> Post_metas { get; set; }
-        [InverseProperty("Posts")]
-        [JsonIgnore]
-        public virtual ICollection<Products> Post_products { get; set; } = new List<Products>();
-        [InverseProperty("Posts")]
-        [JsonIgnore]
-        public virtual ICollection<Post_tags> Post_tags { get; set; }
 
-        // Quan hệ với bảng Categories (nếu cần, nhưng thường không trực tiếp)
-        public virtual ICollection<Categories> Categories { get; set; }
-
-        [InverseProperty("Posts")]
         [JsonIgnore]
-        public virtual ICollection<Post_categories> Post_categories { get; set; }
+        public virtual ICollection<Post_metas> Post_metas { get; set; } = new List<Post_metas>();
+        [JsonIgnore]
+        public virtual ICollection<Product_variants> Product_Variants { get; set; } = new List<Product_variants>();
+        [JsonIgnore]
+        public virtual ICollection<Post_tags> Post_tags { get; set; } = new List<Post_tags>();
+        [JsonIgnore]
+        public virtual ICollection<Post_categories> Post_categories { get; set; } = new List<Post_categories>();
+        [JsonIgnore]
+        public virtual ICollection<Categories> Categories { get; set; } = new List<Categories>();
 
-        // Quan hệ với bảng Tags (nếu cần, nhưng thường không trực tiếp)
+        // Quan hệ với bảng Tags
         public virtual ICollection<Tags> Tags { get; set; }
 
         // Nội dung bài viết
         public string Content { get; set; }
 
-        // để lấy Id bên View.
+        // Danh sách ID các category đã chọn
         public List<long> SelectedCategoryId { get; set; }
+
+        // Danh sách ID các tag đã chọn
         public List<long> SelectedTagId { get; set; }
 
+        // Phương thức để lấy SEO liên quan
+        public virtual Seo Seo { get; set; } // thêm quan hệ với model Seo
     }
 }
-
-
-
