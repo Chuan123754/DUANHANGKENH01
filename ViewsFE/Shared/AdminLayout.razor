@@ -1,4 +1,8 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@inject HttpClient Http
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IAccountService accountService
 @using Microsoft.AspNetCore.Components.Web
 <!DOCTYPE html>
 <html lang="en">
@@ -204,7 +208,7 @@
                             </div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                            <a href="#" class="dropdown-item">Logout</a>
+                            <a @onclick="Logout" class="dropdown-item" style="cursor: pointer;">Logout</a>
                         </div>
                     </div>
                 </div>
@@ -375,8 +379,7 @@
                             </div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-              @*               <a @onclick="Logout" class="dropdown-item" style="cursor: pointer;">Logout</a> *@
-
+                           <a @onclick="Logout" class="dropdown-item" style="cursor: pointer;">Logout</a>
                         </div>
                     </div>
                 </div>
@@ -421,9 +424,8 @@
                                 </span>
                             </a>
                         </li>
+                        
                         <li class="nav-item  dropdown">
-
-                          
                                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
                                 data-bs-auto-close="false" role="button" aria-expanded="false">
                                     <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -714,10 +716,10 @@
                                         <path d="M12 13a3 3 0 1 0 0 -6a3 3 0 0 0 0 6z" />
                                         <path d="M6 20.703v-.703a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v.707" />
                                     </svg>
-                                </span>
-                                <span class="nav-link-title">
-                                    Quản trị viên
-                                </span>
+                                </span>                             
+                                    <span class="nav-link-title">
+                                        Quản trị viên
+                                    </span>                              
                             </a>
                             <div class="dropdown-menu ">
                                 <div class="dropdown-menu-columns">
@@ -757,3 +759,18 @@
     <script src="_framework/blazor.server.js"></script>
 </body>
 </html>
+@code {
+    private async Task Logout()
+    {
+        try
+        {
+            await accountService.SignOutAsync();
+            await sessionStorage.RemoveItemAsync("authToken");
+            Navigation.NavigateTo("/account/login");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi đăng xuất: {ex.Message}");
+        }
+    }
+}

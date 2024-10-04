@@ -5,15 +5,24 @@ using ViewsFE.Data;
 using Microsoft.JSInterop;
 using ViewsFE.Services;
 using Blazored.SessionStorage;
+using ViewsFE;
+using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddAuthorizationCore();
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddHttpClient();
+builder.Services.AddOptions();
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddAuthorizationCore(config =>
+{
+    config.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")); // cấu hình xác thực cho Bla  zor 
+});
 // Thêm CORS nếu cần
 builder.Services.AddCors(options =>
 {
@@ -25,6 +34,9 @@ builder.Services.AddCors(options =>
                    .AllowAnyHeader();
         });
 });
+builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAttributesServices, AttributesService>();
 builder.Services.AddScoped<ICategoriesServices, CategoriesServices>();
 builder.Services.AddScoped<IPostService, PostService>();
@@ -32,7 +44,6 @@ builder.Services.AddScoped<IPostTagService, PostTagService>();
 builder.Services.AddScoped<ITagsServices, TagsServices>();
 builder.Services.AddScoped<IPostMetaService, PostMetaService>();
 builder.Services.AddScoped<IQaService, QaService>();
-builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<FilesIServices, FilesServices>();
 builder.Services.AddScoped<IDesignerServices, DesignerServices>();
 builder.Services.AddScoped<SeoIServices, SeoServices>();
@@ -50,7 +61,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseRouting();
 
 app.MapBlazorHub();
