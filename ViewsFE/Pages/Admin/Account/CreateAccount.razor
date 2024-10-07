@@ -1,9 +1,12 @@
 ﻿@page "/account/create"
 @using ViewsFE.Models
 @using ViewsFE.Helper
+@using System.IdentityModel.Tokens.Jwt
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject IAccountService accountService
+@inject ILogActivityHistoryService LogActivityHistoryService
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 
 <div class="container mt-5">
     <!-- Nút Quay Lại -->
@@ -75,23 +78,63 @@
 
     private async Task HandleValidSubmit()
     {
-        var identityResult = await accountService.SignUpAsync(sigupModel);
-        if (identityResult.Succeeded)
+        try
         {
-            Navigation.NavigateTo("/account/allaccount");
-        }
-        else
-        {
-            var errorMessages = identityResult.Errors.Select(error => error.Description);
-            foreach (var errorMessage in errorMessages)
+            var identityResult = await accountService.SignUpAsync(sigupModel);
+            if (identityResult.Succeeded)
             {
-                Console.WriteLine($"Lỗi: {errorMessage}");
+                var token = await sessionStorage.GetItemAsync<string>("authToken");
+                var userInfo = GetUserInfoFromToken(token);
+
+                // Lưu trữ các thông tin
+                var accountId = userInfo.accountId;
+                var firstName = userInfo.firstName;
+                var lastName = userInfo.lastName;
+                var email = userInfo.email;
+
+                await LogActivityHistoryService.LogActivityAsync(
+
+                    logName: "Tạo mới tài khoản",
+                    description: $"Tài khoản được tạo là : {sigupModel.Email}",
+                    subjectType: "Tài khoản",
+                    accountId: accountId
+
+                );
+                Navigation.NavigateTo("/account/allaccount");
+            }
+            else
+            {
+                var errorMessages = identityResult.Errors.Select(error => error.Description);
+                foreach (var errorMessage in errorMessages)
+                {
+                    Console.WriteLine($"Lỗi: {errorMessage}");
+                }
             }
         }
+        catch(Exception ex)
+        {
+            Console.WriteLine($"Có lỗi xảy ra: {ex.Message}");
+            Console.WriteLine($"Stack Trace: {ex.StackTrace}");
+        }
+      
     }
 
     private void GoBack()
     {
         Navigation.NavigateTo("/account/allaccount"); // Điều hướng trở lại trang danh sách tài khoản
     }
+    private (string accountId, string firstName, string lastName, string email) GetUserInfoFromToken(string token)
+    {
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+
+        var accountId = jwtToken.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var firstName = jwtToken.Claims.FirstOrDefault(c => c.Type == "FirstName")?.Value;
+        var lastName = jwtToken.Claims.FirstOrDefault(c => c.Type == "LastName")?.Value;
+        var email = jwtToken.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value;
+      
+
+        return (accountId, firstName, lastName, email);
+    }
+
 }

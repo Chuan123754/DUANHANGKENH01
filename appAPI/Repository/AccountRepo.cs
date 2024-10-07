@@ -41,6 +41,9 @@ namespace appAPI.Repository
             {
                 new Claim(ClaimTypes.Email , model.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id), 
+                new Claim("FirstName", user.FirstName), 
+                new Claim("LastName", user.LastName)   
             };
 
             var userRoles = await userManager.GetRolesAsync(user);

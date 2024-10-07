@@ -8,6 +8,9 @@ using Blazored.SessionStorage;
 using ViewsFE;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using ViewsFE.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuthorizationCore();
@@ -34,6 +37,12 @@ builder.Services.AddCors(options =>
                    .AllowAnyHeader();
         });
 });
+builder.Services.AddDbContext<APP_DATA_DATN>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddIdentity<Account, IdentityRole>()
+    .AddEntityFrameworkStores<APP_DATA_DATN>()
+    .AddDefaultTokenProviders();
+builder.Services.AddScoped<ILogActivityHistoryService, LogActivityHistoryService>();
 builder.Services.AddScoped<CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<IAccountService, AccountService>();

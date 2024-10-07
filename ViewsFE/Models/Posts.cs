@@ -58,7 +58,7 @@ namespace ViewsFE.Models
         public string Content { get; set; }
 
         // Danh sách ID các category đã chọn
-        public List<long> SelectedCategoryId { get; set; }
+        public List<long> SelectedCategoryId { get; set; } 
 
         // Danh sách ID các tag đã chọn
         public List<long> SelectedTagId { get; set; }

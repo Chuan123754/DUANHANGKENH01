@@ -108,10 +108,7 @@
 
             if (!string.IsNullOrEmpty(token))
             {
-                // Lưu token vào sessionStorage
                 await sessionStorage.SetItemAsync("authToken", token);
-
-                // Gọi phương thức LoginAsync trong CustomAuthStateProvider nếu cần
                 await CustomAuthStateProvider.LoginAsync(loginModel);
                 Navigation.NavigateTo("/");
             }
