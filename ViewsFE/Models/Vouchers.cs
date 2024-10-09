@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace ViewsFE.Models
-{   
+{
     public class Vouchers
     {
         public long Id { get; set; }    

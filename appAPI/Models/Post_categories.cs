@@ -20,6 +20,6 @@ namespace appAPI.Models
         [ForeignKey("Category_Id")]
         public virtual Categories? Categories { get; set; }
         [ForeignKey("Post_Id")]
-        public virtual Posts? Posts { get; set; }
+        public virtual Product_Posts? Posts { get; set; }
     }
 }

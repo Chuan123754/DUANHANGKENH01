@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 namespace ViewsFE.Models
 {
     [Table("options")]
-    [Index("Optin_name", Name = "UQ__options__A2E9140E2B971836", IsUnique = true)]
     public partial class Options
     {
         [Key]

@@ -13,7 +13,7 @@ namespace ViewsFE.Models
     public class Wishlist
     {
         [Key]
-        public long Id { get; set; }
+        public long Id { get; set; }    
         public long User_id { get; set; }
         public DateTime? Create_at { get; set; }
         public DateTime? Updated_at { get; set; }

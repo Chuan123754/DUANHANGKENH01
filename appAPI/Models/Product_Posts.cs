@@ -1,14 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 
-namespace ViewsFE.Models
+namespace appAPI.Models
 {
-    [Table("posts")]
-    public partial class Posts
+    [Table("product_post")]
+    public partial class Product_Posts
     {
         [Key]
         public long Id { get; set; }
@@ -24,9 +27,14 @@ namespace ViewsFE.Models
         public string? Status { get; set; }
 
         public long AuthorId { get; set; }
+        public bool Deleted { get; set; }
 
         [StringLength(255)]
         public string? Type { get; set; }
+        public string? Short_description { get; set; }
+        public string ? Description { get; set; }
+        public string? Image_library { get; set; }
+        public string? Feature_image { get; set; }
 
         public DateTime? Post_date { get; set; }
 
@@ -39,9 +47,6 @@ namespace ViewsFE.Models
         public DateTime? Created_at { get; set; }
 
         public DateTime? Updated_at { get; set; }
-
-        [JsonIgnore]
-        public virtual ICollection<Post_metas> Post_metas { get; set; } = new List<Post_metas>();
         [JsonIgnore]
         public virtual ICollection<Product_variants> Product_Variants { get; set; } = new List<Product_variants>();
         [JsonIgnore]
@@ -49,21 +54,9 @@ namespace ViewsFE.Models
         [JsonIgnore]
         public virtual ICollection<Post_categories> Post_categories { get; set; } = new List<Post_categories>();
         [JsonIgnore]
-        public virtual ICollection<Categories> Categories { get; set; } = new List<Categories>();
-
-        // Quan hệ với bảng Tags
-        public virtual ICollection<Tags> Tags { get; set; }
-
-        // Nội dung bài viết
-        public string Content { get; set; }
-
-        // Danh sách ID các category đã chọn
-        public List<long> SelectedCategoryId { get; set; }
-
-        // Danh sách ID các tag đã chọn
-        public List<long> SelectedTagId { get; set; }
-
-        // Phương thức để lấy SEO liên quan
-        public virtual Seo Seo { get; set; } // thêm quan hệ với model Seo
+        [ForeignKey("AuthorId")]
+        public Designer? Designer { get; set; }
+     
     }
 }
+

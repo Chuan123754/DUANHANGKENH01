@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace appAPI.Models
 {
@@ -11,6 +12,9 @@ namespace appAPI.Models
         public string Status { get; set; }  
         public DateTime Create_at { get; set; }
         public DateTime Update_at { get; set; }
-
+        [ForeignKey("UserId")]
+        public virtual Users? Users { get; set; }
+        [ForeignKey("VoucherId")]
+        public virtual Vouchers? Vouchers { get; set; }
     }
 }

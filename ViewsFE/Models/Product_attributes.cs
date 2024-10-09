@@ -11,8 +11,6 @@ using System.Threading.Tasks;
 namespace ViewsFE.Models
 {
     [Table("product_attributes")]
-    [Index("Attribute_Id", Name = "IX_product_attributes_attribute_id")]
-    [Index("Product_Id", Name = "IX_product_attributes_product_id")]
     public class Product_attributes
     {
         [Key]

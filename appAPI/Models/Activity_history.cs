@@ -10,7 +10,7 @@ namespace appAPI.Models
         public string Descripcion { get; set; }
         public string Subject_type { get; set; }
         public string AccountId { get; set; }
-        public virtual Account Account { get; set; }
+        public virtual Account? Account { get; set; }
 
     }
 }

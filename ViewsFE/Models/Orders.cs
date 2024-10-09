@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 namespace ViewsFE.Models
 {
     [Table("orders")]
-  
 
     public partial class Orders
     {

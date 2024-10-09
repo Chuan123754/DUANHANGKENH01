@@ -23,5 +23,7 @@ namespace ViewsFE.Models
         public string? Keywords { get; set; }
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set; }
+        [ForeignKey("Post_Id")]
+        public virtual Product_Posts? Product_Posts { get; set; }
     }
 }
