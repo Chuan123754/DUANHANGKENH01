@@ -16,7 +16,7 @@ namespace ViewsFE.Services
         public UserService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-        }
+        } 
 
         public async Task<List<Users>> GetAll()
         {
