@@ -60,6 +60,7 @@ builder.Services.AddScoped<SeoIServices, SeoServices>();
 builder.Services.AddScoped<IOptionsServices, OptionServices>();
 builder.Services.AddScoped<IPostSer, PostServices>();
 
+builder.Services.AddScoped<AddressService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

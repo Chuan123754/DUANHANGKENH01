@@ -37,7 +37,7 @@ namespace appAPI.Controllers
             }
             catch (InvalidOperationException ex) // ex bên repo
             {
-                return BadRequest(ex.Message); // Trả về thông báo mật khẩu không hợp lệ
+                return BadRequest(ex.Message); 
             }
             catch (Exception ex)
             {
