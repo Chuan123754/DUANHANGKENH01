@@ -64,7 +64,7 @@ namespace appAPI.Controllers
             item.Title = style.Title;
             item.Description = style.Description;
             item.Slug = style.Slug;
-            item.Status = Style.STATUS_ACTIVE;
+            item.Status = style.Status;
             _repos.Update(item);
             return Ok(new { message = "Cập nhật style thành công" });
         }

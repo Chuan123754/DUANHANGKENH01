@@ -64,7 +64,7 @@ namespace appAPI.Controllers
             item.Title = material.Title;
             item.Description = material.Description;
             item.Slug = material.Slug;
-            item.Status = Material.STATUS_ACTIVE;
+            item.Status = material.Status;
             _repos.Update(item);
             return Ok(new { message = "Cập nhật chất liệu thành công" });
         }

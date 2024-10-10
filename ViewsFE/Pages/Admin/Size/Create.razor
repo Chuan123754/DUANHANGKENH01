@@ -35,8 +35,14 @@
 
 @code {
     private Size size = new Size();
+    protected override void OnInitialized()
+    {
+        // Set default status to "ACTIVE" (Hoạt động)
+        size.Status = Size.STATUS_ACTIVE;
+    }
     private async Task SubmitForm()
     {
+        size.Create_at = DateTime.Now;
         await sev.Create(size); // Gọi API để tạo thuộc tính
         nav.NavigateTo("/admin/size"); // Điều hướng sau khi thành công
     }

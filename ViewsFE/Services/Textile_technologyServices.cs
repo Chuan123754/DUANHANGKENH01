@@ -37,7 +37,7 @@ namespace ViewsFE.Services
         }
         public async Task Update(Textile_technology t)
         {
-            await _client.PutAsJsonAsync($"{_baseUrl}/api/Textile_technology", t);
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/Textile_technology/{t.Id}", t);
         }
     }
 }

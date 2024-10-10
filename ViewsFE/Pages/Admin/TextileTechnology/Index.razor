@@ -61,7 +61,7 @@
                                 {
                                     @foreach (var sz in listTechnology)
                                     {
-                                        <tr>
+                                        <tr class="post-row">
                                             <td>@sz.Id</td>
                                             <td class="sort-title">
                                                 @sz.Title
@@ -101,13 +101,13 @@
     private async Task OnSearch()
     {
         // Ngăn ngừa load lại trang
-        listTechnology = await sev.Search(search_query);
+        listTechnology = (await sev.Search(search_query)).Where(c => c.Status != "Deleted").ToList();
     }
 
     protected override async Task OnInitializedAsync()
     {
         // Load initial data
-        listTechnology = await sev.GetAll();
+        listTechnology = (await sev.GetAll()).Where(c => c.Status != "Deleted").ToList();
     }
 
     private void NavEditCtgr(long id)
@@ -118,6 +118,6 @@
     private async Task NavDeleteCtgr(long id)
     {
         await sev.Delete(id);
-        listTechnology = await sev.GetAll(); // Cập nhật danh sách sau khi xóa
+        listTechnology = (await sev.GetAll()).Where(c => c.Status != "Deleted").ToList(); // Cập nhật danh sách sau khi xóa
     }
 }

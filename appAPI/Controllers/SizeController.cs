@@ -62,7 +62,7 @@ namespace appAPI.Controllers
             item.Title = size.Title;
             item.Description = size.Description;
             item.Slug = size.Slug;
-            item.Status = Size.STATUS_ACTIVE;
+            item.Status = size.Status;
             _repos.Update(item);
             return Ok(new { message = "Cập nhật size thành công" });
         }

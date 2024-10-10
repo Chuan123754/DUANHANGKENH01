@@ -63,7 +63,7 @@ namespace appAPI.Controllers
             item.Title = technology.Title;
             item.Description = technology.Description;
             item.Slug = technology.Slug;
-            item.Status = Textile_technology.STATUS_ACTIVE;
+            item.Status = technology.Status;
             _repos.Update(item);
             return Ok(new { message = "Cập nhật textile_technology thành công" });
         }

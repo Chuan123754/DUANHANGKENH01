@@ -35,8 +35,14 @@
 
 @code {
     private Style style = new Style();
+    protected override void OnInitialized()
+    {
+        // Set default status to "ACTIVE" (Hoạt động)
+        style.Status = Style.STATUS_ACTIVE;
+    }
     private async Task SubmitForm()
     {
+        style.Create_at = DateTime.Now;
         await sev.Create(style); // Gọi API để tạo thuộc tính
         nav.NavigateTo("/admin/style"); // Điều hướng sau khi thành công
     }

@@ -42,7 +42,7 @@ namespace ViewsFE.Services
 
         public async Task Update(Size s)
         {
-            await _client.PutAsJsonAsync($"{_baseUrl}/api/Size", s);
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/Size/{s.Id}", s);
         }
     }
 }

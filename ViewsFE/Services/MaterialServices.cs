@@ -42,7 +42,7 @@ namespace ViewsFE.Services
 
         public async Task Update(Material s)
         {
-            await _client.PutAsJsonAsync($"{_baseUrl}/api/Material", s);
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/Material/{s.Id}", s);
         }
     }
 }

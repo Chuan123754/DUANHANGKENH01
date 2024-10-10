@@ -35,8 +35,14 @@
 
 @code {
     private Textile_technology technology = new Textile_technology();
+    protected override void OnInitialized()
+    {
+        // Set default status to "ACTIVE" (Hoạt động)
+        technology.Status = Textile_technology.STATUS_ACTIVE;
+    }
     private async Task SubmitForm()
     {
+        technology.Create_at = DateTime.Now;
         await sev.Create(technology); // Gọi API để tạo thuộc tính
         nav.NavigateTo("/admin/textiletechnology"); // Điều hướng sau khi thành công
     }

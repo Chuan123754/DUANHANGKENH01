@@ -61,7 +61,7 @@
                                 {
                                     @foreach (var sz in listStyle)
                                     {
-                                        <tr>
+                                        <tr class="post-row">
                                             <td>@sz.Id</td>
                                             <td class="sort-title">
                                                 @sz.Title
@@ -101,13 +101,13 @@
     private async Task OnSearch()
     {
         // Ngăn ngừa load lại trang
-        listStyle = await sev.Search(search_query);
+        listStyle = (await sev.Search(search_query)).Where(c => c.Status != "Deleted").ToList();
     }
 
     protected override async Task OnInitializedAsync()
     {
         // Load initial data
-        listStyle = await sev.GetAll();
+        listStyle = (await sev.GetAll()).Where(c => c.Status != "Deleted").ToList();
     }
 
     private void NavEditCtgr(long id)
@@ -118,6 +118,6 @@
     private async Task NavDeleteCtgr(long id)
     {
         await sev.Delete(id);
-        listStyle = await sev.GetAll(); // Cập nhật danh sách sau khi xóa
+        listStyle = (await sev.GetAll()).Where(c => c.Status != "Deleted").ToList(); // Cập nhật danh sách sau khi xóa
     }
 }
