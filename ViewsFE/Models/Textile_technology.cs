@@ -10,6 +10,7 @@ namespace ViewsFE.Models
         public string Title { get; set; }
         public string Slug { get; set; }
         public string Description { get; set; }
+        public string Status { get; set; }
         public DateTime Create_at { get; set; }
         public DateTime Update_at { get; set; }
         public DateTime Delete_at { get; set; }

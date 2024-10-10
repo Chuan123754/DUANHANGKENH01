@@ -1,0 +1,43 @@
+﻿@page "/admin/textiletechnology/create"
+@inject NavigationManager nav
+@inject ITextile_technologyServices sev
+
+<EditForm Model="technology" OnValidSubmit="SubmitForm" FormName="textiletechnologyadd">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+    <div class="page-wrapper">
+        <div class="page-body">
+            <div class="container-xl">
+                <div class="form-group mb-3">
+                    <label for="material-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                    <InputText id="material-title" class="form-control" @bind-Value="technology.Title" required />
+                    <ValidationMessage For="@(() => technology.Title)" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="attribute-slug" class="form-label">Đường dẫn</label>
+                    <InputText id="attribute-slug" class="form-control" @bind-Value="technology.Slug" />
+                    <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="attribute-color" class="form-label">Mô tả</label>
+                    <InputText id="attribute-color" class="form-control" @bind-Value="technology.Description" />
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Thêm công nghệ dệt</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private Textile_technology technology = new Textile_technology();
+    private async Task SubmitForm()
+    {
+        await sev.Create(technology); // Gọi API để tạo thuộc tính
+        nav.NavigateTo("/admin/textiletechnology"); // Điều hướng sau khi thành công
+    }
+}

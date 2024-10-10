@@ -5,6 +5,7 @@ using ViewsFE.Data;
 using Microsoft.JSInterop;
 using ViewsFE.Services;
 using Blazored.SessionStorage;
+using ViewsFE.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,11 @@ builder.Services.AddScoped<IDesignerServices, DesignerServices>();
 builder.Services.AddScoped<SeoIServices, SeoServices>();
 builder.Services.AddScoped<IOptionsServices, OptionServices>();
 builder.Services.AddScoped<IPostSer, PostServices>();
+builder.Services.AddScoped<ISizeServices, SizeServices>();
+builder.Services.AddScoped<IStyleServices, StyleServices>();
+builder.Services.AddScoped<IMaterialServices, MaterialServices>();
+builder.Services.AddScoped<IColorServices, ColorServices>();
+builder.Services.AddScoped<ITextile_technologyServices, Textile_technologyServices>();
 
 var app = builder.Build();
 

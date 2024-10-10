@@ -24,27 +24,62 @@ namespace appAPI.Controllers
 
         // GET api/<ColorController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IActionResult Get(long id)
         {
-            return "value";
+            var colo = _repos.GetById(id);
+            if (colo == null)
+            {
+                return NotFound("Color not found");
+            }
+            return Ok(colo);
         }
 
         // POST api/<ColorController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public IActionResult Post(Color color)
         {
+            try
+            {
+                color.Create_at = DateTime.Now;
+                _repos.Add(color);
+                return Ok();
+            }catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // PUT api/<ColorController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public IActionResult Put(Color color)
         {
+            var item = _repos.GetById(color.Id);
+            if (item == null)
+            {
+                return BadRequest("Color not found");
+            }
+            item.Update_at = DateTime.Now;
+            item.Title = color.Title;   
+            item.Description = color.Description;   
+            item.Slug = color.Slug;
+            item.Status = color.Status;
+            _repos.Update(item);
+            return Ok(new { message = "Cập nhật màu sắc thành công" });
         }
 
         // DELETE api/<ColorController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(long id)
         {
+            var delete = _repos.GetById(id);
+            if(delete == null)
+            {
+                return BadRequest("Xoá màu thành công");
+            }
+            delete.Status = "Deleted";
+            delete.Delete_at = DateTime.Now;
+            _repos.Update(delete);
+            return Ok(new { message = "Trạng thái đã được chuyển thành không hoạt động (UNACTIVE)" });
         }
     }
 }
