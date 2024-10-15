@@ -31,6 +31,7 @@ namespace appAPI.Models
 
         [StringLength(255)]
         public string? Type { get; set; }
+        public string? product_video { get; set; }
         public string? Short_description { get; set; }
         public string ? Description { get; set; }
         public string? Image_library { get; set; }
@@ -56,7 +57,9 @@ namespace appAPI.Models
         [JsonIgnore]
         [ForeignKey("AuthorId")]
         public Designer? Designer { get; set; }
-     
+        [JsonIgnore]
+        public virtual Banner? Banner { get; set; }
+
     }
 }
 

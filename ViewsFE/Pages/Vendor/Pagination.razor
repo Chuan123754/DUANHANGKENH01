@@ -1,0 +1,161 @@
+﻿@typeparam TItem
+<div class="d-flex justify-content-between">
+    <div>
+        <p class="small text-muted">
+            Đang xem
+            <span class="fw-semibold">@((PageNumber - 1) * PageSize + 1)</span>
+            đến
+            <span class="fw-semibold">@Math.Min(PageNumber * PageSize, TotalItems)</span>
+            trong tổng
+            <span class="fw-semibold">@TotalItems</span> mục
+        </p>
+    </div>
+
+    <ul class="pagination">
+        <div style="display: flex; align-items: center;">
+            <label for="pageSizeSelect" class="small text-muted" style="margin-right: 8px;">Xem</label>
+            <select id="pageSizeSelect" class="form-select-sm" @onchange="PageSizeChanged">
+                <option class="small text-muted" value="10">10</option>
+                <option class="small text-muted" value="25">25</option>
+                <option class="small text-muted" value="50">50</option>
+                <option class="small text-muted" value="100">100</option>
+            </select>
+            <label for="pageSizeSelect" class="small text-muted" style="margin-left: 8px;">mục</label>
+        </div>
+
+        @if (PageNumber > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" @onclick="PreviousPage">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+            </li>
+        }
+
+        @if (GetPageNumbers(TotalPages, PageNumber).First() > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" @onclick="@(async () => await GoToPage(1))">1</a>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link">...</span>
+            </li>
+        }
+
+        @foreach (var pageIndex in GetPageNumbers(TotalPages, PageNumber))
+        {
+            <li class="page-item @(pageIndex == PageNumber ? "active" : "")">
+                <a class="page-link" @onclick="@(async () => await GoToPage(pageIndex))">@pageIndex</a>
+            </li>
+        }
+
+        @if (GetPageNumbers(TotalPages, PageNumber).Last() < TotalPages)
+        {
+            <li class="page-item disabled">
+                <span class="page-link">...</span>
+            </li>
+            <li class="page-item">
+                <a class="page-link" @onclick="@(async () => await GoToPage(TotalPages))">@TotalPages</a>
+            </li>
+        }
+
+        @if (PageNumber < TotalPages)
+        {
+            <li class="page-item">
+                <a class="page-link" @onclick="NextPage">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+            </li>
+        }
+    </ul>
+</div>
+
+@code {
+    [Parameter] public int PageNumber { get; set; } = 1;
+    [Parameter] public int TotalPages { get; set; } = 1;
+    [Parameter] public int PageSize { get; set; } = 10;
+    [Parameter] public int TotalItems { get; set; }
+    [Parameter] public EventCallback<int> OnPageSizeChanged { get; set; }
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+
+    private async Task PageSizeChanged(ChangeEventArgs e)
+    {
+        PageSize = int.Parse(e.Value.ToString());
+        await OnPageSizeChanged.InvokeAsync(PageSize);
+    }
+
+    private async Task PreviousPage()
+    {
+        if (PageNumber > 1)
+        {
+            await OnPageChanged.InvokeAsync(PageNumber - 1);
+        }
+    }
+
+    private async Task NextPage()
+    {
+        if (PageNumber < TotalPages)
+        {
+            await OnPageChanged.InvokeAsync(PageNumber + 1);
+        }
+    }
+
+    private async Task GoToPage(int page)
+    {
+        if (page != PageNumber)
+        {
+            await OnPageChanged.InvokeAsync(page);
+        }
+    }
+
+    private List<int> GetPageNumbers(int total_pages, int current_page, int max_visible_pages = 3)
+    {
+        var pages = new List<int>();
+        int startPage, endPage;
+        if (total_pages <= max_visible_pages)
+        {
+            startPage = 1;
+            endPage = total_pages;
+        }
+        else
+        {
+            int maxPagesBeforeCurrentPage = (int)Math.Floor(max_visible_pages / 2.0);
+            int maxPagesAfterCurrentPage = (int)Math.Ceiling(max_visible_pages / 2.0) - 1;
+
+            if (current_page <= maxPagesBeforeCurrentPage)
+            {
+                startPage = 1;
+                endPage = max_visible_pages;
+            }
+            else if (current_page + maxPagesAfterCurrentPage >= total_pages)
+            {
+                startPage = total_pages - max_visible_pages + 1;
+                endPage = total_pages;
+            }
+            else
+            {
+                startPage = current_page - maxPagesBeforeCurrentPage;
+                endPage = current_page + maxPagesAfterCurrentPage;
+            }
+        }
+
+        for (int i = startPage; i <= endPage; i++)
+        {
+            pages.Add(i);
+        }
+
+        return pages;
+    }
+}

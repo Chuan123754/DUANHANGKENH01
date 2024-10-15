@@ -30,6 +30,11 @@ namespace appAPI.Controllers
         {
             return await _postRepository.GetAllByType("post");
         }
+        [HttpGet("Get-all-project")]
+        public async Task<List<Product_Posts>> GetAllProject()
+        {
+            return await _postRepository.GetAllByType("project");
+        }
 
         // Lấy sản phẩm theo ID
         [HttpGet("BetGyId-product")]
@@ -64,6 +69,16 @@ namespace appAPI.Controllers
             }
             return Ok(product);
         }
+        [HttpGet("BetGyId-project")]
+        public async Task<IActionResult> GetByIdProẹct(long id)
+        {
+            var product = await _postRepository.GetByIdAndType(id, "project");
+            if (product == null)
+            {
+                return NotFound("Project not found");
+            }
+            return Ok(product);
+        }
 
         [HttpPost("Create-product")]
         public async Task CreateProduct(Product_Posts post)
@@ -80,6 +95,11 @@ namespace appAPI.Controllers
         {
             await _postRepository.CreatePage(post);
         }
+        [HttpPost("Create-project")]
+        public async Task CreateProẹct(Product_Posts post)
+        {
+            await _postRepository.CreateProject(post);
+        }
         [HttpPut("Edit-post")]
         public async Task EditPost(Product_Posts posts)
         {
@@ -92,10 +112,26 @@ namespace appAPI.Controllers
             await _postRepository.Delete(id);
         }
         [HttpGet("get-by-type")]
-        public async Task<IActionResult> GetByType([FromQuery] string type, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string searchTerm = "")
+        public async Task<IActionResult> GetByType([FromQuery] string type, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
         {
-            var posts = await _postRepository.GetByTypeAsync(type, pageNumber, pageSize, searchTerm);
-            return Ok(posts);
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Page number and page size must be greater than 0.");
+            }
+
+            var result = await _postRepository.GetByTypeAsync(type, pageNumber, pageSize, searchTerm);
+            return Ok(result);
+        }
+        [HttpGet("Get-Total-Count")]
+        public async Task<IActionResult> GetTotalCount([FromQuery] string type, [FromQuery] string? searchTerm = null)
+        {
+            if (string.IsNullOrEmpty(type))
+            {
+                return BadRequest("Type is required.");
+            }
+
+            var totalCount = await _postRepository.GetTotalCountAsync(type, searchTerm);
+            return Ok(totalCount);
         }
     }
 }

@@ -1,5 +1,225 @@
-﻿<h3>Create</h3>
+﻿@page "/admin/product/create"
+@inject NavigationManager nav
+@inject IPostSer sev
+@inject ITagsServices stag
+@inject IDesignerServices des
+@inject IJSRuntime JS
+
+<EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="page-wrapper">
+        <div class="page-header d-print-none">
+            <div class="container-xl">
+                <div class="row g-2 align-items-center">
+                    <div class="col">
+                        <h2 class="page-title">
+                            Thêm sản phẩm
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-body">
+            <div class="container-xl">
+                <div class="row">
+                    <div class="col-md-9 col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <!-- Tên sản phẩm -->
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                                    <InputText @bind-Value="Posts.Title" class="form-control" placeholder="Tên sản phẩm" required />
+                                </div>
+
+                                <!-- Đường dẫn -->
+                                <div class="mb-3">
+                                    <label for="seoSlug" class="form-label">Đường dẫn</label>
+                                    <InputText @bind-Value="Posts.Slug" class="form-control" />
+                                </div>
+
+                                <!-- Mô tả ngắn -->
+                                <div class="mb-3">
+                                    <label for="shortDescription" class="form-label">Mô tả ngắn</label>
+                                    <InputTextArea @bind-Value="Posts.Short_description" class="form-control" rows="3" />
+                                </div>
+
+                                <!-- Mô tả chi tiết -->
+                                <div class="mb-3">
+                                    <label for="tinymce-textarea" class="form-label">Mô tả</label>
+                                    <InputTextArea @bind-Value="Posts.Description" class="form-control" />
+                                </div>
+
+                                <!-- Video sản phẩm -->
+                                <div class="mb-3">
+                                    <label for="productVideo" class="form-label">Video (URL)</label>
+                                    <InputText @bind-Value="Posts.product_video" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Phần bên phải -->
+                    <div class="col-md-3 col-12">
+                        <div class="sticky-top position-sticky">
+                            <div class="accordion bg-white mb-3 mt-3 mt-md-0">
+                                <!-- Đăng -->
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#action-1" aria-expanded="true">
+                                            Đăng
+                                        </button>
+                                    </h2>
+                                    <div id="action-1" class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                        <div class="accordion-body pt-0">
+                                            <!-- Trạng thái -->
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">Trạng thái</label>
+                                                <select @bind="Posts.Status" class="form-control">
+
+                                                    @foreach (var status in statuses)
+                                                    {
+                                                        <option value="@status.Key" selected="@(Posts.Status == status.Key)">
+                                                            @status.Value
+                                                        </option>
+                                                    }
+                                                </select>
+                                            </div>
+
+                                            <!-- Tác giả -->
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">Tác giả</label>
+                                                <select @bind="Posts.AuthorId" class="form-control">
+                                                    @foreach (var desi in designers)
+                                                    {
+                                                        <option>
+                                                            @desi.Name
+                                                        </option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <button type="submit" class="btn btn-primary" style="float: right">Đăng</button>
+                                            <div class="clearfix"></div>
+                                        </div>                                    
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Ảnh sản phẩm -->
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#category" aria-expanded="true">
+                                            Ảnh sản phẩm
+                                        </button>
+                                    </h2>
+                                    <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                        <div class="accordion-body pt-0">
+                                            <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center">
+                                                @if (!string.IsNullOrEmpty(FeatureImage))
+                                                {
+                                                    <img src="@FeatureImage" class="w-100 h-100 object-cover" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="icon d-flex align-items-center justify-content-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M12 5v14" />
+                                                            <path d="M5 12h14" />
+                                                        </svg>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Danh mục sản phẩm -->
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#category" aria-expanded="true">
+                                            Danh mục sản phẩm
+                                        </button>
+                                    </h2>
+                                    <div id="category" class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                        <div class="accordion-body pt-0">
+                                            <InputSelect @bind-Value="SelectedCategories" Multiple="true" class="form-select">
+                                                @foreach (var category in Categories)
+                                                {
+                                                    <option value="@category.Id">@category.Title</option>
+                                                }
+                                            </InputSelect>
+                                            <a href="javascript:void(0)" id="add_category" class="mt-2 mb-2 d-block d-flex gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="10" height="10" viewBox="0 0 26 26">
+                                                    <path d="M12 5v14M5 12h14" />
+                                                </svg>
+                                                <span>Thêm danh mục</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Từ khóa -->
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
+                                            Từ khóa
+                                        </button>
+                                    </h2>
+                                    <div id="tag" class="accordion-collapse collapse show">
+                                        <div class="accordion-body pt-0">
+                                            <InputSelect @bind-Value="SelectedTags" Multiple="true" class="form-select">
+                                                @foreach (var tag in Tags)
+                                                {
+                                                    <option value="@tag.Id">@tag.Title</option>
+                                                }
+                                            </InputSelect>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</EditForm>
 
 @code {
-
+    private Product_Posts Posts = new Product_Posts();
+    private List<Categories> Categories = new List<Categories>();
+    private Dictionary<string, string> statuses = Product_Posts.STATUSES;
+    private List<Tags> Tags = new List<Tags>();
+    private List<Designer> designers = new List<Designer>();
+    private string FeatureImage { get; set; }
+    private List<int> SelectedCategories { get; set; } = new List<int>();
+    private List<int> SelectedTags { get; set; } = new List<int>();
+    protected override async void OnInitialized()
+    {
+        Tags = await stag.GetAll();
+        designers = await des.GetAll();
+        Posts.Status = Product_Posts.STATUS_DRAFT;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initTinyMCE");
+            await JS.InvokeVoidAsync("setTinyMCEContent", Posts.Description);
+        }
+    }
+  
+    private async void HandleValidSubmit()
+    {
+        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
+        await sev.CreateProduct(Posts);
+        nav.NavigateTo("/admin/product");
+    }
 }

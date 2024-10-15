@@ -1,5 +1,176 @@
-﻿<h3>Index</h3>
+﻿@page "/admin/product"
+@inject NavigationManager Navigation
+@inject IPostSer ProductService
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">Danh sách sản phẩm</h2>
+                    <a href="/admin/product/create" class="btn btn-sm btn-outline-primary">
+                        Thêm sản phẩm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Search form -->
+                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                        <div></div>
+                        <EditForm Model="product_posts" OnValidSubmit="OnSearch">
+                            <div class="form-group d-flex gap-2">
+                                <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                            </div>
+                        </EditForm>
+                    </div>
+
+                    <!-- Product Table -->
+                    <div id="table-default" class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>
+                                        <button class="table-sort" @onclick='() => SortBy("Title")'>Tiêu đề</button>
+                                    </th>
+                                    <th>
+                                        <button class="table-sort" @onclick='() => SortBy("Author")'>Tác giả</button>
+                                    </th>
+                                    <th>
+                                        <button class="table-sort" @onclick='() => SortBy("Category")'>Chuyên mục</button>
+                                    </th>
+                                    <th>
+                                        <button class="table-sort" @onclick='() => SortBy("Tags")'>Thẻ</button>
+                                    </th>
+                                    <th>
+                                        <button class="table-sort" @onclick='() => SortBy("Status")'>Trạng thái</button>
+                                    </th>
+                                    <th>
+                                        <button class="table-sort" @onclick='() => SortBy("Date")'>Thời gian</button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (product_posts_list != null && product_posts_list.Any())
+                                {
+                                    @foreach (var post in product_posts_list)
+                                    {
+                                        <tr class="post-row">
+                                            <td>@post.Id</td>
+                                            <td>
+                                                @post.Title
+                                                <br />
+                                                <div class="cell-action">
+                                                    <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(post.Id)">Chỉnh sửa</a>
+                                                    <a class="cell-action-delete text-danger" @onclick="() => ConfirmDelete(post.Id)">Xóa</a>
+                                                </div>
+                                            </td>
+                                            <td>@post.Designer?.Name</td>
+                                            <td>
+                                                @foreach (var cat in post.Post_categories)
+                                                {
+                                                    <a href="#">@cat.Categories.Title</a>
+                                                    @if (cat != post.Post_categories.Last())
+                                                    {
+                                                        <span>, </span>
+                                                    }
+                                                }
+                                            </td>
+                                            <td>
+                                                @foreach (var posttag in post.Post_tags)
+                                                {
+                                                    <a href="#">@posttag.Tag.Title</a>
+                                                    @if (posttag != post.Post_tags.Last())
+                                                    {
+                                                        <span>, </span>
+                                                    }
+                                                }
+                                            </td>
+                                            <td>@post.StatusLabel</td>
+                                            <td>@post.Created_at</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="7" class="text-center">Không có dữ liệu</td>
+                                    </tr>
+                                }
+
+                            </tbody>
+
+                        </table>
+                        <div class="mt-4">
+                            <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
+    private List<Product_Posts> product_posts_list = new List<Product_Posts>();
+    private Product_Posts product_posts = new Product_Posts();
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private int totalItems;
 
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPosts();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        product_posts_list = await ProductService.GetByTypeAsync("product", page_number, page_size, searchTerm);
+        totalItems = await ProductService.GetTotalCountAsync("product", searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+
+    private async Task OnSearch()
+    {
+        product_posts_list = await ProductService.GetByTypeAsync("product", page_number, page_size, search_query);
+    }
+    private async Task SortBy(string column)
+    {
+
+    }
+    private void NavEditCtgr(long id)
+    {
+        Navigation.NavigateTo($"/admin/product/edit/{id}");
+    }
+
+    private async void ConfirmDelete(long id)
+    {
+        await ProductService.Delete(id);
+        await LoadPosts();
+    }
 }

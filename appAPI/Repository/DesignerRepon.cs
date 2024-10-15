@@ -36,13 +36,22 @@ namespace appAPI.Repository
            
         }
 
-        public async Task<List<Designer>> Search(string keyword)
+        public async Task<List<Designer>> GetByTypeAsync(int pageNumber, int pageSize, string? searchTerm)
         {
-            if (string.IsNullOrEmpty(keyword))
-            {
-                return new List<Designer>();
-            }
-            return await _context.Designer.Where(f => f.Name.Contains(keyword)).ToListAsync();
+            // Lấy danh sách sản phẩm theo loại, phân trang và tìm kiếm
+            return await _context.Designer
+                .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)))
+                .OrderBy(p => p.Name) // Thay đổi theo tiêu chí sắp xếp bạn muốn
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
+        public async Task<int> GetTotalCountAsync( string? searchTerm)
+        {
+            // Lấy tổng số sản phẩm theo loại và tìm kiếm
+            return await _context.Designer
+                .CountAsync(p => (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)));
         }
 
         public async Task Update(Designer at)
