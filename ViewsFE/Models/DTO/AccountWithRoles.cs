@@ -1,10 +1,8 @@
-﻿using ViewsFE.Models;
-
-namespace ViewsFE.Models.DTO
+﻿namespace ViewsFE.Models.DTO
 {
     public class AccountWithRoles
     {
-        public Account Account { get; set; }
+        public Account Account {  get; set; }
         public List<string> Roles { get; set; }
     }
 }

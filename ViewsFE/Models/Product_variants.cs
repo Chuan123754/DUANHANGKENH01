@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
-using ViewsFE.Models;
 
 namespace ViewsFE.Models
 {
@@ -27,14 +26,29 @@ namespace ViewsFE.Models
         public long? Regular_price { get; set; }
         public long? Sale_price { get; set; }
         public int Stock_quantity { get; set; }
-        public string? Description { get; set; }
+        public string? Description { get; set; } 
+        public long Color_id { get; set; }
+        public long Textile_technology_id { get; set; }
+        public long Material_id { get; set; }
+        public long Size_id { get; set; }
+        public long Style_id { get; set; }
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set; }
         public DateTime? Deleted_at { get; set; }
         public virtual ICollection<Product_attributes> Product_attributes { get; set; } = new List<Product_attributes>();
         [ForeignKey("Post_Id")]
         [JsonIgnore]
-        public virtual Posts? Posts { get; set; }
+        public virtual Product_Posts? Posts { get; set; }
+        [ForeignKey("Size_id")]
+        public virtual Size Size { get; set; }
+        [ForeignKey("Style_id")]
+        public virtual Style Style { get; set; }
+        [ForeignKey("Material_id")]
+        public virtual Material Material { get; set; }
+        [ForeignKey("Color_id")]
+        public virtual Color? Color { get; set; }
+        [ForeignKey("Textile_technology_id")]
+        public virtual Textile_technology Textile_Technology { get; set; }
         public virtual ICollection<P_variants_discount> p_variants_discount { get; set; } = new List<P_variants_discount>();
         public virtual ICollection<Product_variants_wishlist> Product_Variants_Wishlists { get; set; } = new List<Product_variants_wishlist>();
     }

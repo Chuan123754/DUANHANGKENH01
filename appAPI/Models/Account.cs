@@ -15,8 +15,6 @@ namespace appAPI.Models
         [JsonIgnore]
         public virtual ICollection<Activity_history> Activity_history { get; set; } = new List<Activity_history>();
         [JsonIgnore]
-        public virtual ICollection<Warehouse> Warehouse { get; set; } = new List<Warehouse>();
-        [JsonIgnore]
-        public virtual ICollection<Posts> Posts { get; set; } = new List<Posts>();
+        public virtual ICollection<Product_Posts> Posts { get; set; } = new List<Product_Posts>();
     }
 }

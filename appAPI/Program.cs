@@ -50,10 +50,10 @@ builder.Services.AddSwaggerGen(option =>
 
 // Đăng ký các kho lưu trữ (repositories)
 builder.Services.AddScoped<IAccountRepo, AccountRepo>();
-builder.Services.AddScoped<IWareHouseRepository, WarehouseRepository>();
 builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+builder.Services.AddScoped<IPostReponsetory, PostReponsetory>();
 
 // Đăng ký CORS
 builder.Services.AddCors(options =>

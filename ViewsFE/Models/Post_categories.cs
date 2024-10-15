@@ -18,10 +18,8 @@ namespace ViewsFE.Models
         public long Post_Id { get; set; }
         public long Category_Id { get; set; }
         [ForeignKey("Category_Id")]
-        [JsonIgnore]
         public virtual Categories? Categories { get; set; }
         [ForeignKey("Post_Id")]
-        [JsonIgnore]
-        public virtual Posts? Posts { get; set; }
+        public virtual Product_Posts? Posts { get; set; }
     }
 }

@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
 namespace ViewsFE.Models
@@ -16,6 +15,7 @@ namespace ViewsFE.Models
         public virtual Product_variants? Product_Variants { get; set; }
         [ForeignKey("Wishlist_id")]
         [JsonIgnore]
-        public virtual Wishlist? Wishlist { get; set; }
+        public virtual Wishlist? Wishlist {  get; set; }
+
     }
 }

@@ -19,6 +19,7 @@ namespace ViewsFE.Models
         public string Password { get; set; } = null!;
         [Required]
         public string ConfirmPassword { get; set; } = null!;
+        [Required]
         public string Role { get; set; }
     }
 }

@@ -1,0 +1,76 @@
+﻿@page "/admin/color/edit/{id:long}"
+@inject NavigationManager nav
+@inject IColorServices sev
+
+<EditForm Model="color" OnValidSubmit="SubmitForm" FormName="coloredit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+    <div class="page-wrapper">
+        <div class="page-body">
+            <div class="container-xl">
+                <div class="form-group mb-3">
+                    <label for="material-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                    <InputText id="material-title" class="form-control" @bind-Value="color.Title" required />
+                    <ValidationMessage For="@(() => color.Title)" />
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="attribute-slug" class="form-label">Đường dẫn</label>
+                    <InputText id="attribute-slug" class="form-control" @bind-Value="color.Slug" />
+                    <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="attribute-color" class="form-label">Mã màu</label>
+                    <InputText id="attribute-color" class="form-control" @bind-Value="color.Color_code" />
+                </div>
+                <div class="form-group mb-3">
+                    <label for="attribute-color" class="form-label">Mô tả</label>
+                    <InputText id="attribute-color" class="form-control" @bind-Value="color.Description" />
+                </div>
+                <div class="form-group mb-3">
+                    <label for="status" class="form-label">Trạng thái</label>
+                    <InputSelect id="status" class="form-control" @bind-Value="color.Status">
+                        @foreach (var status in Color.STATUSES.Keys)
+                        {
+                            if (status != null) // Kiểm tra nếu status không null
+                            {
+                                <option value="@status">@Color.STATUSES[status]</option>
+                            }
+                            else
+                            {
+                                Console.WriteLine("Status is null");
+                            }
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="@(() => color.Status)" />
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-warning">Sửa màu sắc</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    [Parameter]
+    public long Id { get; set; }
+    private Color color = new Color();
+
+    protected async override Task OnInitializedAsync()
+    {
+        color = await sev.Details(Id);
+    }
+    private async Task SubmitForm()
+    {
+        try
+        {
+            await sev.Update(color); // Gọi API để tạo thuộc tính
+            nav.NavigateTo("/admin/color"); // Điều hướng sau khi thành công
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+}

@@ -31,9 +31,8 @@ namespace appAPI.Models
         public DbSet<Order_Vouchers> OrderVouchers { get; set; }
         public DbSet<P_variants_discount> p_Variants_Discounts { get; set; }
         public DbSet<Post_categories> Post_Categories { get; set; }
-        public DbSet<Post_metas> Post_Metas { get; set; }
         public DbSet<Post_tags> Post_Tags { get; set; }
-        public DbSet<Posts> Posts { get; set; }
+        public DbSet<Product_Posts> Posts { get; set; }
         public DbSet<Product_attributes> product_Attributes { get; set; }
         public DbSet<Product_variants> product_variants { get; set; }
         public DbSet<Product_variants_wishlist> Product_Variants_Wishlists { get; set; }
@@ -41,9 +40,14 @@ namespace appAPI.Models
         public DbSet<Seo> Seo { get; set; }
         public DbSet<Tags> Tags { get; set; }
         public DbSet<Users> Users { get; set; }
-        public DbSet<Warehouse> Warehouse { get; set; }
         public DbSet<Wishlist> Wishlist { get; set; }
         public DbSet<Vouchers> Vouchers { get; set; }
+        public DbSet<Color> Color { get; set; }
+        public DbSet<Style> Styles { get; set; }
+        public DbSet<Size> Sizes { get; set; }
+        public DbSet<Material> Materials { get; set; }
+        public DbSet<Textile_technology> Textile_Technologies { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
