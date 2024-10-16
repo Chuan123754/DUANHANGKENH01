@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace ViewsFE.Services
 {
@@ -47,9 +48,15 @@ namespace ViewsFE.Services
             return JsonConvert.DeserializeObject<List<Files>>(response);
         }
 
-        public async Task<object> Upload(MultipartFormDataContent content)
+        public async Task<object> Upload(IBrowserFile file)
         {
+            if (file == null) throw new ArgumentNullException("file không được null");
             string requestURL = $@"{_baseUrl}/api/Files/upload";
+            using var content = new MultipartFormDataContent();
+            using var fileContent = new StreamContent(file.OpenReadStream());
+            fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            content.Add(fileContent, "file", file.Name);
+
             var response = await _httpClient.PostAsync(requestURL, content);
 
             if (response.IsSuccessStatusCode)
