@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20240919114511_chun")]
-    partial class chun
+    [Migration("20241015081042_app")]
+    partial class app
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -93,6 +93,89 @@ namespace appAPI.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("appAPI.Models.Activity_history", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<string>("AccountId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Descripcion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Log_name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Subject_type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Activity_history");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Address", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<string>("District")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Province_city")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Set_as_default")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Steet")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("User_Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Ward_commune")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Address");
                 });
 
             modelBuilder.Entity("appAPI.Models.Attributes", b =>
@@ -268,9 +351,6 @@ namespace appAPI.Migrations
                     b.Property<long>("Parent_id")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("PostsId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Short_title")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -292,8 +372,6 @@ namespace appAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PostsId");
 
                     b.HasIndex(new[] { "Slug" }, "categories_slug_unique")
                         .IsUnique()
@@ -396,6 +474,53 @@ namespace appAPI.Migrations
                     b.HasKey("id_Designer");
 
                     b.ToTable("Designer");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Discount", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Create_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("Created_by")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("End_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Start_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type_of_promotion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Update_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("Updated_by")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Discount");
                 });
 
             modelBuilder.Entity("appAPI.Models.Files", b =>
@@ -625,6 +750,32 @@ namespace appAPI.Migrations
                     b.ToTable("order_trackings");
                 });
 
+            modelBuilder.Entity("appAPI.Models.Order_Vouchers", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("AppliedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("OrderId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("VoucherId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("VoucherId");
+
+                    b.ToTable("OrderVouchers");
+                });
+
             modelBuilder.Entity("appAPI.Models.Orders", b =>
                 {
                     b.Property<long>("Id")
@@ -705,7 +856,7 @@ namespace appAPI.Migrations
                     b.ToTable("orders");
                 });
 
-            modelBuilder.Entity("appAPI.Models.OrderVouchers", b =>
+            modelBuilder.Entity("appAPI.Models.P_variants_discount", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -713,22 +864,29 @@ namespace appAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<DateTime>("AppliedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("OrderId")
+                    b.Property<long>("Discount_Id")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("VoucherId")
+                    b.Property<decimal>("New_price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Old_price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<long>("P_variants_Id")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId");
+                    b.HasIndex("Discount_Id");
 
-                    b.HasIndex("VoucherId");
+                    b.HasIndex("P_variants_Id");
 
-                    b.ToTable("OrderVouchers");
+                    b.ToTable("p_Variants_Discounts");
                 });
 
             modelBuilder.Entity("appAPI.Models.Post_categories", b =>
@@ -813,12 +971,11 @@ namespace appAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
+                    b.Property<string>("AccountId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<long>("AuthorId")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("Created_at")
                         .HasColumnType("datetime2");
@@ -856,6 +1013,8 @@ namespace appAPI.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
 
                     b.HasIndex(new[] { "AuthorId" }, "IX_posts_author_id");
 
@@ -968,8 +1127,6 @@ namespace appAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<long>("Designer_Id")
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
                         .HasColumnType("bigint");
 
                     b.Property<long>("Post_Id")
@@ -1078,9 +1235,6 @@ namespace appAPI.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("PostsId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Slug")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -1097,8 +1251,6 @@ namespace appAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PostsId");
 
                     b.HasIndex(new[] { "Type" }, "tags_type_index");
 
@@ -1156,6 +1308,41 @@ namespace appAPI.Migrations
                     b.ToTable("users");
                 });
 
+            modelBuilder.Entity("appAPI.Models.UserVouchers", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<DateTime?>("AppliedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Create_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsApplied")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Update_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("VoucherId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("VoucherId");
+
+                    b.ToTable("userVouchers");
+                });
+
             modelBuilder.Entity("appAPI.Models.Vouchers", b =>
                 {
                     b.Property<long>("Id")
@@ -1165,13 +1352,19 @@ namespace appAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Condition")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Create_at")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime>("End_time")
                         .HasColumnType("datetime2");
@@ -1189,6 +1382,7 @@ namespace appAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Update_at")
@@ -1206,6 +1400,10 @@ namespace appAPI.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<string>("AccountId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Address")
                         .HasMaxLength(255)
@@ -1233,6 +1431,8 @@ namespace appAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
 
                     b.ToTable("warehouse");
                 });
@@ -1414,6 +1614,28 @@ namespace appAPI.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("appAPI.Models.Activity_history", b =>
+                {
+                    b.HasOne("appAPI.Models.Account", "Account")
+                        .WithMany("Activity_history")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Address", b =>
+                {
+                    b.HasOne("appAPI.Models.Users", "User")
+                        .WithMany("Addresses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("appAPI.Models.Cart_details", b =>
                 {
                     b.HasOne("appAPI.Models.Carts", "Carts")
@@ -1442,13 +1664,6 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Categories", b =>
-                {
-                    b.HasOne("appAPI.Models.Posts", null)
-                        .WithMany("Categories")
-                        .HasForeignKey("PostsId");
                 });
 
             modelBuilder.Entity("appAPI.Models.Comments", b =>
@@ -1503,16 +1718,7 @@ namespace appAPI.Migrations
                     b.Navigation("Orders");
                 });
 
-            modelBuilder.Entity("appAPI.Models.Orders", b =>
-                {
-                    b.HasOne("appAPI.Models.Carts", "Cart")
-                        .WithMany("Orders")
-                        .HasForeignKey("CartId");
-
-                    b.Navigation("Cart");
-                });
-
-            modelBuilder.Entity("appAPI.Models.OrderVouchers", b =>
+            modelBuilder.Entity("appAPI.Models.Order_Vouchers", b =>
                 {
                     b.HasOne("appAPI.Models.Orders", "Orders")
                         .WithMany("OrderVouchers")
@@ -1529,6 +1735,34 @@ namespace appAPI.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("Vouchers");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Orders", b =>
+                {
+                    b.HasOne("appAPI.Models.Carts", "Cart")
+                        .WithMany("Orders")
+                        .HasForeignKey("CartId");
+
+                    b.Navigation("Cart");
+                });
+
+            modelBuilder.Entity("appAPI.Models.P_variants_discount", b =>
+                {
+                    b.HasOne("appAPI.Models.Discount", "Discount")
+                        .WithMany("ProductVariantsDiscounts")
+                        .HasForeignKey("Discount_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("appAPI.Models.Product_variants", "ProductVariant")
+                        .WithMany("p_variants_discount")
+                        .HasForeignKey("P_variants_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Discount");
+
+                    b.Navigation("ProductVariant");
                 });
 
             modelBuilder.Entity("appAPI.Models.Post_categories", b =>
@@ -1580,6 +1814,13 @@ namespace appAPI.Migrations
                     b.Navigation("Tag");
                 });
 
+            modelBuilder.Entity("appAPI.Models.Posts", b =>
+                {
+                    b.HasOne("appAPI.Models.Account", null)
+                        .WithMany("Posts")
+                        .HasForeignKey("AccountId");
+                });
+
             modelBuilder.Entity("appAPI.Models.Product_attributes", b =>
                 {
                     b.HasOne("appAPI.Models.Products", "Product")
@@ -1629,11 +1870,34 @@ namespace appAPI.Migrations
                     b.Navigation("Posts");
                 });
 
-            modelBuilder.Entity("appAPI.Models.Tags", b =>
+            modelBuilder.Entity("appAPI.Models.UserVouchers", b =>
                 {
-                    b.HasOne("appAPI.Models.Posts", null)
-                        .WithMany("Tags")
-                        .HasForeignKey("PostsId");
+                    b.HasOne("appAPI.Models.Users", "Users")
+                        .WithMany("UserVouchers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("appAPI.Models.Vouchers", "Vouchers")
+                        .WithMany("UserVouchers")
+                        .HasForeignKey("VoucherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Users");
+
+                    b.Navigation("Vouchers");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Warehouse", b =>
+                {
+                    b.HasOne("appAPI.Models.Account", "Account")
+                        .WithMany("Warehouse")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("appAPI.Models.Wishlist", b =>
@@ -1721,6 +1985,15 @@ namespace appAPI.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("appAPI.Models.Account", b =>
+                {
+                    b.Navigation("Activity_history");
+
+                    b.Navigation("Posts");
+
+                    b.Navigation("Warehouse");
+                });
+
             modelBuilder.Entity("appAPI.Models.Attributes", b =>
                 {
                     b.Navigation("Product_Variants");
@@ -1731,6 +2004,11 @@ namespace appAPI.Migrations
                     b.Navigation("Cart_Details");
 
                     b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Discount", b =>
+                {
+                    b.Navigation("ProductVariantsDiscounts");
                 });
 
             modelBuilder.Entity("appAPI.Models.Menus", b =>
@@ -1749,8 +2027,6 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Posts", b =>
                 {
-                    b.Navigation("Categories");
-
                     b.Navigation("Post_categories");
 
                     b.Navigation("Post_metas");
@@ -1758,8 +2034,11 @@ namespace appAPI.Migrations
                     b.Navigation("Post_products");
 
                     b.Navigation("Post_tags");
+                });
 
-                    b.Navigation("Tags");
+            modelBuilder.Entity("appAPI.Models.Product_variants", b =>
+                {
+                    b.Navigation("p_variants_discount");
                 });
 
             modelBuilder.Entity("appAPI.Models.Products", b =>
@@ -1771,12 +2050,18 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Users", b =>
                 {
+                    b.Navigation("Addresses");
+
+                    b.Navigation("UserVouchers");
+
                     b.Navigation("Wishlist");
                 });
 
             modelBuilder.Entity("appAPI.Models.Vouchers", b =>
                 {
                     b.Navigation("OrderVouchers");
+
+                    b.Navigation("UserVouchers");
                 });
 #pragma warning restore 612, 618
         }
