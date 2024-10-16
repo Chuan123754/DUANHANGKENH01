@@ -21,15 +21,12 @@ namespace appAPI.Controllers
         {
             return await _repon.GetAll();
         }
-
         // GET: api/Designer/{id}
         [HttpGet("{id}")]
         public async Task<Designer> GetById(long id)
         {
             return await _repon.GetById(id);
         }
-
-
         // POST: api/Designer
         [HttpPost]
         public async Task Post(Designer d)
@@ -51,6 +48,22 @@ namespace appAPI.Controllers
         {
             await _repon.Delete(id);
         }
+        [HttpGet("get-by-type")]
+        public async Task<IActionResult> GetByType([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        {
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Page number and page size must be greater than 0.");
+            }
 
+            var result = await _repon.GetByTypeAsync(pageNumber, pageSize, searchTerm);
+            return Ok(result);
+        }
+        [HttpGet("Get-Total-Count")]
+        public async Task<IActionResult> GetTotalCount([FromQuery] string? searchTerm = null)
+        {
+            var totalCount = await _repon.GetTotalCountAsync(searchTerm);
+            return Ok(totalCount);
+        }
     }
 }

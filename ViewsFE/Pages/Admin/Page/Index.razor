@@ -1,0 +1,149 @@
+﻿@page "/admin/page"
+@inject NavigationManager nav
+@inject IPostSer sev
+@inject IJSRuntime JSRuntime
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">
+                        Danh sách trang
+                    </h2>
+                    <a href="/admin/page/create" class="btn btn-sm btn-outline-primary">
+                        Thêm trang
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="card-body">
+                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                        <div></div>
+                        <EditForm Model="product_posts" OnValidSubmit="@OnSearch">
+                            <div class="form-group d-flex gap-2">
+                                <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                            </div>
+                        </EditForm>
+                    </div>
+
+                    <div id="table-default" class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>
+                                        <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
+                                    </th>
+                                    <th>
+                                        <button class="table-sort" data-sort="sort-city">Tác giả</button>
+                                    </th>
+                                    <th>
+                                        <button class="table-sort" data-sort="sort-score">Thẻ</button>
+                                    </th>
+                                    <th>
+                                        <button class="table-sort" data-sort="sort-score">Trạng thái</button>
+                                    </th>
+                                    <th>
+                                        <button class="table-sort" data-sort="sort-date">Thời gian</button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (product_posts_list != null && product_posts_list.Any())
+                                {
+                                    @foreach (var post in product_posts_list)
+                                    {
+                                        <tr class="post-row">
+                                            <td>@post.Id</td>
+                                            <td class="sort-title">@post.Title
+                                                <br />
+                                                <!-- Tạo các hành động sửa và xóa cho sản phẩm con -->
+                                                <div class="cell-action">
+                                                    <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(post.Id)">Chỉnh sửa</a>
+                                                    <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(post.Id)">Thùng rác</a>
+                                                </div>
+                                            </td>
+                                            <td class="sort-city">@post.AuthorId</td>
+                                            <td class="sort-score">@string.Join(",", post.Post_tags.Select(tag => tag.Tag_Id))</td>
+                                            <td class="sort-status">@post.Status</td>
+                                            <td class="sort-date">@post.Created_at</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center">Không có dữ liệu</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <div class="mt-4">
+                            <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Product_Posts> product_posts_list = new List<Product_Posts>();
+    private Product_Posts product_posts = new Product_Posts();
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private int totalItems;
+
+    private async Task OnSearch()
+    {
+        product_posts_list = await sev.GetByTypeAsync("page", page_number, page_size, search_query);
+    }
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        product_posts_list = await sev.GetByTypeAsync("page", page_number, page_size, searchTerm);
+        totalItems = await sev.GetTotalCountAsync("page", searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPosts();
+    }
+    protected async Task NavEditCtgr(long id)
+    {
+        nav.NavigateTo($"/admin/page/edit/{id}");
+    }
+    protected async Task NavDeleteCtgr(long id)
+    {
+        await sev.Delete(id);
+        product_posts_list = await sev.GetAllPage(); // Cập nhật danh sách sau khi xóa
+    }
+}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="assets/libs/tabler/libs/list.js/dist/list.min.js" defer=""></script>
+

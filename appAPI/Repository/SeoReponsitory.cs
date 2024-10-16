@@ -2,7 +2,7 @@
 using appAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace   appAPI.Repository
+namespace  appAPI.Repository
 {
     public class SeoReponsitory : SeoIReponsitory
     {
@@ -15,6 +15,11 @@ namespace   appAPI.Repository
         {
            _context.Seo.Add(seo);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<Seo> GetById(long id)
+        {
+            return await _context.Seo.FindAsync(id);
         }
 
         public async Task UpdateSeo(Seo seo)

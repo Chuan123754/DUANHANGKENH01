@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using ViewsFE.Models;
 
 namespace ViewsFE.Models
 {
@@ -10,7 +9,8 @@ namespace ViewsFE.Models
         public string Log_name { get; set; }
         public string Descripcion { get; set; }
         public string Subject_type { get; set; }
-        public string AccountId { get; set; }  // Đảm bảo kiểu dữ liệu phù hợp với IdentityUser
-        public virtual Account Account { get; set; }
+        public string AccountId { get; set; }
+        public virtual Account? Account { get; set; }
+
     }
 }

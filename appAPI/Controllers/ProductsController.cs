@@ -1,107 +1,109 @@
-﻿using appAPI.Models;
-using appAPI.Repository;
-using AppAPI.Repositories;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Linq;
+﻿//using appAPI.Models;
+//using appAPI.Repository;
+//using Microsoft.AspNetCore.Http;
+//using Microsoft.AspNetCore.Mvc;
+//using System;
+//using System.Linq;
 
-namespace appAPI.Controllers
-{
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ProductsController : ControllerBase
-    {
-        private readonly IRepository<Products> _productRepository;
+//namespace appAPI.Controllers
+//{
+//    [Route("api/[controller]")]
+//    [ApiController]
+//    public class ProductsController : ControllerBase
+//    {
+//        private readonly IRepository<Posts> _postRepository;
+//        private readonly IRepository<Post_metas> _postMetaRepository;
+//        private readonly IRepository<Product_variants> _postProductRepository;
+//        private readonly IRepository<Post_tags> _postTagRepository;
+//        private readonly IRepository<Post_categories> _postcategorieRepository;
+//        private readonly IRepository<Categories> _categoryRepository;
+//        private readonly IRepository<Tags> _tagRepository;
 
-        public ProductsController(IRepository<Products> productRepository)
-        {
-            _productRepository = productRepository;
-        }
+//        public ProductsController(IRepository<Posts> postRepository,
+//            IRepository<Post_metas> postMetaRepository,
+//            IRepository<Product_variants> postProductRepository,
+//            IRepository<Post_tags> postTagRepository,
+//            IRepository<Post_categories> postcategorieRepository,
+//            IRepository<Categories> categoryRepository,
+//            IRepository<Tags> tagRepository)
+//        {
+//            _postRepository = postRepository;
+//            _postMetaRepository = postMetaRepository;
+//            _postProductRepository = postProductRepository;
+//            _postTagRepository = postTagRepository;
+//            _postcategorieRepository = postcategorieRepository;
+//            _categoryRepository = categoryRepository;
+//            _tagRepository = tagRepository;
+//        }
 
-        [HttpGet("postproducts-get")]
-        public IActionResult Get()
-        {
-            var products = _productRepository.GetAll();
-            return Ok(products);
-        }
+//        [HttpGet("product-get")]
+//        public IActionResult Get()
+//        {
+//            return Ok(_postRepository.GetAll().Where(p => p.Type == "product").ToList());
+//        }
 
-        [HttpGet("postproducts-get-id/{id}")]
-        public IActionResult Get(long id)
-        {
-            var product = _productRepository.GetById(id);
-            if (product == null)
-            {
-                return NotFound("Product not found");
-            }
-            return Ok(product);
-        }
+//        [HttpGet("product-getbyid")]
+//        public IActionResult Get(long id)
+//        {
+//            var postProduct = _postRepository.GetById(id);
 
-        [HttpPost("postproducts-post")]
-        public IActionResult Post([FromBody] Products product)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+//            if (postProduct == null || postProduct.Type != "product")
+//            {
+//                return NotFound("Post product not found or is not of type 'product'");
+//            }
 
-            try
-            {
-                product.Created_at = DateTime.Now;
-                _productRepository.Add(product);
-                return Ok(new { message = "Thêm sản phẩm cho bài viết thành công" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = "Đã xảy ra lỗi khi thêm sản phẩm", error = ex.Message });
-            }
-        }
+//            return Ok(postProduct);
+//        }
 
-        [HttpPut("postproducts-put")]
-        public IActionResult Put([FromBody] Products product)
-        {
-            var existingProduct = _productRepository.GetById(product.Id);
-            if (existingProduct == null)
-            {
-                return NotFound("Product not found");
-            }
+//        [HttpPost("postproducts-post")]
+//        public ActionResult Post(Posts postProduct)
+//        {
+//            try
+//            {
+//                postProduct.Type = "product";
+//                postProduct.Created_at = DateTime.Now;
+//                _postRepository.Add(postProduct);
+                
+//                return Ok(new { message = "Thêm sản phẩm cho bài viết thành công" });
+//            }
+//            catch (Exception ex)
+//            {
+//                return BadRequest(new { message = ex.Message });
+//            }
+//        }
 
-            existingProduct.Sku = product.Sku;
-            existingProduct.Status = product.Status;
-            existingProduct.Deleted_at = product.Deleted_at;
-            existingProduct.Created_at = product.Created_at;
-            existingProduct.Updated_at = DateTime.Now;
-            existingProduct.Post_Id = product.Post_Id;
+//        [HttpPut("postproducts-put")]
+//        public IActionResult Put(Product_variants postProduct)
+//        {
+//            var item = context.product_variants.Find(postProduct.Id);
+//            if (item == null)
+//            {
+//                return NotFound("Post product not found");
+//            }
 
-            try
-            {
-                _productRepository.Update(existingProduct);
-                return Ok(new { message = "Cập nhật sản phẩm cho bài viết thành công" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = "Đã xảy ra lỗi khi cập nhật sản phẩm", error = ex.Message });
-            }
-        }
+//            item.Sku = postProduct.Sku;
+//            item.Status = postProduct.Status;
+//            item.Deleted_at = null;
+//            item.Created_at = postProduct.Created_at;
+//            item.Updated_at = DateTime.Now;
+//            item.Post_Id = postProduct.Post_Id;
 
-        [HttpDelete("postproducts-delete/{id}")]
-        public IActionResult Delete(long id)
-        {
-            var product = _productRepository.GetById(id);
-            if (product == null)
-            {
-                return NotFound("Product not found");
-            }
+//            context.SaveChanges();
+//            return Ok(new { message = "Cập nhật sản phẩm cho bài viết thành công" });
+//        }
 
-            try
-            {
-                _productRepository.Remove(product);
-                return Ok(new { message = "Xóa sản phẩm khỏi bài viết thành công" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = "Đã xảy ra lỗi khi xóa sản phẩm", error = ex.Message });
-            }
-        }
-    }
-}
+//        [HttpDelete("postproducts-delete/{id}")]
+//        public IActionResult Delete(long id)
+//        {
+//            var delete = context.product_variants.Find(id);
+//            if (delete == null)
+//            {
+//                return NotFound("Post product not found");
+//            }
+
+//            context.Remove(delete);
+//            context.SaveChanges();
+//            return Ok(new { message = "Xóa sản phẩm khỏi bài viết thành công" });
+//        }
+//    }
+//}

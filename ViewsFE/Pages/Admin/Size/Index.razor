@@ -1,0 +1,123 @@
+﻿@page "/admin/size"
+@inject NavigationManager nav
+@inject ISizeServices sev
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">
+                        Danh sách kích thước
+                    </h2>
+                    <a href="/admin/size/create" class="btn btn-sm btn-outline-primary">
+                        Thêm kích thước
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="card-body">
+                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                        <div></div>
+                        <EditForm Model="size" OnValidSubmit="@OnSearch">
+                            <div class="form-group d-flex gap-2">
+                                <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                            </div>
+                        </EditForm>
+                    </div>
+
+                    <div id="table-default" class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>
+                                        <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
+                                    </th>
+                                    <th>
+                                        <button class="table-sort" data-sort="sort-slug">Đường dẫn</button>
+                                    </th>
+                                    <th>
+                                        <button class="table-sort" data-sort="sort-city">Mô tả</button>
+                                    </th>
+                                    <th>
+                                        <button class="table-sort" data-sort="sort-score">Trạng thái</button>
+                                    </th>
+                                    <th>
+                                        <button class="table-sort" data-sort="sort-date">Thời gian</button>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (listSize != null && listSize.Any())
+                                {
+                                    @foreach (var sz in listSize)
+                                    {
+                                        <tr class="post-row">
+                                            <td>@sz.Id</td>
+                                            <td class="sort-title">
+                                                @sz.Title
+                                                <br />
+                                                <!-- Tạo các hành động sửa và xóa cho sản phẩm con -->
+                                                <div class="cell-action">
+                                                    <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(sz.Id)">Chỉnh sửa</a>
+                                                    <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(sz.Id)">Thùng rác</a>
+                                                </div>
+                                            </td>
+                                            <td class="sort-slug">@sz.Slug</td>
+                                            <td class="sort-city">@sz.Description</td>
+                                            <td class="sort-status">@sz.Status</td>
+                                            <td class="sort-date">@sz.Create_at</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center">Không có dữ liệu</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    private List<Size> listSize = new List<Size>();
+    private Size size = new Size();
+    private string search_query = string.Empty;
+
+    private async Task OnSearch()
+    {
+        // Ngăn ngừa load lại trang
+        listSize = (await sev.Search(search_query)).Where(c => c.Status != "Deleted").ToList();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Load initial data
+        listSize = (await sev.GetAll()).Where(c => c.Status != "Deleted").ToList();
+    }
+
+    private void NavEditCtgr(long id)
+    {
+        nav.NavigateTo($"/admin/size/edit/{id}");
+    }
+
+    private async Task NavDeleteCtgr(long id)
+    {
+        await sev.Delete(id);
+        listSize = (await sev.GetAll()).Where(c => c.Status != "Deleted").ToList(); // Cập nhật danh sách sau khi xóa
+    }
+}

@@ -7,12 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
-using ViewsFE.Models;
 
 namespace ViewsFE.Models
 {
     [Table("users")]
-    [Index("Email", Name = "users_email_unique", IsUnique = true)]
     public partial class Users
     {
         [Key]
@@ -37,7 +35,7 @@ namespace ViewsFE.Models
         public DateTime? Updated_at { get; set; }
         [InverseProperty("Users")]
         [JsonIgnore]
-        public ICollection<Wishlist> Wishlist { get; set; } = new List<Wishlist>();
+        public Wishlist? Wishlist { get; set; }
         [JsonIgnore]
         public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
     }

@@ -11,7 +11,6 @@ using System.Text.Json.Serialization;
 namespace ViewsFE.Models
 {
     [Table("tags")]
-    [Index("Type", Name = "tags_type_index")]
     public partial class Tags
     {
         [Key]

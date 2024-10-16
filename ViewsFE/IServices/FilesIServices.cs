@@ -1,4 +1,5 @@
-﻿using ViewsFE.Models;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using ViewsFE.Models;
 
 namespace ViewsFE.IServices
 {
@@ -6,7 +7,7 @@ namespace ViewsFE.IServices
     {
         Task<List<Files>> GetAll();
         Task<Files> GetById(long id);
-        Task<object> Upload(MultipartFormDataContent content);
+        Task<object> Upload(IBrowserFile file);
         Task Delete(long id);
         Task<List<Files>> Search(string keyword);
     }

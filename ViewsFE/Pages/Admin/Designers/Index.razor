@@ -1,0 +1,155 @@
+﻿@page "/admin/designer"
+@inject NavigationManager nav
+@inject IDesignerServices sev
+@inject IJSRuntime JSRuntime
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">Danh sách nhà thiết kế</h2>
+                    <NavLink class="btn btn-sm btn-outline-primary" href="/admin/designer/create">Thêm nhà thiết kế</NavLink>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="card-body">
+                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                        <div></div>
+                        <EditForm Model="designer" OnValidSubmit="@OnSearch">
+                            <DataAnnotationsValidator />
+                            <div class="form-group d-flex gap-2">
+                                <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                            </div>
+                        </EditForm>
+                    </div>
+
+                    <div id="table-default" class="table-responsive">
+                        @if (designersList != null && designersList.Count > 0)
+                        {
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-title">Ảnh</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-title">Tên nhà thiết kế</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-score">Đường dẫn</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-score">Trạng thái</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-date">Thời gian</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in designersList)
+                                    {
+                                        <tr>
+                                            <td>@item.id_Designer</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(item.image?.FirstOrDefault().ToString()))
+                                                {
+                                                    <a href="@item.image.FirstOrDefault().ToString()" target="_blank">
+                                                        <img src="@item.image.FirstOrDefault().ToString()" width="80" height="80" alt="" />
+                                                    </a>
+                                                }
+
+                                            </td>
+                                            <td class="sort-title">
+                                                <a href="@($"/admin/designer/design-list/{item.id_Designer}")">@item.Name</a>
+                                                <br />
+                                                <!-- Tạo các hành động sửa và xóa cho sản phẩm con -->
+                                                <div class="cell-action">
+                                                    <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(item.id_Designer)">Chỉnh sửa</a>
+                                                    <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(item.id_Designer)">Thùng rác</a>
+                                                </div>
+                                            </td>
+                                            <td class="sort-city">@item.slug</td>
+                                            <td class="sort-status @item.StatusClass">@item.StatusLabel</td>
+                                            <td class="sort-date">@item.create_at.ToString("g")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-center">Không có dữ liệu</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Designer> designersList = new List<Designer>();
+    private Designer designer = new Designer();
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private int totalItems;
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPosts();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        designersList = await sev.GetByTypeAsync(page_number, page_size, searchTerm);
+        totalItems = await sev.GetTotalCountAsync(searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+    protected async Task OnSearch()
+    {
+        designersList = await sev.GetByTypeAsync(page_number, page_size, search_query);
+    }
+    private async Task NavDeleteCtgr(long id)
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Bạn muốn xóa bản ghi này?");
+        if (confirmed)
+        {
+            await sev.Delete(id); // Đảm bảo rằng phương thức trả về HttpResponseMessage
+        }
+    }
+    private void NavEditCtgr(long id)
+    {
+        nav.NavigateTo($"/admin/product/edit/{id}");
+    }
+
+ 
+}

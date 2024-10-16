@@ -9,6 +9,7 @@ namespace appAPI.IRepository
         Task Create(Designer at);
         Task Update(Designer at);
         Task Delete(long id);
-        Task<List<Designer>> Search(string keyword);
+        Task<List<Designer>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm);
+        Task<int> GetTotalCountAsync(string searchTerm);
     }
 }

@@ -1,0 +1,49 @@
+﻿@* @page "/media-modal"
+
+<div class="modal fade show" id="mediaModal" tabindex="-1">
+    <input type="hidden" @bind="@mediaMultiple" />
+    <input type="hidden" @bind="@mediaReferId" />
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Quản lý media</h5>
+                <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <Media_manager @ref="mediaManager" OnFilesSelected="HandleFilesSelected" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Đóng</button>
+                <button type="button" class="btn btn-primary" @onclick="SelectFiles">Chọn</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string mediaMultiple { get; set; }
+    private string mediaReferId { get; set; }
+    private MediaManager mediaManager; // Reference to the MediaManager component
+    private List<string> selectedFiles = new List<string>(); // List to hold selected files
+
+    private void CloseModal()
+    {
+        // Logic to close the modal
+        // You can set up JavaScript interop if necessary
+    }
+
+    private void SelectFiles()
+    {
+        // Logic to handle the selection of files
+        // Use the selectedFiles list to get the chosen files
+        // For example:
+        Console.WriteLine("Selected Files: " + string.Join(", ", selectedFiles));
+        CloseModal(); // Close the modal after selection
+    }
+
+    private void HandleFilesSelected(List<string> files)
+    {
+        selectedFiles = files; // Store the selected files
+    }
+}
+ *@

@@ -11,19 +11,17 @@ using System.Threading.Tasks;
 namespace ViewsFE.Models
 {
     [Table("product_attributes")]
-    [Index("Attribute_Id", Name = "IX_product_attributes_attribute_id")]
-    [Index("Product_Id", Name = "IX_product_attributes_product_id")]
     public class Product_attributes
     {
         [Key]
         public long Id { get; set; }
-        public long Product_Id { get; set; }
+        public long Product_Variants_Id { get; set; }
         public long Attribute_Id { get; set; }
-        [ForeignKey("Product_Id")]
+        [ForeignKey("Product_Variants_Id")]
         [JsonIgnore]
-        public virtual Attributes? Attribute { get; set; }
+        public virtual Product_variants? Product_Variants { get; set; }
         [ForeignKey("Attribute_Id")]
         [JsonIgnore]
-        public virtual Products? Product { get; set; }
+        public virtual Attributes? Attributes { get; set; }
     }
 }

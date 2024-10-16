@@ -22,8 +22,5 @@ namespace appAPI.Models
         [ForeignKey("UserId")]
         [JsonIgnore]
         public virtual Users? Users { get; set; }
-        [InverseProperty("Cart")]
-        [JsonIgnore]
-        public virtual ICollection<Orders> Orders { get; set; } = new List<Orders>();
     }
 }

@@ -15,7 +15,7 @@ namespace ViewsFE.Models
         [Key]
         public long Id { get; set; }
         public long OrderId { get; set; }
-        public long ProductId { get; set; }
+        public long ProductVariants_Id { get; set; }
         public int Quantity { get; set; }
         public decimal RegularPrice { get; set; }
         public decimal SalePrice { get; set; }
@@ -26,8 +26,10 @@ namespace ViewsFE.Models
         public DateTime? Created_at { get; set; }
         public DateTime? Update_at { get; set; }
         [ForeignKey("OrderId")]
-        [InverseProperty("Order_details")]
         [JsonIgnore]
         public virtual Orders? Orders { get; set; }
+        [ForeignKey("ProductVariants_Id")]
+        [JsonIgnore]
+        public virtual Product_variants? ProductVariants { get; set; }
     }
 }

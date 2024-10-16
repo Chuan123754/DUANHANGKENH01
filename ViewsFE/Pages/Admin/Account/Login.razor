@@ -1,27 +1,39 @@
 ﻿@page "/login"
+@layout Shared.LoginLayout
 @inject NavigationManager Navigation
 @inject HttpClient Http
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject IAccountService accountService
 
-<h3>Đăng nhập</h3>
 
-<EditForm Model="loginModel" OnValidSubmit="HandleLogin">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
+<div class="login-form">
 
-    <div class="form-group">
-        <label>Email:</label>
-        <InputText @bind-Value="loginModel.Email" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label>Mật khẩu:</label>
-        <InputText @bind-Value="loginModel.Password" type="password" class="form-control" />
-    </div>
+    <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <h3>Đăng nhập</h3>
+        <div class="mb-3">
+            <label for="email">Email</label>
+            <InputText id="email" class="form-control" @bind-Value="loginModel.Email" />
+        </div>
 
-    <button type="submit" class="btn btn-primary">Đăng nhập</button>
-</EditForm>
+        <div class="mb-3">
+            <label for="password">Mật khẩu</label>
+            <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+        </div>
 
+        <button type="submit" class="btn btn-primary">Đăng nhập</button>
+    </EditForm>
+</div>
+
+<style>
+    .login-form {
+        background-color: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+</style>
 @if (errorMessage != null)
 {
     <div class="alert alert-danger">@errorMessage</div>

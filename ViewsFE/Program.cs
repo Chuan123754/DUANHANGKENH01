@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using ViewsFE.Data;
 using Microsoft.JSInterop;
-using ViewsFE.IServices;
 using ViewsFE.Services;
 using Blazored.SessionStorage;
+using ViewsFE.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,16 +28,23 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddScoped<IAttributesServices, AttributesService>();
 builder.Services.AddScoped<ICategoriesServices, CategoriesServices>();
-builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IPostTagService, PostTagService>();
 builder.Services.AddScoped<ITagsServices, TagsServices>();
-builder.Services.AddScoped<IPostMetaService, PostMetaService>();
 builder.Services.AddScoped<IQaService, QaService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<IUserVoucherService, UserVoucherService>();
 
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<FilesIServices, FilesServices>();
+builder.Services.AddScoped<IDesignerServices, DesignerServices>();
+builder.Services.AddScoped<SeoIServices, SeoServices>();
+builder.Services.AddScoped<IOptionsServices, OptionServices>();
+builder.Services.AddScoped<IPostSer, PostServices>();
+builder.Services.AddScoped<ISizeServices, SizeServices>();
+builder.Services.AddScoped<IStyleServices, StyleServices>();
+builder.Services.AddScoped<IMaterialServices, MaterialServices>();
+builder.Services.AddScoped<IColorServices, ColorServices>();
+builder.Services.AddScoped<ITextile_technologyServices, Textile_technologyServices>();
 
 var app = builder.Build();
 

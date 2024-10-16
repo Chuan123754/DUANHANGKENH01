@@ -5,8 +5,6 @@ using System.Text.Json.Serialization;
 namespace ViewsFE.Models
 {
     [Table("post_tags")]
-    [Index("Post_Id", Name = "IX_post_tags_post_id")]
-    [Index("Tag_Id", Name = "IX_post_tags_tag_id")]
     public partial class Post_tags
     {
         public long Id { get; set; }
@@ -15,7 +13,7 @@ namespace ViewsFE.Models
 
         [ForeignKey("Post_Id")]
         [JsonIgnore]
-        public virtual Posts? Posts { get; set; }
+        public virtual Product_Posts? Posts { get; set; }
 
         [ForeignKey("Tag_Id")]
         [JsonIgnore]

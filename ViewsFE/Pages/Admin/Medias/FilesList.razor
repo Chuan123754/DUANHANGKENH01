@@ -1,8 +1,9 @@
-﻿@inject NavigationManager nav
+﻿@page "/admin/media/datatable"
+@inject NavigationManager nav
 @inject FilesIServices sev
 @code {
     [Parameter]
-    public List<Files> FileItems { get; set; } // Đổi tên thuộc tính
+    public List<Files> FileItems { get; set; }
 
     private async Task DeleteFile(long id)
     {
@@ -10,6 +11,8 @@
         await sev.Delete(id);
         FileItems = await sev.GetAll(); // Tải lại danh sách sau khi xóa
     }
+
+
 }
 
 <div class="d-grid" style="grid-template-columns: repeat(7, 1fr); gap: 16px">

@@ -1,153 +1,152 @@
-﻿@page "/admin/posts"
-@inject NavigationManager Navigation
-@inject IPostService PostService
-@inject IJSRuntime JS 
+﻿@page "/admin/post"
+@inject NavigationManager nav
+@inject IPostSer sev
+@inject IJSRuntime JSRuntime
 
-<h1>Danh sách bài viết</h1>
-
-<p>
-    <button class="btn btn-primary" @onclick="CreatePost">Thêm bài viết</button>
-</p>
-
-<!-- Form tìm kiếm -->
-<div class="row mb-3">
-    <div class="col-md-6">
-        <input type="text" @bind="searchKeyword" class="form-control" placeholder="Nhập từ khóa tìm kiếm" />
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">
+                        Danh sách bài viết
+                    </h2>
+                    <a href="/admin/post/create" class="btn btn-sm btn-outline-primary">
+                        Thêm bài viết
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-md-2">
-        <button class="btn btn-primary" @onclick="SearchPosts">Tìm kiếm</button>
-    </div>
-</div>
 
-<!-- Bảng danh sách bài viết -->
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th style="width: 5%;">ID</th>
-            <th style="width: 25%;">Tiêu đề</th>
-            <th style="width: 10%;">Tác giả</th>
-            <th style="width: 25%;">Chuyên mục</th>
-            <th style="width: 10%;">Thẻ</th>
-            <th style="width: 10%;">Trạng thái</th>
-            <th style="width: 20%;">Ngày đăng</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (posts != null && posts.Any())
-        {
-            @foreach (var post in posts)
-            {
-                <tr class="post-row">
-                    <td>@post.Id</td>
-                    <td>
-                        @post.Title
-                        <br />
-                        <div class="action-buttons">
-                            <a href="javascript:void(0);" @onclick="() => EditPost(post.Id)" style="margin-right: 10px;">Chỉnh sửa</a> |
-                            <a href="javascript:void(0);" class="status-danger" @onclick="() => DeletePost(post.Id)">Xóa</a>
-                        </div>
-                    </td>
-                    <td>@post.AuthorId</td>
-                    <td>@(post.Categories != null && post.Categories.Any() ? string.Join(", ", post.Categories.Select(c => c.Title)) : "Không có danh mục")</td>
-                    <td>@(post.Tags != null && post.Tags.Any() ? string.Join(", ", post.Tags.Select(t => t.Title)) : "Không có thẻ")</td>
-                    <td>
-                        @if (post.Status == "Công khai")
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="card-body">
+                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                        <div></div>
+                        <EditForm Model="product_posts" OnValidSubmit="@OnSearch">
+                            <div class="form-group d-flex gap-2">
+                                <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                            </div>
+                        </EditForm>
+                    </div>
+
+                    <div id="table-default" class="table-responsive">
+                        @if (product_posts_list != null && product_posts_list.Any())
                         {
-                            <span class="status-public">@post.Status</span>
-                        }
-                        else if (post.Status == "Không công khai")
-                        {
-                            <span class="status-unpublished">@post.Status</span>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-city">Tác giả</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-type">Chuyên mục</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-score">Thẻ</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-score">Trạng thái</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-date">Thời gian</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @foreach (var post in product_posts_list)
+                                    {
+                                        <tr class="post-row">
+                                            <td>@post.Id</td>
+                                            <td class="sort-title">
+                                                @post.Title
+                                                <br />
+                                                <!-- Tạo các hành động sửa và xóa cho sản phẩm con -->
+                                                <div class="cell-action">
+                                                    <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(post.Id)">Chỉnh sửa</a>
+                                                    <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(post.Id)">Thùng rác</a>
+                                                </div>
+                                            </td>
+                                            <td class="sort-city">@post.AuthorId</td>
+                                            <td class="table-sort">@post.Post_categories</td>
+                                            <td class="sort-score">@string.Join(",", post.Post_tags.Select(tag => tag.Tag_Id))</td>
+                                            <td class="sort-status">@post.Status</td>
+                                            <td class="sort-date">@post.Created_at</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
                         }
                         else
                         {
-                            <span>@post.Status</span>
+                            <tr>
+                                <td colspan="7" class="text-center">Không có dữ liệu</td>
+                            </tr>
                         }
-                    </td>
-                    <td>@post.Post_date</td>
-                </tr>
-            }
-
-        }
-    </tbody>
-</table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
-    private List<Posts> posts;
-    private string searchKeyword = string.Empty;
+    private List<Product_Posts> product_posts_list = new List<Product_Posts>();
+    private Product_Posts product_posts = new Product_Posts();
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private int totalItems;
 
+    private async Task OnSearch()
+    {
+        product_posts_list = await sev.GetByTypeAsync("post", page_number, page_size, search_query);
+    }
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        product_posts_list = await sev.GetByTypeAsync("post", page_number, page_size, searchTerm);
+        totalItems = await sev.GetTotalCountAsync("post", searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
     protected override async Task OnInitializedAsync()
     {
         await LoadPosts();
     }
-
-    private async Task LoadPosts()
+    protected async Task NavEditCtgr(long id)
     {
-        posts = await PostService.GetAll();
+        nav.NavigateTo($"/admin/post/edit/{id}");
     }
-
-    private void CreatePost()
+    protected async Task NavDeleteCtgr(long id)
     {
-        Navigation.NavigateTo("/posts/create");
-    }
-
-    private void EditPost(long id)
-    {
-        Navigation.NavigateTo($"/posts/edit/{id}");
-    }
-
-    private async Task DeletePost(long id)
-    {
-        var confirm = await JS.InvokeAsync<bool>("confirm", "Chắc muốn xóa bài viết này?");
-        if (confirm)
-        {
-            await PostService.Delete(id);
-            await LoadPosts();
-        }
-    }
-
-    private async Task SearchPosts()
-    {
-        if (!string.IsNullOrWhiteSpace(searchKeyword))
-        {
-            posts = await PostService.SearchPosts(searchKeyword);
-        }
-        else
-        {
-            await LoadPosts(); // Nếu không nhập từ khóa, tải lại toàn bộ bài viết
-        }
+        await sev.Delete(id);
+        product_posts_list = await sev.GetAllPost(); // Cập nhật danh sách sau khi xóa
     }
 }
-
-
-<style>
-    .action-buttons {
-        display: none;
-    }
-
-    .post-row:hover .action-buttons {
-        display: inline;
-    }
-
-    table th, table td {
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-    }
-
-    .status-public {
-        color: green; /* "Công khai" */
-    }
-
-    .status-unpublished {
-        color: red; /* "Không công khai" */
-    }
-
-    .status-inactive {
-        1 color: gray; /* "Không hoạt động" */
-    }
-
-    .status-danger {
-        color: red;
-    }
-</style>

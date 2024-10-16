@@ -1,0 +1,235 @@
+﻿@page "/admin/designer/create"
+@inject IDesignerServices sev
+@inject NavigationManager nav
+@inject IJSRuntime JS
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        Thêm nhà thiết kế
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-body">
+        <div class="container-xl">
+            <EditForm Model="designer" OnValidSubmit="SubmitForm" enctype="multipart/form-data">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <ValidationSummary></ValidationSummary>
+                <div class="row">
+                    <div class="col-md-9 col-12">
+                        <!-- Gọi form_left -->
+                        <div class="card">
+                            <div class="card-body">
+                                <!-- Các trường dữ liệu cho form_left -->
+                                <div class="mb-3">
+                                    <label for="ShortName" class="form-label">Tên ngắn nhà thiết kế</label>
+                                    <InputText @bind-Value="designer.ShortName" class="form-control" id="ShortName" placeholder="Tên ngắn nhà thiết kế" required />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="Name" class="form-label">Tên nhà thiết kế <span class="text-danger">*</span></label>
+                                    <InputText @bind-Value="designer.Name" class="form-control" id="Name" placeholder="Tên nhà thiết kế" required />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="Slug" class="form-label">Đường dẫn <span class="text-danger">*</span></label>
+                                    <InputText @bind-Value="designer.slug" class="form-control" id="Slug" placeholder="Đường dẫn" required />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="ShortDescription" class="form-label">Mô tả ngắn</label>
+                                    <InputTextArea @bind-Value="designer.short_description" class="form-control" id="ShortDescription" rows="3" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="tinymce-textarea" class="form-label">Mô tả</label>
+                                    <InputTextArea @bind-Value="designer.description" class="form-control" id="tinymce-textarea" rows="5" />
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <!-- Các trường meta data cho form_left -->
+                                <div class="mb-3">
+                                    <label for="Facebook" class="form-label">Facebook</label>
+                                    <InputText @bind-Value="metaData.facebook" class="form-control" id="Facebook" placeholder="Link facebook" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="Twitter" class="form-label">Twitter</label>
+                                    <InputText @bind-Value="metaData.twitter" class="form-control" id="Twitter" placeholder="Link twitter" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="Instagram" class="form-label">Instagram</label>
+                                    <InputText @bind-Value="metaData.instagram" class="form-control" id="Instagram" placeholder="Link instagram" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="Youtube" class="form-label">Youtube</label>
+                                    <InputText @bind-Value="metaData.youtube" class="form-control" id="Youtube" placeholder="Link youtube" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="Tiktok" class="form-label">Tiktok</label>
+                                    <InputText @bind-Value="metaData.tiktok" class="form-control" id="Tiktok" placeholder="Link tiktok" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="Linkedin" class="form-label">Linkedin</label>
+                                    <InputText @bind-Value="metaData.linkedin" class="form-control" id="Linkedin" placeholder="Link linkedin" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="Pinterest" class="form-label">Pinterest</label>
+                                    <InputText @bind-Value="metaData.pinterest" class="form-control" id="Pinterest" placeholder="Link pinterest" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-12">
+                        <!-- Gọi form_right -->
+                        <div class="sticky-top position-sticky">
+                            <div class="accordion bg-white mb-3 mt-3 mt-md-0">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#action-1" aria-expanded="true">
+                                            Đăng
+                                        </button>
+                                    </h2>
+                                    <div id="action-1" class="accordion-collapse collapse show">
+                                        <div class="accordion-body">
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">Trạng thái</label>
+                                                <select @bind="designer.status" class="form-control">
+                                                    @foreach (var status in statuses)
+                                                    {
+                                                        <option value="@status.Key" selected="@(designer.status == status.Key)">@status.Value</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <button type="button" class="btn btn-primary" style="float: right" @onclick="SubmitForm">Đăng</button>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#designerImage" aria-expanded="true">
+                                            Ảnh nhà thiết kế
+                                        </button>
+                                    </h2>
+                                    <div id="designerImage" class="accordion-collapse collapse show">
+                                        <div class="accordion-body pt-0">
+                                            <div id="feature_image"
+                                                 class="image-post-box d-flex align-items-center justify-content-center open-media-modal"
+                                                 data-multiple="false"
+                                                 data-refer-id="#feature_image"
+                                                 data-input-name="ImageId"
+                                                 data-image-ids="@designer.GetImage()?.ImageUrl">
+                                                @if (designer.GetImage() != null)
+                                                {
+                                                    <input type="hidden" name="ImageId" value="@designer.GetImage()?.ImageUrl" />
+                                                    <img src="@designer.GetImage()?.ImageUrl" class="w-100 h-100 object-cover" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="icon d-flex align-items-center justify-content-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M12 5l0 14" />
+                                                            <path d="M5 12l14 0" />
+                                                        </svg>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#imageLibrary" aria-expanded="true">
+                                            Thư viện ảnh
+                                        </button>
+                                    </h2>
+                                    <div id="imageLibrary" class="accordion-collapse collapse show">
+                                        <div class="accordion-body pt-0">
+                                            <div class="image-box-libs">
+                                                <div id="image_library" class="image-libs d-grid gap-2 align-items-center" style="grid-template-columns: repeat(@(designer.GetImageLibrary()?.Count ?? 1), 1fr);">
+                                                    @if (designer.GetImageLibrary() != null)
+                                                    {
+                                                        @foreach (var image in designer.GetImageLibrary())
+                                                        {
+                                                            <input type="hidden" name="ImageLibrary[@image.Id]" value="@image.ImageUrl" />
+                                                            <img src="@image.ImageUrl" class="w-100 h-100 object-cover" alt="@image.Title" style="height: 120px !important;" />
+                                                        }
+                                                    }
+
+                                                    <div class="image-post-box d-flex align-items-center justify-content-center open-media-modal">
+                                                        <div class="icon d-flex align-items-center justify-content-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M12 5l0 14" />
+                                                                <path d="M5 12l14 0" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Thêm modal cho media -->
+                            <div class="media-modal" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    private List<Designer> designersList = new();
+    private Designer designer = new Designer();
+    private MetaData metaData = new MetaData();
+    private Dictionary<string, string> statuses = new Dictionary<string, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        statuses = Designer.STATUSES.ToDictionary(k => k.Key, v => v.Value);
+        designer = new Designer();
+        metaData = new MetaData();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initTinyMCE");
+            await JS.InvokeVoidAsync("setTinyMCEContent", designer.description);
+        }
+    }
+    private async void SubmitForm()
+    {
+        designer.description = await JS.InvokeAsync<string>("getTinyMCEContent");
+        designer.SetMetaData(metaData);
+        await sev.Create(designer);
+        nav.NavigateTo("/admin/designer");
+    }
+}

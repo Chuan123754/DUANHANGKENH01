@@ -22,13 +22,11 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    <PackageReference Include="TinyMCE.Blazor" Version="1.0.4" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Pages\Admin\Login\" />
-    <Folder Include="Pages\Admin\Designers\" />
-    <Folder Include="Pages\Admin\Design_list\" />
-    <Folder Include="Pages\Vendor\Pagination\" />
   </ItemGroup>
 
 </Project>

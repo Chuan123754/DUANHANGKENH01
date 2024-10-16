@@ -1,0 +1,61 @@
+﻿@page "/admin/color/create"
+@inject NavigationManager nav
+@inject IColorServices sev
+
+<EditForm Model="color" OnValidSubmit="SubmitForm" FormName="coloradd">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+    <div class="page-wrapper">
+        <div class="page-body">
+            <div class="container-xl">
+                <!-- Title Field -->
+                <div class="form-group mb-3">
+                    <label for="material-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                    <InputText id="material-title" class="form-control" @bind-Value="color.Title" required />
+                    <ValidationMessage For="@(() => color.Title)" />
+                </div>
+
+                <!-- Slug Field -->
+                <div class="form-group mb-3">
+                    <label for="attribute-slug" class="form-label">Đường dẫn</label>
+                    <InputText id="attribute-slug" class="form-control" @bind-Value="color.Slug" />
+                    <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
+                </div>
+
+                <!-- Color Code Field -->
+                <div class="form-group mb-3">
+                    <label for="attribute-color" class="form-label">Mã màu</label>
+                    <InputText id="attribute-color" class="form-control" @bind-Value="color.Color_code" />
+                </div>
+
+                <!-- Description Field -->
+                <div class="form-group mb-3">
+                    <label for="attribute-color" class="form-label">Mô tả</label>
+                    <InputText id="attribute-color" class="form-control" @bind-Value="color.Description" />
+                </div>
+
+                <!-- Submit Button -->
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Thêm màu sắc</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private Color color = new Color();
+
+    protected override void OnInitialized()
+    {
+        // Set default status to "ACTIVE" (Hoạt động)
+        color.Status = Color.STATUS_ACTIVE;
+    }
+
+    private async Task SubmitForm()
+    {
+        color.Create_at = DateTime.Now; // Set creation timestamp
+        await sev.Create(color);        // Call API to create the color
+        nav.NavigateTo("/admin/color"); // Redirect after successful creation
+    }
+}

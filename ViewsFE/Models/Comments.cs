@@ -31,6 +31,6 @@ namespace ViewsFE.Models
         [JsonIgnore]
         public virtual Users? Users { get; set; }
         [ForeignKey("Post_id")]
-        public virtual Posts? Post { get; set; }
+        public virtual Product_Posts? Post { get; set; }
     }
 }

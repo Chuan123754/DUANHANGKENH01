@@ -1,0 +1,63 @@
+﻿@page "/admin/option"
+@using System.Net.Http.Headers
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">Cấu hình</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-2">
+                            <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                <button class="nav-link @(isActiveTab("general") ? "active" : "")" @onclick='() => SetActiveTab("general")' type="button" role="tab" aria-controls="general" aria-selected="true">Chung</button>
+                                <button class="nav-link @(isActiveTab("email") ? "active" : "")" @onclick='() => SetActiveTab("email")' type="button" role="tab" aria-controls="email" aria-selected="false">Email</button>
+                                <button class="nav-link @(isActiveTab("social") ? "active" : "")" @onclick='() => SetActiveTab("social")' type="button" role="tab" aria-controls="social" aria-selected="false">Social</button>
+                                <button class="nav-link @(isActiveTab("robot") ? "active" : "")" @onclick='() => SetActiveTab("robot")' type="button" role="tab" aria-controls="robot" aria-selected="false">robot.txt</button>
+                            </div>
+                        </div>
+                        <div class="col-10">
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade @(activeTab == "general" ? "show active" : "")" id="general" role="tabpanel">
+                                    <GeneralComponent />
+                                </div>
+                                <div class="tab-pane fade @(activeTab == "email" ? "show active" : "")" id="email" role="tabpanel">
+                                    <EmailSystemComponent />
+                                </div>
+                                <div class="tab-pane fade @(activeTab == "social" ? "show active" : "")" id="social" role="tabpanel">
+                                    <ViewsFE.Pages.Admin.Options.components.Social />
+                                </div>
+                                <div class="tab-pane fade @(activeTab == "robot" ? "show active" : "")" id="robot" role="tabpanel">
+                                    <RobotComponent />
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string activeTab = "general";
+
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+    }
+
+    private bool isActiveTab(string tab)
+    {
+        return activeTab == tab;
+    }
+}

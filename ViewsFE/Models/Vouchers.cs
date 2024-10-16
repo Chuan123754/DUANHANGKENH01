@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using ViewsFE.Models;
 
 namespace ViewsFE.Models
-{   
+{
     public class Vouchers
     {
         public long Id { get; set; }    
