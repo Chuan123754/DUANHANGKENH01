@@ -39,5 +39,7 @@ namespace appAPI.Models
         public ICollection<Wishlist> Wishlist { get; set; } = new List<Wishlist>();
         [JsonIgnore]
         public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
+        [JsonIgnore]
+        public virtual ICollection<UserVouchers> UserVouchers { get; set; } = new List<UserVouchers>();
     }
 }

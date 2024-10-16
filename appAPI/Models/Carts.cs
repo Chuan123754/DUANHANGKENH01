@@ -20,8 +20,10 @@ namespace appAPI.Models
         [JsonIgnore]
         public virtual ICollection<Cart_details> Cart_Details { get; set; } = new List<Cart_details>();
         [ForeignKey("UserId")]
+        [JsonIgnore]
         public virtual Users? Users { get; set; }
         [InverseProperty("Cart")]
+        [JsonIgnore]
         public virtual ICollection<Orders> Orders { get; set; } = new List<Orders>();
     }
 }

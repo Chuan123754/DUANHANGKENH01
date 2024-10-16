@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace appAPI.Models
 {
@@ -16,8 +17,10 @@ namespace appAPI.Models
         public long VoucherId { get; set; } 
         public DateTime AppliedAt { get; set; } 
         [ForeignKey("OrderId")]
+        [JsonIgnore]
         public virtual Orders? Orders { get; set; }
         [ForeignKey("VoucherId")]
+        [JsonIgnore]
         public virtual Vouchers? Vouchers { get; set; }
     }
 }

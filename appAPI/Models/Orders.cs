@@ -47,6 +47,7 @@ namespace appAPI.Models
         public DateTime? Deleted_at { get; set; }
  
         [ForeignKey("CartId")]
+        [JsonIgnore]
         public virtual Carts? Cart { get; set; }
         [InverseProperty("Orders")]
         [JsonIgnore]

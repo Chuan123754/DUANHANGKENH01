@@ -1,4 +1,6 @@
 ﻿using appAPI.Models;
+using appAPI.Repository;
+using AppAPI.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -10,78 +12,96 @@ namespace appAPI.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly APP_DATA_DATN context;
+        private readonly IRepository<Products> _productRepository;
 
-        public ProductsController(APP_DATA_DATN context)
+        public ProductsController(IRepository<Products> productRepository)
         {
-            this.context = context;
+            _productRepository = productRepository;
         }
 
         [HttpGet("postproducts-get")]
         public IActionResult Get()
         {
-            return Ok(context.Products.ToList());
+            var products = _productRepository.GetAll();
+            return Ok(products);
         }
 
         [HttpGet("postproducts-get-id/{id}")]
         public IActionResult Get(long id)
         {
-            var postProduct = context.Products.Find(id);
-            if (postProduct == null)
+            var product = _productRepository.GetById(id);
+            if (product == null)
             {
-                return NotFound("Post product not found");
+                return NotFound("Product not found");
             }
-            return Ok(postProduct);
+            return Ok(product);
         }
 
         [HttpPost("postproducts-post")]
-        public ActionResult Post(Products postProduct)
+        public IActionResult Post([FromBody] Products product)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             try
             {
-                postProduct.Created_at = DateTime.Now;
-                context.Products.Add(postProduct);
-                context.SaveChanges();
+                product.Created_at = DateTime.Now;
+                _productRepository.Add(product);
                 return Ok(new { message = "Thêm sản phẩm cho bài viết thành công" });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new { message = "Đã xảy ra lỗi khi thêm sản phẩm", error = ex.Message });
             }
         }
 
         [HttpPut("postproducts-put")]
-        public IActionResult Put(Products postProduct)
+        public IActionResult Put([FromBody] Products product)
         {
-            var item = context.Products.Find(postProduct.Id);
-            if (item == null)
+            var existingProduct = _productRepository.GetById(product.Id);
+            if (existingProduct == null)
             {
-                return NotFound("Post product not found");
+                return NotFound("Product not found");
             }
 
-            item.Sku = postProduct.Sku;
-            item.Status = postProduct.Status;
-            item.Deleted_at = null;
-            item.Created_at = postProduct.Created_at;
-            item.Updated_at = DateTime.Now;
-            item.Post_Id = postProduct.Post_Id;
+            existingProduct.Sku = product.Sku;
+            existingProduct.Status = product.Status;
+            existingProduct.Deleted_at = product.Deleted_at;
+            existingProduct.Created_at = product.Created_at;
+            existingProduct.Updated_at = DateTime.Now;
+            existingProduct.Post_Id = product.Post_Id;
 
-            context.SaveChanges();
-            return Ok(new { message = "Cập nhật sản phẩm cho bài viết thành công" });
+            try
+            {
+                _productRepository.Update(existingProduct);
+                return Ok(new { message = "Cập nhật sản phẩm cho bài viết thành công" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Đã xảy ra lỗi khi cập nhật sản phẩm", error = ex.Message });
+            }
         }
 
         [HttpDelete("postproducts-delete/{id}")]
         public IActionResult Delete(long id)
         {
-            var delete = context.Products.Find(id);
-            if (delete == null)
+            var product = _productRepository.GetById(id);
+            if (product == null)
             {
-                return NotFound("Post product not found");
+                return NotFound("Product not found");
             }
 
-            context.Remove(delete);
-            context.SaveChanges();
-            return Ok(new { message = "Xóa sản phẩm khỏi bài viết thành công" });
+            try
+            {
+                _productRepository.Remove(product);
+                return Ok(new { message = "Xóa sản phẩm khỏi bài viết thành công" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Đã xảy ra lỗi khi xóa sản phẩm", error = ex.Message });
+            }
         }
     }
 }

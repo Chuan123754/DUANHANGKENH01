@@ -44,6 +44,7 @@ namespace appAPI.Models
         public DbSet<Wishlist> Wishlist { get; set; }
         public DbSet<Order_Vouchers> OrderVouchers { get; set; }
         public DbSet<Vouchers> Vouchers { get; set; }
+        public DbSet<UserVouchers> userVouchers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

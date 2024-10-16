@@ -18,8 +18,6 @@ namespace appAPI.Models
         [Key]
         public long Id { get; set; }
         public long Post_Id { get; set; }
-        [StringLength(100)]
-        [Unicode(false)]
         public long Designer_Id { get;set; }
         public string? Sku { get; set; }
         [StringLength(50)]
