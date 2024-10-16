@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace appAPI.Migrations
 {
-    public partial class chun : Migration
+    public partial class app : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -95,6 +95,28 @@ namespace appAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "categories",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Short_title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Slug = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Parent_id = table.Column<long>(type: "bigint", nullable: false),
+                    Dept = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Designer",
                 columns: table => new
                 {
@@ -114,6 +136,28 @@ namespace appAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Designer", x => x.id_Designer);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Discount",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Code = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type_of_promotion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Start_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    End_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Created_by = table.Column<long>(type: "bigint", nullable: false),
+                    Updated_by = table.Column<long>(type: "bigint", nullable: false),
+                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Discount", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -169,30 +213,6 @@ namespace appAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "posts",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Slug = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    AuthorId = table.Column<long>(type: "bigint", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Post_date = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Created_by = table.Column<long>(type: "bigint", nullable: false),
-                    Updated_by = table.Column<long>(type: "bigint", nullable: false),
-                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_posts", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Q_As",
                 columns: table => new
                 {
@@ -230,6 +250,24 @@ namespace appAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "tags",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_tags", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "users",
                 columns: table => new
                 {
@@ -256,39 +294,21 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Code = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Code = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Quantity = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Percent = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MaxDiscountValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Condition = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Update_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Start_time = table.Column<DateTime>(type: "datetime2", nullable: false),
                     End_time = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Vouchers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "warehouse",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_warehouse", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -308,6 +328,28 @@ namespace appAPI.Migrations
                         name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
                         column: x => x.RoleId,
                         principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Activity_history",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Log_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Subject_type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Activity_history", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Activity_history_AspNetUsers_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -398,6 +440,61 @@ namespace appAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "posts",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Slug = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    AuthorId = table.Column<long>(type: "bigint", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Post_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Created_by = table.Column<long>(type: "bigint", nullable: false),
+                    Updated_by = table.Column<long>(type: "bigint", nullable: false),
+                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_posts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_posts_AspNetUsers_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "warehouse",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_warehouse", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_warehouse_AspNetUsers_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "menuitems",
                 columns: table => new
                 {
@@ -425,101 +522,31 @@ namespace appAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "categories",
+                name: "Address",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Short_title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Slug = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Parent_id = table.Column<long>(type: "bigint", nullable: false),
-                    Dept = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PostsId = table.Column<long>(type: "bigint", nullable: true)
+                    User_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Steet = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Ward_commune = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    District = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Province_city = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Set_as_default = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_categories", x => x.Id);
+                    table.PrimaryKey("PK_Address", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_categories_posts_PostsId",
-                        column: x => x.PostsId,
-                        principalTable: "posts",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "post_metas",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Post_Id = table.Column<long>(type: "bigint", nullable: false),
-                    Meta_key = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    Meta_value = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_post_metas", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_post_metas_posts_Post_Id",
-                        column: x => x.Post_Id,
-                        principalTable: "posts",
+                        name: "FK_Address_users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "post_products",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Post_Id = table.Column<long>(type: "bigint", nullable: false),
-                    Designer_Id = table.Column<long>(type: "bigint", unicode: false, maxLength: 100, nullable: false),
-                    Sku = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_post_products", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_post_products_posts_Post_Id",
-                        column: x => x.Post_Id,
-                        principalTable: "posts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "tags",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Slug = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Type = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    PostsId = table.Column<long>(type: "bigint", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_tags", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_tags_posts_PostsId",
-                        column: x => x.PostsId,
-                        principalTable: "posts",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -539,6 +566,36 @@ namespace appAPI.Migrations
                         name: "FK_carts_users_UserId",
                         column: x => x.UserId,
                         principalTable: "users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "userVouchers",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    VoucherId = table.Column<long>(type: "bigint", nullable: false),
+                    IsApplied = table.Column<bool>(type: "bit", nullable: false),
+                    AppliedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_userVouchers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_userVouchers_users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_userVouchers_Vouchers_VoucherId",
+                        column: x => x.VoucherId,
+                        principalTable: "Vouchers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -599,6 +656,137 @@ namespace appAPI.Migrations
                         name: "FK_post_categories_posts_Post_Id",
                         column: x => x.Post_Id,
                         principalTable: "posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "post_metas",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Post_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Meta_key = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
+                    Meta_value = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_post_metas", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_post_metas_posts_Post_Id",
+                        column: x => x.Post_Id,
+                        principalTable: "posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "post_products",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Post_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Designer_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Sku = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_post_products", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_post_products_posts_Post_Id",
+                        column: x => x.Post_Id,
+                        principalTable: "posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "post_tags",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Post_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Tag_Id = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_post_tags", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_post_tags_posts_Post_Id",
+                        column: x => x.Post_Id,
+                        principalTable: "posts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_post_tags_tags_Tag_Id",
+                        column: x => x.Tag_Id,
+                        principalTable: "tags",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "orders",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CartId = table.Column<long>(type: "bigint", nullable: true),
+                    Code = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
+                    Warehouse_id = table.Column<long>(type: "bigint", nullable: true),
+                    User_id = table.Column<long>(type: "bigint", nullable: true),
+                    Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Phone_number = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Approved_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_orders_carts_CartId",
+                        column: x => x.CartId,
+                        principalTable: "carts",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Cartdetails",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Product_id = table.Column<long>(type: "bigint", nullable: false),
+                    Cart_id = table.Column<long>(type: "bigint", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cartdetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Cartdetails_carts_Cart_id",
+                        column: x => x.Cart_id,
+                        principalTable: "carts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Cartdetails_post_products_Product_id",
+                        column: x => x.Product_id,
+                        principalTable: "post_products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -717,91 +905,6 @@ namespace appAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "post_tags",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Post_Id = table.Column<long>(type: "bigint", nullable: false),
-                    Tag_Id = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_post_tags", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_post_tags_posts_Post_Id",
-                        column: x => x.Post_Id,
-                        principalTable: "posts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_post_tags_tags_Tag_Id",
-                        column: x => x.Tag_Id,
-                        principalTable: "tags",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Cartdetails",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Product_id = table.Column<long>(type: "bigint", nullable: false),
-                    Cart_id = table.Column<long>(type: "bigint", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Cartdetails", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Cartdetails_carts_Cart_id",
-                        column: x => x.Cart_id,
-                        principalTable: "carts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Cartdetails_post_products_Product_id",
-                        column: x => x.Product_id,
-                        principalTable: "post_products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "orders",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CartId = table.Column<long>(type: "bigint", nullable: true),
-                    Code = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
-                    Warehouse_id = table.Column<long>(type: "bigint", nullable: true),
-                    User_id = table.Column<long>(type: "bigint", nullable: true),
-                    Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Phone_number = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Approved_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_orders", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_orders_carts_CartId",
-                        column: x => x.CartId,
-                        principalTable: "carts",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "order_details",
                 columns: table => new
                 {
@@ -880,6 +983,45 @@ namespace appAPI.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "p_Variants_Discounts",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    P_variants_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Discount_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Old_price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    New_price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_p_Variants_Discounts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_p_Variants_Discounts_Discount_Discount_Id",
+                        column: x => x.Discount_Id,
+                        principalTable: "Discount",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_p_Variants_Discounts_product_variants_P_variants_Id",
+                        column: x => x.P_variants_Id,
+                        principalTable: "product_variants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Activity_history_AccountId",
+                table: "Activity_history",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Address_UserId",
+                table: "Address",
+                column: "UserId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -945,11 +1087,6 @@ namespace appAPI.Migrations
                 name: "categories_type_index",
                 table: "categories",
                 column: "Type");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_categories_PostsId",
-                table: "categories",
-                column: "PostsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Comments_Post_id",
@@ -1044,6 +1181,16 @@ namespace appAPI.Migrations
                 column: "VoucherId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_p_Variants_Discounts_Discount_Id",
+                table: "p_Variants_Discounts",
+                column: "Discount_Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_p_Variants_Discounts_P_variants_Id",
+                table: "p_Variants_Discounts",
+                column: "P_variants_Id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_post_categories_category_id",
                 table: "post_categories",
                 column: "Category_Id");
@@ -1084,6 +1231,11 @@ namespace appAPI.Migrations
                 name: "IX_post_tags_tag_id",
                 table: "post_tags",
                 column: "Tag_Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_posts_AccountId",
+                table: "posts",
+                column: "AccountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_posts_author_id",
@@ -1140,11 +1292,6 @@ namespace appAPI.Migrations
                 filter: "[Sku] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_tags_PostsId",
-                table: "tags",
-                column: "PostsId");
-
-            migrationBuilder.CreateIndex(
                 name: "tags_type_index",
                 table: "tags",
                 column: "Type");
@@ -1155,6 +1302,21 @@ namespace appAPI.Migrations
                 column: "Email",
                 unique: true,
                 filter: "[Email] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_userVouchers_UserId",
+                table: "userVouchers",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_userVouchers_VoucherId",
+                table: "userVouchers",
+                column: "VoucherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_warehouse_AccountId",
+                table: "warehouse",
+                column: "AccountId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_wishlist_Product_id",
@@ -1169,6 +1331,12 @@ namespace appAPI.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Activity_history");
+
+            migrationBuilder.DropTable(
+                name: "Address");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -1215,6 +1383,9 @@ namespace appAPI.Migrations
                 name: "OrderVouchers");
 
             migrationBuilder.DropTable(
+                name: "p_Variants_Discounts");
+
+            migrationBuilder.DropTable(
                 name: "post_categories");
 
             migrationBuilder.DropTable(
@@ -1227,13 +1398,13 @@ namespace appAPI.Migrations
                 name: "product_attributes");
 
             migrationBuilder.DropTable(
-                name: "product_variants");
-
-            migrationBuilder.DropTable(
                 name: "Q_As");
 
             migrationBuilder.DropTable(
                 name: "seo");
+
+            migrationBuilder.DropTable(
+                name: "userVouchers");
 
             migrationBuilder.DropTable(
                 name: "warehouse");
@@ -1245,9 +1416,6 @@ namespace appAPI.Migrations
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Designer");
 
             migrationBuilder.DropTable(
@@ -1257,7 +1425,10 @@ namespace appAPI.Migrations
                 name: "orders");
 
             migrationBuilder.DropTable(
-                name: "Vouchers");
+                name: "Discount");
+
+            migrationBuilder.DropTable(
+                name: "product_variants");
 
             migrationBuilder.DropTable(
                 name: "categories");
@@ -1266,19 +1437,25 @@ namespace appAPI.Migrations
                 name: "tags");
 
             migrationBuilder.DropTable(
+                name: "Vouchers");
+
+            migrationBuilder.DropTable(
+                name: "carts");
+
+            migrationBuilder.DropTable(
                 name: "Attributes");
 
             migrationBuilder.DropTable(
                 name: "post_products");
 
             migrationBuilder.DropTable(
-                name: "carts");
+                name: "users");
 
             migrationBuilder.DropTable(
                 name: "posts");
 
             migrationBuilder.DropTable(
-                name: "users");
+                name: "AspNetUsers");
         }
     }
 }

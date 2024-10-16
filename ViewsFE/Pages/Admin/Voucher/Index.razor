@@ -1,0 +1,462 @@
+﻿@page "/vouchers"
+@using Views.Models
+@using ViewsFE.IServices
+@inject IVoucherService VoucherService
+@inject IUserVoucherService UserVoucherService
+@inject IJSRuntime JS
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">Quản Lý Voucher</h2>
+                </div>
+            </div>
+            <div id="breadcrumb">
+                <Breadcrumb pageParentTitle="Khuyến mãi" pageTitle="Voucher" pageRoute="/vouchers" />
+            </div>
+        </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row">
+                <!-- Create/Edit Form -->
+                <div class="col-md-3">
+                    <div class="card">
+                        <div id="formVoucher" class="card-body">
+                            <EditForm Model="@voucher" OnValidSubmit="HandleSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+                                <DataAnnotationsValidator />
+                                @if (!string.IsNullOrEmpty(errorMessage))
+                                {
+                                    <div class="alert @((errorMessage.Contains("thành công") ? "alert-success" : "alert-danger"))" role="alert">
+                                        @errorMessage
+                                    </div>
+                                }
+
+                                <!-- Các trường thông tin voucher -->
+                                <div class="form-group mb-1">
+                                    <label for="voucherCode">Mã Voucher</label>
+                                    <input type="text" id="voucherCode" @bind="voucher.Code" class="form-control" placeholder="Mã voucher" />
+                                    <ValidationMessage For="@(() => voucher.Code)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="description">Mô Tả</label>
+                                    <input type="text" id="description" @bind="voucher.Description" class="form-control" placeholder="Mô tả voucher" />
+                                    <ValidationMessage For="@(() => voucher.Description)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="quantity">Số Lượng</label>
+                                    <input type="number" id="quantity" @bind="voucher.Quantity" class="form-control" placeholder="Số lượng" />
+                                    <ValidationMessage For="@(() => voucher.Quantity)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="percent">Phần Trăm Giảm Giá (%)</label>
+                                    <input type="number" id="percent" @bind="voucher.Percent" class="form-control" placeholder="Phần trăm giảm giá" />
+                                    <ValidationMessage For="@(() => voucher.Percent)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="maxDiscountValue">Giá Trị Giảm Tối Đa</label>
+                                    <input type="number" id="maxDiscountValue" @bind="voucher.MaxDiscountValue" class="form-control" placeholder="Giá trị giảm tối đa" />
+                                    <ValidationMessage For="@(() => voucher.MaxDiscountValue)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="Condition">Điều kiện</label>
+                                    <input type="number" id="Condition" @bind="voucher.Condition" class="form-control" placeholder="Điều kiện" />
+                                    <ValidationMessage For="@(() => voucher.Condition)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="startTime">Thời Gian Bắt Đầu</label>
+                                    <InputDate id="startTime" @bind-Value="voucher.Start_time" class="form-control" />
+                                    <ValidationMessage For="@(() => voucher.Start_time)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="endTime">Thời Gian Kết Thúc</label>
+                                    <InputDate id="endTime" @bind-Value="voucher.End_time" class="form-control" />
+                                    <ValidationMessage For="@(() => voucher.End_time)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label>Trạng Thái</label><br />
+
+                                    <!-- Radio button cho trạng thái "Hoạt động" -->
+                                    <input type="radio" id="active" name="status" checked="@(voucher.Status == "Hoạt động")" @onchange="SetStatusToActive" />
+                                    <label for="active">Hoạt động</label>
+
+                                    <!-- Radio button cho trạng thái "Không hoạt động" -->
+                                    <input type="radio" id="inactive" name="status" checked="@(voucher.Status == "Không hoạt động")" @onchange="SetStatusToInactive" />
+                                    <label for="inactive">Không hoạt động</label>
+
+                                    <ValidationMessage For="@(() => voucher.Status)" />
+                                </div>
+
+                                <!-- Nút Tạo và Cập Nhật -->
+                                <div class="form-group">
+                                    @if (voucher.Id == 0)
+                                    {
+                                        <button type="submit" class="btn btn-primary">Tạo</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="btn btn-warning">Cập Nhật</button>
+                                    }
+                                </div>
+                            </EditForm>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh Sách Voucher -->
+                <div class="col-md-9 col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Search Box -->
+                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                <div></div>
+                                <EditForm Model="voucher" OnValidSubmit="@SearchVouchers">
+                                    <div class="form-group d-flex gap-2">
+                                        <InputText id="searchInput" class="form-control" @bind-Value="searchText" placeholder="Nhập từ khóa tìm kiếm" />
+                                        <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                    </div>
+                                </EditForm>
+                            </div>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Mã Voucher</th>
+                                        <th>Mô Tả</th>
+                                        <th>Giá trị</th>
+                                        <th>Giá trị tối da</th>
+                                        <th>Điều kiện</th>
+                                        <th>Số lượng</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (vouchers == null)
+                                    {
+                                        <tr>
+                                            <td colspan="6" class="text-center">Đang tải dữ liệu...</td>
+                                        </tr>
+                                    }
+                                    else if (!vouchers.Any())
+                                    {
+                                        <tr>
+                                            <td colspan="6" class="text-center">Không có voucher nào để hiển thị.</td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        int index = 0;
+                                        @foreach (var voucher in vouchers)
+                                        {
+                                            <tr>
+                                                <td>@(++index)</td>
+                                                <td>@voucher.Code</td>
+                                                <td>@voucher.Description</td>
+                                                <td>@voucher.Percent</td>
+                                                <td>@voucher.MaxDiscountValue</td>
+                                                <td>@voucher.Condition</td>
+                                                <td>@voucher.Quantity</td>
+                                                <td>@voucher.Status</td>
+                                                <td>
+                                                    <a class="cell-action-edit text-primary" @onclick="() => EditVoucher(voucher.Id)">Chỉnh sửa</a>
+                                                    <a class="cell-action-delete text-danger" @onclick="() => ConfirmDelete(voucher.Id)">Thùng rác</a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12 col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3>Danh Sách Người Dùng</h3>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Tích</th> <!-- Thêm cột Tích -->
+                                            <th>Tên Người Dùng</th>
+                                            <th>Email</th>
+                                            <th>Số Điện Thoại</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (users == null)
+                                        {
+                                            <tr>
+                                                <td colspan="5" class="text-center">Đang tải dữ liệu...</td>
+                                            </tr>
+                                        }
+                                        else if (!users.Any())
+                                        {
+                                            <tr>
+                                                <td colspan="5" class="text-center">Không có người dùng nào để hiển thị.</td>
+                                            </tr>
+                                        }
+                                        else
+                                        {
+                                            int index = 0;
+                                            @foreach (var user in users)
+                                            {
+                                                <tr>
+                                                    <td>@(++index)</td>
+                                                    <td>
+                                                        <!-- Checkbox cho khách hàng -->
+                                                        <input type="checkbox" checked="@selectedUserIds.Contains(user.Id)" @onchange="@(e => ToggleUserSelection(user.Id, (bool)((ChangeEventArgs)e).Value))" />
+                                                    </td>
+                                                    <td>@user.Name</td>
+                                                    <td>@user.Email</td>
+                                                    <td>@user.Phone</td>
+                                                </tr>
+                                            }
+
+
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>            
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Vouchers> vouchers = new List<Vouchers>();
+    private List<Users> users = new List<Users>(); // Thêm biến users
+    private Vouchers voucher = new Vouchers();
+    private List<long> selectedUserIds = new List<long>();
+    private string searchText = string.Empty;
+    private string errorMessage = string.Empty;
+    private int selectedUserCount = 0; // Biến đếm số lượng khách hàng được tích chọn
+
+    private void ToggleUserSelection(long userId, bool isChecked)
+    {
+        if (isChecked)
+        {
+            if (!selectedUserIds.Contains(userId))
+            {
+                selectedUserIds.Add(userId); // Thêm UserId vào danh sách
+                selectedUserCount++; // Tăng biến đếm khi tích chọn
+            }
+        }
+        else
+        {
+            if (selectedUserIds.Contains(userId))
+            {
+                selectedUserIds.Remove(userId); // Bỏ UserId khỏi danh sách
+                selectedUserCount--; // Giảm biến đếm khi bỏ tích
+            }
+        }
+    }
+
+
+    private void SetStatusToActive(ChangeEventArgs e)
+    {
+        voucher.Status = "Hoạt động";
+    }
+
+    private void SetStatusToInactive(ChangeEventArgs e)
+    {
+        voucher.Status = "Không hoạt động";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        voucher.Create_at = DateTime.Now;
+        voucher.Update_at = DateTime.Now;
+        voucher.Start_time = DateTime.Now;
+        voucher.End_time = DateTime.Now.AddDays(1); // Ví dụ: mặc định voucher có hạn 1 ngày
+
+        await LoadVouchers();
+        await LoadUsers(); // Gọi hàm để lấy danh sách người dùng
+    }
+
+    private async Task LoadUsers()
+    {
+        users = await VoucherService.GetUsers(); // Lấy danh sách người dùng
+    }
+
+    private async Task LoadVouchers()
+    {
+        vouchers = await VoucherService.GetAll();
+    }
+
+    private async Task CreateVoucher()
+    {
+        try
+        {
+            if (selectedUserIds.Any())
+            {
+                var sl = selectedUserCount; 
+
+                var userVoucher = new Vouchers
+                    {
+                        Code = voucher.Code,
+                        Description = voucher.Description,
+                        Quantity = sl.ToString(), 
+                        Percent = voucher.Percent,
+                        MaxDiscountValue = voucher.MaxDiscountValue,
+                        Condition = voucher.Condition,
+                        Start_time = voucher.Start_time,
+                        End_time = voucher.End_time,
+                        Status = voucher.Status,
+                        Create_at = DateTime.Now,
+                        Update_at = DateTime.Now
+                    };
+
+                var createdVoucher = await VoucherService.Create(userVoucher); 
+
+                foreach (var userId in selectedUserIds)
+                {
+                    var userVoucherEntry = new Models.UserVouchers
+                        {
+                            UserId = userId,
+                            VoucherId = createdVoucher.Id,
+                            IsApplied = false,
+                            AppliedAt = null,
+                            Create_at = DateTime.Now,
+                            Update_at = DateTime.Now
+                        };
+
+                    await UserVoucherService.Create(userVoucherEntry); 
+                }
+            }
+            else
+            {
+                var newVoucher = new Vouchers
+                    {
+                        Code = voucher.Code,
+                        Description = voucher.Description,
+                        Quantity = voucher.Quantity, 
+                        Percent = voucher.Percent,
+                        MaxDiscountValue = voucher.MaxDiscountValue,
+                        Condition = voucher.Condition,
+                        Start_time = voucher.Start_time,
+                        End_time = voucher.End_time,
+                        Status = voucher.Status,
+                        Create_at = DateTime.Now,
+                        Update_at = DateTime.Now
+                    };
+
+                await VoucherService.Create(newVoucher); 
+            }
+
+            await LoadVouchers();
+
+            // Reset form sau khi tạo thành công
+            voucher = new Vouchers
+                {
+                    Create_at = DateTime.Now,
+                    Update_at = DateTime.Now,
+                    Start_time = DateTime.Now,
+                    End_time = DateTime.Now.AddDays(1)
+                };
+
+            selectedUserIds.Clear();
+            selectedUserCount = 0; 
+
+            errorMessage = "Đã tạo mới voucher thành công!";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
+        }
+    }
+
+
+
+
+
+    private async Task UpdateVoucher()
+    {
+        try
+        {
+            await VoucherService.Update(voucher);
+            await LoadVouchers();
+            voucher = new Vouchers
+                {
+                    Start_time = DateTime.Now,
+                    End_time = DateTime.Now.AddDays(1) // Đặt lại thời gian mặc định
+                };
+            errorMessage = "Cập nhật voucher thành công!";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (voucher.Id == 0)
+        {
+            await CreateVoucher();
+        }
+        else
+        {
+            await ConfirmUpdateVoucher();
+        }
+    }
+
+    private async Task EditVoucher(long id)
+    {
+        voucher = await VoucherService.Details(id);
+    }
+
+    private async Task ConfirmUpdateVoucher()
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn cập nhật voucher này?");
+        if (confirmed)
+        {
+            await UpdateVoucher();
+        }
+    }
+
+    private async Task ConfirmDelete(long id)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa voucher này?");
+        if (confirmed)
+        {
+            await VoucherService.Delete(id);
+            await LoadVouchers();
+        }
+    }
+
+    private void SearchVouchers()
+    {
+        if (string.IsNullOrEmpty(searchText))
+        {
+            vouchers = vouchers.ToList();
+        }
+        else
+        {
+            vouchers = vouchers
+                .Where(v => v.Code.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+    }
+
+    private void HandleInvalidSubmit()
+    {
+        Console.WriteLine("Form không hợp lệ. Hãy kiểm tra các trường nhập liệu!");
+    }
+}

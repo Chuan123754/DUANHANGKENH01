@@ -84,7 +84,7 @@ else
                 Console.WriteLine("Không tìm thấy chuyên mục với ID này.");
             }
 
-            categoriesList = await sev.GetAll();
+            categoriesList = (await sev.GetAll()).Where(ctgr => ctgr.Parent_id == 0).ToList();
             StateHasChanged();
         }
         catch (Exception ex)

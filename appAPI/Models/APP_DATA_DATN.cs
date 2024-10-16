@@ -48,6 +48,7 @@ namespace appAPI.Models
         public DbSet<Material> Materials { get; set; }
         public DbSet<Textile_technology> Textile_Technologies { get; set; }
 
+        public DbSet<UserVouchers> userVouchers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
