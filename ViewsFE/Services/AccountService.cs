@@ -4,16 +4,20 @@ using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using System.Text;
 using ViewsFE.Models.DTO;
+using System.Net.Http.Headers;
+using Blazored.SessionStorage;
 
 namespace ViewsFE.Services
 {
     public class AccountService : IAccountService
     {
         private readonly HttpClient _client;
+        private readonly ISessionStorageService _sessionStorage;
 
-        public AccountService(HttpClient client)
+        public AccountService(HttpClient client , ISessionStorageService sessionStorage)
         {
             _client = client;
+            _sessionStorage= sessionStorage;
         }
         public async Task<string> SignInAsync(SignInModel model)
         {
@@ -21,7 +25,11 @@ namespace ViewsFE.Services
             var response = await _client.PostAsJsonAsync(requestURL, model);
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadAsStringAsync();
+                var token = await response.Content.ReadAsStringAsync();
+                if (!string.IsNullOrEmpty(token))
+                {
+                    return token; 
+                }
             }
             throw new Exception("Đăng nhập không hợp lệ");
         }
