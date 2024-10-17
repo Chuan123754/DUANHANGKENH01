@@ -58,6 +58,7 @@ builder.Services.AddScoped<FilesIServices, FilesServices>();
 builder.Services.AddScoped<IDesignerServices, DesignerServices>();
 builder.Services.AddScoped<SeoIServices, SeoServices>();
 builder.Services.AddScoped<IOptionsServices, OptionServices>();
+builder.Services.AddScoped<IPostSer, PostServices>();
 
 var app = builder.Build();
 
