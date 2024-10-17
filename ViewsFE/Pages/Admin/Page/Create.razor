@@ -1,4 +1,5 @@
 ﻿@page "/admin/page/create"
+@using ViewsFE.IServices
 @inject NavigationManager nav
 @inject IPostSer sev
 @inject ITagsServices stag
@@ -12,7 +13,7 @@
                 <div class="row g-2 align-items-center">
                     <div class="col">
                         <h2 class="page-title">
-                            Thêm trang
+                            Thêm bài viết
                         </h2>
                     </div>
                 </div>
@@ -90,43 +91,30 @@
                                     </h2>
                                     <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                         <div class="accordion-body pt-0">
-                                            <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center">
-                                                @if (!string.IsNullOrEmpty(FeatureImage))
                                                 {
-                                                    <img src="@FeatureImage" class="w-100 h-100 object-cover" />
                                                 }
-                                                else
-                                                {
-                                                    <div class="icon d-flex align-items-center justify-content-center">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
-                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                            <path d="M12 5v14" />
-                                                            <path d="M5 12h14" />
-                                                        </svg>
-                                                    </div>
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+       
+                                                </div>
                                                 }
+                                            </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
 
                             <!-- Từ khóa -->
-                            <div class="accordion bg-white mb-3">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
-                                            Từ khóa
-                                        </button>
-                                    </h2>
-                                    <div id="tag" class="accordion-collapse collapse show">
-                                        <div class="accordion-body pt-0">
-                                          @*   <InputSelect @bind-Value="Posts.Post_tags" Multiple="true" class="form-select">
-                                                @foreach (var tag in Tags)
-                                                {
-                                                    <option value="@tag.Id">@tag.Title</option>
-                                                }
-                                            </InputSelect> *@
+                                <div class="accordion bg-white mb-3">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
+                                                Từ khóa
+                                            </button>
+                                        </h2>
+                                        <div id="tag" class="accordion-collapse collapse show">
+                                            <div class="accordion-body pt-0">
+                                                            {
+                                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -135,8 +123,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 </EditForm>
 @code {
     private Product_Posts Posts = new Product_Posts();
