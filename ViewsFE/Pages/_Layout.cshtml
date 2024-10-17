@@ -212,8 +212,7 @@
                             </div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-
-                            <a href="#" class="dropdown-item">Logout</a>
+                            <a href="javascript:void(0);" onclick="logout()" class="dropdown-item" style="cursor: pointer;">Logout</a>
                         </div>
                     </div>
                 </div>
@@ -386,7 +385,7 @@
                             </div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                            @*               <a @onclick="Logout" class="dropdown-item" style="cursor: pointer;">Logout</a> *@
+                            <a href="javascript:void(0);" onclick="logout()" class="dropdown-item" style="cursor: pointer;">Logout</a>
                         </div>
                     </div>
                 </div>
@@ -772,13 +771,13 @@
                                     </svg>
                                 </span>
                                 <span class="nav-link-title">
-                                    Quản trị viên
+                                    Quản trị viên 123
                                 </span>
                             </a>
                             <div class="dropdown-menu ">
-                                <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-columns"> 
                                     <div class="dropdown-menu-column">
-                                        <a class="dropdown-item " href="">
+                                        <a class="dropdown-item " href="https://localhost:7277/Account/allaccount">
                                             Danh sách quản trị viên
 
                                         </a>
@@ -844,3 +843,10 @@
     @RenderSection("Scripts", required: false)
 </body>
 </html>
+<script>
+    async function logout()
+    {
+
+    }
+</script>
+

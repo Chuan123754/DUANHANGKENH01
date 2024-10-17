@@ -1,43 +1,100 @@
-﻿@page "/login"
-@layout Shared.LoginLayout
+﻿@page "/admin/login"
 @inject NavigationManager Navigation
 @inject HttpClient Http
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject CustomAuthenticationStateProvider CustomAuthStateProvider
 @inject IAccountService accountService
 
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>HangKenh - Dashboard - Đăng nhập</title>
+    <link href="assets/libs/tabler/css/tabler.min.css" rel="stylesheet" />
+    <!-- Thay thế import bằng link này -->
+    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
+    <base href="/">
+    <style>
+        :root {
+            --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+        }
 
-<div class="login-form">
-
-    <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <h3>Đăng nhập</h3>
-        <div class="mb-3">
-            <label for="email">Email</label>
-            <InputText id="email" class="form-control" @bind-Value="loginModel.Email" />
+        body {
+            font-feature-settings: "cv03", "cv04", "cv11";
+        }
+    </style>
+</head>
+<body class="d-flex flex-column">
+<div class="page page-center">
+    <div class="container container-tight py-4">
+        <div class="text-center mb-4">
+            <a href="." class="navbar-brand navbar-brand-autodark">
+                <h1>ThamLenHangKenh</h1>
+            </a>
         </div>
+        <div class="card card-md">
+            <div class="card-body">
+                <h2 class="h2 text-center mb-4">Đăng nhập vào hệ thống</h2>
 
-        <div class="mb-3">
-            <label for="password">Mật khẩu</label>
-            <InputText id="password" type="password" class="form-control" @bind-Value="loginModel.Password" />
+                <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <p class="text-danger text-center">@errorMessage</p>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <InputText type="email" class="form-control" @bind-Value="loginModel.Email" required placeholder="your@email.com" autofocus autocomplete="off" />
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label">
+                            Mật khẩu
+                            <span class="form-label-description">
+                                <a href="./forgot-password.html">Quên mật khẩu</a>
+                            </span>
+                        </label>
+                        <div class="input-group input-group-flat">
+                            <InputText type="password" class="form-control" @bind-Value="loginModel.Password" required placeholder="Nhập mật khẩu" autocomplete="off" />
+                            <span class="input-group-text">
+                                <a href="#" class="link-secondary" title="Show password" data-bs-toggle="tooltip">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                                         stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+                                        <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>
+                                    </svg>
+                                </a>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input"/>
+                            <span class="form-check-label">Ghi nhớ tài khoản</span>
+                        </label>
+                    </div>
+
+                    <div class="form-footer">
+                        <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+                    </div>
+                </EditForm>
+            </div>
         </div>
-
-        <button type="submit" class="btn btn-primary">Đăng nhập</button>
-    </EditForm>
+        <div class="text-center text-secondary mt-3">
+            Không có account hãy liên hệ admin.
+        </div>
+    </div>
 </div>
-
-<style>
-    .login-form {
-        background-color: white;
-        padding: 2rem;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-</style>
-@if (errorMessage != null)
-{
-    <div class="alert alert-danger">@errorMessage</div>
-}
+</body>
+</html>
 
 @code {
     private SignInModel loginModel = new SignInModel();
@@ -48,21 +105,21 @@
         try
         {
             var token = await accountService.SignInAsync(loginModel);
+
             if (!string.IsNullOrEmpty(token))
             {
                 await sessionStorage.SetItemAsync("authToken", token);
+                await CustomAuthStateProvider.LoginAsync(loginModel);
                 Navigation.NavigateTo("/");
             }
             else
             {
                 errorMessage = "Đăng nhập không thành công. Vui lòng kiểm tra lại email và mật khẩu.";
-                Console.WriteLine(errorMessage);
             }
         }
         catch (Exception ex)
         {
             errorMessage = $"Lỗi xảy ra khi đăng nhập: {ex.Message}";
-            Console.WriteLine(errorMessage); 
         }
     }
 }

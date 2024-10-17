@@ -3,6 +3,8 @@ using appAPI.IRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using appAPI.Helper;
 
 namespace appAPI.Controllers
 {
@@ -115,6 +117,7 @@ namespace appAPI.Controllers
             }
         }
         [HttpGet("GetAllAccount")]
+        //[Authorize(Roles = ApplicationRole.Admin)]
         public async Task<IActionResult> GetAllAccountsAsync()
         {
             try

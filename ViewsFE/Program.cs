@@ -5,16 +5,27 @@ using ViewsFE.Data;
 using Microsoft.JSInterop;
 using ViewsFE.Services;
 using Blazored.SessionStorage;
+using ViewsFE;
+using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using ViewsFE.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddAuthorizationCore();
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddHttpClient();
+builder.Services.AddOptions();
+builder.Services.AddBlazoredLocalStorage();
+builder.Services.AddAuthorizationCore(config =>
+{
+    config.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")); // cấu hình xác thực cho Bla  zor 
+});
 // Thêm CORS nếu cần
 builder.Services.AddCors(options =>
 {
@@ -26,25 +37,29 @@ builder.Services.AddCors(options =>
                    .AllowAnyHeader();
         });
 });
+builder.Services.AddDbContext<APP_DATA_DATN>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddIdentity<Account, IdentityRole>()
+    .AddEntityFrameworkStores<APP_DATA_DATN>()
+    .AddDefaultTokenProviders();
+builder.Services.AddScoped<ILogActivityHistoryService, LogActivityHistoryService>();
+builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAttributesServices, AttributesService>();
 builder.Services.AddScoped<ICategoriesServices, CategoriesServices>();
+builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IPostTagService, PostTagService>();
 builder.Services.AddScoped<ITagsServices, TagsServices>();
+builder.Services.AddScoped<IPostMetaService, PostMetaService>();
 builder.Services.AddScoped<IQaService, QaService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<IUserVoucherService, UserVoucherService>();
-
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<FilesIServices, FilesServices>();
 builder.Services.AddScoped<IDesignerServices, DesignerServices>();
 builder.Services.AddScoped<SeoIServices, SeoServices>();
 builder.Services.AddScoped<IOptionsServices, OptionServices>();
-builder.Services.AddScoped<IPostSer, PostServices>();
-builder.Services.AddScoped<ISizeServices, SizeServices>();
-builder.Services.AddScoped<IStyleServices, StyleServices>();
-builder.Services.AddScoped<IMaterialServices, MaterialServices>();
-builder.Services.AddScoped<IColorServices, ColorServices>();
-builder.Services.AddScoped<ITextile_technologyServices, Textile_technologyServices>();
 
 var app = builder.Build();
 
@@ -58,7 +73,8 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseRouting();
 
 app.MapBlazorHub();
