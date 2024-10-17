@@ -48,10 +48,8 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStat
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<IAttributesServices, AttributesService>();
 builder.Services.AddScoped<ICategoriesServices, CategoriesServices>();
-builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IPostTagService, PostTagService>();
 builder.Services.AddScoped<ITagsServices, TagsServices>();
-builder.Services.AddScoped<IPostMetaService, PostMetaService>();
 builder.Services.AddScoped<IQaService, QaService>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<IUserVoucherService, UserVoucherService>();
@@ -60,6 +58,7 @@ builder.Services.AddScoped<FilesIServices, FilesServices>();
 builder.Services.AddScoped<IDesignerServices, DesignerServices>();
 builder.Services.AddScoped<SeoIServices, SeoServices>();
 builder.Services.AddScoped<IOptionsServices, OptionServices>();
+builder.Services.AddScoped<IPostSer, PostServices>();
 
 var app = builder.Build();
 
