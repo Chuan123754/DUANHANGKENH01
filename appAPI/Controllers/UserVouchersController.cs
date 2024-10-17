@@ -1,5 +1,5 @@
 ﻿using appAPI.Models;
-using AppAPI.Repositories;
+using appAPI.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
