@@ -1,5 +1,222 @@
-﻿<h3>Create</h3>
+﻿@page "/admin/project/create"
+@inject NavigationManager nav
+@inject IPostSer sev
+@inject ITagsServices stag
+@inject ICategoriesServices cate
+@inject IJSRuntime JS
+<EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="page-wrapper">
+        <div class="page-header d-print-none">
+            <div class="container-xl">
+                <div class="row g-2 align-items-center">
+                    <div class="col">
+                        <h2 class="page-title">
+                            Thêm dự án
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-body">
+            <div class="container-xl">
+                <div class="row">
+                    <div class="col-md-9 col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Tên dự án</label>
+                                    <InputText id="title" class="form-control" @bind-Value="Posts.Title" placeholder="Tên dự án" required />
+                                    <div id="title_error" class="validate-error"></div>
+                                </div>
 
+                                <div class="mb-3">
+                                    <label for="seoSlug" class="form-label">Đường dẫn</label>
+                                    <InputText id="seoSlug" class="form-control" @bind-Value="Posts.Slug" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="shortDescription" class="form-label">Mô tả ngắn</label>
+                                    <InputTextArea id="shortDescription" class="form-control" rows="3" @bind-Value="Posts.Short_description" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="tinymce-textarea" class="form-label">Mô tả</label>
+                                    <InputTextArea @bind-Value="Posts.Description" class="form-control" id="tinymce-textarea" rows="5" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-12">
+                        <div class="sticky-top position-sticky">
+                            <div class="accordion bg-white mb-3 mt-3 mt-md-0">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button " type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#action-1" aria-expanded="true">
+                                            Đăng
+                                        </button>
+                                    </h2>
+                                    <div class="accordion-collapse collapse show" id="action-1" data-bs-parent="#accordion-example">
+                                        <div class="accordion-body pt-0">
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">Trạng thái</label>
+                                                <select @bind="Posts.Status" class="form-control">
+
+                                                    @foreach (var status in statuses)
+                                                    {
+                                                        <option value="@status.Key" selected="@(Posts.Status == status.Key)">
+                                                            @status.Value
+                                                        </option>
+                                                    }
+                                                </select>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">Mẫu</label>
+                                                <select name="meta_data[page_template]" class="form-control" id="">
+                                                </select>
+                                            </div>
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">Tác giả</label>
+                                                <select name="meta_data[page_template]" class="form-control" id="">
+                                                </select>
+                                            </div>
+                                            <!-- Nút gửi -->
+                                            <button type="submit" class="btn btn-primary" style="float: right">
+                                                Đăng
+                                            </button>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#category" aria-expanded="true">
+                                            Ảnh bài viết
+                                        </button>
+                                    </h2>
+                                    <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                        <div class="accordion-body pt-0">
+                                            <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center">
+                                                @if (!string.IsNullOrEmpty(FeatureImage))
+                                                {
+                                                    <img src="@FeatureImage" class="w-100 h-100 object-cover" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="icon d-flex align-items-center justify-content-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M12 5v14" />
+                                                            <path d="M5 12h14" />
+                                                        </svg>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Danh mục sản phẩm -->
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#category" aria-expanded="true">
+                                            Danh mục dự án
+                                        </button>
+                                    </h2>
+                                    <div id="category" class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                        <div class="accordion-body pt-0">
+                                            <InputSelect @bind-Value="SelectedCategories" Multiple="true" class="form-select">
+                                                @foreach (var category in Categories)
+                                                {
+                                                    <option value="@category.Id">@category.Title</option>
+                                                }
+                                            </InputSelect>
+                                            <a href="javascript:void(0)" id="add_category" class="mt-2 mb-2 d-block d-flex gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="10" height="10" viewBox="0 0 26 26">
+                                                    <path d="M12 5v14M5 12h14" />
+                                                </svg>
+                                                <span>Thêm danh mục</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Từ khóa -->
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
+                                            Từ khóa
+                                        </button>
+                                    </h2>
+                                    <div id="tag" class="accordion-collapse collapse show">
+                                        <div class="accordion-body pt-0">
+                                            @* <InputSelect @bind-Value="" Multiple="true" class="form-select">
+                                            @foreach (var tag in Tags)
+                                            {
+                                            <option value="@tag.Id">@tag.Title</option>
+                                            }
+                                            </InputSelect> *@
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
 @code {
+    private Product_Posts Posts = new Product_Posts();
+    private List<Categories> Categories = new List<Categories>();
+    private Tags tags = new Tags();
+    private Categories categories = new();
+    private List<Tags> Tags;
+    private string SelectedCategories { get; set; }
+    private string FeatureImage { get; set; }
+    private Dictionary<string, string> statuses = Product_Posts.STATUSES;
 
+    // Lấy ảnh đại diện từ post (Giả sử đã có logic để khởi tạo post)
+    private string featureImageId => GetMedia(Posts, "feature_image", "id");
+    private string featureImageImage => GetMedia(Posts, "feature_image", "image");
+
+    private string GetMedia(Product_Posts post, string key, string type)
+    {
+        // Thay thế bằng logic lấy dữ liệu thực tế từ post
+        return type == "id" ? "image_id_value" : "image_url_value"; // Ví dụ
+    }
+    private async Task AddNewTag()
+    {
+        await stag.Create(tags);
+
+    }
+    protected override async void OnInitialized()
+    {
+        Tags = await stag.GetAll();
+        Posts.Status = Product_Posts.STATUS_DRAFT;
+        Posts.Seo = new Seo(); // Khởi tạo Seo nếu cần
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initTinyMCE");
+            await JS.InvokeVoidAsync("setTinyMCEContent", Posts.Description);
+        }
+    }
+
+    private async void HandleValidSubmit()
+    {
+        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
+        await sev.CreateProject(Posts);
+        nav.NavigateTo("/admin/project");
+    }
 }

@@ -44,13 +44,20 @@
     private Files files = new();
     private List<Files> listFiles = new();
     private string search_query = string.Empty;
-
+    private bool isInitialized = false;
     protected override async Task OnInitializedAsync()
     {
         listFiles = await sev.GetAll(); // Tải danh sách file từ API
-        await JS.InvokeVoidAsync("initializeDropzone"); // Khởi tạo Dropzone
+        isInitialized = true;
     }
-
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && isInitialized)
+        {
+            // Chỉ gọi JS sau khi trang đã được render
+            await JS.InvokeVoidAsync("initializeDropzone");
+        }
+    }
     private async Task OnSearch()
     {
         listFiles = await sev.Search(search_query);

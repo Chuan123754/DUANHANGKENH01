@@ -35,33 +35,34 @@
 
                     <!-- Product Table -->
                     <div id="table-default" class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>
-                                        <button class="table-sort" @onclick='() => SortBy("Title")'>Tiêu đề</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" @onclick='() => SortBy("Author")'>Tác giả</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" @onclick='() => SortBy("Category")'>Chuyên mục</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" @onclick='() => SortBy("Tags")'>Thẻ</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" @onclick='() => SortBy("Status")'>Trạng thái</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" @onclick='() => SortBy("Date")'>Thời gian</button>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (product_posts_list != null && product_posts_list.Any())
-                                {
+                        @if (product_posts_list != null && product_posts_list.Any())
+                        {
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Title")'>Tiêu đề</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Author")'>Tác giả</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Category")'>Chuyên mục</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Tags")'>Thẻ</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Status")'>Trạng thái</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Date")'>Thời gian</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
                                     @foreach (var post in product_posts_list)
                                     {
                                         <tr class="post-row">
@@ -99,20 +100,21 @@
                                             <td>@post.Created_at</td>
                                         </tr>
                                     }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="7" class="text-center">Không có dữ liệu</td>
-                                    </tr>
-                                }
 
-                            </tbody>
 
-                        </table>
-                        <div class="mt-4">
-                            <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
-                        </div>
+                                </tbody>
+
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center">Không có dữ liệu</td>
+                            </tr>
+                        }
                     </div>
                 </div>
             </div>

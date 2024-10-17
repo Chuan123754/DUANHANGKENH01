@@ -2,10 +2,9 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Views.Models;
+using ViewsFE.Models;
 using ViewsFE.IServices;
 using System.Collections.Generic;
-using ViewsFE.Models;
 
 namespace ViewsFE.Services
 {
