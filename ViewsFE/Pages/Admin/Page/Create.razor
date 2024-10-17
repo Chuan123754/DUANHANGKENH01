@@ -1,5 +1,5 @@
 ﻿@page "/admin/page/create"
-@using AppViews.IServices
+@using ViewsFE.IServices
 @inject NavigationManager nav
 @inject IPostSer sev
 @inject ITagsServices stag
@@ -94,7 +94,7 @@
                                                 {
                                                 }
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    </svg>
+       
                                                 </div>
                                                 }
                                             </div>
@@ -123,8 +123,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 </EditForm>
 @code {
     private Product_Posts Posts = new Product_Posts();

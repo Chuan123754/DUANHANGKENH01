@@ -16,11 +16,11 @@ namespace appAPI.Controllers
             _addressRepo = addressRepo;
         }
         // GET: api/<AddressController>
-        [HttpGet("GetAddressByUserId")]
-        public Task <IActionResult> GetAddressByUserId(long userId)
-        {
-            
-        }
+        //[HttpGet("GetAddressByUserId")]
+        //public Task <IActionResult> GetAddressByUserId(long userId)
+        //{
+        //    return Ok();
+        //}
 
         // GET api/<AddressController>/5
         [HttpGet("{id}")]
