@@ -8,24 +8,21 @@ namespace ViewsFE.IServices
         Task<List<Product_Posts>> GetAllProduct();
         Task<List<Product_Posts>> GetAllPost();
         Task<List<Product_Posts>> GetAllPage();
+        Task<List<Product_Posts>> GetAllProject();
 
         // Lấy bài viết theo id và type
         Task<Product_Posts> GetByIdProduct(long id);
         Task<Product_Posts> GetByIdPost(long id);
         Task<Product_Posts> GetByIdPage(long id);
-
-        // Lấy bài viết theo type với phân trang và tìm kiếm
+        Task<Product_Posts> GetByIdProject(long id);
         Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm);
-
+        Task<int> GetTotalCountAsync(string type, string searchTerm);
         // Tạo bài viết
         Task CreatePost(Product_Posts post);
         Task CreatePage(Product_Posts post);
         Task CreateProduct(Product_Posts post);
-
-        // Cập nhật bài viết
+        Task CreateProject(Product_Posts post);
         Task Update(Product_Posts post);
-
-        // Xóa bài viết
         Task Delete(long id);
     }
 

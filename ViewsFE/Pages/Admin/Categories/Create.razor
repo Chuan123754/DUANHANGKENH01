@@ -25,7 +25,7 @@
     <div class="form-group mb-3">
         <label for="categories_parent_id" class="form-label">Chuyên mục cha</label>
         <InputSelect id="categories_parent_id" class="form-control" @bind-Value="categories.Parent_id">
-            <option value="">Chọn danh mục cha</option>
+            <option value="0">Không có chuyên mục cha</option> <!-- Thêm lựa chọn không có chuyên mục cha -->
             @if (categoriesList != null && categoriesList.Any())
             {
                 @foreach (var attr in categoriesList)
@@ -60,7 +60,7 @@
     protected override async Task OnInitializedAsync()
     {
         // Tải danh sách thuộc tính nếu chưa có
-        categoriesList = await sev.GetAll();
+        categoriesList = (await sev.GetAll()).Where(ctgr => ctgr.Parent_id == 0).ToList();
     }
    
 

@@ -24,5 +24,9 @@ namespace appAPI.Models
         public long Updated_by { get; set; }
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get;set; }
+        public long? ProductPostId { get; set; }
+
+        [ForeignKey("ProductPostId")]
+        public virtual Product_Posts? Product_Post { get; set; }
     }
 }

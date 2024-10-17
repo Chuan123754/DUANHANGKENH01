@@ -37,32 +37,12 @@ namespace appAPI.Controllers
         }
 
         [HttpPost("upload")]
-        public async Task<IActionResult> Upload()
+        public async Task<IActionResult> Upload(IFormFile file)
         {
             try
             {
-                // Kiểm tra xem có dữ liệu tải lên hay không
-                if (!Request.HasFormContentType || Request.Form.Files.Count == 0)
-                {
-                    return BadRequest("Không có tệp nào được tải lên.");
-                }
-
-                var form = new MultipartFormDataContent();
-
-                foreach (var file in Request.Form.Files)
-                {
-                    var streamContent = new StreamContent(file.OpenReadStream());
-                    streamContent.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("form-data")
-                    {
-                        Name = "file",
-                        FileName = file.FileName
-                    };
-                    streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
-                    form.Add(streamContent, "file", file.FileName);
-                }
-
-                await _filesRepository.Upload(form);
-                return Ok("Tải lên thành công.");
+                await _filesRepository.Upload(file);
+                return Ok();
             }
             catch (ArgumentException ex)
             {

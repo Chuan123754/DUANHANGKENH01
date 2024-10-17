@@ -31,6 +31,7 @@ namespace ViewsFE.Models
 
         [StringLength(255)]
         public string? Type { get; set; }
+        public string? product_video { get; set; }
         public string? Short_description { get; set; }
         public string? Description { get; set; }
         public string? Image_library { get; set; }
@@ -59,6 +60,8 @@ namespace ViewsFE.Models
         [InverseProperty("Product_Posts")]
         [JsonIgnore]
         public Seo? Seo { get; set; } = new Seo();
+        public virtual Banner? Banner { get; set; }
+
         // Define constant values for statuses
         public const string STATUS_DRAFT = "draft";
         public const string STATUS_PENDING = "pending";

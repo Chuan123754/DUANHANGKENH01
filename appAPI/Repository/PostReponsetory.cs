@@ -35,6 +35,14 @@ namespace appAPI.Repository
             _context.Posts.Add(post);
             await _context.SaveChangesAsync();
         }
+        public async Task CreateProject(Product_Posts post)
+        {
+            post.Type = "project";
+            post.Deleted = false;
+            post.Created_at = DateTime.Now;
+            _context.Posts.Add(post);
+            await _context.SaveChangesAsync();
+        }
         public async Task Delete(long id)
         {
             var post = await _context.Posts.FindAsync(id);
@@ -49,7 +57,10 @@ namespace appAPI.Repository
 
         public async Task<List<Product_Posts>> GetAllByType(string type)
         {
-            return await _context.Posts.Where(p => p.Type == type && p.Deleted == false).ToListAsync();
+            return await _context.Posts.Where(p => p.Type == type && p.Deleted == false)
+                .Include(p => p.Post_tags).ThenInclude(pt => pt.Tag)
+                .Include(p => p.Post_categories).ThenInclude(p => p.Categories)
+                .ToListAsync();
         }
 
         public async Task<Product_Posts> GetByIdAndType(long id, string type)
@@ -57,20 +68,23 @@ namespace appAPI.Repository
             return await _context.Posts.FirstOrDefaultAsync(p => p.Id == id && p.Type == type && p.Deleted == false);
         }
 
-        public async Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm)
+        public async Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string? searchTerm)
         {
-            var query = _context.Posts.Where(p => p.Deleted == false && p.Type == type);
-
-            if (!string.IsNullOrEmpty(searchTerm))
-            {
-                query = query.Where(p => p.Title.Contains(searchTerm));
-            }
-
-            return await query.Skip((pageNumber - 1) * pageSize)
-                              .Take(pageSize)
-                              .ToListAsync();
+            // Lấy danh sách sản phẩm theo loại, phân trang và tìm kiếm
+            return await _context.Posts
+                .Where(p => p.Type == type && (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)))
+                .OrderBy(p => p.Title) // Thay đổi theo tiêu chí sắp xếp bạn muốn
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
 
+        public async Task<int> GetTotalCountAsync(string type, string? searchTerm)
+        {
+            // Lấy tổng số sản phẩm theo loại và tìm kiếm
+            return await _context.Posts
+                .CountAsync(p => p.Type == type && (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
+        }
         public async Task Update(Product_Posts post)
         {
             var item = _context.Posts.Find(post.Id);

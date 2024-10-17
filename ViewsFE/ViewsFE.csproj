@@ -27,7 +27,6 @@
 
   <ItemGroup>
     <Folder Include="Pages\Admin\Login\" />
-    <Folder Include="Pages\Vendor\Pagination\" />
   </ItemGroup>
 
 </Project>

@@ -10,8 +10,8 @@ namespace appAPI.Repository
     public class FilesReponsetory : FilesIRepository
     {
         private readonly APP_DATA_DATN _context;
-        private string _getfilePath = $@"https://localhost:7007/FileMedia/";
-        private string _uploadFolderPath = $@"D:\DATN\DATNHK\AppAPI\FileMedia";
+        private string _getfilePath = $@"https://localhost:7011/FileMedia/";
+        private string _uploadFolderPath = $@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia";
 
         public FilesReponsetory()
         {
@@ -60,26 +60,22 @@ namespace appAPI.Repository
                 .ToListAsync();
         }
 
-        public async Task Upload(MultipartFormDataContent content)
+        public async Task Upload(IFormFile file)
         {
-            if (content == null || !content.Any())
+            if (file == null || file.Length == 0)
             {
-                throw new ArgumentException("Không có dữ liệu nào được tải lên");
+                throw new ArgumentException("Không có tệp nào được tải lên");
             }
 
-            var fileContent = content.FirstOrDefault(c => c.Headers.ContentDisposition != null && c.Headers.ContentDisposition.DispositionType.Equals("form-data"));
-            if (fileContent == null)
-            {
-                throw new ArgumentException("Không tìm thấy tệp trong dữ liệu tải lên");
-            }
+            long fileSizeInBytes = file.Length;
+            double fileSizeInKB = fileSizeInBytes / 1024.0;
 
-            var fileName = ContentDispositionHeaderValue.Parse(fileContent.Headers.ContentDisposition.ToString()).FileName.Trim('"');
+            var fileName = Path.GetFileName(file.FileName);
             var filePath = Path.Combine(_uploadFolderPath, fileName);
 
-            // Lưu file vào server
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
-                await fileContent.CopyToAsync(stream);
+                await file.CopyToAsync(stream);
             }
 
             string mime = GetMimeType(Path.GetExtension(fileName));
@@ -89,7 +85,7 @@ namespace appAPI.Repository
                 Name = fileName,
                 Slug = Path.GetFileNameWithoutExtension(fileName),
                 Mine = mime,
-                Size = (int)(new FileInfo(filePath).Length / 1024),  // Kích thước file tính bằng KB
+                Size = (int)fileSizeInKB,
                 Ext = Path.GetExtension(fileName),
                 Path = filePath,
                 Created_at = DateTime.Now,

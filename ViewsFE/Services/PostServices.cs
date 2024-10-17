@@ -27,6 +27,12 @@ namespace ViewsFE.Services
         {
             await _client.PostAsJsonAsync($"{_baseUrl}/api/Product_Post/Create-product", post);
         }
+
+        public async Task CreateProject(Product_Posts post)
+        {
+            await _client.PostAsJsonAsync($"{_baseUrl}/api/Product_Post/Create-project", post);
+        }
+
         public async Task Delete(long id)
         {
             await _client.DeleteAsync($"{_baseUrl}api/Product_Post/Delete-post?id={id}");
@@ -46,6 +52,11 @@ namespace ViewsFE.Services
             return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/Get-all-product");
         }
 
+        public async Task<List<Product_Posts>> GetAllProject()
+        {
+            return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/Get-all-project");
+        }
+
         public async Task<Product_Posts> GetByIdPage(long id)
         {
             return await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/BetGyId-page?id={id}");
@@ -61,10 +72,29 @@ namespace ViewsFE.Services
             return await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/BetGyId-product?id={id}");
         }
 
+        public async Task<Product_Posts> GetByIdProject(long id)
+        {
+            return await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/BetGyId-project?id={id}");
+        }
+
         public async Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm)
         {
-            return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/get-by-type?type={type}&pageNumber={pageNumber}&pageSize={pageSize}&searchTerm={searchTerm}");
+            var uri = $"{_baseUrl}/api/Product_Post/get-by-type?type={type}&pageNumber={pageNumber}&pageSize={pageSize}&searchTerm={Uri.EscapeDataString(searchTerm)}";
+            return await _client.GetFromJsonAsync<List<Product_Posts>>(uri);
         }
+
+        public async Task<int> GetTotalCountAsync(string type, string searchTerm)
+        {
+            var url = $"{_baseUrl}/api/Product_Post/Get-Total-Count?type={type}&searchTerm={Uri.EscapeDataString(searchTerm)}";
+
+            // Gọi API và nhận tổng số lượng bài viết
+            var response = await _client.GetAsync(url);
+            response.EnsureSuccessStatusCode(); // Kiểm tra xem phản hồi có thành công hay không
+
+            var count = await response.Content.ReadFromJsonAsync<int>();
+            return count;
+        }
+
 
         public async Task Update(Product_Posts post)
         {

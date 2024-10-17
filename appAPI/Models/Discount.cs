@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace appAPI.Models
 {
@@ -16,6 +17,7 @@ namespace appAPI.Models
         public long Updated_by { get; set; }
         public DateTime Create_at { get; set; }
         public DateTime Update_at { get; set;}
+        [JsonIgnore]
         public virtual ICollection<P_variants_discount> ProductVariantsDiscounts { get; set; } = new List<P_variants_discount>();
 
     }

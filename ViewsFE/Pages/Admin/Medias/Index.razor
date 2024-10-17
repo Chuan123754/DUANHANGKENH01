@@ -14,19 +14,22 @@
     </div>
     <div class="page-body">
         <div class="container-xl">
-          @*   <form action="@Url.Action("Create", "Files")" class="dropzone mb-5" id="dropzone-default" method="post" enctype="multipart/form-data">
-                @Html.AntiForgeryToken()
+            <form class="dropzone mb-5" id="dropzone-default" enctype="multipart/form-data">
                 <div class="fallback">
                     <input name="file" type="file" accept="image/*" multiple />
                 </div>
-            </form> *@
+            </form>
+
             <div class="card">
                 <div class="card-body">
                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
-                        <div class="form-group d-flex gap-2">
-                            <input type="text" class="form-control" @bind="searchQuery" placeholder="Nhập từ khóa tìm kiếm" />
-                            <button class="btn btn-outline-primary" @onclick="PerformSearch">Tìm kiếm</button>
-                        </div>
+                        <div></div>
+                        <EditForm Model="files" OnValidSubmit="@OnSearch">
+                            <div class="form-group d-flex gap-2">
+                                <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                            </div>
+                        </EditForm>
                     </div>
                     <div id="table-default">
                         <FilesList FileItems="listFiles" />
@@ -38,57 +41,54 @@
 </div>
 
 @code {
+    private Files files = new();
     private List<Files> listFiles = new();
-    private string searchQuery = "";
+    private string search_query = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         listFiles = await sev.GetAll(); // Tải danh sách file từ API
+        await JS.InvokeVoidAsync("initializeDropzone"); // Khởi tạo Dropzone
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private async Task OnSearch()
     {
-        if (firstRender) // Chỉ khởi tạo Dropzone khi component lần đầu được render
-        {
-            await JS.InvokeVoidAsync("initializeDropzone"); // Khởi tạo Dropzone
-        }
+        listFiles = await sev.Search(search_query);
     }
 
-    private async Task PerformSearch()
+    [JSInvokable("OnUpload")]
+    public async Task OnUpload()
     {
-        listFiles = await sev.Search(searchQuery); // Tìm kiếm file theo từ khóa
+        listFiles = await sev.GetAll(); // Cập nhật danh sách tệp sau khi tải lên thành công
     }
 }
-
 <script>
     window.initializeDropzone = () => {
-        var dropzone = new Dropzone("#dropzone", {
-            url: '/api/upload',  // Cập nhật URL tương ứng
-            autoProcessQueue: true,
-            parallelUploads: 20,
-            maxFilesize: 15, // 15 MB
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('input[name="__RequestVerificationToken"]').value
-            },
-            success: function (file, response) {
-                if (response && response.success) {
-                    toastr.success(response.message || 'Upload thành công');
-                } else {
-                    toastr.error(response.message || 'Upload thất bại.');
+        if (typeof Dropzone !== 'undefined') {
+            var dropzone = new Dropzone("#dropzone-default", {
+                url: '/api/Files/upload',
+                autoProcessQueue: false,
+                parallelUploads: 20,
+                maxFilesize: 1, // 1 MB
+                success: function (file, response) {
+                    console.log("Upload thành công:", response);
+                    DotNet.invokeMethodAsync('ViewsFE', 'OnUpload')
+                        .then(() => {
+                            console.log("File uploaded successfully and Blazor method invoked.");
+                        })
+                        .catch(error => {
+                            console.error('Error during upload:', error);
+                        });
+                    this.removeFile(file);
+                },
+                error: function (file, message) {
+                    console.error("Upload failed:", message);
+                    this.removeFile(file);
                 }
-                this.removeFile(file);
-            },
-            error: function (file, message) {
-                toastr.error(message);
-                const element = file.previewElement;
-                element.classList.add("dz-error");
-                element.querySelector('.dz-error-message').textContent = message;
-                this.removeFile(file);
-            },
-            maxfilesexceeded: function (file) {
-                toastr.error('Tệp vượt quá kích thước tối đa cho phép.');
-                this.removeFile(file);
-            }
-        });
+            });
+        } else {
+            console.error("Dropzone is not defined. Make sure the script is included.");
+        }
     };
 </script>
+

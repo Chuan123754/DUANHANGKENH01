@@ -48,12 +48,22 @@ namespace appAPI.Controllers
         {
             await _repon.Delete(id);
         }
-        [HttpGet("search")]
-        public async Task<IActionResult> Search(string query)
+        [HttpGet("get-by-type")]
+        public async Task<IActionResult> GetByType([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
         {
-            var result = await _repon.Search(query);
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Page number and page size must be greater than 0.");
+            }
+
+            var result = await _repon.GetByTypeAsync(pageNumber, pageSize, searchTerm);
             return Ok(result);
         }
-
+        [HttpGet("Get-Total-Count")]
+        public async Task<IActionResult> GetTotalCount([FromQuery] string? searchTerm = null)
+        {
+            var totalCount = await _repon.GetTotalCountAsync(searchTerm);
+            return Ok(totalCount);
+        }
     }
 }
