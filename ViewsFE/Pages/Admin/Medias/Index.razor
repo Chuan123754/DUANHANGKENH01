@@ -44,20 +44,21 @@
     private Files files = new();
     private List<Files> listFiles = new();
     private string search_query = string.Empty;
-    private bool isInitialized = false;
+
     protected override async Task OnInitializedAsync()
     {
         listFiles = await sev.GetAll(); // Tải danh sách file từ API
-        isInitialized = true;
     }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && isInitialized)
+        if (firstRender)
         {
-            // Chỉ gọi JS sau khi trang đã được render
+            // Chỉ gọi JS sau khi trang đã được render lần đầu tiên
             await JS.InvokeVoidAsync("initializeDropzone");
         }
     }
+
     private async Task OnSearch()
     {
         listFiles = await sev.Search(search_query);
@@ -66,29 +67,47 @@
     [JSInvokable("OnUpload")]
     public async Task OnUpload()
     {
-        listFiles = await sev.GetAll(); // Cập nhật danh sách tệp sau khi tải lên thành công
+        Console.WriteLine("Hàm OnUpload được gọi");
+        listFiles = await sev.GetAll();
+        await JS.InvokeVoidAsync("toastr.success", "Tệp được tải lên thành công.");
+        StateHasChanged(); // Thêm dòng này để cập nhật lại giao diện
     }
+
 }
 <script>
     window.initializeDropzone = () => {
         if (typeof Dropzone !== 'undefined') {
+            if (Dropzone.instances.length > 0) {
+                Dropzone.instances.forEach(dz => dz.destroy());
+            }
+
             var dropzone = new Dropzone("#dropzone-default", {
-                url: '/api/Files/upload',
-                autoProcessQueue: false,
+                url: 'https://localhost:7011/api/Files/upload',
+                autoProcessQueue: true,
                 parallelUploads: 20,
-                maxFilesize: 1, // 1 MB
+                maxFilesize: 1,
+                addRemoveLinks: true,
                 success: function (file, response) {
-                    console.log("Upload thành công:", response);
-                    DotNet.invokeMethodAsync('ViewsFE', 'OnUpload')
-                        .then(() => {
-                            console.log("File uploaded successfully and Blazor method invoked.");
-                        })
-                        .catch(error => {
-                            console.error('Error during upload:', error);
-                        });
-                    this.removeFile(file);
+                    // Kiểm tra phản hồi từ API để chắc chắn rằng không có lỗi
+                    if (response.success) {
+                        console.log("Upload thành công:", response);
+                        DotNet.invokeMethodAsync('ViewsFE', 'OnUpload') // Gọi Blazor method
+                            .then(() => {
+                                toastr.success('Thêm thành công.');
+                                console.log("File uploaded successfully and Blazor method invoked.");
+                            })
+                            .catch(error => {
+                                toastr.error('Lỗi trong quá trình cập nhật UI.');
+                                console.error('Error during UI refresh:', error);
+                            });
+                        this.removeFile(file);
+                    } else {
+                        toastr.error('Phản hồi không thành công từ API.');
+                        console.error('Upload failed due to unsuccessful response:', response);
+                    }
                 },
                 error: function (file, message) {
+                    toastr.error('Thêm thất bại.');
                     console.error("Upload failed:", message);
                     this.removeFile(file);
                 }
