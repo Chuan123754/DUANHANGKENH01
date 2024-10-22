@@ -12,7 +12,13 @@ namespace ViewsFE.Services
         }
         public async Task Create(Tags tag)
         {
-            await client.PostAsJsonAsync("https://localhost:7011/api/Tags/add", tag);
+            var response = await client.PostAsJsonAsync("https://localhost:7011/api/Tags/add", tag);
+            if (response.IsSuccessStatusCode)
+            {
+                // Lấy lại tag đã được tạo từ response
+                 await response.Content.ReadFromJsonAsync<Tags>();
+            }
+             // Trả về null nếu không thành công
         }
 
         public async Task Delete(long id)

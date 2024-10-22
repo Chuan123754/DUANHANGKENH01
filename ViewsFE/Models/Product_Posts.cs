@@ -26,8 +26,8 @@ namespace ViewsFE.Models
         [StringLength(20)]
         public string? Status { get; set; }
 
-        public long AuthorId { get; set; }
-        public bool Deleted { get; set; }
+        public long? AuthorId { get; set; }
+        public bool? Deleted { get; set; }
 
         [StringLength(255)]
         public string? Type { get; set; }
@@ -36,12 +36,14 @@ namespace ViewsFE.Models
         public string? Description { get; set; }
         public string? Image_library { get; set; }
         public string? Feature_image { get; set; }
+        public string? CategoryName { get; set; }
+        public string? TagName { get; set; }
 
         public DateTime? Post_date { get; set; }
 
-        public long Created_by { get; set; }
+        public long? Created_by { get; set; }
 
-        public long Updated_by { get; set; }
+        public long? Updated_by { get; set; }
 
         public DateTime? Deleted_at { get; set; }
 
@@ -56,10 +58,10 @@ namespace ViewsFE.Models
         public virtual ICollection<Post_categories> Post_categories { get; set; } = new List<Post_categories>();
         [JsonIgnore]
         [ForeignKey("AuthorId")]
-        public Designer? Designer { get; set; }
+        public virtual Designer? Designer { get; set; }
         [InverseProperty("Product_Posts")]
         [JsonIgnore]
-        public Seo? Seo { get; set; } = new Seo();
+        public virtual Seo? Seo { get; set; } = new Seo();
         public virtual Banner? Banner { get; set; }
 
         // Define constant values for statuses

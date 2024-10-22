@@ -1,18 +1,26 @@
 ﻿@page "/admin/media/datatable"
 @inject NavigationManager nav
 @inject FilesIServices sev
+@inject IJSRuntime JS
+
 @code {
     [Parameter]
     public List<Files> FileItems { get; set; }
 
     private async Task DeleteFile(long id)
     {
-        // Logic xóa tệp
-        await sev.Delete(id);
-        FileItems = await sev.GetAll(); // Tải lại danh sách sau khi xóa
+        try
+        {
+            await sev.Delete(id);
+            FileItems = await sev.GetAll(); // Refresh the file list
+            await JS.InvokeVoidAsync("toastr.success", "File deleted successfully.");
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Failed to delete file.");
+            Console.Error.WriteLine($"Error deleting file: {ex.Message}");
+        }
     }
-
-
 }
 
 <div class="d-grid" style="grid-template-columns: repeat(7, 1fr); gap: 16px">

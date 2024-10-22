@@ -1,0 +1,107 @@
+﻿@page "/address"
+
+@inject AddressService AddressService
+
+<h3>Chọn Địa Chỉ</h3>
+
+<div>
+    <label>Tỉnh</label>
+    <select @onchange="OnProvinceChange">
+        <option value="">Chọn Tỉnh</option>
+        @if (provinces != null && provinces.Count > 0)
+        {
+            @foreach (var province in provinces)
+            {
+                <option value="@province.Code">@province.Name</option>
+            }
+        }
+    </select>
+</div>
+
+@if (districts != null && districts.Count > 0)
+{
+    <div>
+        <label>Huyện</label>
+        <select @onchange="OnDistrictChange">
+            <option value="">Chọn Huyện</option>
+            @foreach (var district in districts)
+            {
+                <option value="@district.Code">@district.Name</option>
+            }
+        </select>
+    </div>
+}
+
+@if (wards != null && wards.Count > 0)
+{
+    <div>
+        <label>Xã</label>
+        <select @bind="selectedWardCode">
+            <option value="">Chọn Xã</option>
+            @foreach (var ward in wards)
+            {
+                <option value="@ward.Code">@ward.Name</option>
+            }
+        </select>
+    </div>
+}
+
+<div>
+    <label>Địa Chỉ Cụ Thể</label>
+    <input type="text" @bind="specificAddress" placeholder="Nhập địa chỉ cụ thể" />
+</div>
+
+<button @onclick="AddAddress">Thêm Địa Chỉ</button>
+
+@code {
+    private List<Province> provinces = new List<Province>(); // Khởi tạo danh sách rỗng
+    private List<District> districts = new List<District>(); // Khởi tạo danh sách rỗng
+    private List<Ward> wards = new List<Ward>(); // Khởi tạo danh sách rỗng
+    private string specificAddress = string.Empty; // Địa chỉ cụ thể
+    private int selectedWardCode; // Mã xã được chọn
+    private int selectedDistrictCode; // Mã huyện được chọn
+    private int selectedProvinceCode; // Mã tỉnh được chọn
+
+    private async Task OnProvinceChange(ChangeEventArgs e)
+    {
+        selectedProvinceCode = int.Parse(e.Value.ToString());
+        districts = await AddressService.GetDistrictsAsync(selectedProvinceCode);
+        wards = null; // Reset danh sách xã khi chọn tỉnh mới
+    }
+
+    private async Task OnDistrictChange(ChangeEventArgs e)
+    {
+        selectedDistrictCode = int.Parse(e.Value.ToString());
+        wards = await AddressService.GetWardsAsync(selectedDistrictCode);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        provinces = await AddressService.GetProvincesAsync();
+    }
+
+    private async Task AddAddress()
+    {
+        // Thực hiện lưu địa chỉ vào cơ sở dữ liệu
+        var address = new Address
+            {
+                User_Id = "9a5c803d-2fee-48f0-a183-47544d87a5c0",
+                Name = specificAddress,
+                Street = specificAddress, // Hoặc trường nào phù hợp
+                Ward_commune = wards.FirstOrDefault(w => w.Code == selectedWardCode)?.Name,
+                District = districts.FirstOrDefault(d => d.Code == selectedDistrictCode)?.Name,
+                Province_city = provinces.FirstOrDefault(p => p.Code == selectedProvinceCode)?.Name,
+                Type = "home", // Hoặc loại khác nếu cần
+                Set_as_default = 0, // hoặc 1 nếu muốn
+                Status = "active" // hoặc trạng thái khác
+            };
+
+        // Gọi API hoặc dịch vụ để lưu vào cơ sở dữ liệu
+        // await AddressService.SaveAddressAsync(address);
+
+        // Reset lại các trường
+        specificAddress = string.Empty;
+        wards = null;
+        districts = null;
+    }
+}

@@ -9,6 +9,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace ViewsFE.Models
 {
@@ -32,5 +33,7 @@ namespace ViewsFE.Models
         public DateTime Created_at { get; set; }
         public DateTime? Updated_at { get;set; }
         public DateTime? Deleted_at { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Post_categories> Post_categories { get; set; } = new List<Post_categories>();
     }
 }

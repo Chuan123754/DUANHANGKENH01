@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using ViewsFE.Models;
 using ViewsFE.IServices;
 using System.Collections.Generic;
-using ViewsFE.Models;
 
 namespace ViewsFE.Services
 {

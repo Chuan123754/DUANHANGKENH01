@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace appAPI.Models
 {
     public class Vouchers
     {
+        [Key]
         public long Id { get; set; }
         [Required(ErrorMessage = "Mã voucher là bắt buộc.")]
         [StringLength(20, MinimumLength = 5, ErrorMessage = "Mã voucher phải có độ dài từ 5 đến 20 ký tự.")]

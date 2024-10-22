@@ -26,6 +26,6 @@ namespace appAPI.Models
         public DateTime create_at { get; set; }
         public DateTime update_at { get; set; }
         [JsonIgnore]
-        public virtual ICollection<Product_variants> Product_Variants { get; set; } = new List<Product_variants>();
+        public virtual ICollection<Product_Posts>? Product_Posts { get; set; }
     }
 }

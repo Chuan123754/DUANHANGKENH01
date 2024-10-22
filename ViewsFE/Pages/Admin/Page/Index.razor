@@ -36,35 +36,37 @@
                     </div>
 
                     <div id="table-default" class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-city">Tác giả</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-score">Thẻ</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-score">Trạng thái</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-date">Thời gian</button>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (product_posts_list != null && product_posts_list.Any())
-                                {
+                        @if (product_posts_list != null && product_posts_list.Any())
+                        {
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-city">Tác giả</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-score">Thẻ</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-score">Trạng thái</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-date">Thời gian</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
                                     @foreach (var post in product_posts_list)
                                     {
                                         <tr class="post-row">
                                             <td>@post.Id</td>
-                                            <td class="sort-title">@post.Title
+                                            <td class="sort-title">
+                                                @post.Title
                                                 <br />
                                                 <!-- Tạo các hành động sửa và xóa cho sản phẩm con -->
                                                 <div class="cell-action">
@@ -73,23 +75,24 @@
                                                 </div>
                                             </td>
                                             <td class="sort-city">@post.AuthorId</td>
-                                            <td class="sort-score">@string.Join(",", post.Post_tags.Select(tag => tag.Tag_Id))</td>
+                                            <td class="sort-score">@post.TagName</td>
                                             <td class="sort-status">@post.Status</td>
                                             <td class="sort-date">@post.Created_at</td>
                                         </tr>
                                     }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="6" class="text-center">Không có dữ liệu</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                        <div class="mt-4">
-                            <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
-                        </div>
+
+                                </tbody>
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center">Không có dữ liệu</td>
+                            </tr>
+                        }
                     </div>
                 </div>
             </div>
@@ -113,7 +116,7 @@
     private async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        product_posts_list = await sev.GetByTypeAsync("page", page_number, page_size, searchTerm);
+        product_posts_list = await sev.GetAllType("page");
         totalItems = await sev.GetTotalCountAsync("page", searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
@@ -141,7 +144,7 @@
     protected async Task NavDeleteCtgr(long id)
     {
         await sev.Delete(id);
-        product_posts_list = await sev.GetAllPage(); // Cập nhật danh sách sau khi xóa
+        product_posts_list = await sev.GetAllType("page"); // Cập nhật danh sách sau khi xóa
     }
 }
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -35,33 +35,34 @@
 
                     <!-- Product Table -->
                     <div id="table-default" class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>
-                                        <button class="table-sort" @onclick='() => SortBy("Title")'>Tiêu đề</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" @onclick='() => SortBy("Author")'>Tác giả</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" @onclick='() => SortBy("Category")'>Chuyên mục</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" @onclick='() => SortBy("Tags")'>Thẻ</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" @onclick='() => SortBy("Status")'>Trạng thái</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" @onclick='() => SortBy("Date")'>Thời gian</button>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (product_posts_list != null && product_posts_list.Any())
-                                {
+                        @if (product_posts_list != null && product_posts_list.Any())
+                        {
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Title")'>Tiêu đề</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Author")'>Tác giả</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Category")'>Chuyên mục</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Tags")'>Thẻ</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Status")'>Trạng thái</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Date")'>Thời gian</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
                                     @foreach (var post in product_posts_list)
                                     {
                                         <tr class="post-row">
@@ -74,45 +75,36 @@
                                                     <a class="cell-action-delete text-danger" @onclick="() => ConfirmDelete(post.Id)">Xóa</a>
                                                 </div>
                                             </td>
-                                            <td>@post.Designer?.Name</td>
-                                            <td>
-                                                @foreach (var cat in post.Post_categories)
-                                                {
-                                                    <a href="#">@cat.Categories.Title</a>
-                                                    @if (cat != post.Post_categories.Last())
-                                                    {
-                                                        <span>, </span>
-                                                    }
-                                                }
+                                            <td>@post.AuthorId</td>
+                                            <td class="sort-type">
+                                                @post.CategoryName
                                             </td>
-                                            <td>
-                                                @foreach (var posttag in post.Post_tags)
-                                                {
-                                                    <a href="#">@posttag.Tag.Title</a>
-                                                    @if (posttag != post.Post_tags.Last())
-                                                    {
-                                                        <span>, </span>
-                                                    }
-                                                }
+                                            <td class="sort-tags">
+                                                @post.TagName
                                             </td>
-                                            <td>@post.StatusLabel</td>
-                                            <td>@post.Created_at</td>
+                                            <td class="sort-score">
+                                                @post.Status
+                                            </td>
+                                            <td class="sort-date">
+                                                @post.Created_at
+                                            </td>
                                         </tr>
                                     }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="7" class="text-center">Không có dữ liệu</td>
-                                    </tr>
-                                }
 
-                            </tbody>
 
-                        </table>
-                        <div class="mt-4">
-                            <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
-                        </div>
+                                </tbody>
+
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center">Không có dữ liệu</td>
+                            </tr>
+                        }
                     </div>
                 </div>
             </div>
@@ -149,7 +141,7 @@
     private async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        product_posts_list = await ProductService.GetByTypeAsync("product", page_number, page_size, searchTerm);
+        product_posts_list = await ProductService.GetAllType("product");
         totalItems = await ProductService.GetTotalCountAsync("product", searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
@@ -163,12 +155,12 @@
     {
 
     }
-    private void NavEditCtgr(long id)
+    private async Task NavEditCtgr(long id)
     {
         Navigation.NavigateTo($"/admin/product/edit/{id}");
     }
 
-    private async void ConfirmDelete(long id)
+    private async Task ConfirmDelete(long id)
     {
         await ProductService.Delete(id);
         await LoadPosts();

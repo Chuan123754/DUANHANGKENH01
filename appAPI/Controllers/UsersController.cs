@@ -60,7 +60,7 @@ namespace appAPI.Controllers
             {
                 context.Users.Add(user);
                 context.SaveChanges();
-                return Ok(user); // Trả về đối tượng user
+                return Ok(user);
             }
             catch (Exception)
             {
@@ -76,7 +76,6 @@ namespace appAPI.Controllers
             {
                 return NotFound("User not found");
             }
-
             item.Name = user.Name;
             item.Phone = user.Phone;
             item.Email = user.Email;
