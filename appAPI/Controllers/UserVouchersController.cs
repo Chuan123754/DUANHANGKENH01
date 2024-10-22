@@ -1,7 +1,8 @@
 ﻿using appAPI.Models;
-using AppAPI.Repositories;
+using appAPI.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace appAPI.Controllers
 {
@@ -31,6 +32,40 @@ namespace appAPI.Controllers
             if (userVoucher == null) return NotFound("UserVoucher not found");
             return Ok(userVoucher);
         }
+
+        [HttpGet("byVoucher/{voucherId}")]
+        public IActionResult GetByVoucherId(long voucherId)
+        {
+            // Lấy danh sách UserVouchers từ repository theo VoucherId
+            var userVouchers = _userVoucherRepository.GetAll()
+                                                     .Where(uv => uv.VoucherId == voucherId)
+                                                     .ToList();
+
+            if (userVouchers == null || !userVouchers.Any())
+            {
+                return NotFound();
+            }
+
+            return Ok(userVouchers);
+        }
+
+        [HttpGet("byVoucherAndUser/{voucherId}/{userId}")]
+        public IActionResult GetByVoucherIdAndUserId(long voucherId, long userId)
+        {
+            // Tìm UserVoucher theo VoucherId và UserId
+            var userVoucher = _userVoucherRepository.GetAll()
+                                                     .FirstOrDefault(uv => uv.VoucherId == voucherId && uv.UserId == userId);
+
+            // Nếu không tìm thấy, trả về lỗi 404
+            if (userVoucher == null)
+            {
+                return NotFound("UserVoucher not found for the given VoucherId and UserId");
+            }
+
+            // Nếu tìm thấy, trả về kết quả
+            return Ok(userVoucher);
+        }
+
 
         // Thêm mới một UserVoucher
         [HttpPost("post")]

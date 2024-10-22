@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Views.Models;
+using ViewsFE.Models;
 using ViewsFE.IServices;
 using System.Collections.Generic;
 using ViewsFE.Models;
@@ -35,6 +35,23 @@ namespace ViewsFE.Services
             var userVoucher = JsonConvert.DeserializeObject<UserVouchers>(response);
             return userVoucher;
         }
+
+        // Lấy danh sách UserVoucher theo VoucherId từ API
+        public async Task<List<UserVouchers>> GetByVoucherId(long voucherId)
+        {
+            string requestURL = $"https://localhost:7011/api/UserVouchers/byVoucher/{voucherId}";
+            var response = await _httpClient.GetStringAsync(requestURL);
+            var userVouchers = JsonConvert.DeserializeObject<List<UserVouchers>>(response);
+            return userVouchers;
+        }
+
+        public async Task<UserVouchers> GetByVoucherIdAndUserId(long voucherId, long userId)
+        {
+            string requestURL = $"https://localhost:7011/api/UserVouchers/byVoucherAndUser/{voucherId}/{userId}";
+            var response = await _httpClient.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<UserVouchers>(response);
+        }
+
 
         // Tạo mới một UserVoucher
         public async Task<bool> Create(UserVouchers userVoucher)

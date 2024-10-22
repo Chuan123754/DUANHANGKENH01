@@ -119,8 +119,8 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
-    RequestPath = "/FileMedia"
+    FileProvider = new PhysicalFileProvider(@"I:\Test"),
+    RequestPath = "/Test"
 });
 
 app.MapControllers();

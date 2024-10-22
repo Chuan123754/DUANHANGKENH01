@@ -1,5 +1,5 @@
 ﻿@page "/vouchers"
-@using Views.Models
+@using ViewsFE.Models
 @using ViewsFE.IServices
 @inject IVoucherService VoucherService
 @inject IUserVoucherService UserVoucherService
@@ -136,33 +136,21 @@
                                         <th>Mã Voucher</th>
                                         <th>Mô Tả</th>
                                         <th>Giá trị</th>
-                                        <th>Giá trị tối da</th>
+                                        <th>Giá trị tối đa</th>
                                         <th>Điều kiện</th>
                                         <th>Số lượng</th>
                                         <th>Trạng thái</th>
-                                        <th>Thao Tác</th>
+                                        <th>Thao tác</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @if (vouchers == null)
-                                    {
-                                        <tr>
-                                            <td colspan="6" class="text-center">Đang tải dữ liệu...</td>
-                                        </tr>
-                                    }
-                                    else if (!vouchers.Any())
-                                    {
-                                        <tr>
-                                            <td colspan="6" class="text-center">Không có voucher nào để hiển thị.</td>
-                                        </tr>
-                                    }
-                                    else
+                                    @if (pagedVouchers != null && pagedVouchers.Any())
                                     {
                                         int index = 0;
-                                        @foreach (var voucher in vouchers)
+                                        @foreach (var voucher in pagedVouchers)
                                         {
                                             <tr>
-                                                <td>@(++index)</td>
+                                                <td>@(++index + (currentPage - 1) * pageSize)</td>
                                                 <td>@voucher.Code</td>
                                                 <td>@voucher.Description</td>
                                                 <td>@voucher.Percent</td>
@@ -171,20 +159,44 @@
                                                 <td>@voucher.Quantity</td>
                                                 <td>@voucher.Status</td>
                                                 <td>
-                                                    <a class="cell-action-edit text-primary" @onclick="() => EditVoucher(voucher.Id)">Chỉnh sửa</a>
-                                                    <a class="cell-action-delete text-danger" @onclick="() => ConfirmDelete(voucher.Id)">Thùng rác</a>
+                                                    <button class="btn btn-primary" @onclick="() => EditVoucher(voucher.Id)">Sửa</button>
+
+                                                    <button class="btn btn-danger" @onclick="() => ConfirmDelete(voucher.Id)">Xóa</button>
                                                 </td>
                                             </tr>
                                         }
                                     }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="8" class="text-center">Không có dữ liệu để hiển thị.</td>
+                                        </tr>
+                                    }
                                 </tbody>
                             </table>
+
+                            <div class="pagination d-flex justify-content-end mt-3">
+                                <button class="btn btn-outline-primary me-2" @onclick="PreviousPage" disabled="@(currentPage == 1)">Trang Trước</button>
+                                <span class="align-self-center">Trang @currentPage / @totalPages</span>
+                                <button class="btn btn-outline-primary ms-2" @onclick="NextPage" disabled="@(currentPage == totalPages)">Trang Sau</button>
+                            </div>
+
                         </div>
                     </div>
 
                     <div class="col-md-12 col-12">
                         <div class="card">
                             <div class="card-body">
+                                <!-- Search Box -->
+                                <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                    <div></div>
+                                    <EditForm Model="users" OnValidSubmit="@SearchUser">
+                                        <div class="form-group d-flex gap-2">
+                                            <InputText id="searchUser" class="form-control" @bind-Value="searchTextUser" placeholder="Nhập từ khóa tên người dùng" />
+                                            <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                        </div>
+                                    </EditForm>
+                                </div>
                                 <h3>Danh Sách Người Dùng</h3>
                                 <table class="table table-striped">
                                     <thead>
@@ -197,13 +209,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @if (users == null)
-                                        {
-                                            <tr>
-                                                <td colspan="5" class="text-center">Đang tải dữ liệu...</td>
-                                            </tr>
-                                        }
-                                        else if (!users.Any())
+                                        @if (pagedUsers == null || !pagedUsers.Any())
                                         {
                                             <tr>
                                                 <td colspan="5" class="text-center">Không có người dùng nào để hiển thị.</td>
@@ -212,27 +218,33 @@
                                         else
                                         {
                                             int index = 0;
-                                            @foreach (var user in users)
+                                            @foreach (var user in pagedUsers)
                                             {
                                                 <tr>
-                                                    <td>@(++index)</td>
+                                                    <td>@(++index + (currentCustomerPage - 1) * customerPageSize)</td>
                                                     <td>
                                                         <!-- Checkbox cho khách hàng -->
-                                                        <input type="checkbox" checked="@selectedUserIds.Contains(user.Id)" @onchange="@(e => ToggleUserSelection(user.Id, (bool)((ChangeEventArgs)e).Value))" />
+                                                        <input type="checkbox" checked="@selectedUserIds.Contains(user.Id)" @onchange="@(e => OnCheckboxChange(e, user.Id))" />
                                                     </td>
                                                     <td>@user.Name</td>
                                                     <td>@user.Email</td>
                                                     <td>@user.Phone</td>
                                                 </tr>
                                             }
-
-
                                         }
                                     </tbody>
                                 </table>
+
+                                <div class="pagination d-flex justify-content-end mt-3">
+                                    <button class="btn btn-outline-primary me-2" @onclick="PreviousCustomerPage" disabled="@(currentCustomerPage == 1)">Trang Trước</button>
+                                    <span class="align-self-center">Trang @currentCustomerPage / @totalCustomerPages</span>
+                                    <button class="btn btn-outline-primary ms-2" @onclick="NextCustomerPage" disabled="@(currentCustomerPage == totalCustomerPages)">Trang Sau</button>
+                                </div>
+
                             </div>
                         </div>
                     </div>
+
                 </div>            
             </div>
         </div>
@@ -241,12 +253,32 @@
 
 @code {
     private List<Vouchers> vouchers = new List<Vouchers>();
-    private List<Users> users = new List<Users>(); // Thêm biến users
+    private List<Vouchers> pagedVouchers = new List<Vouchers>();
+
+
+    private List<Users> users = new List<Users>();
     private Vouchers voucher = new Vouchers();
+
+
     private List<long> selectedUserIds = new List<long>();
+    private List<long> initialUserIds = new List<long>();
+
+
     private string searchText = string.Empty;
+    private string searchTextUser = string.Empty;
+
+
     private string errorMessage = string.Empty;
-    private int selectedUserCount = 0; // Biến đếm số lượng khách hàng được tích chọn
+    private int selectedUserCount = 0; 
+
+    private int currentPage = 1;
+    private int pageSize = 5;
+    private int totalPages = 1;
+
+    private int currentCustomerPage = 1;
+    private int customerPageSize = 5; 
+    private int totalCustomerPages = 1;
+    private List<Users> pagedUsers = new List<Users>();
 
     private void ToggleUserSelection(long userId, bool isChecked)
     {
@@ -254,19 +286,47 @@
         {
             if (!selectedUserIds.Contains(userId))
             {
-                selectedUserIds.Add(userId); // Thêm UserId vào danh sách
-                selectedUserCount++; // Tăng biến đếm khi tích chọn
+                selectedUserIds.Add(userId); 
+                selectedUserCount++;
             }
         }
         else
         {
             if (selectedUserIds.Contains(userId))
             {
-                selectedUserIds.Remove(userId); // Bỏ UserId khỏi danh sách
-                selectedUserCount--; // Giảm biến đếm khi bỏ tích
+                selectedUserIds.Remove(userId);
+                selectedUserCount--;
             }
         }
+        selectedUserIds = selectedUserIds.Distinct().ToList();
+        Console.WriteLine(selectedUserIds);
     }
+
+    private void OnCheckboxChange(ChangeEventArgs e, long userId)
+    {
+        bool isChecked = e.Value is bool && (bool)e.Value;
+
+        // Thêm khách hàng vào danh sách tích
+        if (isChecked)
+        {
+            if (!selectedUserIds.Contains(userId))
+            {
+                selectedUserIds.Add(userId);
+            }
+        }
+        else
+        {
+            if (selectedUserIds.Contains(userId))
+            {
+                selectedUserIds.Remove(userId); 
+            }
+        }
+        ToggleUserSelection(userId, isChecked); 
+    }
+
+
+
+
 
 
     private void SetStatusToActive(ChangeEventArgs e)
@@ -284,15 +344,76 @@
         voucher.Create_at = DateTime.Now;
         voucher.Update_at = DateTime.Now;
         voucher.Start_time = DateTime.Now;
-        voucher.End_time = DateTime.Now.AddDays(1); // Ví dụ: mặc định voucher có hạn 1 ngày
+        voucher.End_time = DateTime.Now.AddDays(1); 
+
+        vouchers = await VoucherService.GetAll();
+        totalPages = (int)Math.Ceiling((double)vouchers.Count / pageSize); // Tính tổng số trang
+        LoadPagedVouchers();
+
+         users = await VoucherService.GetUsers();
+        totalCustomerPages = (int)Math.Ceiling((double)users.Count / customerPageSize); // Tính tổng số trang khách hàng
+        LoadPagedUsers(); 
 
         await LoadVouchers();
-        await LoadUsers(); // Gọi hàm để lấy danh sách người dùng
+        await LoadUsers(); 
     }
+
+    private void LoadPagedVouchers()
+    {
+        totalPages = (int)Math.Ceiling((double)vouchers.Count / pageSize);
+
+        pagedVouchers = vouchers.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+    }
+
+
+    private void NextPage()
+    {
+        if (currentPage < totalPages)
+        {
+            currentPage++;
+            LoadPagedVouchers();
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            LoadPagedVouchers();
+        }
+    }
+
+    private void LoadPagedUsers()
+    {
+
+        totalPages = (int)Math.Ceiling((double)users.Count / pageSize);
+
+        pagedUsers = users.Skip((currentCustomerPage - 1) * customerPageSize).Take(customerPageSize).ToList();
+    }
+
+    private void NextCustomerPage()
+    {
+        if (currentCustomerPage < totalCustomerPages)
+        {
+            currentCustomerPage++;
+            LoadPagedUsers();
+        }
+    }
+
+    private void PreviousCustomerPage()
+    {
+        if (currentCustomerPage > 1)
+        {
+            currentCustomerPage--;
+            LoadPagedUsers();
+        }
+    }
+
 
     private async Task LoadUsers()
     {
-        users = await VoucherService.GetUsers(); // Lấy danh sách người dùng
+        users = await VoucherService.GetUsers(); 
     }
 
     private async Task LoadVouchers()
@@ -304,15 +425,22 @@
     {
         try
         {
+            if (voucher.Status == "Không hoạt động")
+            {
+                errorMessage = "Voucher đang không hoạt động. Không thể thêm khách hàng.";
+                return; 
+            }
+
+            // Nếu có khách hàng riêng, gán số lượng bằng số lượng khách hàng đã tích
             if (selectedUserIds.Any())
             {
-                var sl = selectedUserCount; 
+                voucher.Quantity = selectedUserIds.Count.ToString();
 
                 var userVoucher = new Vouchers
                     {
                         Code = voucher.Code,
                         Description = voucher.Description,
-                        Quantity = sl.ToString(), 
+                        Quantity = voucher.Quantity, // Số lượng là số khách hàng đã tích
                         Percent = voucher.Percent,
                         MaxDiscountValue = voucher.MaxDiscountValue,
                         Condition = voucher.Condition,
@@ -323,7 +451,7 @@
                         Update_at = DateTime.Now
                     };
 
-                var createdVoucher = await VoucherService.Create(userVoucher); 
+                var createdVoucher = await VoucherService.Create(userVoucher);
 
                 foreach (var userId in selectedUserIds)
                 {
@@ -337,7 +465,7 @@
                             Update_at = DateTime.Now
                         };
 
-                    await UserVoucherService.Create(userVoucherEntry); 
+                    await UserVoucherService.Create(userVoucherEntry);
                 }
             }
             else
@@ -346,7 +474,7 @@
                     {
                         Code = voucher.Code,
                         Description = voucher.Description,
-                        Quantity = voucher.Quantity, 
+                        Quantity = voucher.Quantity, // Số lượng chỉ có thể nhập nếu không có khách hàng riêng
                         Percent = voucher.Percent,
                         MaxDiscountValue = voucher.MaxDiscountValue,
                         Condition = voucher.Condition,
@@ -357,12 +485,11 @@
                         Update_at = DateTime.Now
                     };
 
-                await VoucherService.Create(newVoucher); 
+                await VoucherService.Create(newVoucher);
             }
 
             await LoadVouchers();
 
-            // Reset form sau khi tạo thành công
             voucher = new Vouchers
                 {
                     Create_at = DateTime.Now,
@@ -372,7 +499,7 @@
                 };
 
             selectedUserIds.Clear();
-            selectedUserCount = 0; 
+            selectedUserCount = 0;
 
             errorMessage = "Đã tạo mới voucher thành công!";
         }
@@ -382,6 +509,40 @@
         }
     }
 
+    
+
+    private async Task EditVoucher(long id)
+    {
+        voucher = await VoucherService.Details(id);
+
+        try
+        {
+            // Lấy khách hàng có voucher từ cơ sở dữ liệu
+            var userVouchers = await UserVoucherService.GetByVoucherId(id);
+
+            selectedUserIds.Clear(); 
+            initialUserIds.Clear();
+
+            foreach (var userVoucher in userVouchers)
+            {
+                selectedUserIds.Add(userVoucher.UserId); // Lưu danh sách ban đầu trước khi chỉnh sửa
+                initialUserIds = selectedUserIds.ToList();
+            }
+
+            selectedUserCount = selectedUserIds.Count; 
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            selectedUserIds.Clear();
+            initialUserIds.Clear();
+            selectedUserCount = 0;
+        }
+    }
+
+
+    private void UpdateInitialUserIds()
+    {
+    }
 
 
 
@@ -390,20 +551,72 @@
     {
         try
         {
+            if (voucher.Status == "Không hoạt động")
+            {
+                errorMessage = "Voucher đang không hoạt động. Không thể thêm hoặc cập nhật khách hàng.";
+                return; 
+            }
+
+            // Nếu voucher có khách hàng riêng, gán số lượng bằng số lượng khách hàng được tích
+            if (selectedUserIds.Any())
+            {
+                voucher.Quantity = selectedUserIds.Count.ToString(); 
+            }
+
+            selectedUserIds = selectedUserIds.Distinct().ToList();
+            initialUserIds = initialUserIds.Distinct().ToList();
+
             await VoucherService.Update(voucher);
+
+            foreach (var userId in selectedUserIds)
+            {
+                if (!initialUserIds.Contains(userId)) // Nếu khách hàng mới được tích
+                {
+                    var userVoucher = new Models.UserVouchers
+                        {
+                            UserId = userId,
+                            VoucherId = voucher.Id,
+                            IsApplied = false,
+                            AppliedAt = null,
+                            Create_at = DateTime.Now,
+                            Update_at = DateTime.Now
+                        };
+
+                    await UserVoucherService.Create(userVoucher);
+                }
+            }
+
+            foreach (var userId in initialUserIds)
+            {
+                if (!selectedUserIds.Contains(userId)) // Nếu khách hàng đã bị bỏ tích
+                {
+                    var userVoucher = await UserVoucherService.GetByVoucherIdAndUserId(voucher.Id, userId);
+                    if (userVoucher != null)
+                    {
+                        await UserVoucherService.Delete(userVoucher.Id); // Xóa liên kết
+                    }
+                }
+            }
+
             await LoadVouchers();
             voucher = new Vouchers
                 {
                     Start_time = DateTime.Now,
-                    End_time = DateTime.Now.AddDays(1) // Đặt lại thời gian mặc định
+                    End_time = DateTime.Now.AddDays(1)
                 };
-            errorMessage = "Cập nhật voucher thành công!";
+            selectedUserIds.Clear();
+            initialUserIds.Clear();
+            selectedUserCount = 0;
+
+            errorMessage = "Cập nhật voucher và danh sách khách hàng thành công!";
         }
         catch (Exception ex)
         {
             errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
         }
     }
+
+
 
     private async Task HandleSubmit()
     {
@@ -417,35 +630,54 @@
         }
     }
 
-    private async Task EditVoucher(long id)
-    {
-        voucher = await VoucherService.Details(id);
-    }
+
 
     private async Task ConfirmUpdateVoucher()
     {
         bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn cập nhật voucher này?");
         if (confirmed)
         {
-            await UpdateVoucher();
+            UpdateInitialUserIds(); // Cập nhật lại initialUserIds từ danh sách khách hàng đã tích
+            await UpdateVoucher();   // Thực hiện cập nhật voucher
         }
     }
+
 
     private async Task ConfirmDelete(long id)
     {
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa voucher này?");
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn cập nhật trạng thái voucher này thành 'Không hoạt động'?");
+
         if (confirmed)
         {
-            await VoucherService.Delete(id);
-            await LoadVouchers();
+            // Lấy chi tiết voucher từ API
+            var voucherToUpdate = await VoucherService.Details(id);
+
+            if (voucherToUpdate != null)
+            {
+                // Cập nhật trạng thái thành "Không hoạt động"
+                voucherToUpdate.Status = "Không hoạt động";
+
+                // Gọi API để cập nhật voucher
+                await VoucherService.Update(voucherToUpdate);
+
+                errorMessage = "Voucher đã được cập nhật trạng thái thành 'Không hoạt động'.";
+
+                // Tải lại danh sách vouchers
+                await LoadVouchers();
+            }
+            else
+            {
+                errorMessage = "Không tìm thấy voucher để cập nhật.";
+            }
         }
     }
 
-    private void SearchVouchers()
+
+    private async Task SearchVouchers()
     {
         if (string.IsNullOrEmpty(searchText))
         {
-            vouchers = vouchers.ToList();
+            vouchers = await VoucherService.GetAll();
         }
         else
         {
@@ -453,6 +685,25 @@
                 .Where(v => v.Code.Contains(searchText, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
+        currentPage = 1;
+        LoadPagedVouchers();
+    }
+
+
+    private async Task SearchUser()
+    {
+        if (string.IsNullOrEmpty(searchTextUser))
+        {
+            users = await VoucherService.GetUsers();
+        }
+        else
+        {
+            users = users
+                .Where(u => u.Name.Contains(searchTextUser, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+        currentCustomerPage = 1;
+        LoadPagedUsers();
     }
 
     private void HandleInvalidSubmit()

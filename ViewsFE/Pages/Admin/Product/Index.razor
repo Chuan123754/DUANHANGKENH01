@@ -25,7 +25,7 @@
                     <!-- Search form -->
                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
                         <div></div>
-                        <EditForm Model="product_posts" OnValidSubmit="OnSearch">
+                        <EditForm Model="product_posts" OnValidSubmit="@OnSearch">
                             <div class="form-group d-flex gap-2">
                                 <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
                                 <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>

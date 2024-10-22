@@ -1,6 +1,5 @@
 ﻿using appAPI.Models;
 using appAPI.Repository;
-using AppAPI.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
@@ -64,6 +63,7 @@ namespace appAPI.Controllers
             existing.Description = voucher.Description;
             existing.Quantity = voucher.Quantity;
             existing.Percent = voucher.Percent;
+            existing.Status = voucher.Status;
             // Update các thuộc tính khác...
             _voucherRepository.Update(existing);
             return Ok("Voucher updated successfully");
