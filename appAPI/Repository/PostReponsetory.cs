@@ -94,7 +94,7 @@ namespace appAPI.Repository
         }
         public async Task<Product_Posts> CreateProject(Product_Posts post, List<long> tagIds, List<long> category)
         {
-            post.Type = "project";
+            post.Type = "project";           
             post.Deleted = false;
             post.Created_at = DateTime.Now;
             _context.Posts.Add(post);

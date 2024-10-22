@@ -206,28 +206,16 @@
         {
             // Khởi tạo TinyMCE
             await JS.InvokeVoidAsync("initTinyMCE");
-
-            // Khởi tạo Tom Select cho select tags và categories
-            if (TagsList?.Count > 0)
-            {
-                await JS.InvokeVoidAsync("initializeTagsList", TagsList);
-            }
-            else
-            {
-                Console.WriteLine("TagsList is empty or undefined.");
-            }
-
-            if (CategoriesList?.Count > 0)
-            {
-                await JS.InvokeVoidAsync("initializeCateList", CategoriesList);
-            }
-            else
-            {
-                Console.WriteLine("CategoriesList is empty or undefined.");
-            }
-
-            // Khởi tạo Tom Select cho select tags và categories
+        }
+        if (TagsList?.Count > 0)
+        {
+            await JS.InvokeVoidAsync("initializeTagsList", TagsList);
             await JS.InvokeVoidAsync("initializeTomSelect", "#tags-selects");
+        }
+
+        if (CategoriesList?.Count > 0)
+        {
+            await JS.InvokeVoidAsync("initializeCateList", CategoriesList);
             await JS.InvokeVoidAsync("initializeTomSelectForCategories", "#categories");
         }
     }
@@ -324,12 +312,20 @@
         }
     }
 
-    function initializeTomSelect(selector) {
+    function resetTomSelect(selector) {
         const element = document.querySelector(selector);
+        if (element && element.tomselect) {
+            element.tomselect.destroy(); // Hủy bỏ instance hiện tại
+        }
+    }
 
-        if (element && !element.tomselect) {
+    function initializeTomSelect(selector) {
+        resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới
+
+        const element = document.querySelector(selector);
+        if (element) {
             new TomSelect(selector, {
-                create: true,
+                create: true, // Cho phép thêm mới cho từ khóa
                 persist: false,
                 hideSelected: true,
                 closeAfterSelect: true,
@@ -341,32 +337,38 @@
                 },
                 searchField: ['text'],
                 maxOptions: null,
+                preload: false, // Đặt thành false để chỉ tải kết quả khi người dùng tìm kiếm
                 load: function (query, callback) {
                     if (!window.TagsList || window.TagsList.length === 0) {
                         console.log('TagsList is empty or undefined.');
                         return callback();
                     }
 
-                    const results = query ?
-                        window.TagsList.filter(tag => tag?.title?.toLowerCase().includes(query.toLowerCase())) :
-                        window.TagsList;
+                    // Chỉ hiển thị khi có nội dung được nhập
+                    if (query.length > 0) {
+                        const results = window.TagsList.filter(tag =>
+                            tag?.title?.toLowerCase().includes(query.toLowerCase())
+                        );
 
-                    callback(results.map(tag => ({ value: tag.id, text: tag.title })));
+                        callback(results.map(tag => ({ value: tag.id, text: tag.title })));
+                    } else {
+                        callback(); // Không trả về kết quả nếu không có query
+                    }
                 }
             });
-        } else {
-            console.log('Tom Select already initialized on this element');
         }
     }
-    function initializeTomSelectForCategories(selector) {
-        const element = document.querySelector(selector);
 
-        if (element && !element.tomselect) {
+    function initializeTomSelectForCategories(selector) {
+        resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới
+
+        const element = document.querySelector(selector);
+        if (element) {
             new TomSelect(selector, {
-                create: true,
+                create: false,
                 persist: false,
                 hideSelected: true,
-                closeAfterSelect: false, // Cho phép chọn nhiều
+                closeAfterSelect: false,
                 delimiter: ',',
                 plugins: ['remove_button'],
                 sortField: {
@@ -375,13 +377,8 @@
                 },
                 searchField: ['text'],
                 maxOptions: null,
-                preload: true, // Thêm dòng này để khi click sẽ tải toàn bộ dữ liệu
+                preload: true,
                 load: function (query, callback) {
-                    if (!window.CategoriesList || window.CategoriesList.length === 0) {
-                        console.log('CategoriesList is empty or undefined.');
-                        return callback();
-                    }
-
                     const results = query ?
                         window.CategoriesList.filter(cate => cate?.title?.toLowerCase().includes(query.toLowerCase())) :
                         window.CategoriesList;
@@ -389,13 +386,8 @@
                     callback(results.map(cate => ({ value: cate.id, text: cate.title })));
                 }
             });
-        } else {
-            console.log('Tom Select already initialized on this element');
         }
     }
-
-
-
     function getSelectedValues(selector) {
         const element = document.querySelector(selector);
         if (element && element.tomselect) {
@@ -403,6 +395,4 @@
         }
         return '';
     }
-  
-
 </script>
