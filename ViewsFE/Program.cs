@@ -60,7 +60,10 @@ builder.Services.AddScoped<IDesignerServices, DesignerServices>();
 builder.Services.AddScoped<SeoIServices, SeoServices>();
 builder.Services.AddScoped<IOptionsServices, OptionServices>();
 builder.Services.AddScoped<IPostSer, PostServices>();
-
+builder.Services.AddScoped<IColorServices, ColorServices>();
+builder.Services.AddScoped<ISizeServices, SizeServices>();
+builder.Services.AddScoped<IMaterialServices, MaterialServices>();
+builder.Services.AddScoped<IStyleServices, StyleServices>();
 builder.Services.AddScoped<AddressService>();
 var app = builder.Build();
 
