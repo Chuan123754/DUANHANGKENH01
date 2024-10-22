@@ -13,72 +13,71 @@ namespace ViewsFE.Services
             _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl"); // Lấy URL từ appsettings.json
         }
 
-        public async Task CreatePage(Product_Posts post)
+        public async Task CreatePage(Product_Posts post, List<long> tagIds)
         {
-            await _client.PostAsJsonAsync($"{_baseUrl}/api/Product_Post/Create-page", post);
+            // Chuyển đổi danh sách tagIds và category thành chuỗi query string
+            var tagIdsString = string.Join("&tagIds=", tagIds);
+
+            var response = await _client.PostAsJsonAsync($"{_baseUrl}/api/Product_Post/Create-page?{tagIdsString}", post);
+            response.EnsureSuccessStatusCode(); // Kiểm tra phản hồi
+
+           await response.Content.ReadFromJsonAsync<Product_Posts>(); // Trả về sản phẩm vừa tạo
         }
 
-        public async Task CreatePost(Product_Posts post)
+        public async Task CreatePost(Product_Posts post, List<long> tagIds, List<long> category)
         {
-            await _client.PostAsJsonAsync($"{_baseUrl}/api/Product_Post/Create-post", post);
+            // Chuyển đổi danh sách tagIds và category thành chuỗi query string
+            var tagIdsString = string.Join("&tagIds=", tagIds);
+            var categoriesString = string.Join("&cate=", category);
+
+            // Gửi yêu cầu POST với các tham số cần thiết
+            var response = await _client.PostAsJsonAsync($"{_baseUrl}/api/Product_Post/Create-post?{tagIdsString}&{categoriesString}", post);
+            response.EnsureSuccessStatusCode(); // Kiểm tra phản hồi
+
+            await response.Content.ReadFromJsonAsync<Product_Posts>(); // Trả về sản phẩm vừa tạo
         }
 
-        public async Task CreateProduct(Product_Posts post)
+        public async Task CreateProduct(Product_Posts post, List<long> tagIds, List<long> category)
         {
-            await _client.PostAsJsonAsync($"{_baseUrl}/api/Product_Post/Create-product", post);
+            // Chuyển đổi danh sách tagIds và category thành chuỗi query string
+            var tagIdsString = string.Join("&tagIds=", tagIds);
+            var categoriesString = string.Join("&cate=", category);
+
+            // Gửi yêu cầu POST với các tham số cần thiết
+            var response = await _client.PostAsJsonAsync($"{_baseUrl}/api/Product_Post/Create-product?{tagIdsString}&{categoriesString}", post);
+            response.EnsureSuccessStatusCode(); // Kiểm tra phản hồi
+
+             await response.Content.ReadFromJsonAsync<Product_Posts>();
         }
 
-        public async Task CreateProject(Product_Posts post)
+
+        public async Task CreateProject(Product_Posts post, List<long> tagIds, List<long> category)
         {
-            await _client.PostAsJsonAsync($"{_baseUrl}/api/Product_Post/Create-project", post);
+            var tagIdsString = string.Join("&tagIds=", tagIds);
+            var categoriesString = string.Join("&cate=", category);
+            var url = $"{_baseUrl}/api/Product_Post/Create-project?tagIds={tagIdsString}&cate={categoriesString}";
+            var response = await _client.PostAsJsonAsync(url, post);
+            response.EnsureSuccessStatusCode();
         }
 
         public async Task Delete(long id)
         {
-            await _client.DeleteAsync($"{_baseUrl}api/Product_Post/Delete-post?id={id}");
+            await _client.DeleteAsync($"{_baseUrl}/api/Product_Post/Delete-post?id={id}");
         }
 
-        public async Task<List<Product_Posts>> GetAllPage()
+        public async Task<List<Product_Posts>> GetAllType(string type)
         {
-            return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/Get-all-page");
+            return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/Get-all-type?Type={type}");
         }
-        public async Task<List<Product_Posts>> GetAllPost()
+        
+        public async Task<Product_Posts> GetByIdType(long id, string type)
         {
-            return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/Get-all-post");
-        }
-
-        public async Task<List<Product_Posts>> GetAllProduct()
-        {
-            return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/Get-all-product");
-        }
-
-        public async Task<List<Product_Posts>> GetAllProject()
-        {
-            return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/Get-all-project");
-        }
-
-        public async Task<Product_Posts> GetByIdPage(long id)
-        {
-            return await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/BetGyId-page?id={id}");
-        }
-
-        public async Task<Product_Posts> GetByIdPost(long id)
-        {
-            return await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/BetGyId-post?id={id}");
-        }
-
-        public async Task<Product_Posts> GetByIdProduct(long id)
-        {
-            return await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/BetGyId-product?id={id}");
-        }
-
-        public async Task<Product_Posts> GetByIdProject(long id)
-        {
-            return await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/BetGyId-project?id={id}");
+            return await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/BetGyIdType?id={id}&type={type}");
         }
 
         public async Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm)
         {
+
             var uri = $"{_baseUrl}/api/Product_Post/get-by-type?type={type}&pageNumber={pageNumber}&pageSize={pageSize}&searchTerm={Uri.EscapeDataString(searchTerm)}";
             return await _client.GetFromJsonAsync<List<Product_Posts>>(uri);
         }

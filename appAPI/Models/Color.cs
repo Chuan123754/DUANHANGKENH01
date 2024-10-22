@@ -11,7 +11,7 @@ namespace appAPI.Models
         [Required]
         public string Title { get; set; }
         public string Slug { get; set; }
-        public string Color_code { get; set; }
+        public string? Color_code { get; set; }
         public string Description { get; set; }
         public string Status { get; set; }
         public DateTime Create_at { get; set; }

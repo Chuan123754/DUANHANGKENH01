@@ -12,7 +12,7 @@
                     <h2 class="page-title">
                         Danh sách dự án
                     </h2>
-                    <a href="/admin/post/create" class="btn btn-sm btn-outline-primary">
+                    <a href="/admin/project/create" class="btn btn-sm btn-outline-primary">
                         Thêm dự án
                     </a>
                 </div>
@@ -78,8 +78,12 @@
                                                 </div>
                                             </td>
                                             <td class="sort-city">@post.AuthorId</td>
-                                            <td class="table-sort">@post.Post_categories</td>
-                                            <td class="sort-score">@string.Join(",", post.Post_tags.Select(tag => tag.Tag_Id))</td>
+                                            <td class="sort-type">
+                                                @post.CategoryName
+                                            </td>
+                                            <td class="sort-score">
+                                                @post.TagName
+                                            </td>
                                             <td class="sort-status">@post.Status</td>
                                             <td class="sort-date">@post.Created_at</td>
                                         </tr>
@@ -119,9 +123,15 @@
     private async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        product_posts_list = await sev.GetByTypeAsync("project", page_number, page_size, searchTerm);
+        product_posts_list = await sev.GetAllType("project");
         totalItems = await sev.GetTotalCountAsync("project", searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        // Kiểm tra dữ liệu
+        Console.WriteLine($"Loaded {product_posts_list.Count} posts.");
+        foreach (var post in product_posts_list)
+        {
+            Console.WriteLine($"Post ID: {post.Id}, Categories: {string.Join(", ", post.Post_categories.Select(c => c.Categories?.Title))}, Tags: {string.Join(", ", post.Post_tags.Select(t => t.Tag?.Title))}");
+        }
         StateHasChanged();
     }
     private async Task GoToPage(int page)
@@ -147,6 +157,6 @@
     protected async Task NavDeleteCtgr(long id)
     {
         await sev.Delete(id);
-        product_posts_list = await sev.GetAllProject();
+        await LoadPosts();
     }
 }

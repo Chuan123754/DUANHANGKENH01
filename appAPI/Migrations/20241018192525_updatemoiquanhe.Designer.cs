@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241016160129_updatedaabas")]
-    partial class updatedaabas
+    [Migration("20241018192525_updatemoiquanhe")]
+    partial class updatemoiquanhe
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -119,6 +119,9 @@ namespace appAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
@@ -135,12 +138,15 @@ namespace appAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<string>("District")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Province_city")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Set_as_default")
@@ -149,10 +155,12 @@ namespace appAPI.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Steet")
+                    b.Property<string>("Street")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<long?>("UserId")
@@ -162,6 +170,7 @@ namespace appAPI.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<string>("Ward_commune")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -385,7 +394,6 @@ namespace appAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<string>("Color_code")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Create_at")
@@ -1135,9 +1143,6 @@ namespace appAPI.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("Designerid_Designer")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("Image")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -1183,8 +1188,6 @@ namespace appAPI.Migrations
                     b.HasIndex("AttributesId");
 
                     b.HasIndex("Color_id");
-
-                    b.HasIndex("Designerid_Designer");
 
                     b.HasIndex("Material_id");
 
@@ -1922,7 +1925,7 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Tags", "Tag")
-                        .WithMany()
+                        .WithMany("Post_tags")
                         .HasForeignKey("Tag_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1958,7 +1961,7 @@ namespace appAPI.Migrations
                         .HasForeignKey("AccountId");
 
                     b.HasOne("appAPI.Models.Designer", "Designer")
-                        .WithMany()
+                        .WithMany("Product_Posts")
                         .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1997,10 +2000,6 @@ namespace appAPI.Migrations
                         .HasForeignKey("Color_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("appAPI.Models.Designer", null)
-                        .WithMany("Product_Variants")
-                        .HasForeignKey("Designerid_Designer");
 
                     b.HasOne("appAPI.Models.Material", "Material")
                         .WithMany()
@@ -2174,7 +2173,7 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Designer", b =>
                 {
-                    b.Navigation("Product_Variants");
+                    b.Navigation("Product_Posts");
                 });
 
             modelBuilder.Entity("appAPI.Models.Discount", b =>
@@ -2229,6 +2228,11 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Style", b =>
                 {
                     b.Navigation("Product_Posts");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Tags", b =>
+                {
+                    b.Navigation("Post_tags");
                 });
 
             modelBuilder.Entity("appAPI.Models.Textile_technology", b =>

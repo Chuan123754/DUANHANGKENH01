@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241004151335_addTimeToActivityHistory")]
-    partial class addTimeToActivityHistory
+    [Migration("20241018185522_taodatabase")]
+    partial class taodatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -153,10 +153,9 @@ namespace appAPI.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Steet")
+                    b.Property<string>("Street")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -164,7 +163,7 @@ namespace appAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("UserId")
+                    b.Property<long?>("UserId")
                         .HasColumnType("bigint");
 
                     b.Property<long>("User_Id")
@@ -258,6 +257,9 @@ namespace appAPI.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<long?>("ProductPostId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Status")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
@@ -273,6 +275,10 @@ namespace appAPI.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ProductPostId")
+                        .IsUnique()
+                        .HasFilter("[ProductPostId] IS NOT NULL");
 
                     b.ToTable("banners");
                 });
@@ -377,6 +383,47 @@ namespace appAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("categories");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Color", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<string>("Color_code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Create_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Delete_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Update_at")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Color");
                 });
 
             modelBuilder.Entity("appAPI.Models.Comments", b =>
@@ -563,6 +610,44 @@ namespace appAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("files");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Material", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("Create_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Delete_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Update_at")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Materials");
                 });
 
             modelBuilder.Entity("appAPI.Models.Menu_items", b =>
@@ -888,32 +973,6 @@ namespace appAPI.Migrations
                     b.ToTable("post_categories");
                 });
 
-            modelBuilder.Entity("appAPI.Models.Post_metas", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
-                    b.Property<string>("Meta_key")
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("Meta_value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("Post_Id")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Post_Id");
-
-                    b.ToTable("post_metas");
-                });
-
             modelBuilder.Entity("appAPI.Models.Post_tags", b =>
                 {
                     b.Property<long>("Id")
@@ -935,62 +994,6 @@ namespace appAPI.Migrations
                     b.HasIndex("Tag_Id");
 
                     b.ToTable("post_tags");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Posts", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
-                    b.Property<string>("AccountId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<long>("AuthorId")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("Created_at")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("Created_by")
-                        .HasColumnType("bigint");
-
-                    b.Property<DateTime?>("Deleted_at")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("Post_date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Slug")
-                        .HasMaxLength(255)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("Status")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Title")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Type")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<DateTime?>("Updated_at")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("Updated_by")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("posts");
                 });
 
             modelBuilder.Entity("appAPI.Models.Product_attributes", b =>
@@ -1016,6 +1019,107 @@ namespace appAPI.Migrations
                     b.ToTable("product_attributes");
                 });
 
+            modelBuilder.Entity("appAPI.Models.Product_Posts", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<string>("AccountId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<long>("AuthorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("ColorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("Created_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("Created_by")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("Deleted_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Feature_image")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Image_library")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("MaterialId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime?>("Post_date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Short_description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("SizeId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Slug")
+                        .HasMaxLength(255)
+                        .IsUnicode(false)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<long?>("StyleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("Textile_technologyId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Type")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime?>("Updated_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("Updated_by")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("product_video")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("ColorId");
+
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("SizeId");
+
+                    b.HasIndex("StyleId");
+
+                    b.HasIndex("Textile_technologyId");
+
+                    b.ToTable("product_post");
+                });
+
             modelBuilder.Entity("appAPI.Models.Product_variants", b =>
                 {
                     b.Property<long>("Id")
@@ -1025,6 +1129,9 @@ namespace appAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<long?>("AttributesId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Color_id")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("Created_at")
@@ -1043,6 +1150,9 @@ namespace appAPI.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<long>("Material_id")
+                        .HasColumnType("bigint");
+
                     b.Property<long>("Post_Id")
                         .HasColumnType("bigint");
 
@@ -1050,6 +1160,9 @@ namespace appAPI.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<long?>("Sale_price")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Size_id")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Sku")
@@ -1064,6 +1177,12 @@ namespace appAPI.Migrations
                     b.Property<int>("Stock_quantity")
                         .HasColumnType("int");
 
+                    b.Property<long>("Style_id")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Textile_technology_id")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("Updated_at")
                         .HasColumnType("datetime2");
 
@@ -1071,9 +1190,19 @@ namespace appAPI.Migrations
 
                     b.HasIndex("AttributesId");
 
+                    b.HasIndex("Color_id");
+
                     b.HasIndex("Designerid_Designer");
 
+                    b.HasIndex("Material_id");
+
                     b.HasIndex("Post_Id");
+
+                    b.HasIndex("Size_id");
+
+                    b.HasIndex("Style_id");
+
+                    b.HasIndex("Textile_technology_id");
 
                     b.ToTable("product_variants");
                 });
@@ -1169,6 +1298,82 @@ namespace appAPI.Migrations
                     b.ToTable("seo");
                 });
 
+            modelBuilder.Entity("appAPI.Models.Size", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("Create_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Delete_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Update_at")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Sizes");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Style", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("Create_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Delete_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Update_at")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Styles");
+                });
+
             modelBuilder.Entity("appAPI.Models.Tags", b =>
                 {
                     b.Property<long>("Id")
@@ -1201,6 +1406,44 @@ namespace appAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("tags");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Textile_technology", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("Create_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Delete_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Update_at")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Textile_Technologies");
                 });
 
             modelBuilder.Entity("appAPI.Models.Users", b =>
@@ -1250,6 +1493,41 @@ namespace appAPI.Migrations
                     b.ToTable("users");
                 });
 
+            modelBuilder.Entity("appAPI.Models.UserVouchers", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<DateTime?>("AppliedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Create_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsApplied")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("Update_at")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("VoucherId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("VoucherId");
+
+                    b.ToTable("userVouchers");
+                });
+
             modelBuilder.Entity("appAPI.Models.Vouchers", b =>
                 {
                     b.Property<long>("Id")
@@ -1259,13 +1537,19 @@ namespace appAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Condition")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Create_at")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime>("End_time")
                         .HasColumnType("datetime2");
@@ -1283,6 +1567,7 @@ namespace appAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Update_at")
@@ -1291,50 +1576,6 @@ namespace appAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Vouchers");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Warehouse", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
-                    b.Property<string>("AccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Address")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<DateTime?>("Created_at")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("Deleted_at")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Status")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime?>("Updated_at")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("warehouse");
                 });
 
             modelBuilder.Entity("appAPI.Models.Wishlist", b =>
@@ -1510,11 +1751,18 @@ namespace appAPI.Migrations
                 {
                     b.HasOne("appAPI.Models.Users", "User")
                         .WithMany("Addresses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Banner", b =>
+                {
+                    b.HasOne("appAPI.Models.Product_Posts", "Product_Post")
+                        .WithOne("Banner")
+                        .HasForeignKey("appAPI.Models.Banner", "ProductPostId");
+
+                    b.Navigation("Product_Post");
                 });
 
             modelBuilder.Entity("appAPI.Models.Cart_details", b =>
@@ -1549,7 +1797,7 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Comments", b =>
                 {
-                    b.HasOne("appAPI.Models.Posts", "Post")
+                    b.HasOne("appAPI.Models.Product_Posts", "Post")
                         .WithMany()
                         .HasForeignKey("Post_id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1657,12 +1905,12 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Post_categories", b =>
                 {
                     b.HasOne("appAPI.Models.Categories", "Categories")
-                        .WithMany()
+                        .WithMany("Post_categories")
                         .HasForeignKey("Category_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("appAPI.Models.Posts", "Posts")
+                    b.HasOne("appAPI.Models.Product_Posts", "Posts")
                         .WithMany("Post_categories")
                         .HasForeignKey("Post_Id")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1673,27 +1921,16 @@ namespace appAPI.Migrations
                     b.Navigation("Posts");
                 });
 
-            modelBuilder.Entity("appAPI.Models.Post_metas", b =>
-                {
-                    b.HasOne("appAPI.Models.Posts", "Posts")
-                        .WithMany("Post_metas")
-                        .HasForeignKey("Post_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Posts");
-                });
-
             modelBuilder.Entity("appAPI.Models.Post_tags", b =>
                 {
-                    b.HasOne("appAPI.Models.Posts", "Posts")
+                    b.HasOne("appAPI.Models.Product_Posts", "Posts")
                         .WithMany("Post_tags")
                         .HasForeignKey("Post_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Tags", "Tag")
-                        .WithMany()
+                        .WithMany("Post_tags")
                         .HasForeignKey("Tag_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1701,13 +1938,6 @@ namespace appAPI.Migrations
                     b.Navigation("Posts");
 
                     b.Navigation("Tag");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Posts", b =>
-                {
-                    b.HasOne("appAPI.Models.Account", null)
-                        .WithMany("Posts")
-                        .HasForeignKey("AccountId");
                 });
 
             modelBuilder.Entity("appAPI.Models.Product_attributes", b =>
@@ -1729,23 +1959,98 @@ namespace appAPI.Migrations
                     b.Navigation("Product_Variants");
                 });
 
+            modelBuilder.Entity("appAPI.Models.Product_Posts", b =>
+                {
+                    b.HasOne("appAPI.Models.Account", null)
+                        .WithMany("Posts")
+                        .HasForeignKey("AccountId");
+
+                    b.HasOne("appAPI.Models.Designer", "Designer")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("appAPI.Models.Color", null)
+                        .WithMany("Product_Posts")
+                        .HasForeignKey("ColorId");
+
+                    b.HasOne("appAPI.Models.Material", null)
+                        .WithMany("Product_Posts")
+                        .HasForeignKey("MaterialId");
+
+                    b.HasOne("appAPI.Models.Size", null)
+                        .WithMany("Product_Posts")
+                        .HasForeignKey("SizeId");
+
+                    b.HasOne("appAPI.Models.Style", null)
+                        .WithMany("Product_Posts")
+                        .HasForeignKey("StyleId");
+
+                    b.HasOne("appAPI.Models.Textile_technology", null)
+                        .WithMany("Product_Posts")
+                        .HasForeignKey("Textile_technologyId");
+
+                    b.Navigation("Designer");
+                });
+
             modelBuilder.Entity("appAPI.Models.Product_variants", b =>
                 {
                     b.HasOne("appAPI.Models.Attributes", null)
                         .WithMany("Product_Variants")
                         .HasForeignKey("AttributesId");
 
+                    b.HasOne("appAPI.Models.Color", "Color")
+                        .WithMany()
+                        .HasForeignKey("Color_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("appAPI.Models.Designer", null)
                         .WithMany("Product_Variants")
                         .HasForeignKey("Designerid_Designer");
 
-                    b.HasOne("appAPI.Models.Posts", "Posts")
+                    b.HasOne("appAPI.Models.Material", "Material")
+                        .WithMany()
+                        .HasForeignKey("Material_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("appAPI.Models.Product_Posts", "Posts")
                         .WithMany("Product_Variants")
                         .HasForeignKey("Post_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("appAPI.Models.Size", "Size")
+                        .WithMany()
+                        .HasForeignKey("Size_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("appAPI.Models.Style", "Style")
+                        .WithMany()
+                        .HasForeignKey("Style_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("appAPI.Models.Textile_technology", "Textile_Technology")
+                        .WithMany()
+                        .HasForeignKey("Textile_technology_id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Color");
+
+                    b.Navigation("Material");
+
                     b.Navigation("Posts");
+
+                    b.Navigation("Size");
+
+                    b.Navigation("Style");
+
+                    b.Navigation("Textile_Technology");
                 });
 
             modelBuilder.Entity("appAPI.Models.Product_variants_wishlist", b =>
@@ -1767,15 +2072,23 @@ namespace appAPI.Migrations
                     b.Navigation("Wishlist");
                 });
 
-            modelBuilder.Entity("appAPI.Models.Warehouse", b =>
+            modelBuilder.Entity("appAPI.Models.UserVouchers", b =>
                 {
-                    b.HasOne("appAPI.Models.Account", "Account")
-                        .WithMany("Warehouse")
-                        .HasForeignKey("AccountId")
+                    b.HasOne("appAPI.Models.Users", "Users")
+                        .WithMany("UserVouchers")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Account");
+                    b.HasOne("appAPI.Models.Vouchers", "Vouchers")
+                        .WithMany("UserVouchers")
+                        .HasForeignKey("VoucherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Users");
+
+                    b.Navigation("Vouchers");
                 });
 
             modelBuilder.Entity("appAPI.Models.Wishlist", b =>
@@ -1845,8 +2158,6 @@ namespace appAPI.Migrations
                     b.Navigation("Activity_history");
 
                     b.Navigation("Posts");
-
-                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("appAPI.Models.Attributes", b =>
@@ -1859,6 +2170,16 @@ namespace appAPI.Migrations
                     b.Navigation("Cart_Details");
                 });
 
+            modelBuilder.Entity("appAPI.Models.Categories", b =>
+                {
+                    b.Navigation("Post_categories");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Color", b =>
+                {
+                    b.Navigation("Product_Posts");
+                });
+
             modelBuilder.Entity("appAPI.Models.Designer", b =>
                 {
                     b.Navigation("Product_Variants");
@@ -1867,6 +2188,11 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Discount", b =>
                 {
                     b.Navigation("ProductVariantsDiscounts");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Material", b =>
+                {
+                    b.Navigation("Product_Posts");
                 });
 
             modelBuilder.Entity("appAPI.Models.Menus", b =>
@@ -1883,11 +2209,11 @@ namespace appAPI.Migrations
                     b.Navigation("Order_trackings");
                 });
 
-            modelBuilder.Entity("appAPI.Models.Posts", b =>
+            modelBuilder.Entity("appAPI.Models.Product_Posts", b =>
                 {
-                    b.Navigation("Post_categories");
+                    b.Navigation("Banner");
 
-                    b.Navigation("Post_metas");
+                    b.Navigation("Post_categories");
 
                     b.Navigation("Post_tags");
 
@@ -1903,9 +2229,31 @@ namespace appAPI.Migrations
                     b.Navigation("p_variants_discount");
                 });
 
+            modelBuilder.Entity("appAPI.Models.Size", b =>
+                {
+                    b.Navigation("Product_Posts");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Style", b =>
+                {
+                    b.Navigation("Product_Posts");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Tags", b =>
+                {
+                    b.Navigation("Post_tags");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Textile_technology", b =>
+                {
+                    b.Navigation("Product_Posts");
+                });
+
             modelBuilder.Entity("appAPI.Models.Users", b =>
                 {
                     b.Navigation("Addresses");
+
+                    b.Navigation("UserVouchers");
 
                     b.Navigation("Wishlist");
                 });
@@ -1913,6 +2261,8 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Vouchers", b =>
                 {
                     b.Navigation("OrderVouchers");
+
+                    b.Navigation("UserVouchers");
                 });
 
             modelBuilder.Entity("appAPI.Models.Wishlist", b =>

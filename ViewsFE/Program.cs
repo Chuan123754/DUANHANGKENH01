@@ -5,7 +5,6 @@ using ViewsFE.Data;
 using Microsoft.JSInterop;
 using ViewsFE.Services;
 using Blazored.SessionStorage;
-using ViewsFE;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
