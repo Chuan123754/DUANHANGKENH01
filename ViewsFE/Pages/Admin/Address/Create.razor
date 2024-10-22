@@ -1,0 +1,271 @@
+﻿@page "/admin/address/create"
+
+@inject AddressService AddressService
+
+<html>
+<head>
+    <title>Thêm mới địa chỉ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 600px;
+            margin: 50px auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            position: relative;
+        }
+
+        .header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+            .form-group label {
+                width: 150px;
+                font-size: 14px;
+                line-height: 32px;
+            }
+
+            .form-group input, .form-group select {
+                flex: 1;
+                padding: 8px;
+                font-size: 14px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+                .form-group input[type="text"] {
+                    width: calc(100% - 10px);
+                }
+
+            .form-group .btn {
+                background-color: #ff6600;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                padding: 8px;
+                font-size: 14px;
+                margin-left: 10px;
+            }
+
+                .form-group .btn:hover {
+                    background-color: #e65c00;
+                }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .form-group .toggle {
+            display: flex;
+            align-items: center;
+        }
+
+            .form-group .toggle input {
+                margin-right: 10px;
+            }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+            .footer button {
+                background-color: #ff6600;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+                .footer button:hover {
+                    background-color: #e65c00;
+                }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+            .info-row label {
+                width: 150px;
+                font-size: 14px;
+            }
+
+            .info-row span {
+                flex: 1;
+                text-align: left;
+                padding-left: 10px;
+                font-size: 14px;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Thêm mới địa chỉ</div>
+        <div class="form-group">
+            <button class="btn">CHỌN ĐỊA CHỈ</button>
+        </div>
+        <div class="form-group">
+            <label for="name">Tên người nhận</label>
+            <input type="text" id="name" @bind="address.Name">
+            <label for="phone">Số điện thoại</label>
+            <input type="text" id="phone" @bind="address.User.Phone">
+        </div>
+
+        <div class="form-group">
+            <label for="city">Tỉnh/thành phố</label>
+            <select @onchange="OnProvinceChange">
+                <option value="">Chọn Tỉnh</option>
+                @if (provinces != null && provinces.Count > 0)
+                {
+                    @foreach (var province in provinces)
+                    {
+                        <option value="@province.Id">@province.Name</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="district">Quận/huyện</label>
+            <select @onchange="OnDistrictChange" disabled="@(!hasDistricts)">
+                <option value="">Chọn Huyện</option>
+                @if (districts != null && districts.Count > 0)
+                {
+                    @foreach (var district in districts)
+                    {
+                        <option value="@district.Id">@district.Name</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="ward">Xã/phường/thị trấn</label>
+            <select disabled="@(!hasWards)">
+                <option value="">Chọn Xã</option>
+                @if (wards != null && wards.Count > 0)
+                {
+                    @foreach (var ward in wards)
+                    {
+                        <option value="@ward.Id">@ward.Name</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="address">Địa chỉ cụ thể</label>
+            <input type="text" id="address" value="aaaaa">
+        </div>
+
+        <div class="form-group">
+            <label for="note">Ghi chú</label>
+            <input type="text" id="note">
+        </div>
+
+        <div class="form-group toggle">
+            <label for="delivery">Giao hàng</label>
+            <input type="checkbox" id="delivery" checked>
+        </div>
+
+        <div class="info-row">
+            <label>Thời gian giao hàng:</label>
+            <span>23-12-2023</span>
+        </div>
+
+        <div class="info-row">
+            <label>Phí giao hàng:</label>
+            <span>34,000 đ</span>
+        </div>
+
+        <div class="footer">
+            <button>XÁC NHẬN</button>
+        </div>
+    </div>
+</body>
+</html>
+
+@code {
+    private List<Province> provinces = new List<Province>();
+    private List<Districted> districts = new List<Districted>();
+    private List<Ward> wards = new List<Ward>();
+    private Address address;
+    private bool hasDistricts = false;
+    private bool hasWards = false;
+
+    [Inject] private AddressService addressService { get; set; }
+
+    private async Task CreateAddress()
+    {
+        var newAddress = new Address
+            {
+                User_Id = 1,
+                Name = address.Name,
+
+                Province_city=address.Province_city,
+                District=address.District,
+                Ward_commune=address.Ward_commune,
+            };
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        provinces = await addressService.GetProvincesAsync(); // Gọi API để lấy danh sách tỉnh
+    }
+
+    private async Task OnProvinceChange(ChangeEventArgs e)
+    {
+        var selectedProvinceId = e.Value.ToString();
+        if (!string.IsNullOrEmpty(selectedProvinceId))
+        {   
+            address.Province_city = selectedProvinceId;
+            districts = await addressService.GetDistrictsAsync(int.Parse(selectedProvinceId));
+            hasDistricts = districts.Count > 0;
+            hasWards = false; // Reset trạng thái của danh sách xã
+            wards.Clear();
+        }
+    }
+
+    private async Task OnDistrictChange(ChangeEventArgs e)
+    {
+        var selectedDistrictId = e.Value.ToString();
+        if (!string.IsNullOrEmpty(selectedDistrictId))
+        {
+            address.District = selectedDistrictId;
+            wards = await addressService.GetWardsAsync(int.Parse(selectedDistrictId));
+            hasWards = wards.Count > 0;
+        }
+    }
+
+    private async Task OnWardChange(ChangeEventArgs e)
+    {
+        var selectedWardId = e.Value.ToString();
+        if (!string.IsNullOrEmpty(selectedWardId))
+        {
+            address.Ward_commune = selectedWardId; 
+        }
+    }
+}

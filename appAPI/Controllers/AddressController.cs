@@ -1,7 +1,7 @@
-﻿using appAPI.Repository;
+﻿using appAPI.IRepository;
+using appAPI.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace appAPI.Controllers
 {
@@ -9,42 +9,82 @@ namespace appAPI.Controllers
     [ApiController]
     public class AddressController : ControllerBase
     {
-        private readonly AddressRepository _addressRepo;
+        private readonly IAddressRepository _repo;
 
-        public AddressController(AddressRepository addressRepo)
+        public AddressController(IAddressRepository repo)
         {
-            _addressRepo = addressRepo;
+            _repo = repo;
         }
-        // GET: api/<AddressController>
-        //[HttpGet("GetAddressByUserId")]
-        //public Task <IActionResult> GetAddressByUserId(long userId)
-        //{
-        //    return Ok();
-        //}
-
-        // GET api/<AddressController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("GetAllAddress")]
+        public async Task<IActionResult> GetAll()
         {
-            return "value";
+            var result = await _repo.GetAll();
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return NotFound();
         }
-
-        // POST api/<AddressController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpGet("GetAddressById")]
+        public async Task<IActionResult> GetAddressById(long id)
         {
+            var result = await _repo.GetAddressById(id);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return NotFound();
         }
-
-        // PUT api/<AddressController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpGet("GetAddressByUserId")]
+        public async Task<IActionResult> GetAddressByUserId(long userId)
         {
+            var result = await _repo.GetAddressByUserId(userId);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return NotFound();
         }
-
-        // DELETE api/<AddressController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpPost("CreateAddress")]
+        public async Task<IActionResult> Create(Address address)
         {
+            var result = _repo.CreateAddress(address);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return BadRequest();
+        }
+        [HttpPut("UpdateAddress")]
+        public async Task<IActionResult> Update(long id, Address address)
+        {
+            var result = _repo.UpdateAddress(address, id);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return BadRequest();
+        }
+        [HttpPut("SetAsDefault")]
+        public async Task<IActionResult> SetAsDefault(long id , Address address)
+        {
+            var result = _repo.SetAsDefault(id , address);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return BadRequest();
+        }
+        [HttpDelete("DeleteAddress")]
+        public async Task<IActionResult> Delete(long id)
+        {
+            var result = _repo.DeleteAddress(id);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return BadRequest();
         }
     }
+
 }
