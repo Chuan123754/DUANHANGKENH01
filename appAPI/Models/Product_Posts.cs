@@ -26,8 +26,8 @@ namespace appAPI.Models
         [StringLength(20)]
         public string? Status { get; set; }
 
-        public long AuthorId { get; set; }
-        public bool Deleted { get; set; }
+        public long? AuthorId { get; set; }
+        public bool? Deleted { get; set; }
 
         [StringLength(255)]
         public string? Type { get; set; }
@@ -39,9 +39,9 @@ namespace appAPI.Models
 
         public DateTime? Post_date { get; set; }
 
-        public long Created_by { get; set; }
+        public long? Created_by { get; set; }
 
-        public long Updated_by { get; set; }
+        public long? Updated_by { get; set; }
 
         public DateTime? Deleted_at { get; set; }
 
@@ -56,7 +56,7 @@ namespace appAPI.Models
         public virtual ICollection<Post_categories> Post_categories { get; set; } = new List<Post_categories>();
         [JsonIgnore]
         [ForeignKey("AuthorId")]
-        public Designer? Designer { get; set; }
+        public virtual Designer? Designer { get; set; }
         [JsonIgnore]
         public virtual Banner? Banner { get; set; }
 

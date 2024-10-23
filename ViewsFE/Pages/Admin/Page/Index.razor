@@ -75,7 +75,7 @@
                                                 </div>
                                             </td>
                                             <td class="sort-city">@post.AuthorId</td>
-                                            <td class="sort-score">@string.Join(",", post.Post_tags.Select(tag => tag.Tag_Id))</td>
+                                            <td class="sort-score">@post.TagName</td>
                                             <td class="sort-status">@post.Status</td>
                                             <td class="sort-date">@post.Created_at</td>
                                         </tr>
@@ -116,7 +116,7 @@
     private async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        product_posts_list = await sev.GetByTypeAsync("page", page_number, page_size, searchTerm);
+        product_posts_list = await sev.GetAllType("page");
         totalItems = await sev.GetTotalCountAsync("page", searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
@@ -144,7 +144,7 @@
     protected async Task NavDeleteCtgr(long id)
     {
         await sev.Delete(id);
-        product_posts_list = await sev.GetAllPage(); // Cập nhật danh sách sau khi xóa
+        product_posts_list = await sev.GetAllType("page"); // Cập nhật danh sách sau khi xóa
     }
 }
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

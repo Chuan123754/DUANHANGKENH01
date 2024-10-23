@@ -1,5 +1,4 @@
 ﻿@page "/admin/page/create"
-@using ViewsFE.IServices
 @inject NavigationManager nav
 @inject IPostSer sev
 @inject ITagsServices stag
@@ -14,7 +13,7 @@
                 <div class="row g-2 align-items-center">
                     <div class="col">
                         <h2 class="page-title">
-                            Thêm bài viết
+                            Thêm trang
                         </h2>
                     </div>
                 </div>
@@ -92,79 +91,161 @@
                                     </h2>
                                     <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                         <div class="accordion-body pt-0">
-                                                {
-                                                }
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-       
-                                                </div>
-                                                }
-                                            </div>
-                                            </div>
+                                            {
+                                            }
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+
                                         </div>
+                                        
                                     </div>
                                 </div>
-
+                            </div>
                             <!-- Từ khóa -->
-                                <div class="accordion bg-white mb-3">
-                                    <div class="accordion-item">
-                                        <h2 class="accordion-header">
-                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
-                                                Từ khóa
-                                            </button>
-                                        </h2>
-                                        <div id="tag" class="accordion-collapse collapse show">
-                                            <div class="accordion-body pt-0">
-                                                            {
-                                                            }
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
+                                            Từ khóa
+                                        </button>
+                                    </h2>
+                                    <div id="tag" class="accordion-collapse collapse show">
+                                        <div class="accordion-body pt-0">
+                                            <select id="tags-selects" multiple class="form-control" placeholder="Nhập từ khoá">
+                                                @foreach (var tag in TagsList)
+                                                {
+                                                    <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
+                                                }
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> 
                 </div>
             </div>
+        </div>
+    </div>
 </EditForm>
 @code {
     private Product_Posts Posts = new Product_Posts();
-    private Tags tags = new Tags();
-    private List<Tags> Tags;
+    private List<Tags> TagsList = new List<Tags>();
+    private List<long> SelectedTags = new List<long>();
     private string FeatureImage { get; set; }
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
 
-    // Lấy ảnh đại diện từ post (Giả sử đã có logic để khởi tạo post)
-    private string featureImageId => GetMedia(Posts, "feature_image", "id");
-    private string featureImageImage => GetMedia(Posts, "feature_image", "image");
+    protected override async Task OnInitializedAsync()
+    {
+        TagsList = await stag.GetAll();
+        Posts.Status = Product_Posts.STATUS_DRAFT; 
+    }
 
-    private string GetMedia(Product_Posts post, string key, string type)
-    {
-        // Thay thế bằng logic lấy dữ liệu thực tế từ post
-        return type == "id" ? "image_id_value" : "image_url_value"; // Ví dụ
-    }
-    private async Task AddNewTag()
-    {
-        await stag.Create(tags);
-
-    }
-    protected override async void OnInitialized()
-    {
-        Tags = await stag.GetAll();
-        Posts.Status = Product_Posts.STATUS_DRAFT;
-        Posts.Seo = new Seo(); // Khởi tạo Seo nếu cần
-    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            // Khởi tạo TinyMCE
             await JS.InvokeVoidAsync("initTinyMCE");
-            await JS.InvokeVoidAsync("setTinyMCEContent", Posts.Description);
+            // Khởi tạo Tom Select cho select tags và categories
+           
         }
+        if (TagsList?.Count > 0)
+        {
+            await JS.InvokeVoidAsync("initializeTagsList", TagsList);
+            await JS.InvokeVoidAsync("initializeTomSelect", "#tags-selects");
+        }
+
     }
 
     private async void HandleValidSubmit()
     {
         Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
-        await sev.CreatePage(Posts);
+
+        // Lấy dữ liệu từ Tom Select
+        var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
+        if (!string.IsNullOrEmpty(tags))
+        {
+            SelectedTags = tags.Split(',')
+                .Select(id => long.TryParse(id, out long result) ? result : 0)
+                .Where(id => id > 0)
+                .ToList();
+        }
+        await sev.CreatePage(Posts, SelectedTags);
         nav.NavigateTo("/admin/page");
     }
 }
+<script>
+    function initTinyMCE() {
+        tinymce.init({
+            selector: '#tinymce-textarea',
+            plugins: 'link image code',
+            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
+        });
+    }
+
+    function getTinyMCEContent() {
+        return tinymce.get('tinymce-textarea').getContent();
+    }
+
+
+    window.TagsList = [];
+    function initializeTagsList(tags) {
+        if (tags && tags.length > 0) {
+            window.TagsList = tags;
+            console.log('TagsList initialized:', window.TagsList);
+        } else {
+            console.log('Failed to initialize TagsList. Empty or undefined.');
+        }
+    }
+
+
+
+    function initializeTomSelect(selector) {
+        resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới
+
+        const element = document.querySelector(selector);
+        if (element) {
+            new TomSelect(selector, {
+                create: true, // Cho phép thêm mới cho từ khóa
+                persist: false,
+                hideSelected: true,
+                closeAfterSelect: true,
+                delimiter: ',',
+                plugins: ['remove_button'],
+                sortField: {
+                    field: 'text',
+                    direction: 'asc'
+                },
+                searchField: ['text'],
+                maxOptions: null,
+                preload: false, // Đặt thành false để chỉ tải kết quả khi người dùng tìm kiếm
+                load: function (query, callback) {
+                    if (!window.TagsList || window.TagsList.length === 0) {
+                        console.log('TagsList is empty or undefined.');
+                        return callback();
+                    }
+
+                    // Chỉ hiển thị khi có nội dung được nhập
+                    if (query.length > 0) {
+                        const results = window.TagsList.filter(tag =>
+                            tag?.title?.toLowerCase().includes(query.toLowerCase())
+                        );
+
+                        callback(results.map(tag => ({ value: tag.id, text: tag.title })));
+                    } else {
+                        callback(); // Không trả về kết quả nếu không có query
+                    }
+                }
+            });
+        }
+    }
+
+    function getSelectedValues(selector) {
+        const element = document.querySelector(selector);
+        if (element && element.tomselect) {
+            return element.tomselect.getValue().join(','); // Chuyển đổi mảng thành chuỗi
+        }
+        return '';
+    }
+
+</script>

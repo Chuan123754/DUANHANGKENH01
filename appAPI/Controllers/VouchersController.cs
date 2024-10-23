@@ -63,6 +63,7 @@ namespace appAPI.Controllers
             existing.Description = voucher.Description;
             existing.Quantity = voucher.Quantity;
             existing.Percent = voucher.Percent;
+            existing.Status = voucher.Status;
             // Update các thuộc tính khác...
             _voucherRepository.Update(existing);
             return Ok("Voucher updated successfully");

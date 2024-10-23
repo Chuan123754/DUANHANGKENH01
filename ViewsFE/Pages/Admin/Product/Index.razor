@@ -25,7 +25,7 @@
                     <!-- Search form -->
                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
                         <div></div>
-                        <EditForm Model="product_posts" OnValidSubmit="OnSearch">
+                        <EditForm Model="product_posts" OnValidSubmit="@OnSearch">
                             <div class="form-group d-flex gap-2">
                                 <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
                                 <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
@@ -75,29 +75,19 @@
                                                     <a class="cell-action-delete text-danger" @onclick="() => ConfirmDelete(post.Id)">Xóa</a>
                                                 </div>
                                             </td>
-                                            <td>@post.Designer?.Name</td>
-                                            <td>
-                                                @foreach (var cat in post.Post_categories)
-                                                {
-                                                    <a href="#">@cat.Categories.Title</a>
-                                                    @if (cat != post.Post_categories.Last())
-                                                    {
-                                                        <span>, </span>
-                                                    }
-                                                }
+                                            <td>@post.AuthorId</td>
+                                            <td class="sort-type">
+                                                @post.CategoryName
                                             </td>
-                                            <td>
-                                                @foreach (var posttag in post.Post_tags)
-                                                {
-                                                    <a href="#">@posttag.Tag.Title</a>
-                                                    @if (posttag != post.Post_tags.Last())
-                                                    {
-                                                        <span>, </span>
-                                                    }
-                                                }
+                                            <td class="sort-tags">
+                                                @post.TagName
                                             </td>
-                                            <td>@post.StatusLabel</td>
-                                            <td>@post.Created_at</td>
+                                            <td class="sort-score">
+                                                @post.Status
+                                            </td>
+                                            <td class="sort-date">
+                                                @post.Created_at
+                                            </td>
                                         </tr>
                                     }
 
@@ -151,7 +141,7 @@
     private async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        product_posts_list = await ProductService.GetByTypeAsync("product", page_number, page_size, searchTerm);
+        product_posts_list = await ProductService.GetAllType("product");
         totalItems = await ProductService.GetTotalCountAsync("product", searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
@@ -165,12 +155,12 @@
     {
 
     }
-    private void NavEditCtgr(long id)
+    private async Task NavEditCtgr(long id)
     {
         Navigation.NavigateTo($"/admin/product/edit/{id}");
     }
 
-    private async void ConfirmDelete(long id)
+    private async Task ConfirmDelete(long id)
     {
         await ProductService.Delete(id);
         await LoadPosts();

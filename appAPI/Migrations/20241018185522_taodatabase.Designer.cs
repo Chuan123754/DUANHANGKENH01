@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using appAPI.Models;
 
@@ -11,9 +12,10 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    partial class APP_DATA_DATNModelSnapshot : ModelSnapshot
+    [Migration("20241018185522_taodatabase")]
+    partial class taodatabase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1028,7 +1030,7 @@ namespace appAPI.Migrations
                     b.Property<string>("AccountId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<long?>("AuthorId")
+                    b.Property<long>("AuthorId")
                         .HasColumnType("bigint");
 
                     b.Property<long?>("ColorId")
@@ -1037,10 +1039,10 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Created_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<long?>("Created_by")
+                    b.Property<long>("Created_by")
                         .HasColumnType("bigint");
 
-                    b.Property<bool?>("Deleted")
+                    b.Property<bool>("Deleted")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("Deleted_at")
@@ -1093,7 +1095,7 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Updated_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<long?>("Updated_by")
+                    b.Property<long>("Updated_by")
                         .HasColumnType("bigint");
 
                     b.Property<string>("product_video")
@@ -1141,6 +1143,9 @@ namespace appAPI.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long?>("Designerid_Designer")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Image")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -1186,6 +1191,8 @@ namespace appAPI.Migrations
                     b.HasIndex("AttributesId");
 
                     b.HasIndex("Color_id");
+
+                    b.HasIndex("Designerid_Designer");
 
                     b.HasIndex("Material_id");
 
@@ -1959,8 +1966,10 @@ namespace appAPI.Migrations
                         .HasForeignKey("AccountId");
 
                     b.HasOne("appAPI.Models.Designer", "Designer")
-                        .WithMany("Product_Posts")
-                        .HasForeignKey("AuthorId");
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("appAPI.Models.Color", null)
                         .WithMany("Product_Posts")
@@ -1996,6 +2005,10 @@ namespace appAPI.Migrations
                         .HasForeignKey("Color_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("appAPI.Models.Designer", null)
+                        .WithMany("Product_Variants")
+                        .HasForeignKey("Designerid_Designer");
 
                     b.HasOne("appAPI.Models.Material", "Material")
                         .WithMany()
@@ -2169,7 +2182,7 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Designer", b =>
                 {
-                    b.Navigation("Product_Posts");
+                    b.Navigation("Product_Variants");
                 });
 
             modelBuilder.Entity("appAPI.Models.Discount", b =>
