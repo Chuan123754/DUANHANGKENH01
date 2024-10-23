@@ -13,13 +13,10 @@ namespace appAPI.Controllers
     public class Product_PostController : ControllerBase
     {
         private readonly IPostReponsetory _postRepository;
-        private readonly ITagsRepository _tagsRepository;
-        private readonly ICategoriesRepository _categoriesRepository;
-        public Product_PostController(IPostReponsetory postRepository, ITagsRepository tagsRepository, ICategoriesRepository categoriesRepository)
+        public Product_PostController(IPostReponsetory postRepository)
         {
             _postRepository = postRepository;
-            _tagsRepository = tagsRepository;
-            _categoriesRepository = categoriesRepository;
+         
         }
         [HttpGet("Get-All")]
         public async Task<List<Product_Posts>> GetAll()

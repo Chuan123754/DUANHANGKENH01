@@ -1,4 +1,5 @@
-﻿using appAPI.Models;
+﻿using appAPI.IRepository;
+using appAPI.Models;
 using appAPI.Repository;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,23 +11,23 @@ namespace appAPI.Controllers
     [ApiController]
     public class SizeController : ControllerBase
     {
-        private readonly IRepository<Size> _repos;
-        public SizeController(IRepository<Size> sizeReponsitory)
+        private readonly ISizeReponsitory _repos;
+        public SizeController(ISizeReponsitory sizeReponsitory)
         {
             _repos = sizeReponsitory;
         }
         // GET: api/<SizeController>
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<List<Size>> GetAll()
         {
-            return Ok(_repos.GetAll());
+            return await _repos.GetAll();
         }
 
         // GET api/<SizeController>/5
         [HttpGet("{id}")]
         public IActionResult Get(long id)
         {
-            var size = _repos.GetById(id);
+            var size = _repos.GetByIdAndType(id);
             if (size == null)
             {
                 return NotFound("Size not found");
@@ -36,50 +37,41 @@ namespace appAPI.Controllers
 
         // POST api/<SizeController>
         [HttpPost]
-        public IActionResult Post(Size size)
+        public async Task Post(Size mate)
         {
-            try
-            {
-                size.Create_at = DateTime.Now;
-                _repos.Add(size);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _repos.Create(mate);
         }
         // PUT api/<SizeController>/5
         [HttpPut("{id}")]
-        public IActionResult Put(Size size)
+        public async Task Put(Size mate)
         {
-            var item = _repos.GetById(size.Id);
-            if (item == null)
-            {
-                return BadRequest("Size not found");
-            }
-            item.Update_at = DateTime.Now;
-            item.Title = size.Title;
-            item.Description = size.Description;
-            item.Slug = size.Slug;
-            item.Status = size.Status;
-            _repos.Update(item);
-            return Ok(new { message = "Cập nhật size thành công" });
+            await _repos.Update(mate);
         }
 
         // DELETE api/<SizeController>/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
+        public async Task Delete(long id)
         {
-            var delete = _repos.GetById(id);
-            if (delete == null)
+            await _repos.Delete(id);
+        }
+        [HttpGet("get-by-type")]
+        public async Task<IActionResult> GetByType([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        {
+            if (pageNumber < 1 || pageSize < 1)
             {
-                return BadRequest("Xoá size thành công");
+                return BadRequest("Page number and page size must be greater than 0.");
             }
-            delete.Status = "Deleted";
-            delete.Delete_at = DateTime.Now;
-            _repos.Update(delete);
-            return Ok(new { message = "Trạng thái đã được chuyển thành không hoạt động (UNACTIVE)" });
+
+            var list = await _repos.GetByTypeAsync(pageNumber, pageSize, searchTerm);
+
+
+            return Ok(list);
+        }
+        [HttpGet("Get-Total-Count")]
+        public async Task<IActionResult> GetTotalCount([FromQuery] string? searchTerm = null)
+        {
+            var totalCount = await _repos.GetTotalCountAsync( searchTerm);
+            return Ok(totalCount);
         }
     }
 }

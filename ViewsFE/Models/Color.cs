@@ -12,6 +12,7 @@ namespace ViewsFE.Models
         public string? Slug { get; set; }
         public string? Color_code { get; set; }
         public string? Description { get; set; }
+        public bool? Deleted { get; set; }
         public string? Status { get; set; }
         public DateTime? Create_at { get; set; }
         public DateTime? Update_at { get; set; }

@@ -1,9 +1,9 @@
-﻿@page "/admin/qa"
+﻿@layout AdminLayout
+@page "/admin/qa"
 @inject NavigationManager Navigation
 @inject IQaService QaService
 @inject IJSRuntime JS
-@layout AdminLayout
-<h1>Q&A</h1>
+
 
 <p>
     <button class="btn btn-primary" @onclick="CreateQa">Tạo câu hỏi mới</button>

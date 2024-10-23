@@ -29,11 +29,23 @@ namespace ViewsFE.Services
         {
             return await _client.GetFromJsonAsync<List<Textile_technology>>($"{_baseUrl}/api/Textile_technology");
         }
-        public async Task<List<Textile_technology>> Search(string keyword)
+
+        public async Task<List<Textile_technology>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)
         {
-            string requestURL = $@"{_baseUrl}/api/Category/search?query={keyword}";
-            var response = await _client.GetStringAsync(requestURL);
-            return JsonConvert.DeserializeObject<List<Textile_technology>>(response);
+            var uri = $"{_baseUrl}/api/Textile_technology/get-by-type?pageNumber={pageNumber}&pageSize={pageSize}&searchTerm={Uri.EscapeDataString(searchTerm)}";
+            return await _client.GetFromJsonAsync<List<Textile_technology>>(uri);
+        }
+
+        public async Task<int> GetTotalCountAsync(string searchTerm)
+        {
+            var url = $"{_baseUrl}/api/Textile_technology/Get-Total-Count?searchTerm={Uri.EscapeDataString(searchTerm)}";
+
+            // Gọi API và nhận tổng số lượng bài viết
+            var response = await _client.GetAsync(url);
+            response.EnsureSuccessStatusCode(); // Kiểm tra xem phản hồi có thành công hay không
+
+            var count = await response.Content.ReadFromJsonAsync<int>();
+            return count;
         }
         public async Task Update(Textile_technology t)
         {

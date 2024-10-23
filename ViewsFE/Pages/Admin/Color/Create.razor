@@ -1,6 +1,6 @@
-﻿@page "/admin/color/create"
+﻿@layout AdminLayout
+@page "/admin/color/create"
 @inject NavigationManager nav
-@layout AdminLayout
 @inject IColorServices sev
 
 <EditForm Model="color" OnValidSubmit="SubmitForm" FormName="coloradd">

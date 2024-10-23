@@ -1,7 +1,8 @@
-﻿@page "/admin/style/create"
+﻿@layout AdminLayout
+@page "/admin/style/create"
 @inject NavigationManager nav
 @inject IStyleServices sev
-@layout AdminLayout
+
 
 <EditForm Model="style" OnValidSubmit="SubmitForm" FormName="styleadd">
     <DataAnnotationsValidator></DataAnnotationsValidator>
