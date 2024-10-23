@@ -1,6 +1,7 @@
 ﻿@page "/admin/attribute/create"
 @inject IAttributesServices sev
 @inject NavigationManager nav
+@layout AdminLayout
 <h3>Thêm thuộc tính</h3>
 <EditForm Model="attribute" OnValidSubmit="SubmitForm" FormName="them">
     <DataAnnotationsValidator></DataAnnotationsValidator>

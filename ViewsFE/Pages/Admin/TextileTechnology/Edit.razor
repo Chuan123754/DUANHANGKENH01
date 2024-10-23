@@ -1,6 +1,7 @@
 ﻿@page "/admin/textiletechnology/edit/{id:long}"
 @inject NavigationManager nav
 @inject ITextile_technologyServices sev
+@layout AdminLayout
 
 <EditForm Model="technology" OnValidSubmit="SubmitForm" FormName="textiletechnologyadd">
     <DataAnnotationsValidator></DataAnnotationsValidator>
