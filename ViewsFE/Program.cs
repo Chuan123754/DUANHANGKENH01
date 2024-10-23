@@ -45,7 +45,6 @@ builder.Services.AddScoped<ILogActivityHistoryService, LogActivityHistoryService
 builder.Services.AddScoped<CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<IAccountService, AccountService>();
-builder.Services.AddScoped<IAttributesServices, AttributesService>();
 builder.Services.AddScoped<ICategoriesServices, CategoriesServices>();
 //builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IPostTagService, PostTagService>();

@@ -1,9 +1,10 @@
-﻿@page "/admin/page/create"
+﻿@layout AdminLayout
+@page "/admin/page/create"
 @inject NavigationManager nav
 @inject IPostSer sev
 @inject ITagsServices stag
-@layout AdminLayout
 @inject IJSRuntime JS
+
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />

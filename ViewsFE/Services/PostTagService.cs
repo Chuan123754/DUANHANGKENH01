@@ -51,12 +51,6 @@ namespace ViewsFE.Services
                 throw new Exception($"API call failed with status code {response.StatusCode} and message: {errorContent}");
             }
         }
-
-
-
-
-
-
         public async Task Update(Post_tags postTag)
         {
             var postTagToSend = new

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace appAPI.Migrations
 {
-    public partial class taodatabase : Migration
+    public partial class taodataabse : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -51,30 +51,6 @@ namespace appAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Attributes",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    Slug = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    Parent_Id = table.Column<int>(type: "int", nullable: false),
-                    Dept = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Feature_Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Color = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Template = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
-                    In_Order = table.Column<int>(type: "int", nullable: false),
-                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Attributes", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "categories",
                 columns: table => new
                 {
@@ -85,6 +61,7 @@ namespace appAPI.Migrations
                     Slug = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
                     Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Parent_id = table.Column<long>(type: "bigint", nullable: false),
+                    Deleted = table.Column<bool>(type: "bit", nullable: true),
                     Dept = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -106,7 +83,7 @@ namespace appAPI.Migrations
                     Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Color_code = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Deleted = table.Column<bool>(type: "bit", nullable: true),
                     Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Update_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Delete_at = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -128,6 +105,7 @@ namespace appAPI.Migrations
                     short_description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     image = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Deleted = table.Column<bool>(type: "bit", nullable: true),
                     image_library = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     meta_data = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -190,7 +168,7 @@ namespace appAPI.Migrations
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Deleted = table.Column<bool>(type: "bit", nullable: true),
                     Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Update_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Delete_at = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -277,8 +255,8 @@ namespace appAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Deleted = table.Column<bool>(type: "bit", nullable: true),
                     Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Update_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Delete_at = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -296,8 +274,8 @@ namespace appAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Deleted = table.Column<bool>(type: "bit", nullable: true),
                     Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Update_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Delete_at = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -333,8 +311,8 @@ namespace appAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Deleted = table.Column<bool>(type: "bit", nullable: true),
                     Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Update_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Delete_at = table.Column<DateTime>(type: "datetime2", nullable: false)
@@ -553,8 +531,8 @@ namespace appAPI.Migrations
                     Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Slug = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
                     Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    AuthorId = table.Column<long>(type: "bigint", nullable: false),
-                    Deleted = table.Column<bool>(type: "bit", nullable: false),
+                    AuthorId = table.Column<long>(type: "bigint", nullable: true),
+                    Deleted = table.Column<bool>(type: "bit", nullable: true),
                     Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     product_video = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Short_description = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -562,8 +540,8 @@ namespace appAPI.Migrations
                     Image_library = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Feature_image = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Post_date = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Created_by = table.Column<long>(type: "bigint", nullable: false),
-                    Updated_by = table.Column<long>(type: "bigint", nullable: false),
+                    Created_by = table.Column<long>(type: "bigint", nullable: true),
+                    Updated_by = table.Column<long>(type: "bigint", nullable: true),
                     Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -591,8 +569,7 @@ namespace appAPI.Migrations
                         name: "FK_product_post_Designer_AuthorId",
                         column: x => x.AuthorId,
                         principalTable: "Designer",
-                        principalColumn: "id_Designer",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id_Designer");
                     table.ForeignKey(
                         name: "FK_product_post_Materials_MaterialId",
                         column: x => x.MaterialId,
@@ -700,7 +677,8 @@ namespace appAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     User_id = table.Column<long>(type: "bigint", nullable: false),
                     Create_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Delete_at = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -876,29 +854,17 @@ namespace appAPI.Migrations
                     Style_id = table.Column<long>(type: "bigint", nullable: false),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    AttributesId = table.Column<long>(type: "bigint", nullable: true),
-                    Designerid_Designer = table.Column<long>(type: "bigint", nullable: true)
+                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_product_variants", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_product_variants_Attributes_AttributesId",
-                        column: x => x.AttributesId,
-                        principalTable: "Attributes",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_product_variants_Color_Color_id",
                         column: x => x.Color_id,
                         principalTable: "Color",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_product_variants_Designer_Designerid_Designer",
-                        column: x => x.Designerid_Designer,
-                        principalTable: "Designer",
-                        principalColumn: "id_Designer");
                     table.ForeignKey(
                         name: "FK_product_variants_Materials_Material_id",
                         column: x => x.Material_id,
@@ -1068,32 +1034,6 @@ namespace appAPI.Migrations
                     table.ForeignKey(
                         name: "FK_p_Variants_Discounts_product_variants_P_variants_Id",
                         column: x => x.P_variants_Id,
-                        principalTable: "product_variants",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "product_attributes",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Product_Variants_Id = table.Column<long>(type: "bigint", nullable: false),
-                    Attribute_Id = table.Column<long>(type: "bigint", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_product_attributes", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_product_attributes_Attributes_Attribute_Id",
-                        column: x => x.Attribute_Id,
-                        principalTable: "Attributes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_product_attributes_product_variants_Product_Variants_Id",
-                        column: x => x.Product_Variants_Id,
                         principalTable: "product_variants",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -1272,16 +1212,6 @@ namespace appAPI.Migrations
                 column: "Tag_Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_product_attributes_Attribute_Id",
-                table: "product_attributes",
-                column: "Attribute_Id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_product_attributes_Product_Variants_Id",
-                table: "product_attributes",
-                column: "Product_Variants_Id");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_product_post_AccountId",
                 table: "product_post",
                 column: "AccountId");
@@ -1317,19 +1247,9 @@ namespace appAPI.Migrations
                 column: "Textile_technologyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_product_variants_AttributesId",
-                table: "product_variants",
-                column: "AttributesId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_product_variants_Color_id",
                 table: "product_variants",
                 column: "Color_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_product_variants_Designerid_Designer",
-                table: "product_variants",
-                column: "Designerid_Designer");
 
             migrationBuilder.CreateIndex(
                 name: "IX_product_variants_Material_id",
@@ -1443,9 +1363,6 @@ namespace appAPI.Migrations
                 name: "post_tags");
 
             migrationBuilder.DropTable(
-                name: "product_attributes");
-
-            migrationBuilder.DropTable(
                 name: "Product_Variants_Wishlists");
 
             migrationBuilder.DropTable(
@@ -1486,9 +1403,6 @@ namespace appAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "Vouchers");
-
-            migrationBuilder.DropTable(
-                name: "Attributes");
 
             migrationBuilder.DropTable(
                 name: "product_post");

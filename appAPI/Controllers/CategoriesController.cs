@@ -125,12 +125,29 @@ namespace appAPI.Controllers
                 return StatusCode(500, "Error: " + e.Message);
             }
         }
-
-        [HttpGet("search")]
-        public async Task<IActionResult> Search(string query)
+        [HttpGet("get-by-type")]
+        public async Task<IActionResult> GetByType([FromQuery] string type, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
         {
-            var result = await _repo.Search(query);
-            return Ok(result);
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Page number and page size must be greater than 0.");
+            }
+         
+            var list = await _repo.GetByTypeAsync(type, pageNumber, pageSize, searchTerm);
+
+          
+            return Ok(list);
+        }
+        [HttpGet("Get-Total-Count")]
+        public async Task<IActionResult> GetTotalCount([FromQuery] string type, [FromQuery] string? searchTerm = null)
+        {
+            if (string.IsNullOrEmpty(type))
+            {
+                return BadRequest("Type is required.");
+            }
+
+            var totalCount = await _repo.GetTotalCountAsync(type, searchTerm);
+            return Ok(totalCount);
         }
     }
 }

@@ -28,6 +28,7 @@ namespace appAPI.Models
         [StringLength(255)]
         public string? Type { get; set; }
         public long Parent_id { get; set; }
+        public bool? Deleted { get; set; }
         public int Dept { get; set; }
         public string? Description { get; set; }
         public DateTime Created_at { get; set; }

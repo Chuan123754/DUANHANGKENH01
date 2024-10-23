@@ -1,7 +1,8 @@
-﻿@page "/admin/textiletechnology"
+﻿@layout AdminLayout
+@page "/admin/textiletechnology"
 @inject NavigationManager nav
 @inject ITextile_technologyServices sev
-@layout AdminLayout
+
 
 <div class="page-wrapper">
     <!-- Page header -->
@@ -98,17 +99,38 @@
     private List<Textile_technology> listTechnology = new List<Textile_technology>();
     private Textile_technology technology = new Textile_technology();
     private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private int totalItems;
 
     private async Task OnSearch()
     {
         // Ngăn ngừa load lại trang
-        listTechnology = (await sev.Search(search_query)).Where(c => c.Status != "Deleted").ToList();
+        listTechnology = await sev.GetByTypeAsync(page_number, page_size, search_query);
     }
-
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        listTechnology = await sev.GetAll();
+        totalItems = await sev.GetTotalCountAsync(searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
     protected override async Task OnInitializedAsync()
     {
-        // Load initial data
-        listTechnology = (await sev.GetAll()).Where(c => c.Status != "Deleted").ToList();
+        await LoadPosts();
     }
 
     private void NavEditCtgr(long id)
@@ -119,6 +141,6 @@
     private async Task NavDeleteCtgr(long id)
     {
         await sev.Delete(id);
-        listTechnology = (await sev.GetAll()).Where(c => c.Status != "Deleted").ToList(); // Cập nhật danh sách sau khi xóa
+        listTechnology = await sev.GetAll(); // Cập nhật danh sách sau khi xóa
     }
 }

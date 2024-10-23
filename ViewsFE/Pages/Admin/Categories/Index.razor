@@ -1,7 +1,8 @@
-﻿@page "/admin/categorie"
+﻿@layout AdminLayout
+@page "/admin/categorie"
 @inject NavigationManager nav
 @inject ICategoriesServices sev
-@layout AdminLayout
+
 <div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
@@ -47,7 +48,7 @@
                                 <div></div>
                                 <EditForm Model="categories" OnValidSubmit="@OnSearch">
                                     <div class="form-group d-flex gap-2">
-                                        <InputText id="searchInput" class="form-control" @bind-Value="searchQuery" placeholder="Nhập từ khóa tìm kiếm" />
+                                        <InputText id="searchInput" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
                                         <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
                                     </div>
                                 </EditForm>
@@ -111,7 +112,11 @@
 @code {
     List<Categories> categoriesList;
     private Categories categories = new Categories();
-    private string searchQuery = string.Empty;
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private int totalItems;
     private bool isEditing = false; // Biến để theo dõi trạng thái chỉnh sửa
     private long editingId = 0; // Lưu ID của thuộc tính đang chỉnh sửa
 
@@ -120,7 +125,15 @@
         categoriesList = await sev.GetAll();
         categoriesList = categoriesList.Where(ctgr => ctgr.Parent_id == 0).ToList(); // Chỉ lấy categories cha
     }
-
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        categoriesList = await sev.GetAll();
+        totalItems = await sev.GetTotalCountAsync("", searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+        await LoadPosts();
+    }
     protected async Task NavEditCtgr(long id)
     {
         isEditing = true; // Kích hoạt trạng thái chỉnh sửa
@@ -129,7 +142,18 @@
         StateHasChanged(); // Cập nhật giao diện// Điều hướng đến trang sửa với ID
     }
 
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
 
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
     protected async Task SubmitForm()
     {
         if (isEditing)
@@ -151,6 +175,6 @@
     }
     protected async Task OnSearch()
     {
-        categoriesList = await sev.Search(searchQuery); // Thực hiện tìm kiếm với từ khóa
+        categoriesList = await sev.GetByTypeAsync("post", page_number, page_size, search_query); // Thực hiện tìm kiếm với từ khóa
     }
 }

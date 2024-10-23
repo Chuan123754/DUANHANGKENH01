@@ -1,7 +1,8 @@
-﻿@page "/admin/material/edit/{id:long}"
+﻿@layout AdminLayout
+@page "/admin/material/edit/{id:long}"
 @inject NavigationManager nav
 @inject IMaterialServices sev
-@layout AdminLayout
+
 <EditForm Model="material" OnValidSubmit="SubmitForm" FormName="materialadd">
     <DataAnnotationsValidator></DataAnnotationsValidator>
     <ValidationSummary></ValidationSummary>

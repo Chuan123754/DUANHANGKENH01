@@ -57,6 +57,11 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IPostReponsetory, PostReponsetory>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddHostedService<VoucherExpiryChecker>();
+builder.Services.AddScoped<IColorReponsitory, ColorReponsitory>();
+builder.Services.AddScoped<IMaterialReponsitory, MaterialReponsitory>();    
+builder.Services.AddScoped<IStyleReponsitory, StyleReponsitory>();
+builder.Services.AddScoped<ISizeReponsitory, SizeReponsitory>();
+builder.Services.AddScoped<ITextile_technologyReponsitory,  Textile_technologyReponsitory>();
 
 
 // Đăng ký CORS

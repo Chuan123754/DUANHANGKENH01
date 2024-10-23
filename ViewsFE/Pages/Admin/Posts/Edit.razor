@@ -1,10 +1,13 @@
-﻿@page "/admin/post/edit/{id:long}"
+﻿@layout AdminLayout
+@page "/admin/post/edit/{id:long}"
 @inject NavigationManager nav
 @inject IPostSer sev
 @inject ITagsServices stag
 @inject ICategoriesServices cate
 @inject IDesignerServices des
 @inject IJSRuntime JS
+
+
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />

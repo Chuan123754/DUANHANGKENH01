@@ -1,7 +1,8 @@
-﻿@page "/admin/color"
+﻿@layout AdminLayout
+@page "/admin/color"
 @inject NavigationManager nav
 @inject IColorServices sev
-@layout AdminLayout
+
 
 <div class="page-wrapper">
     <!-- Page header -->
@@ -36,30 +37,28 @@
                     </div>
 
                     <div id="table-default" class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-slug">Đường dẫn</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-city">Mô tả</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-score">Trạng thái</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-date">Thời gian</button>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (listColor != null && listColor.Any())
-                                {
+                        @if (listColor != null && listColor.Any())
+                        {
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-slug">Đường dẫn</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-city">Mô tả</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-date">Thời gian</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
                                     @foreach (var c in listColor.Where(c => c.Status != "Deleted"))
                                     {
                                         <tr class="post-row">
@@ -75,19 +74,22 @@
                                             </td>
                                             <td class="sort-slug">@c.Slug</td>
                                             <td class="sort-city">@c.Description</td>
-                                            <td class="sort-status">@c.Status</td>
                                             <td class="sort-date">@c.Create_at?.ToString("dd/MM/yyyy HH:mm")</td>
                                         </tr>
                                     }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="6" class="text-center">Không có dữ liệu</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+
+                                </tbody>
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center">Không có dữ liệu</td>
+                            </tr>
+                        }
                     </div>
                 </div>
             </div>
@@ -99,17 +101,39 @@
     private List<Color> listColor = new List<Color>();
     private Color color = new Color();
     private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private int totalItems;
+
 
     private async Task OnSearch()
     {
         // Tìm kiếm và lọc danh sách chưa bị xóa
-        listColor = (await sev.Search(search_query)).Where(c => c.Status != "Deleted").ToList();
+        listColor = await sev.GetByTypeAsync(page_number, page_size, search_query);
     }
-
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        listColor = await sev.GetAll();
+        totalItems = await sev.GetTotalCountAsync(searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
     protected override async Task OnInitializedAsync()
     {
-        // Load initial data, chỉ lấy những màu chưa bị xóa
-        listColor = (await sev.GetAll()).Where(c => c.Status != "Deleted").ToList();
+        await LoadPosts();
     }
 
     private void NavEditCtgr(long id)
@@ -121,6 +145,6 @@
     {
         await sev.Delete(id);
         // Cập nhật danh sách sau khi xóa, chỉ lấy những màu chưa bị xóa
-        listColor = (await sev.GetAll()).Where(c => c.Status != "Deleted").ToList();
+        listColor = await sev.GetAll();
     }
 }

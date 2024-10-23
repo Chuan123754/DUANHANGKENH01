@@ -1,7 +1,8 @@
-﻿@page "/admin/material"
+﻿@layout AdminLayout
+@page "/admin/material"
 @inject NavigationManager nav
 @inject IMaterialServices sev
-@layout AdminLayout
+
 <div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
@@ -48,9 +49,7 @@
                                     <th>
                                         <button class="table-sort" data-sort="sort-city">Mô tả</button>
                                     </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-score">Trạng thái</button>
-                                    </th>
+                                  
                                     <th>
                                         <button class="table-sort" data-sort="sort-date">Thời gian</button>
                                     </th>
@@ -74,7 +73,7 @@
                                             </td>
                                             <td class="sort-slug">@sz.Slug</td>
                                             <td class="sort-city">@sz.Description</td>
-                                            <td class="sort-status">@sz.Status</td>
+                                       
                                             <td class="sort-date">@sz.Create_at</td>
                                         </tr>
                                     }
@@ -97,27 +96,48 @@
     private List<Material> listMaterial = new List<Material>();
     private Material material = new Material();
     private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private int totalItems;
 
     private async Task OnSearch()
     {
         // Ngăn ngừa load lại trang
-        listMaterial = (await sev.Search(search_query)).Where(c => c.Status != "Deleted").ToList();
+        listMaterial = await sev.GetByTypeAsync(page_number, page_size, search_query);
     }
-
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        listMaterial = await sev.GetAll();
+        totalItems = await sev.GetTotalCountAsync(searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
     protected override async Task OnInitializedAsync()
     {
-        // Load initial data
-        listMaterial = (await sev.GetAll()).Where(c => c.Status != "Deleted").ToList();
+        await LoadPosts();
     }
 
     private void NavEditCtgr(long id)
     {
-        nav.NavigateTo($"/admin/post/edit/{id}");
+        nav.NavigateTo($"/admin/material/edit/{id}");
     }
 
     private async Task NavDeleteCtgr(long id)
     {
         await sev.Delete(id);
-        listMaterial = (await sev.GetAll()).Where(c => c.Status != "Deleted").ToList(); // Cập nhật danh sách sau khi xóa
+        listMaterial = await sev.GetAll();// Cập nhật danh sách sau khi xóa
     }
 }

@@ -1,11 +1,12 @@
-﻿@page "/admin/product/create"
+﻿@layout AdminLayout
+@page "/admin/product/create"
 @inject NavigationManager nav
 @inject IPostSer sev
 @inject ITagsServices stag
 @inject ICategoriesServices cate
 @inject IDesignerServices des
 @inject IJSRuntime JS
-@layout AdminLayout
+
 
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
