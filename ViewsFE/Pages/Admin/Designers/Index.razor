@@ -144,13 +144,19 @@
         var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Bạn muốn xóa bản ghi này?");
         if (confirmed)
         {
-            await sev.Delete(id); // Đảm bảo rằng phương thức trả về HttpResponseMessage
+            try
+            {
+                await sev.Delete(id);  
+                await JSRuntime.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("ShowToastr", "error", "Có lỗi xảy ra khi xóa bản ghi.");
+            }
         }
     }
     private void NavEditCtgr(long id)
     {
         nav.NavigateTo($"/admin/product/edit/{id}");
     }
-
- 
 }
