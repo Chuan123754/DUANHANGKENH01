@@ -50,7 +50,7 @@
     </style>
 </head>
 <body>
-    @*  <script src="~/js/demo-theme.min.js"></script> *@
+@*      <script src="~/js/demo-theme.min.js"></script> *@
     <div class="page">
         <!-- Sidebar -->
         <header class="navbar navbar-expand-md d-print-none d-none d-md-block" style="margin-left: 15rem">
@@ -831,10 +831,12 @@
                 </div>
             </div>
         </aside>
-    </div>
-    <div class="page-wrapper">
+
+        <div class="page-wrapper">
             @Body
+        </div>
     </div>
+
     <!-- jQuery -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
@@ -854,6 +856,7 @@
     <script src="assets/libs/tabler/js/tabler.min.js" defer></script>
 
     <!-- Custom JavaScript files -->
+    <script src="_framework/blazor.server.js"></script>
     <script src="assets/js/tinymce-custom.js" defer></script>
     <script src="assets/js/media-manager.js" defer></script>
     <script src="assets/js/http.js" defer></script>
