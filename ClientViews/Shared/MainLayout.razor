@@ -1,0 +1,53 @@
+﻿@inherits LayoutComponentBase
+
+
+<!-- SEO Meta Tags -->
+<title>@PageTitle</title>
+<meta name="description" content="@PageDescription" />
+<meta name="keywords" content="@PageKeywords" />
+
+<!-- Open Graph Meta Tags -->
+<meta property="og:title" content="@PageTitle" />
+<meta property="og:description" content="@PageDescription" />
+<meta property="og:image" content="@PageImage" />
+<meta property="og:url" content="@PageUrl" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="@PageSiteName" />
+
+<!-- Twitter Card Meta Tags -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="@PageTitle" />
+<meta name="twitter:description" content="@PageDescription" />
+<meta name="twitter:image" content="@PageImage" />
+
+<link rel="icon" type="image/x-icon" href="@PageFavicon" />
+<link rel="canonical" href="@PageCanonicalUrl" />
+<!-- Main Layout -->
+<div>
+    @Body
+</div>
+@code {
+    [Parameter]
+    public string PageTitle { get; set; }
+
+    [Parameter]
+    public string PageDescription { get; set; }
+
+    [Parameter]
+    public string PageKeywords { get; set; }
+
+    [Parameter]
+    public string PageImage { get; set; }
+
+    [Parameter]
+    public string PageUrl { get; set; }
+
+    [Parameter]
+    public string PageSiteName { get; set; }
+
+    [Parameter]
+    public string PageFavicon { get; set; }
+
+    [Parameter]
+    public string PageCanonicalUrl { get; set; }
+}

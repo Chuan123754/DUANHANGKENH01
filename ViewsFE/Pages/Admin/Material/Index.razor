@@ -1,5 +1,4 @@
-﻿@layout AdminLayout
-@page "/admin/material"
+﻿@page "/admin/material"
 @inject NavigationManager nav
 @inject IMaterialServices sev
 
@@ -36,33 +35,34 @@
                     </div>
 
                     <div id="table-default" class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-slug">Đường dẫn</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-city">Mô tả</button>
-                                    </th>
-                                  
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-date">Thời gian</button>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (listMaterial != null && listMaterial.Any())
-                                {
+                        @if (listMaterial != null && listMaterial.Any())
+                        {
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-slug">Đường dẫn</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-city">Mô tả</button>
+                                        </th>
+
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-date">Thời gian</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
                                     @foreach (var sz in listMaterial)
                                     {
                                         <tr class="post-row">
                                             <td>@sz.Id</td>
-                                            <td>
+                                            <td class="sort-title">
                                                 @sz.Title
                                                 <br />
                                                 <!-- Tạo các hành động sửa và xóa cho sản phẩm con -->
@@ -73,19 +73,22 @@
                                             </td>
                                             <td class="sort-slug">@sz.Slug</td>
                                             <td class="sort-city">@sz.Description</td>
-                                       
                                             <td class="sort-date">@sz.Create_at</td>
                                         </tr>
                                     }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="6" class="text-center">Không có dữ liệu</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+
+                                </tbody>
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Material" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+                        }
+                        else
+                        {                       
+                            <tr>
+                                <td colspan="6" class="text-center">Không có dữ liệu</td>
+                            </tr>
+                        }
                     </div>
                 </div>
             </div>
@@ -129,7 +132,6 @@
     {
         await LoadPosts();
     }
-
     private void NavEditCtgr(long id)
     {
         nav.NavigateTo($"/admin/material/edit/{id}");
@@ -138,6 +140,6 @@
     private async Task NavDeleteCtgr(long id)
     {
         await sev.Delete(id);
-        listMaterial = await sev.GetAll();// Cập nhật danh sách sau khi xóa
+        await LoadPosts();
     }
 }

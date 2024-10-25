@@ -26,23 +26,16 @@ namespace appAPI.Controllers
 
         // GET api/<ColorController>/5
         [HttpGet("{id}")]
-        public IActionResult Get(long id)
+        public async Task<Color> Details(long id)
         {
-            var colo = _colorrepon.GetByIdAndType(id);
-            if (colo == null)
-            {
-                return NotFound("Color not found");
-            }
-            return Ok(colo);
+            return await _colorrepon.GetByIdAndType(id);
         }
 
         // POST api/<ColorController>
-        [HttpPost]
+        [HttpPost("create-mau")]
         public async Task Post(Color color)
-        {
-         
-            await _colorrepon.Create(color);
-           
+        {       
+            await _colorrepon.Create(color);     
         }
 
         // PUT api/<ColorController>/5

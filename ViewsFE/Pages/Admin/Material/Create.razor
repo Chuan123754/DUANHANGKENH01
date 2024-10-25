@@ -1,5 +1,4 @@
-﻿@layout AdminLayout
-@page "/admin/material/create"
+﻿@page "/admin/material/create"
 @inject NavigationManager nav
 @inject IMaterialServices sev
 
@@ -36,11 +35,7 @@
 
 @code {
     private Material material = new Material();
-    protected override void OnInitialized()
-    {
-        // Set default status to "ACTIVE" (Hoạt động)
-        material.Status = Material.STATUS_ACTIVE;
-    }
+   
     private async Task SubmitForm()
     {
         material.Create_at = DateTime.Now;

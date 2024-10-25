@@ -1,5 +1,4 @@
-﻿@layout AdminLayout
-@page "/admin/color/edit/{id:long}"
+﻿@page "/admin/color/edit/{id:long}"
 @inject NavigationManager nav
 @inject IColorServices sev
 
@@ -27,23 +26,6 @@
                 <div class="form-group mb-3">
                     <label for="attribute-color" class="form-label">Mô tả</label>
                     <InputText id="attribute-color" class="form-control" @bind-Value="color.Description" />
-                </div>
-                <div class="form-group mb-3">
-                    <label for="status" class="form-label">Trạng thái</label>
-                    <InputSelect id="status" class="form-control" @bind-Value="color.Status">
-                        @foreach (var status in Color.STATUSES.Keys)
-                        {
-                            if (status != null) // Kiểm tra nếu status không null
-                            {
-                                <option value="@status">@Color.STATUSES[status]</option>
-                            }
-                            else
-                            {
-                                Console.WriteLine("Status is null");
-                            }
-                        }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => color.Status)" />
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-warning">Sửa màu sắc</button>

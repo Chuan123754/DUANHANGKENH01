@@ -1,5 +1,4 @@
-﻿@layout AdminLayout
-@page "/admin/color"
+﻿@page "/admin/color"
 @inject NavigationManager nav
 @inject IColorServices sev
 
@@ -59,7 +58,7 @@
                                 </thead>
                                 <tbody>
 
-                                    @foreach (var c in listColor.Where(c => c.Status != "Deleted"))
+                                    @foreach (var c in listColor)
                                     {
                                         <tr class="post-row">
                                             <td>@c.Id</td>
@@ -74,14 +73,14 @@
                                             </td>
                                             <td class="sort-slug">@c.Slug</td>
                                             <td class="sort-city">@c.Description</td>
-                                            <td class="sort-date">@c.Create_at?.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td class="sort-date">@c.Create_at.ToString("dd/MM/yyyy HH:mm")</td>
                                         </tr>
                                     }
 
                                 </tbody>
                             </table>
                             <div class="mt-4">
-                                <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                                <Pagination TItem="Color" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
                             </div>
                         }
                         else
@@ -145,6 +144,6 @@
     {
         await sev.Delete(id);
         // Cập nhật danh sách sau khi xóa, chỉ lấy những màu chưa bị xóa
-        listColor = await sev.GetAll();
+        await  LoadPosts();
     }
 }

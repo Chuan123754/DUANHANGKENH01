@@ -50,10 +50,7 @@ namespace ViewsFE.Services
 
             var count = await response.Content.ReadFromJsonAsync<int>();
             return count;
-        }
-
-       
-
+        }      
         public async Task Update(Size s)
         {
             await _client.PutAsJsonAsync($"{_baseUrl}/api/Size/{s.Id}", s);

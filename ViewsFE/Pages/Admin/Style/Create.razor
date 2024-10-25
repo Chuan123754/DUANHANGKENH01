@@ -1,5 +1,4 @@
-﻿@layout AdminLayout
-@page "/admin/style/create"
+﻿@page "/admin/style/create"
 @inject NavigationManager nav
 @inject IStyleServices sev
 
@@ -37,11 +36,7 @@
 
 @code {
     private Style style = new Style();
-    protected override void OnInitialized()
-    {
-        // Set default status to "ACTIVE" (Hoạt động)
-        style.Status = Style.STATUS_ACTIVE;
-    }
+   
     private async Task SubmitForm()
     {
         style.Create_at = DateTime.Now;

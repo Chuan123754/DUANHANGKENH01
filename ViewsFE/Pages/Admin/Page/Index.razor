@@ -1,5 +1,4 @@
-﻿@layout AdminLayout
-@page "/admin/page"
+﻿@page "/admin/page"
 @inject NavigationManager nav
 @inject IPostSer sev
 @inject IJSRuntime JSRuntime
@@ -145,7 +144,7 @@
     protected async Task NavDeleteCtgr(long id)
     {
         await sev.Delete(id);
-        product_posts_list = await sev.GetAllType("page"); // Cập nhật danh sách sau khi xóa
+        await LoadPosts();
     }
 }
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

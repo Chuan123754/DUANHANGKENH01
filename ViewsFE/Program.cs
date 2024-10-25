@@ -23,7 +23,7 @@ builder.Services.AddOptions();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddAuthorizationCore(config =>
 {
-    config.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")); // cấu hình xác thực cho Bla  zor 
+    config.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")); // cấu hình xác thực cho Blazor 
 });
 // Thêm CORS nếu cần
 builder.Services.AddCors(options =>
@@ -63,6 +63,7 @@ builder.Services.AddScoped<IColorServices, ColorServices>();
 builder.Services.AddScoped<ISizeServices, SizeServices>();
 builder.Services.AddScoped<IMaterialServices, MaterialServices>();
 builder.Services.AddScoped<IStyleServices, StyleServices>();
+builder.Services.AddScoped<ITextile_technologyServices, Textile_technologyServices>();
 builder.Services.AddScoped<AddressService>();
 var app = builder.Build();
 
