@@ -38,7 +38,7 @@ namespace appAPI.Repository
 
         public async Task<Color> GetByIdAndType(long id)
         {
-            return await _context.Color.FirstOrDefaultAsync(p => p.Id == id && p.Deleted == false);
+            return await _context.Color.FindAsync(id);
         }
 
         public async Task<List<Color>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)

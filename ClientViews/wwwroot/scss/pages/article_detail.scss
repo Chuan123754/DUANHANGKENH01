@@ -1,0 +1,30 @@
+//Article detail
+
+.introduce {
+    .img-introduce {
+        width: 100%;
+        height: 100%;
+    }
+    .introduce-information {
+        position: absolute;
+        bottom: 0;
+        padding: 24px;
+    }
+    .introduce-title {
+        color: var(--Primary, $primary-darker);
+        text-align: right;
+        font-family: $font-plus-jakarta;
+        font-size: 32px;
+        font-style: italic;
+        font-weight: 700;
+        line-height: 60px;
+        text-transform: uppercase;
+    }
+    .introduce-description {
+        color: var(--Dark-gray, var(--Primary, $primary-darker));
+        text-align: right;
+        font-family: $font-prata;
+        font-size: $fs-16px;
+        line-height: 30px; /* 187.5% */
+    }
+}

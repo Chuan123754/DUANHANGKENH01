@@ -41,7 +41,7 @@ namespace ViewsFE.Services
 
         public async Task<int> GetTotalCountAsync(string searchTerm)
         {
-            var url = $"{_baseUrl}/api/Textile_technology/Get-Total-Count?searchTerm={Uri.EscapeDataString(searchTerm)}";
+            var url = $"{_baseUrl}/api/Style/Get-Total-Count?searchTerm={Uri.EscapeDataString(searchTerm)}";
 
             // Gọi API và nhận tổng số lượng bài viết
             var response = await _client.GetAsync(url);
@@ -50,9 +50,6 @@ namespace ViewsFE.Services
             var count = await response.Content.ReadFromJsonAsync<int>();
             return count;
         }
-
-        
-
         public async Task Update(Style s)
         {
             await _client.PutAsJsonAsync($"{_baseUrl}/api/Style/{s.Id}", s);

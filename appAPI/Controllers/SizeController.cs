@@ -25,16 +25,11 @@ namespace appAPI.Controllers
 
         // GET api/<SizeController>/5
         [HttpGet("{id}")]
-        public IActionResult Get(long id)
+    
+        public async Task<Size> Details(long id)
         {
-            var size = _repos.GetByIdAndType(id);
-            if (size == null)
-            {
-                return NotFound("Size not found");
-            }
-            return Ok(size);
+            return await _repos.GetByIdAndType(id);                
         }
-
         // POST api/<SizeController>
         [HttpPost]
         public async Task Post(Size mate)
@@ -70,7 +65,7 @@ namespace appAPI.Controllers
         [HttpGet("Get-Total-Count")]
         public async Task<IActionResult> GetTotalCount([FromQuery] string? searchTerm = null)
         {
-            var totalCount = await _repos.GetTotalCountAsync( searchTerm);
+            var totalCount = await _repos.GetTotalCountAsync(searchTerm);
             return Ok(totalCount);
         }
     }

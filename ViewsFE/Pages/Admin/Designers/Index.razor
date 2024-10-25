@@ -1,5 +1,4 @@
-﻿@layout AdminLayout
-@page "/admin/designer"
+﻿@page "/admin/designer"
 @inject NavigationManager nav
 @inject IDesignerServices sev
 @inject IJSRuntime JSRuntime
@@ -88,7 +87,7 @@
                                 </tbody>
                             </table>
                             <div class="mt-4">
-                                <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                                <Pagination TItem="Designer" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
                             </div>
                         }
                         else
@@ -154,6 +153,7 @@
                 await JSRuntime.InvokeVoidAsync("ShowToastr", "error", "Có lỗi xảy ra khi xóa bản ghi.");
             }
         }
+        await LoadPosts();
     }
     private void NavEditCtgr(long id)
     {

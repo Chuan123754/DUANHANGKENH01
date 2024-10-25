@@ -1,5 +1,4 @@
-﻿@layout AdminLayout
-@page "/admin/textiletechnology/create"
+﻿@page "/admin/textiletechnology/create"
 @inject NavigationManager nav
 @inject ITextile_technologyServices sev
 
@@ -37,11 +36,6 @@
 
 @code {
     private Textile_technology technology = new Textile_technology();
-    protected override void OnInitialized()
-    {
-        // Set default status to "ACTIVE" (Hoạt động)
-        technology.Status = Textile_technology.STATUS_ACTIVE;
-    }
     private async Task SubmitForm()
     {
         technology.Create_at = DateTime.Now;

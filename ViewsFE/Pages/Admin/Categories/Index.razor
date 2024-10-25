@@ -1,5 +1,4 @@
-﻿@layout AdminLayout
-@page "/admin/categorie"
+﻿@page "/admin/categorie"
 @inject NavigationManager nav
 @inject ICategoriesServices sev
 
@@ -53,27 +52,28 @@
                                     </div>
                                 </EditForm>
                             </div>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            <button class="table-sort" @* @onclick='() => SortBy("id")' *@>ID</button>
-                                        </th>
-                                        <th>
-                                            <button class="table-sort" @* @onclick='() => SortBy("title")' *@>Tiêu đề</button>
-                                        </th>
-                                        <th>
-                                            <button class="table-sort" @* @onclick='() => SortBy("slug")' *@>Đường dẫn</button>
-                                        </th>
-                                        <th>
-                                            <button class="table-sort"@*  @onclick='() => SortBy("create_at")' *@>Thời gian</button>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (categoriesList != null && categoriesList.Any())
-                                    {
-                                        foreach (var ctgr in categoriesList.Where(ctgr => ctgr.Parent_id == 0))
+                            @if (categoriesList != null && categoriesList.Any())
+                            {
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <button class="table-sort" @* @onclick='() => SortBy("id")' *@>ID</button>
+                                            </th>
+                                            <th>
+                                                <button class="table-sort" @* @onclick='() => SortBy("title")' *@>Tiêu đề</button>
+                                            </th>
+                                            <th>
+                                                <button class="table-sort" @* @onclick='() => SortBy("slug")' *@>Đường dẫn</button>
+                                            </th>
+                                            <th>
+                                                <button class="table-sort" @* @onclick='() => SortBy("create_at")' *@>Thời gian</button>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        @foreach (var ctgr in categoriesList.Where(ctgr => ctgr.Parent_id == 0))
                                         {
                                             // Hiển thị sản phẩm cha
                                             <tr class="post-row">
@@ -91,17 +91,18 @@
                                                 <td>@ctgr.Created_at.ToString("dd/MM/yyyy")</td>
                                             </tr>
                                         }
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td colspan="4" class="text-center">Không có dữ liệu</td>
-                                        </tr>
-                                    }
-                                </tbody>
-
-
-                            </table>
+                                    </tbody>
+                                </table>
+                                <div class="mt-4">
+                                    <Pagination TItem="Categories" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                                </div>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center">Không có dữ liệu</td>
+                                </tr>
+                            }
                         </div>
                     </div>
                 </div>
@@ -171,7 +172,7 @@
     protected async Task NavDeleteCtgr(long id)
     {
         await sev.Delete(id);
-        categoriesList = await sev.GetAll(); // Cập nhật danh sách sau khi xóa
+        await LoadPosts(); // Cập nhật danh sách sau khi xóa
     }
     protected async Task OnSearch()
     {
