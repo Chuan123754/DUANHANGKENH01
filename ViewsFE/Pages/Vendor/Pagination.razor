@@ -38,7 +38,7 @@
             </li>
         }
 
-        @if (GetPageNumbers(TotalPages, PageNumber).First() > 1)
+        @if (GetPageNumbers(TotalPages, PageNumber).Any() && GetPageNumbers(TotalPages, PageNumber).First() > 1)
         {
             <li class="page-item">
                 <a class="page-link" @onclick="@(async () => await GoToPage(1))">1</a>
@@ -55,7 +55,7 @@
             </li>
         }
 
-        @if (GetPageNumbers(TotalPages, PageNumber).Last() < TotalPages)
+        @if (GetPageNumbers(TotalPages, PageNumber).Any() && GetPageNumbers(TotalPages, PageNumber).Last() < TotalPages)
         {
             <li class="page-item disabled">
                 <span class="page-link">...</span>

@@ -392,6 +392,10 @@ namespace appAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<string>("Color_code")
+<<<<<<< HEAD
+=======
+                        .IsRequired()
+>>>>>>> 25-10 Dis, Phân Trang.
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Create_at")

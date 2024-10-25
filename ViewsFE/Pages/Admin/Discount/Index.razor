@@ -1,0 +1,322 @@
+﻿@page "/discounts"
+@using ViewsFE.Models
+@using ViewsFE.IServices
+@inject IDiscountServices DiscountService
+@inject IJSRuntime JS
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">Quản Lý Khuyến Mãi</h2>
+                </div>
+            </div>
+            <div id="breadcrumb">
+                <Breadcrumb pageParentTitle="Khuyến mãi" pageTitle="Danh sách khuyến mãi" pageRoute="/discounts" />
+            </div>
+        </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row">
+                <!-- Form tạo mới/cập nhật -->
+                <div class="col-md-3">
+                    <div class="card">
+                        <div id="formDiscount" class="card-body">
+                            <EditForm Model="@discount" OnValidSubmit="HandleSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+                                <DataAnnotationsValidator />
+                                @if (!string.IsNullOrEmpty(errorMessage))
+                                {
+                                    <div class="alert @((errorMessage.Contains("thành công") ? "alert-success" : "alert-danger"))" role="alert">
+                                        @errorMessage
+                                    </div>
+                                }
+
+                                <!-- Các trường thông tin khuyến mãi -->
+                                <div class="form-group mb-1">
+                                    <label for="discountCode">Mã Khuyến Mãi</label>
+                                    <input type="text" id="discountCode" @bind="discount.Code" class="form-control" placeholder="Mã khuyến mãi" />
+                                    <ValidationMessage For="@(() => discount.Code)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="name">Tên Khuyến Mãi</label>
+                                    <input type="text" id="name" @bind="discount.Name" class="form-control" placeholder="Tên khuyến mãi" />
+                                    <ValidationMessage For="@(() => discount.Name)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="typeOfPromotion">Loại Khuyến Mãi</label>
+                                    <input type="text" id="typeOfPromotion" @bind="discount.Type_of_promotion" class="form-control" placeholder="Loại khuyến mãi" />
+                                    <ValidationMessage For="@(() => discount.Type_of_promotion)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="startDate">Ngày Bắt Đầu</label>
+                                    <InputDate id="startDate" @bind-Value="discount.Start_date" class="form-control" />
+                                    <ValidationMessage For="@(() => discount.Start_date)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="endDate">Ngày Kết Thúc</label>
+                                    <InputDate id="endDate" @bind-Value="discount.End_date" class="form-control" />
+                                    <ValidationMessage For="@(() => discount.End_date)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="status">Trạng Thái</label>
+                                    <input type="text" id="status" @bind="discount.Status" class="form-control" placeholder="Trạng thái" />
+                                    <ValidationMessage For="@(() => discount.Status)" />
+                                </div>
+
+                                <!-- Nút Tạo và Cập Nhật -->
+                                <div class="form-group">
+                                    @if (discount.Id == 0)
+                                    {
+                                        <button type="submit" class="btn btn-primary">Tạo</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="btn btn-warning">Cập Nhật</button>
+                                    }
+                                </div>
+                            </EditForm>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh Sách Khuyến Mãi -->
+                <div class="col-md-9 col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Search Box -->
+                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                <EditForm Model="discount" OnValidSubmit="@SearchDiscounts">
+                                    <div class="form-group d-flex gap-2">
+                                        <InputText id="searchInput" class="form-control" @bind-Value="searchText" placeholder="Nhập từ khóa tìm kiếm" />
+                                        <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                    </div>
+                                </EditForm>
+                            </div>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Mã Khuyến Mãi</th>
+                                        <th>Tên Khuyến Mãi</th>
+                                        <th>Loại Khuyến Mãi</th>
+                                        <th>Ngày Bắt Đầu</th>
+                                        <th>Ngày Kết Thúc</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (pagedDiscounts != null && pagedDiscounts.Any())
+                                    {
+                                        int index = 0;
+                                        @foreach (var discount in pagedDiscounts)
+                                        {
+                                            <tr>
+                                                <td>@(++index + (currentPage - 1) * pageSize)</td>
+                                                <td>@discount.Code</td>
+                                                <td>@discount.Name</td>
+                                                <td>@discount.Type_of_promotion</td>
+                                                <td>@discount.Start_date.ToString("dd/MM/yyyy")</td>
+                                                <td>@discount.End_date.ToString("dd/MM/yyyy")</td>
+                                                <td>@discount.Status</td>
+                                                <td>
+                                                    <button class="btn btn-primary" @onclick="() => EditDiscount(discount.Id)">Sửa</button>
+                                                    <button class="btn btn-danger" @onclick="() => ConfirmDelete(discount.Id)">Xóa</button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="8" class="text-center">Không có dữ liệu để hiển thị.</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                            <!-- Phân trang -->
+                            <div class="mt-4">
+                                <Pagination TItem="Discount" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="discounts.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Discount> discounts = new List<Discount>();
+    private List<Discount> pagedDiscounts = new List<Discount>();
+    private Discount discount = new Discount();
+
+    private string searchText = string.Empty;
+    private string errorMessage = string.Empty;
+    private int currentPage = 1;
+    private int pageSize = 5;
+    private int totalPages = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        discount.Create_at = DateTime.Now;
+        discount.Update_at = DateTime.Now;
+        discount.Start_date = DateTime.Now;
+        discount.End_date = DateTime.Now.AddDays(1);
+
+        discounts = await DiscountService.GetAll();
+        totalPages = (int)Math.Ceiling((double)discounts.Count / pageSize);
+        LoadPagedDiscounts();
+    }
+
+    private void LoadPagedDiscounts()
+    {
+        totalPages = (int)Math.Ceiling((double)discounts.Count / pageSize);
+
+        // Nếu currentPage vượt quá tổng số trang, đặt currentPage bằng totalPages
+        if (currentPage > totalPages)
+        {   
+            currentPage = totalPages;
+        }
+
+        discount.Start_date = DateTime.Now;
+        discount.End_date = DateTime.Now.AddDays(1);
+        pagedDiscounts = discounts.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        currentPage = page;
+        LoadPagedDiscounts();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        pageSize = newPageSize;
+        currentPage = 1;
+        await LoadDiscounts();
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < totalPages)
+        {
+            currentPage++;
+            LoadPagedDiscounts();
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            LoadPagedDiscounts();
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (discount.Id == 0)
+        {
+            await CreateDiscount();
+        }
+        else
+        {
+            await UpdateDiscount();
+        }
+    }
+
+    private async Task CreateDiscount()
+    {
+        try
+        {
+            await DiscountService.Create(discount);
+            await LoadDiscounts();            
+            discount = new Discount();
+            LoadPagedDiscounts();
+            errorMessage = "Đã tạo mới khuyến mãi thành công!";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
+        }
+    }
+
+    private async Task UpdateDiscount()
+    {
+        try
+        {
+            await DiscountService.Update(discount);
+            await LoadDiscounts();          
+            discount = new Discount();
+            LoadPagedDiscounts();
+            errorMessage = "Cập nhật khuyến mãi thành công!";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
+        }
+    }
+
+    private async Task EditDiscount(long id)
+    {
+        discount = await DiscountService.Details(id);
+    }
+
+    private async Task ConfirmDelete(long id)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa khuyến mãi này?");
+        if (confirmed)
+        {
+            await DiscountService.Delete(id);
+            await LoadDiscounts();
+            LoadPagedDiscounts(); 
+        }
+    }
+
+
+    private async Task SearchDiscounts()
+    {
+        if (string.IsNullOrEmpty(searchText))
+        {
+            discounts = await DiscountService.GetAll();
+        }
+        else
+        {
+            discounts = discounts
+                .Where(d => d.Code.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+        currentPage = 1;
+        LoadPagedDiscounts();
+    }
+
+    private async Task LoadDiscounts()
+    {
+        discounts = await DiscountService.GetAll();
+        totalPages = (int)Math.Ceiling((double)discounts.Count / pageSize);
+
+        LoadPagedDiscounts(); 
+
+        discount.Start_date = DateTime.Now;
+        discount.End_date = DateTime.Now.AddDays(1);
+    }
+
+
+    private void HandleInvalidSubmit()
+    {
+        Console.WriteLine("Form không hợp lệ. Hãy kiểm tra các trường nhập liệu!");
+    }
+}
