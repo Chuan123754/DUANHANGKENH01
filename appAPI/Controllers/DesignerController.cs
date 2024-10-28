@@ -1,4 +1,5 @@
-﻿using appAPI.Models;
+﻿using appAPI.IRepository;
+using appAPI.Models;
 using appAPI.Repository;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +11,10 @@ namespace appAPI.Controllers
     [ApiController]
     public class DesignerController : ControllerBase
     {
-        private readonly DesignerRepon _repon;
-        public DesignerController()
+        private readonly IDesignerRepon _repon;
+        public DesignerController(IDesignerRepon desige)
         {
-            _repon = new DesignerRepon();
+            _repon = desige;
         }
         // GET: api/Designer
         [HttpGet]

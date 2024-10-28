@@ -1,6 +1,7 @@
 ﻿using appAPI.Repository;
 using  appAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using appAPI.IRepository;
 
 
 namespace appAPI.Controllers
@@ -9,10 +10,10 @@ namespace appAPI.Controllers
     [ApiController]
     public class OrderDetailsController : ControllerBase
     {
-        private readonly OrderDetailsReponsitory _repo;
-        public OrderDetailsController()
+        private readonly OrderDetailsIReponsitory _repo;
+        public OrderDetailsController(OrderDetailsIReponsitory repon)
         {
-            _repo  = new OrderDetailsReponsitory();
+            _repo  = repon;
         }
         [HttpGet("All")]
         public async Task<List<Order_details>> GetAll()

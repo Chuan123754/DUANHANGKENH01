@@ -8,9 +8,9 @@ namespace appAPI.Repository
     public class SizeReponsitory : ISizeReponsitory
     {
         private readonly APP_DATA_DATN _context;
-        public SizeReponsitory()
+        public SizeReponsitory(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
         public async Task Create(Size size)
         {

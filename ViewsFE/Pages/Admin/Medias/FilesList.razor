@@ -14,6 +14,7 @@
             await sev.Delete(id);
             FileItems = await sev.GetAll(); // Refresh the file list
             await JS.InvokeVoidAsync("toastr.success", "File deleted successfully.");
+            
         }
         catch (Exception ex)
         {

@@ -2,6 +2,8 @@
 @inject FilesIServices sev
 @inject IJSRuntime JS
 
+
+
 <div class="page-wrapper">
     <div class="page-header d-print-none">
         <div class="container-xl">
@@ -40,9 +42,18 @@
                                     <div class="image-item" data-name="@file.Name" data-id="@file.Id">
                                         <button type="button" class="btn btn-default p-0 m-0 btn-choose-image" data-bs-toggle="modal" data-bs-target="#file-@file.Id" style="width: 100%">
                                             <img src="@file.Path" class="w-100 object-fit-cover" alt="IMG" height="150" />
-                                        </button>
 
-                                        <div class="modal fade" id="file-@file.Id" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel-@file.Id" aria-hidden="true">
+                                            <span class="checked">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                     stroke-linejoin="round"
+                                                     class="icon icon-tabler icons-tabler-outline icon-tabler-check">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M5 12l5 5l10 -10" />
+                                                </svg>
+                                            </span>
+                                        </button>
+                                        <div class="modal" id="file-@file.Id" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel-@file.Id" aria-hidden="true">
                                             <div class="modal-dialog modal-xl" role="document">
                                                 <div class="modal-content">
                                                     <div class="modal-body">
@@ -107,6 +118,8 @@
             await sev.Delete(id);
             listFiles = await sev.GetAll();
             await JS.InvokeVoidAsync("toastr.success", "File deleted successfully.");
+            await JS.InvokeVoidAsync("removeModalBackdrop");
+
             StateHasChanged();
         }
         catch (Exception ex)
@@ -172,8 +185,12 @@
         }
     }
 }
-
 <script>
+    window.removeModalBackdrop = () => {
+        // Xóa lớp backdrop của modal
+        document.querySelectorAll('.modal-backdrop.show').forEach((backdrop) => backdrop.remove());
+    };
+
     window.initializeDropzone = () => {
         if (typeof Dropzone !== 'undefined') {
             if (Dropzone.instances.length > 0) {

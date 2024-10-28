@@ -8,9 +8,9 @@ namespace appAPI.Repository
     public class OrderReponsitory : OrderIReponsitory
     {
         private readonly APP_DATA_DATN _context;
-        public OrderReponsitory()
+        public OrderReponsitory(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
         public async Task Create(Orders orders)
         {

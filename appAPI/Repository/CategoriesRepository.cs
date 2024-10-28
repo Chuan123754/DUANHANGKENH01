@@ -7,9 +7,9 @@ namespace appAPI.Repository
     public class CategoriesRepository : ICategoriesRepository
     {
         APP_DATA_DATN _context;
-        public CategoriesRepository()
+        public CategoriesRepository(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
         public async Task Create(Categories c)
         {

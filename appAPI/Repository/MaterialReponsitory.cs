@@ -8,9 +8,9 @@ namespace appAPI.Repository
     public class MaterialReponsitory : IMaterialReponsitory
     {
         private readonly APP_DATA_DATN _context;
-        public MaterialReponsitory()
+        public MaterialReponsitory(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
         public async Task Create(Material mate)
         {

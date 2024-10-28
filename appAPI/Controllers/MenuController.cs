@@ -10,10 +10,10 @@ namespace appAPI.Controllers
     [ApiController]
     public class MenuController : ControllerBase
     {
-        private readonly MenuReponsitory _repon;
-        public MenuController()
+        private readonly MenuIReponsitory _repon;
+        public MenuController(MenuIReponsitory menuI)
         {
-            _repon = new MenuReponsitory();
+            _repon = menuI;
         }
 
         [HttpGet("GetAllMenus")]

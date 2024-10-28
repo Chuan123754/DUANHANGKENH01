@@ -62,7 +62,14 @@ builder.Services.AddScoped<IMaterialReponsitory, MaterialReponsitory>();
 builder.Services.AddScoped<IStyleReponsitory, StyleReponsitory>();
 builder.Services.AddScoped<ISizeReponsitory, SizeReponsitory>();
 builder.Services.AddScoped<ITextile_technologyReponsitory,  Textile_technologyReponsitory>();
-
+builder.Services.AddScoped<SeoIReponsitory, SeoReponsitory>();
+builder.Services.AddScoped<OrderIReponsitory, OrderReponsitory>();
+builder.Services.AddScoped<OrderDetailsIReponsitory, OrderDetailsReponsitory>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<IDesignerRepon, DesignerRepon>();
+builder.Services.AddScoped<FilesIRepository, FilesReponsetory>();
+builder.Services.AddScoped<MenuIReponsitory, MenuReponsitory>();
+builder.Services.AddScoped<IOptionsRepository, OptionsRepository>();
 
 // Đăng ký CORS
 builder.Services.AddCors(options =>
@@ -70,7 +77,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigins",
         policyBuilder =>
         {
-            policyBuilder.WithOrigins("https://localhost:7277") // Đảm bảo đây là URL đúng
+            policyBuilder.WithOrigins("https://localhost:7277", "https://localhost:7241") // Đảm bảo đây là URL đúng
                          .AllowAnyHeader()
                          .AllowAnyMethod();
         });
@@ -110,7 +117,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 app.UseRouting(); // Cần thiết cho routing
@@ -124,7 +132,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
+    FileProvider = new PhysicalFileProvider(@"C:\inetpub\wwwroot\BE_API\FileMedia"),
     RequestPath = "/FileMedia"
 });
 

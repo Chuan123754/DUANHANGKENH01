@@ -4,6 +4,7 @@ using appAPI.Models;
 using System.Threading.Tasks;
 using appAPI.Repository;
 using System.Net.Http;
+using appAPI.IRepository;
 
 namespace appAPI.Controllers
 {
@@ -11,11 +12,11 @@ namespace appAPI.Controllers
     [ApiController]
     public class FilesController : ControllerBase
     {
-        private readonly FilesReponsetory _filesRepository;
+        private readonly FilesIRepository _filesRepository;
 
-        public FilesController()
+        public FilesController(FilesIRepository filerepon)
         {
-            _filesRepository = new FilesReponsetory();
+            _filesRepository = filerepon;
         }
 
         [HttpGet("get-all-files")]

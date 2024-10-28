@@ -7,9 +7,9 @@ namespace appAPI.Repository
     public class ColorReponsitory : IColorReponsitory
     {
         private readonly APP_DATA_DATN _context;
-        public ColorReponsitory()
+        public ColorReponsitory(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
         public async Task Create(Color color)
         {

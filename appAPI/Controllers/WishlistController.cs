@@ -11,9 +11,9 @@ namespace appAPI.Controllers
     public class WishlistController : ControllerBase
     {
         APP_DATA_DATN context;
-        public WishlistController()
+        public WishlistController(APP_DATA_DATN _context)
         {
-            context = new APP_DATA_DATN();
+            context = _context;
         }
 
         [HttpGet("wishlist-get")]
