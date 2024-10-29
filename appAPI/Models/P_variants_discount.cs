@@ -14,8 +14,10 @@ namespace appAPI.Models
         public decimal New_price { get; set;}
         public string Status { get; set; }
         [ForeignKey("P_variants_Id")]
-        public virtual Product_variants ProductVariant { get; set; }
+        [JsonIgnore]
+        public virtual Product_variants ProductVariant { get; set; } 
         [ForeignKey("Discount_Id")]
-        public virtual Discount Discount { get; set; }
+        [JsonIgnore]
+        public virtual Discount Discount { get; set; } 
     }
 }

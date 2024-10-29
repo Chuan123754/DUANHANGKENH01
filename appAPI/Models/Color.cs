@@ -39,10 +39,10 @@ namespace appAPI.Models
         };
 
         // Get the label for the current status
-        public string StatusLabel => STATUSES.ContainsKey(Status) ? STATUSES[Status] : string.Empty;
+        public string StatusLabel => !string.IsNullOrEmpty(Status) && STATUSES.ContainsKey(Status) ? STATUSES[Status] : string.Empty;
 
         // Get the CSS class for the current status
-        public string StatusClass => STATUS_CLASSES.ContainsKey(Status) ? STATUS_CLASSES[Status] : string.Empty;
+        public string StatusClass => !string.IsNullOrEmpty(Status) && STATUS_CLASSES.ContainsKey(Status) ? STATUS_CLASSES[Status] : string.Empty;
 
     }
 }
