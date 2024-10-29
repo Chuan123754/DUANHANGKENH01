@@ -1,9 +1,13 @@
-﻿@page "/admin/post/create"
+﻿@layout AdminLayout
+@page "/admin/post/create"
 @inject NavigationManager nav
 @inject IPostSer sev
 @inject ITagsServices stag
 @inject ICategoriesServices cate
+@inject IDesignerServices des
 @inject IJSRuntime JS
+
+
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -43,7 +47,7 @@
 
                                 <div class="mb-3">
                                     <label for="tinymce-textarea" class="form-label">Mô tả</label>
-                                    <InputTextArea @bind-Value="Posts.Description" class="form-control" id="tinymce-textarea" rows="5" />
+                                    <InputTextArea @bind-Value="Posts.Description" class="form-control" id="tinymce-textarea" rows="7" />
                                 </div>
                             </div>
                         </div>
@@ -79,8 +83,12 @@
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Tác giả</label>
-                                                <select name="meta_data[page_template]" class="form-control" id="">
-                                                </select>
+                                                <InputSelect @bind-Value="Posts.AuthorId" class="form-control" multiple>
+                                                    @foreach (var desi in designersList)
+                                                    {
+                                                        <option value="@desi.id_Designer">@desi.Name</option>
+                                                    }
+                                                </InputSelect>
                                             </div>
                                             <!-- Nút gửi -->
                                             <button type="submit" class="btn btn-primary" style="float: right">
@@ -221,6 +229,7 @@
     private List<long> SelectedCategories = new List<long>();
     private List<long> SelectedTags = new List<long>();
     private string FeatureImage { get; set; }
+    private List<Designer> designersList = new List<Designer>();
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
 
   
@@ -228,6 +237,7 @@
     {
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAll();
+        designersList = await des.GetAll();
         Posts.Status = Product_Posts.STATUS_DRAFT;
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -236,11 +246,16 @@
         {
             // Khởi tạo TinyMCE
             await JS.InvokeVoidAsync("initTinyMCE");
+        }
+        if (TagsList?.Count > 0)
+        {
             await JS.InvokeVoidAsync("initializeTagsList", TagsList);
-            await JS.InvokeVoidAsync("initializeCateList", CategoriesList);
-            // Khởi tạo Tom Select cho select tags và categories
             await JS.InvokeVoidAsync("initializeTomSelect", "#tags-selects");
-            Console.WriteLine("Đã khởi tạo danh mục dự án");
+        }
+
+        if (CategoriesList?.Count > 0)
+        {
+            await JS.InvokeVoidAsync("initializeCateList", CategoriesList);
             await JS.InvokeVoidAsync("initializeTomSelectForCategories", "#categories");
         }
     }
@@ -253,19 +268,8 @@
         if (!string.IsNullOrEmpty(tags))
         {
             SelectedTags = tags.Split(',')
-                .Select(id =>
-                {
-                    if (long.TryParse(id, out long result))
-                    {
-                        return result;
-                    }
-                    else
-                    {
-                        // Log hoặc xử lý lỗi nếu cần
-                        return 0; // Giá trị mặc định để tránh lỗi chuyển đổi
-                    }
-                })
-                .Where(id => id > 0) // Loại bỏ các giá trị không hợp lệ
+                .Select(id => long.TryParse(id, out long result) ? result : 0)
+                .Where(id => id > 0)
                 .ToList();
         }
 
@@ -273,20 +277,11 @@
         if (!string.IsNullOrEmpty(categories))
         {
             SelectedCategories = categories.Split(',')
-                .Select(id =>
-                {
-                    if (long.TryParse(id, out long result))
-                    {
-                        return result;
-                    }
-                    else
-                    {
-                        return 0;
-                    }
-                })
+                .Select(id => long.TryParse(id, out long result) ? result : 0)
                 .Where(id => id > 0)
                 .ToList();
         }
+
 
         await sev.CreatePost(Posts, SelectedTags, SelectedCategories);
         nav.NavigateTo("/admin/post");
@@ -325,12 +320,20 @@
         }
     }
 
-    function initializeTomSelect(selector) {
+    function resetTomSelect(selector) {
         const element = document.querySelector(selector);
+        if (element && element.tomselect) {
+            element.tomselect.destroy(); // Hủy bỏ instance hiện tại
+        }
+    }
 
-        if (element && !element.tomselect) {
+    function initializeTomSelect(selector) {
+        resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới
+
+        const element = document.querySelector(selector);
+        if (element) {
             new TomSelect(selector, {
-                create: true,
+                create: true, // Cho phép thêm mới cho từ khóa
                 persist: false,
                 hideSelected: true,
                 closeAfterSelect: true,
@@ -342,32 +345,38 @@
                 },
                 searchField: ['text'],
                 maxOptions: null,
+                preload: false, // Đặt thành false để chỉ tải kết quả khi người dùng tìm kiếm
                 load: function (query, callback) {
                     if (!window.TagsList || window.TagsList.length === 0) {
                         console.log('TagsList is empty or undefined.');
                         return callback();
                     }
 
-                    const results = query ?
-                        window.TagsList.filter(tag => tag?.title?.toLowerCase().includes(query.toLowerCase())) :
-                        window.TagsList;
+                    // Chỉ hiển thị khi có nội dung được nhập
+                    if (query.length > 0) {
+                        const results = window.TagsList.filter(tag =>
+                            tag?.title?.toLowerCase().includes(query.toLowerCase())
+                        );
 
-                    callback(results.map(tag => ({ value: tag.id, text: tag.title })));
+                        callback(results.map(tag => ({ value: tag.id, text: tag.title })));
+                    } else {
+                        callback(); // Không trả về kết quả nếu không có query
+                    }
                 }
             });
-        } else {
-            console.log('Tom Select already initialized on this element');
         }
     }
-    function initializeTomSelectForCategories(selector) {
-        const element = document.querySelector(selector);
 
-        if (element && !element.tomselect) {
+    function initializeTomSelectForCategories(selector) {
+        resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới
+
+        const element = document.querySelector(selector);
+        if (element) {
             new TomSelect(selector, {
-                create: true,
+                create: false,
                 persist: false,
                 hideSelected: true,
-                closeAfterSelect: false, // Cho phép chọn nhiều
+                closeAfterSelect: false,
                 delimiter: ',',
                 plugins: ['remove_button'],
                 sortField: {
@@ -376,13 +385,8 @@
                 },
                 searchField: ['text'],
                 maxOptions: null,
-                preload: true, // Thêm dòng này để khi click sẽ tải toàn bộ dữ liệu
+                preload: true,
                 load: function (query, callback) {
-                    if (!window.CategoriesList || window.CategoriesList.length === 0) {
-                        console.log('CategoriesList is empty or undefined.');
-                        return callback();
-                    }
-
                     const results = query ?
                         window.CategoriesList.filter(cate => cate?.title?.toLowerCase().includes(query.toLowerCase())) :
                         window.CategoriesList;
@@ -390,13 +394,8 @@
                     callback(results.map(cate => ({ value: cate.id, text: cate.title })));
                 }
             });
-        } else {
-            console.log('Tom Select already initialized on this element');
         }
     }
-
-
-
     function getSelectedValues(selector) {
         const element = document.querySelector(selector);
         if (element && element.tomselect) {
@@ -404,6 +403,4 @@
         }
         return '';
     }
-
-
 </script>

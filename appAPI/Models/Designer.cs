@@ -20,6 +20,7 @@ namespace appAPI.Models
         public string? short_description { get; set; }
         public string? description { get; set; }
         public string? image {  get; set; }
+        public bool? Deleted { get; set; }
         public string? image_library { get; set; }
         public string? status { get; set; }
         public string? meta_data { get; set; }

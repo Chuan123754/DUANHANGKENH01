@@ -34,16 +34,21 @@ namespace appAPI.Repository
             return await _context.Categories.ToListAsync();
         }
 
-        public async Task<List<Categories>> Search(string keyword)
+        public async Task<List<Categories>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm)
         {
-            if (string.IsNullOrEmpty(keyword))
-            {
-                return new List<Categories>();
-            }
-
             return await _context.Categories
-                .Where(f => f.Title.Contains(keyword) || f.Slug.Contains(keyword))
+                .Where(p => p.Type == type && (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm) && p.Deleted == false))
+                .OrderBy(p => p.Title)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+        }
+
+        public async Task<int> GetTotalCountAsync(string type, string searchTerm)
+        {
+            return await _context.Categories
+                .CountAsync(p => p.Type == type && p.Deleted == false &&
+                                (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
         }
 
         public async Task Update(Categories c)

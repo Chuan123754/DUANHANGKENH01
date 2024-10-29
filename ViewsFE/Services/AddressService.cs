@@ -1,6 +1,9 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using ViewsFE.Models;
+using Newtonsoft.Json;
 
 namespace ViewsFE.Services
 {
@@ -12,54 +15,107 @@ namespace ViewsFE.Services
         {
             _httpClient = httpClient;
         }
-
+        public async Task<List<Address>> GetAllAddress()
+        {
+            string requestURL = "https://localhost:7011/api/Address/GetAllAddress";
+            var response = await _httpClient.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<List<Address>>(response);
+        }
+        public async Task<List<Address>> GetAddressByUserId(long userId)
+        {
+            string requestURL = $"https://localhost:7011/api/Address/GetAddressByUserId?userId={userId}";
+            var response = await _httpClient.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<List<Address>>(response);
+        }
+        public async Task<Address> GetAddressById(long id)
+        {
+            string requestURL = $"https://localhost:7011/api/Address/GetAddressById?id={id}";
+            var response = await _httpClient.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<Address>(response);
+        }
+        public async Task CreateAddress(Address address)
+        {
+            await _httpClient.PostAsJsonAsync("https://localhost:7011/api/Address/CreateAddress", address);
+        }
+        public async Task UpdateAddress(long id , Address address)
+        {
+            await _httpClient.PutAsJsonAsync($"https://localhost:7011/api/Address/UpdateAddress?id={id}", address);
+        }
+        public async Task SetAsDefault(long id, Address address)
+        {
+            await _httpClient.PutAsJsonAsync($"https://localhost:7011/api/Address/SetAsDefault?id={id}",address);
+        }
+        public async Task RemoveAddress(long id)
+        {
+            await _httpClient.DeleteAsync($"https://localhost:7011/api/Address/DeleteAddress?id={id}");
+        }
+        // lấy api địa chỉ Việt Nam từ bên tứ 3
         public async Task<List<Province>> GetProvincesAsync()
         {
-            var response = await _httpClient.GetFromJsonAsync<List<Province>>("https://provinces.open-api.vn/api/");
-            return response; // Trả về danh sách tỉnh
+            string url = "https://open.oapi.vn/location/provinces?size=100"; 
+            var response = await _httpClient.GetFromJsonAsync<ProvinceResponse>(url);
+
+            return response?.Data ?? new List<Province>();
+        }
+        public async Task<List<Districted>> GetDistrictsAsync(int idProvince)
+        {
+            string url = $"https://open.oapi.vn/location/districts?size=100&provinceId={idProvince}";
+            var response = await _httpClient.GetFromJsonAsync<DistrictResponse>(url);
+
+            return response?.Data ?? new List<Districted>();
         }
 
-        public async Task<List<District>> GetDistrictsAsync(int code)
+        public async Task<List<Ward>> GetWardsAsync(int idDistrict)
         {
-            var response = await _httpClient.GetFromJsonAsync<Province>($"https://provinces.open-api.vn/api/p/{code}?depth=2");
-            return response?.Districts ?? new List<District>(); // Trả về danh sách huyện dựa trên mã tỉnh
+            string url = $"https://open.oapi.vn/location/wards?districtId={idDistrict}";
+            var response = await _httpClient.GetFromJsonAsync<WardResponse>(url); 
+
+            return response?.Data ?? new List<Ward>();
         }
 
-        public async Task<List<Ward>> GetWardsAsync(int code)
-        {
-            var response = await _httpClient.GetFromJsonAsync<District>($"https://provinces.open-api.vn/api/d/{code}?depth=2");
-            return response?.Wards ?? new List<Ward>(); // Trả về danh sách xã dựa trên mã huyện
-        }
+    }
+    // Định nghĩa cấu trúc dữ liệu phản hồi từ API
+    public class ProvinceResponse
+    {
+        public List<Province> Data { get; set; } 
+        public string Code { get; set; }
+    }
+    public class DistrictResponse
+    {
+        public List<Districted> Data { get; set; }
+        public string Code { get; set; }
     }
 
+    public class WardResponse
+    {
+        public List<Ward> Data { get; set; }
+        public string Code { get; set; }
+    }
 
     public class Province
     {
+        public string Id { get; set; }
         public string Name { get; set; }
-        public int Code { get; set; }
-        public string DivisionType { get; set; }
-        public int PhoneCode { get; set; }
-        public string Codename { get; set; }
-        public List<District> Districts { get; set; } // Danh sách huyện
+        public int Type { get; set; }
+        public string TypeText { get; set; }
+        public string Slug { get; set; }
     }
-
-    public class District
+    public class Districted
     {
+        public string Id { get; set; }
         public string Name { get; set; }
-        public int Code { get; set; }
-        public string Codename { get; set; }
-        public string DivisionType { get; set; }
-        public int ProvinceCode { get; set; }
-        public List<Ward> Wards { get; set; } // Danh sách xã (có thể là null)
+        public string ProvinceId { get; set; } // Để tham chiếu đến tỉnh
+        public int Type { get; set; }
+        public string TypeText { get; set; }
     }
 
     public class Ward
     {
+        public string Id { get; set; }
         public string Name { get; set; }
-        public int Code { get; set; }
-        public string Codename { get; set; }
-        public string DivisionType { get; set; }
-        public int DistrictCode { get; set; }
+        public string DistrictId { get; set; } // Để tham chiếu đến huyện
+        public int Type { get; set; }
+        public string TypeText { get; set; }
     }
 
 }

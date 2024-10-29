@@ -1,6 +1,7 @@
 ﻿@page "/admin/option/social"
 @using System.Net.Http.Headers
 @inject HttpClient Http
+
 <EditForm Model="@socialOptions" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />

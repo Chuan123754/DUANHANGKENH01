@@ -55,8 +55,13 @@ builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
 builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IPostReponsetory, PostReponsetory>();
-
+builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddHostedService<VoucherExpiryChecker>();
+builder.Services.AddScoped<IColorReponsitory, ColorReponsitory>();
+builder.Services.AddScoped<IMaterialReponsitory, MaterialReponsitory>();    
+builder.Services.AddScoped<IStyleReponsitory, StyleReponsitory>();
+builder.Services.AddScoped<ISizeReponsitory, SizeReponsitory>();
+builder.Services.AddScoped<ITextile_technologyReponsitory,  Textile_technologyReponsitory>();
 
 
 // Đăng ký CORS
@@ -119,8 +124,8 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"I:\Test"),
-    RequestPath = "/Test"
+    FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
+   RequestPath = "/FileMedia"
 });
 
 app.MapControllers();

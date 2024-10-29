@@ -1,6 +1,8 @@
-﻿@page "/admin/categorie/edit/{id:long}"
+﻿@layout AdminLayout
+@page "/admin/categorie/edit/{id:long}"
 @inject ICategoriesServices sev
 @inject NavigationManager nav
+
 <h3>Sửa chuyên mục </h3>
 
 @if (isDataLoaded)

@@ -1,6 +1,8 @@
-﻿@page "/admin/size/create"
+﻿@layout AdminLayout
+@page "/admin/size/create"
 @inject NavigationManager nav
 @inject ISizeServices sev
+
 
 <EditForm Model="size" OnValidSubmit="SubmitForm" FormName="sizeadd">
     <DataAnnotationsValidator></DataAnnotationsValidator>

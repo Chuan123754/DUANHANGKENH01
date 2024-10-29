@@ -13,7 +13,7 @@ namespace ViewsFE.Models
         }
         public DbSet<Activity_history> Activity_history { get; set; }
         public DbSet<Address> Address { get; set; }
-        public DbSet<Attributes> Attributes { get; set; }
+   
         public DbSet<Banner> Banner { get; set; }
         public DbSet<Carts> Carts { get; set; }
         public DbSet<Cart_details> Cart_Details { get; set; }
@@ -33,7 +33,6 @@ namespace ViewsFE.Models
         public DbSet<Post_categories> Post_Categories { get; set; }
         public DbSet<Post_tags> Post_Tags { get; set; }
         public DbSet<Product_Posts> Posts { get; set; }
-        public DbSet<Product_attributes> product_Attributes { get; set; }
         public DbSet<Product_variants> product_variants { get; set; }
         public DbSet<Product_variants_wishlist> Product_Variants_Wishlists { get; set; }
         public DbSet<Q_A> Q_As { get; set; }
@@ -51,7 +50,7 @@ namespace ViewsFE.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=ADMIN;Initial Catalog=DUANTOTNGHIEP04;Integrated Security=True;Trust Server Certificate=True");
+            optionsBuilder.UseSqlServer("Data Source=LAPTOP-I6GJF6D7\\XUANDUNG04;Initial Catalog=DUANTOTNGHIEP04;Integrated Security=True;Trust Server Certificate=True");
 
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

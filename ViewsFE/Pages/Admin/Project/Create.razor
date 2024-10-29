@@ -1,8 +1,10 @@
-﻿@page "/admin/project/create"
+﻿@layout AdminLayout
+@page "/admin/project/create"
 @inject NavigationManager nav
 @inject IPostSer sev
 @inject ITagsServices stag
 @inject ICategoriesServices cate
+@inject IDesignerServices des
 @inject IJSRuntime JS
 
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
@@ -46,7 +48,7 @@
                                 <!-- Mô tả -->
                                 <div class="mb-3">
                                     <label for="tinymce-textarea" class="form-label">Mô tả</label>
-                                    <InputTextArea @bind-Value="Posts.Description" class="form-control" id="tinymce-textarea" rows="5" />
+                                    <InputTextArea @bind-Value="Posts.Description" class="form-control" id="tinymce-textarea" rows="7" />
                                 </div>
                             </div>
                         </div>
@@ -78,7 +80,15 @@
                                                     }
                                                 </select>
                                             </div>
-
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">Tác giả</label>
+                                                <InputSelect @bind-Value="Posts.AuthorId" class="form-control" multiple>
+                                                    @foreach (var desi in designersList)
+                                                    {
+                                                        <option value="@desi.id_Designer">@desi.Name</option>
+                                                    }
+                                                </InputSelect>
+                                            </div>
                                             <!-- Nút Đăng -->
                                             <button type="submit" class="btn btn-primary" style="float: right">
                                                 Đăng
@@ -187,6 +197,7 @@
     private Product_Posts Posts = new Product_Posts();
     private List<Categories> CategoriesList = new();
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
+    private List<Designer> designersList = new List<Designer>();
     private List<Tags> TagsList = new();
     private string FeatureImage { get; set; }
     private List<long> SelectedCategories = new List<long>();
@@ -197,6 +208,7 @@
         // Tải danh sách tags và categories
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAll();
+        designersList = await des.GetAll();
         Posts.Status = Product_Posts.STATUS_DRAFT;
     }
 

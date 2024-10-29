@@ -1,8 +1,10 @@
-﻿@page "/admin/page/create"
+﻿@layout AdminLayout
+@page "/admin/page/create"
 @inject NavigationManager nav
 @inject IPostSer sev
 @inject ITagsServices stag
 @inject IJSRuntime JS
+
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -42,7 +44,7 @@
 
                                 <div class="mb-3">
                                     <label for="tinymce-textarea" class="form-label">Mô tả</label>
-                                    <InputTextArea @bind-Value="Posts.Description" class="form-control" id="tinymce-textarea" rows="5" />
+                                    <InputTextArea @bind-Value="Posts.Description" class="form-control" id="tinymce-textarea" rows="7" />
                                 </div>
                             </div>
                         </div>
@@ -146,35 +148,29 @@
             // Khởi tạo TinyMCE
             await JS.InvokeVoidAsync("initTinyMCE");
             // Khởi tạo Tom Select cho select tags và categories
-            await JS.InvokeVoidAsync("initializeTagsList", TagsList);  // Không gán giá trị, chỉ cần await
+           
+        }
+        if (TagsList?.Count > 0)
+        {
+            await JS.InvokeVoidAsync("initializeTagsList", TagsList);
             await JS.InvokeVoidAsync("initializeTomSelect", "#tags-selects");
         }
+
     }
 
     private async void HandleValidSubmit()
     {
-            Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
+        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
 
-            // Lấy dữ liệu từ Tom Select
-            var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
-            if (!string.IsNullOrEmpty(tags))
-            {
-                SelectedTags = tags.Split(',')
-                    .Select(id =>
-                    {
-                        if (long.TryParse(id, out long result))
-                        {
-                            return result;
-                        }
-                        else
-                        {
-                            // Log hoặc xử lý lỗi nếu cần
-                            return 0; // Giá trị mặc định để tránh lỗi chuyển đổi
-                        }
-                    })
-                    .Where(id => id > 0) // Loại bỏ các giá trị không hợp lệ
-                    .ToList();
-            }    
+        // Lấy dữ liệu từ Tom Select
+        var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
+        if (!string.IsNullOrEmpty(tags))
+        {
+            SelectedTags = tags.Split(',')
+                .Select(id => long.TryParse(id, out long result) ? result : 0)
+                .Where(id => id > 0)
+                .ToList();
+        }
         await sev.CreatePage(Posts, SelectedTags);
         nav.NavigateTo("/admin/page");
     }
@@ -202,14 +198,16 @@
             console.log('Failed to initialize TagsList. Empty or undefined.');
         }
     }
-  
+
+
 
     function initializeTomSelect(selector) {
-        const element = document.querySelector(selector);
+        resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới
 
-        if (element && !element.tomselect) {
+        const element = document.querySelector(selector);
+        if (element) {
             new TomSelect(selector, {
-                create: true,
+                create: true, // Cho phép thêm mới cho từ khóa
                 persist: false,
                 hideSelected: true,
                 closeAfterSelect: true,
@@ -221,21 +219,25 @@
                 },
                 searchField: ['text'],
                 maxOptions: null,
+                preload: false, // Đặt thành false để chỉ tải kết quả khi người dùng tìm kiếm
                 load: function (query, callback) {
                     if (!window.TagsList || window.TagsList.length === 0) {
                         console.log('TagsList is empty or undefined.');
                         return callback();
                     }
 
-                    const results = query ?
-                        window.TagsList.filter(tag => tag?.title?.toLowerCase().includes(query.toLowerCase())) :
-                        window.TagsList;
+                    // Chỉ hiển thị khi có nội dung được nhập
+                    if (query.length > 0) {
+                        const results = window.TagsList.filter(tag =>
+                            tag?.title?.toLowerCase().includes(query.toLowerCase())
+                        );
 
-                    callback(results.map(tag => ({ value: tag.id, text: tag.title })));
+                        callback(results.map(tag => ({ value: tag.id, text: tag.title })));
+                    } else {
+                        callback(); // Không trả về kết quả nếu không có query
+                    }
                 }
             });
-        } else {
-            console.log('Tom Select already initialized on this element');
         }
     }
 
@@ -246,6 +248,5 @@
         }
         return '';
     }
-
 
 </script>

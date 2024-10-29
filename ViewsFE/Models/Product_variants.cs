@@ -35,7 +35,6 @@ namespace ViewsFE.Models
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set; }
         public DateTime? Deleted_at { get; set; }
-        public virtual ICollection<Product_attributes> Product_attributes { get; set; } = new List<Product_attributes>();
         [ForeignKey("Post_Id")]
         [JsonIgnore]
         public virtual Product_Posts? Posts { get; set; }

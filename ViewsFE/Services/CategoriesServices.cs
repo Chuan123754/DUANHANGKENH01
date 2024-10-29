@@ -37,11 +37,22 @@ namespace ViewsFE.Services
             return await _client.GetFromJsonAsync<List<Categories>>($"{_baseUrl}/api/Category/show");
         }
 
-        public async Task<List<Categories>> Search(string keyword)
+        public async Task<List<Categories>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm)
         {
-            string requestURL = $@"{_baseUrl}/api/Category/search?query={keyword}";
-            var response = await _client.GetStringAsync(requestURL);
-            return JsonConvert.DeserializeObject<List<Categories>>(response);
+            var uri = $"{_baseUrl}/api/Category/get-by-type?type={type}&pageNumber={pageNumber}&pageSize={pageSize}&searchTerm={Uri.EscapeDataString(searchTerm)}";
+            return await _client.GetFromJsonAsync<List<Categories>>(uri);
+        }
+
+        public async Task<int> GetTotalCountAsync(string type, string searchTerm)
+        {
+            var url = $"{_baseUrl}/api/Category/Get-Total-Count?type={type}&searchTerm={Uri.EscapeDataString(searchTerm)}";
+
+            // Gọi API và nhận tổng số lượng bài viết
+            var response = await _client.GetAsync(url);
+            response.EnsureSuccessStatusCode(); // Kiểm tra xem phản hồi có thành công hay không
+
+            var count = await response.Content.ReadFromJsonAsync<int>();
+            return count;
         }
 
         public async Task Update(Categories c)

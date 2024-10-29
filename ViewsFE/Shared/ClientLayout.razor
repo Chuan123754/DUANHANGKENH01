@@ -1,5 +1,29 @@
-﻿<h3>ClientLayout</h3>
+﻿@inherits LayoutComponentBase
 
-@code {
+<div class="client-layout">
+    <!-- Header Client -->
+    <header>
+        <h1>Client Layout</h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/products">Products</a>
+        </nav>
+    </header>
 
-}
+    <!-- Nội dung trang -->
+    <main>
+        @Body
+    </main>
+
+    <!-- Footer Client -->
+    <footer>
+        <p>© Client Site - 2024</p>
+    </footer>
+</div>
+
+<style>
+    .client-layout {
+        background-color: #fff;
+        padding: 20px;
+    }
+</style>

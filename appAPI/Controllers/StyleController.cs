@@ -1,4 +1,5 @@
-﻿using appAPI.Models;
+﻿using appAPI.IRepository;
+using appAPI.Models;
 using appAPI.Repository;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,23 +11,24 @@ namespace appAPI.Controllers
     [ApiController]
     public class StyleController : ControllerBase
     {
-        private readonly IRepository<Style> _repos;
-        public StyleController(IRepository<Style> styleReponsitory)
+        private readonly IStyleReponsitory _repos;
+        public StyleController(IStyleReponsitory styleReponsitory)
         {
             _repos = styleReponsitory;   
         }
         // GET: api/<StyleController>
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<List<Style>> GetAll()
         {
-            return Ok(_repos.GetAll());
+            return await _repos.GetAll();
         }
+
 
         // GET api/<StyleController>/5
         [HttpGet("{id}")]
         public IActionResult Get(long id)
         {
-            var style = _repos.GetById(id);
+            var style = _repos.GetByIdAndType(id);
             if (style == null)
             {
                 return NotFound("Style not found");
@@ -37,51 +39,41 @@ namespace appAPI.Controllers
 
         // POST api/<StyleController>
         [HttpPost]
-        public IActionResult Post(Style style)
+        public async Task Post(Style mate)
         {
-            try
-            {
-                style.Create_at = DateTime.Now;
-                _repos.Add(style);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _repos.Create(mate);
         }
 
         // PUT api/<StyleController>/5
         [HttpPut("{id}")]
-        public IActionResult Put(Style style)
+        public async Task Put(Style mate)
         {
-            var item = _repos.GetById(style.Id);
-            if (item == null)
-            {
-                return BadRequest("Size not found");
-            }
-            item.Update_at = DateTime.Now;
-            item.Title = style.Title;
-            item.Description = style.Description;
-            item.Slug = style.Slug;
-            item.Status = style.Status;
-            _repos.Update(item);
-            return Ok(new { message = "Cập nhật style thành công" });
+            await _repos.Update(mate);
         }
-
         // DELETE api/<StyleController>/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
+        public async Task Delete(long id)
         {
-            var delete = _repos.GetById(id);
-            if (delete == null)
+            await _repos.Delete(id);
+        }
+        [HttpGet("get-by-type")]
+        public async Task<IActionResult> GetByType([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        {
+            if (pageNumber < 1 || pageSize < 1)
             {
-                return BadRequest("Xoá style thành công");
+                return BadRequest("Page number and page size must be greater than 0.");
             }
-            delete.Status = "Deleted";
-            delete.Delete_at = DateTime.Now;
-            _repos.Update(delete);
-            return Ok(new { message = "Trạng thái đã được chuyển thành không hoạt động (UNACTIVE)" });
+
+            var list = await _repos.GetByTypeAsync(pageNumber, pageSize, searchTerm);
+
+
+            return Ok(list);
+        }
+        [HttpGet("Get-Total-Count")]
+        public async Task<IActionResult> GetTotalCount([FromQuery] string? searchTerm = null)
+        {
+            var totalCount = await _repos.GetTotalCountAsync(searchTerm);
+            return Ok(totalCount);
         }
     }
 }

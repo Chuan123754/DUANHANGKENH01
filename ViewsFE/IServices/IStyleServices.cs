@@ -9,6 +9,7 @@ namespace ViewsFE.IServices
         Task Create(Style s);
         Task Update(Style s);
         Task Delete(long id);
-        Task<List<Style>> Search(string keyword);
+        Task<List<Style>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm);
+        Task<int> GetTotalCountAsync(string searchTerm);
     }
 }
