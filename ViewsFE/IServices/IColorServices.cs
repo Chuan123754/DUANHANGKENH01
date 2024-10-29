@@ -6,7 +6,7 @@ namespace ViewsFE.IServices
     {
         Task<List<Color>> GetAll();
         Task<Color> Details(long id);
-        Task Create(Color c);
+        Task Create(Color color);
         Task Update(Color c);
         Task Delete(long id);
         Task<List<Color>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm);

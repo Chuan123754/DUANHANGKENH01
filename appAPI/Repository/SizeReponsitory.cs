@@ -40,7 +40,7 @@ namespace appAPI.Repository
 
         public async Task<Size> GetByIdAndType(long id)
         {
-            return await _context.Sizes.FirstOrDefaultAsync(p => p.Id == id && p.Deleted == false);
+            return await _context.Sizes.FindAsync(id);
         }
 
         public async Task<List<Size>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)

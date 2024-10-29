@@ -1,8 +1,7 @@
-﻿@layout AdminLayout
-@page "/admin/size/create"
+﻿@page "/admin/size/create"
 @inject NavigationManager nav
 @inject ISizeServices sev
-
+@inject IJSRuntime JS
 
 <EditForm Model="size" OnValidSubmit="SubmitForm" FormName="sizeadd">
     <DataAnnotationsValidator></DataAnnotationsValidator>
@@ -37,15 +36,19 @@
 
 @code {
     private Size size = new Size();
-    protected override void OnInitialized()
-    {
-        // Set default status to "ACTIVE" (Hoạt động)
-        size.Status = Size.STATUS_ACTIVE;
-    }
+   
     private async Task SubmitForm()
     {
-        size.Create_at = DateTime.Now;
-        await sev.Create(size); // Gọi API để tạo thuộc tính
-        nav.NavigateTo("/admin/size"); // Điều hướng sau khi thành công
+        try
+        {
+            await sev.Create(size); 
+            await JS.InvokeVoidAsync("toastr.success", "Kích thức đã được thêm thành công"); // Hiển thị thông báo thành công
+            nav.NavigateTo("/admin/size");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm kích thước. Vui lòng thử lại."); // Hiển thị thông báo lỗi
+        }
     }
 }

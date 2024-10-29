@@ -1,5 +1,4 @@
-﻿@layout AdminLayout
-@page "/admin/style"
+﻿@page "/admin/style"
 @inject NavigationManager nav
 @inject IStyleServices sev
 
@@ -37,30 +36,28 @@
                     </div>
 
                     <div id="table-default" class="table-responsive">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-slug">Đường dẫn</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-city">Mô tả</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-score">Trạng thái</button>
-                                    </th>
-                                    <th>
-                                        <button class="table-sort" data-sort="sort-date">Thời gian</button>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (listStyle != null && listStyle.Any())
-                                {
+                        @if (listStyle != null && listStyle.Any())
+                        {
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-slug">Đường dẫn</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-city">Mô tả</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" data-sort="sort-date">Thời gian</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
                                     @foreach (var sz in listStyle)
                                     {
                                         <tr class="post-row">
@@ -76,19 +73,22 @@
                                             </td>
                                             <td class="sort-slug">@sz.Slug</td>
                                             <td class="sort-city">@sz.Description</td>
-                                            <td class="sort-status">@sz.Status</td>
                                             <td class="sort-date">@sz.Create_at</td>
                                         </tr>
                                     }
-                                }
-                                else
-                                {
-                                    <tr>
-                                        <td colspan="6" class="text-center">Không có dữ liệu</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+
+                                </tbody>
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Style" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="6" class="text-center">Không có dữ liệu</td>
+                            </tr>
+                        }
                     </div>
                 </div>
             </div>
@@ -142,6 +142,6 @@
     private async Task NavDeleteCtgr(long id)
     {
         await sev.Delete(id);
-        listStyle = await sev.GetAll(); // Cập nhật danh sách sau khi xóa
+        await LoadPosts();
     }
 }

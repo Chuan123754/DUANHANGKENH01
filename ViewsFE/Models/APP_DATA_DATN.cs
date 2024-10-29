@@ -6,14 +6,13 @@ namespace ViewsFE.Models
     {
         public APP_DATA_DATN()
         {
-            
+
         }
         public APP_DATA_DATN(DbContextOptions options) : base(options)
         {
         }
         public DbSet<Activity_history> Activity_history { get; set; }
         public DbSet<Address> Address { get; set; }
-   
         public DbSet<Banner> Banner { get; set; }
         public DbSet<Carts> Carts { get; set; }
         public DbSet<Cart_details> Cart_Details { get; set; }
@@ -21,7 +20,7 @@ namespace ViewsFE.Models
         public DbSet<Comments> Comments { get; set; }
         public DbSet<Designer> Designer { get; set; }
         public DbSet<Discount> Discount { get; set; }
-        public DbSet<Files>  Files { get; set; }
+        public DbSet<Files> Files { get; set; }
         public DbSet<Menus> Menus { get; set; }
         public DbSet<Menu_items> Menu_items { get; set; }
         public DbSet<Options> Options { get; set; }
@@ -47,10 +46,11 @@ namespace ViewsFE.Models
         public DbSet<Material> Materials { get; set; }
         public DbSet<Textile_technology> Textile_Technologies { get; set; }
 
+        public DbSet<UserVouchers> userVouchers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=LAPTOP-I6GJF6D7\\XUANDUNG04;Initial Catalog=DUANTOTNGHIEP04;Integrated Security=True;Trust Server Certificate=True");
+            optionsBuilder.UseSqlServer("Data Source=ADMIN;Initial Catalog=DUANTOTNGHIEP04;Integrated Security=True;Trust Server Certificate=True");
 
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

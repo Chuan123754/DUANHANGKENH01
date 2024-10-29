@@ -1,5 +1,4 @@
-﻿@layout AdminLayout
-@page "/admin/media"
+﻿@page "/admin/media"
 @inject FilesIServices sev
 @inject IJSRuntime JS
 
@@ -33,7 +32,44 @@
                         </EditForm>
                     </div>
                     <div id="table-default">
-                        <FilesList FileItems="listFiles" />
+                        <div class="d-grid" style="grid-template-columns: repeat(7, 1fr); gap: 16px">
+                            @if (listFiles != null)
+                            {
+                                @foreach (var file in listFiles)
+                                {
+                                    <div class="image-item" data-name="@file.Name" data-id="@file.Id">
+                                        <button type="button" class="btn btn-default p-0 m-0 btn-choose-image" data-bs-toggle="modal" data-bs-target="#file-@file.Id" style="width: 100%">
+                                            <img src="@file.Path" class="w-100 object-fit-cover" alt="IMG" height="150" />
+                                        </button>
+
+                                        <div class="modal fade" id="file-@file.Id" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel-@file.Id" aria-hidden="true">
+                                            <div class="modal-dialog modal-xl" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            <div class="col-12 col-md-6">
+                                                                <img src="@file.Path" class="w-100 object-fit-contain" style="height: 444px" alt="@file.Name" />
+                                                            </div>
+                                                            <div class="col-12 col-md-6">
+                                                                <p>Đã tải lên vào lúc: @(file.Created_at.HasValue ? file.Created_at.Value.ToString("dd/MM/yyyy HH:mm:ss") : "N/A")</p>
+                                                                <p>Tên tập tin: @file.Name</p>
+                                                                <p>Loại tập tin: @file.Mine</p>
+                                                                <p>Kích thước: @file.Size KB</p>
+                                                                <p>File URL: <a href="@file.Path" target="_blank">@file.Path</a></p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                        <button type="button" class="btn btn-danger" @onclick="() => DeleteFile(file.Id)">Xóa</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -48,14 +84,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        listFiles = await sev.GetAll(); // Tải danh sách file từ API
+        listFiles = await sev.GetAll();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // Chỉ gọi JS sau khi trang đã được render lần đầu tiên
             await JS.InvokeVoidAsync("initializeDropzone");
         }
     }
@@ -65,16 +100,79 @@
         listFiles = await sev.Search(search_query);
     }
 
-    [JSInvokable("OnUpload")]
-    public async Task OnUpload()
+    private async Task DeleteFile(long id)
     {
-        Console.WriteLine("Hàm OnUpload được gọi");
-        listFiles = await sev.GetAll();
-        await JS.InvokeVoidAsync("toastr.success", "Tệp được tải lên thành công.");
-        StateHasChanged(); // Thêm dòng này để cập nhật lại giao diện
+        try
+        {
+            await sev.Delete(id);
+            listFiles = await sev.GetAll();
+            await JS.InvokeVoidAsync("toastr.success", "File deleted successfully.");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Failed to delete file.");
+            Console.Error.WriteLine($"Error deleting file: {ex.Message}");
+        }
     }
 
+    [JSInvokable]
+    public async Task OnUpload()
+    {
+        listFiles = await sev.GetAll();
+        await JS.InvokeVoidAsync("toastr.success", "Tệp được tải lên thành công.");
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public async Task<object> UploadFile(string fileName, string fileContent, string contentType)
+    {
+        try
+        {
+            var fileBytes = Convert.FromBase64String(fileContent);
+            using var memoryStream = new MemoryStream(fileBytes);
+            var file = new BrowserFileWrapper(memoryStream, fileName, contentType);
+
+            var result = await sev.Upload(file);
+            await OnUpload();
+            return new { success = true, data = result };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error uploading file: {ex.Message}");
+            return new { success = false, error = ex.Message };
+        }
+    }
+
+
+    public class BrowserFileWrapper : IBrowserFile
+    {
+        private readonly MemoryStream _stream;
+        public string Name { get; }
+        public DateTimeOffset LastModified { get; }
+        public long Size { get; }
+        public string ContentType { get; }
+
+        public BrowserFileWrapper(MemoryStream stream, string fileName, string contentType)
+        {
+            _stream = stream;
+            Name = fileName;
+            LastModified = DateTimeOffset.UtcNow;
+            Size = stream.Length;
+            ContentType = contentType;
+        }
+
+        public Stream OpenReadStream(long maxAllowedSize = 512000, CancellationToken cancellationToken = default)
+        {
+            if (Size > maxAllowedSize)
+                throw new IOException($"The file size ({Size} bytes) exceeds the maximum allowed size of {maxAllowedSize} bytes.");
+
+            _stream.Position = 0;
+            return _stream;
+        }
+    }
 }
+
 <script>
     window.initializeDropzone = () => {
         if (typeof Dropzone !== 'undefined') {
@@ -83,34 +181,27 @@
             }
 
             var dropzone = new Dropzone("#dropzone-default", {
-                url: 'https://localhost:7011/api/Files/upload',
-                autoProcessQueue: true,
-                parallelUploads: 20,
-                maxFilesize: 1,
+                url: "/",  // Đặt một URL giả, vì chúng ta sẽ xử lý upload bằng C#
+                autoProcessQueue: false,
                 addRemoveLinks: true,
-                success: function (file, response) {
-                    // Kiểm tra phản hồi từ API để chắc chắn rằng không có lỗi
-                    if (response.success) {
-                        console.log("Upload thành công:", response);
-                        DotNet.invokeMethodAsync('ViewsFE', 'OnUpload') // Gọi Blazor method
-                            .then(() => {
+                dictRemoveFile: "Xóa",
+                init: function () {
+                    this.on("addedfile", function (file) {
+                        var reader = new FileReader();
+                        reader.onload = async function (event) {
+                            var fileContent = event.target.result.split(',')[1]; // Lấy phần base64
+                            var result = await DotNet.invokeMethodAsync('ViewsFE', 'UploadFile', file.name, fileContent, file.type);
+                            if (result.success) {
                                 toastr.success('Thêm thành công.');
-                                console.log("File uploaded successfully and Blazor method invoked.");
-                            })
-                            .catch(error => {
-                                toastr.error('Lỗi trong quá trình cập nhật UI.');
-                                console.error('Error during UI refresh:', error);
-                            });
-                        this.removeFile(file);
-                    } else {
-                        toastr.error('Phản hồi không thành công từ API.');
-                        console.error('Upload failed due to unsuccessful response:', response);
-                    }
-                },
-                error: function (file, message) {
-                    toastr.error('Thêm thất bại.');
-                    console.error("Upload failed:", message);
-                    this.removeFile(file);
+                                console.log("File uploaded successfully:", result.data);
+                            } else {
+                                toastr.error('Thêm thất bại: ' + result.error);
+                                console.error("Upload failed:", result.error);
+                            }
+                            dropzone.removeFile(file);
+                        };
+                        reader.readAsDataURL(file);
+                    });
                 }
             });
         } else {
