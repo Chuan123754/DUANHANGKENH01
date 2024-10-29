@@ -1,9 +1,8 @@
-﻿@page "/media-upload"
-@inject HttpClient Http
-@using System.Net.Http.Json
+﻿@inject FilesIServices sev
+@inject IJSRuntime JS
 <div>
     <!-- Dropzone CSS -->
-    <link href="~/assets/libs/tabler/libs/dropzone/dist/dropzone.css" rel="stylesheet" />
+    <link href="/assets/libs/tabler/libs/dropzone/dist/dropzone.css" rel="stylesheet" />
 
     <!-- Dropzone Upload Form -->
     <form class="dropzone mb-5" id="dropzone-default" autocomplete="off" novalidate>
@@ -16,17 +15,80 @@
     <div class="card">
         <div class="card-body">
             <div id="table-default">
-                @if (MediaTable != null)
-                {
-                    @* Render media table content here *@
-                    @((MarkupString)MediaTable)
-                }
+
+                <div class="d-grid" style="grid-template-columns: repeat(7, 1fr); gap: 16px">
+                    @if (listFiles != null)
+                    {
+                        @foreach (var file in listFiles)
+                        {
+                            <div class="image-item" data-name="@file.Name" data-id="@file.Id">
+                                <button type="button" class="btn btn-default p-0 m-0 btn-choose-image" data-bs-toggle="modal" data-bs-target="#file-@file.Id" style="width: 100%">
+                                    <img src="@file.Path" class="w-100 object-fit-cover" alt="IMG" height="150" />
+
+                                    <span class="checked">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                             stroke-linejoin="round"
+                                             class="icon icon-tabler icons-tabler-outline icon-tabler-check">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <path d="M5 12l5 5l10 -10" />
+                                        </svg>
+                                    </span>
+                                </button>
+                                <div class="modal" id="file-@file.Id" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel-@file.Id" aria-hidden="true">
+                                    <div class="modal-dialog modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-12 col-md-6">
+                                                        <img src="@file.Path" class="w-100 object-fit-contain" style="height: 444px" alt="@file.Name" />
+                                                    </div>
+                                                    <div class="col-12 col-md-6">
+                                                        <p>Đã tải lên vào lúc: @(file.Created_at.HasValue ? file.Created_at.Value.ToString("dd/MM/yyyy HH:mm:ss") : "N/A")</p>
+                                                        <p>Tên tập tin: @file.Name</p>
+                                                        <p>Loại tập tin: @file.Mine</p>
+                                                        <p>Kích thước: @file.Size KB</p>
+                                                        <p>File URL: <a href="@file.Path" target="_blank">@file.Path</a></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                <button type="button" class="btn btn-danger" @onclick="() => DeleteFile(file.Id)">Xóa</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Dropzone JS -->
-    <script src="~/assets/libs/tabler/libs/dropzone/dist/dropzone-min.js" defer></script>
+    <script src="/assets/libs/tabler/libs/dropzone/dist/dropzone-min.js" defer></script>
+    @code {
+        private List<Files> listFiles = new();
+        private async Task DeleteFile(long id)
+        {
+            try
+            {
+                await sev.Delete(id);
+                listFiles = await sev.GetAll();
+                await JS.InvokeVoidAsync("toastr.success", "File deleted successfully.");
+                await JS.InvokeVoidAsync("removeModalBackdrop");
+
+                StateHasChanged();
+            }
+            catch (Exception ex)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Failed to delete file.");
+                Console.Error.WriteLine($"Error deleting file: {ex.Message}");
+            }
+        }
+    }
 
     <!-- Script to initialize Dropzone and handle media actions -->
     <script>
@@ -88,8 +150,6 @@
 
     private async Task LoadMediaTable()
     {
-        // Fetch the media table content from the server and load it into the UI
-        var response = await Http.GetStringAsync("/admin/media/datatable?type=in_component");
-        MediaTable = response;
+
     }
 }

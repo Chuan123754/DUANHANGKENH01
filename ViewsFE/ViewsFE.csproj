@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <Folder Include="Pages\Admin\Login\" />
+    <Folder Include="Pages\Admin\Wishlist\" />
   </ItemGroup>
 
   <ItemGroup>

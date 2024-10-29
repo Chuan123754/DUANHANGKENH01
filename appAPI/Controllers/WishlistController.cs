@@ -1,4 +1,5 @@
-﻿using appAPI.Models;
+﻿using appAPI.IRepository;
+using appAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -10,72 +11,34 @@ namespace appAPI.Controllers
     [ApiController]
     public class WishlistController : ControllerBase
     {
-        APP_DATA_DATN context;
-        public WishlistController(APP_DATA_DATN _context)
+        private readonly IWishlistReponsitory _repons;
+        public WishlistController(IWishlistReponsitory wishlist)
         {
-            context = _context;
+            _repons = wishlist;
         }
 
         [HttpGet("wishlist-get")]
-        public IActionResult Get()
+        public async Task<List<Wishlist>> GetAll()
         {
-            return Ok(context.Wishlist.ToList());
+            return await _repons.GetAll();
         }
 
         [HttpGet("wishlist-get-id")]
-        public IActionResult Get(long id)
+        public async Task<Wishlist> Details(long id)
         {
-            var wishlistItem = context.Wishlist.Find(id);
-            if (wishlistItem == null)
-            {
-                return NotFound("Wishlist item not found");
-            }
-            return Ok(wishlistItem);
+            return await _repons.GetByIdAndType(id);
         }
 
         [HttpPost("wishlist-post")]
-        public ActionResult Post(Wishlist wishlist)
+        public async Task Post(Wishlist list)
         {
-            try
-            {
-                context.Wishlist.Add(wishlist);
-                context.SaveChanges();
-                return Ok(new { message = "Thêm vào danh sách yêu thích thành công" });
-            }
-            catch (Exception)
-            {
-                return BadRequest();
-            }
-        }
-
-        [HttpPut("wishlist-put")]
-        public IActionResult Put(Wishlist wishlist)
-        {
-            var item = context.Wishlist.Find(wishlist.Id);
-            if (item == null)
-            {
-                return NotFound("Wishlist item not found");
-            }
-
-            item.User_id = wishlist.User_id;
-            item.Create_at = wishlist.Create_at;
-            item.Updated_at = wishlist.Updated_at;
-            context.SaveChanges();
-            return Ok(new { message = "Cập nhật danh sách yêu thích thành công" });
+            await _repons.Create(list);
         }
 
         [HttpDelete("wishlist-delete")]
-        public IActionResult Delete(long id)
+        public async Task Delete(long id)
         {
-            var delete = context.Wishlist.Find(id);
-            if (delete == null)
-            {
-                return NotFound("Wishlist item not found");
-            }
-
-            context.Remove(delete);
-            context.SaveChanges();
-            return Ok(new { message = "Xóa khỏi danh sách yêu thích thành công" });
+            await _repons.Delete(id);
         }
     }
 }

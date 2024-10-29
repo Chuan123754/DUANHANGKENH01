@@ -198,10 +198,12 @@
             }
 
             var dropzone = new Dropzone("#dropzone-default", {
-                url: "/",  // Đặt một URL giả, vì chúng ta sẽ xử lý upload bằng C#
-                autoProcessQueue: false,
+               // url: "http://14.225.206.55/api/Files/upload",  // Đặt một URL giả, vì chúng ta sẽ xử lý upload bằng C#
+                url: "https://localhost:7011/api/Files/upload",
+                autoProcessQueue: true,
                 addRemoveLinks: true,
-                dictRemoveFile: "Xóa",
+                maxFilesize: 10 * 1024,
+                // dictRemoveFile: "Xóa",
                 init: function () {
                     this.on("addedfile", function (file) {
                         var reader = new FileReader();

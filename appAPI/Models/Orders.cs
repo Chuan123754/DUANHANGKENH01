@@ -20,6 +20,7 @@ namespace appAPI.Models
         [Unicode(false)]
         public string? Code { get; set; }
         public long? User_id { get; set; }
+        [Precision(18, 4)]
         public decimal Total { get; set; }
         [StringLength(20)]
         [Unicode(false)]

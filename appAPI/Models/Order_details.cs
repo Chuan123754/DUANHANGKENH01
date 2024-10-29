@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -17,8 +18,11 @@ namespace appAPI.Models
         public long OrderId { get; set; }
         public long ProductVariants_Id { get; set; }
         public int Quantity { get; set; }
+        [Precision(18, 4)]
         public decimal RegularPrice { get; set; }
+        [Precision(18, 4)]
         public decimal SalePrice { get; set; }
+        [Precision(18, 4)]
         public decimal Price { get; set; }
         public int RemainingStockQuantity { get; set; }
         [StringLength(255)]

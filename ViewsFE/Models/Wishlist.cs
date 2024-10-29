@@ -15,6 +15,7 @@ namespace ViewsFE.Models
         [Key]
         public long Id { get; set; }    
         public long User_id { get; set; }
+        public List<long>? Product { get; set; } = new List<long>();
         public DateTime? Create_at { get; set; }
         public DateTime? Updated_at { get; set; }
         public DateTime? Delete_at { get; set; }

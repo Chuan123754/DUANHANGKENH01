@@ -10,9 +10,10 @@ namespace appAPI.Repository
     public class FilesReponsetory : FilesIRepository
     {
         private readonly APP_DATA_DATN _context;
-        private string _getfilePath = $@"http://14.225.206.55/FileMedia/";
-        private string _uploadFolderPath = $@"C:\inetpub\wwwroot\BE_API\FileMedia";
-
+        //private string _getfilePath = $@"http://14.225.206.55/FileMedia/";
+        //private string _uploadFolderPath = $@"C:\inetpub\wwwroot\BE_API\FileMedia";
+        private string _getfilePath = $@"https://localhost:7011/FileMedia/";
+        private string _uploadFolderPath = $@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia";
         public FilesReponsetory(APP_DATA_DATN context)
         {
             _context = context;

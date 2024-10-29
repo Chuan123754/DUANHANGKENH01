@@ -132,7 +132,9 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"C:\inetpub\wwwroot\BE_API\FileMedia"),
+    //FileProvider = new PhysicalFileProvider(@"C:\inetpub\wwwroot\BE_API\FileMedia"),
+    //RequestPath = "/FileMedia"
+    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
     RequestPath = "/FileMedia"
 });
 
