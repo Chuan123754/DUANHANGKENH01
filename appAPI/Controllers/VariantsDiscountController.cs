@@ -1,7 +1,9 @@
 ﻿using appAPI.Models;
+using appAPI.Models.DTO;
 using appAPI.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace appAPI.Controllers
 {
@@ -31,12 +33,22 @@ namespace appAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] P_variants_discount pVariantDiscount)
+        public IActionResult Post(PVariantsDiscountDTO dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            _pVariantsDiscountRepository.Add(pVariantDiscount);
-            return Ok("P_variant discount added successfully");
+            var variantDiscount = new P_variants_discount
+            {
+                P_variants_Id = dto.P_variants_Id,  // Chỉ thiết lập ID
+                Discount_Id = dto.Discount_Id,      // Chỉ thiết lập ID
+                Old_price = dto.Old_price,
+                New_price = dto.New_price,
+                Status = dto.Status
+            };
+
+            _pVariantsDiscountRepository.Add(variantDiscount);
+            return Ok(variantDiscount);
         }
+
+
 
         [HttpPut]
         public IActionResult Put([FromBody] P_variants_discount pVariantDiscount)

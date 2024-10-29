@@ -173,10 +173,8 @@
                                 </tbody>
                             </table>
 
-                            <div class="pagination d-flex justify-content-end mt-3">
-                                <button class="btn btn-outline-primary me-2" @onclick="PreviousPage" disabled="@(currentPage == 1)">Trang Trước</button>
-                                <span class="align-self-center">Trang @currentPage / @totalPages</span>
-                                <button class="btn btn-outline-primary ms-2" @onclick="NextPage" disabled="@(currentPage == totalPages)">Trang Sau</button>
+                           <div class="mt-4">
+                                <Pagination TItem="Vouchers" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="vouchers.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
                             </div>
 
                         </div>
@@ -233,11 +231,12 @@
                                     </tbody>
                                 </table>
 
-                                <div class="pagination d-flex justify-content-end mt-3">
-                                    <button class="btn btn-outline-primary me-2" @onclick="PreviousCustomerPage" disabled="@(currentCustomerPage == 1)">Trang Trước</button>
-                                    <span class="align-self-center">Trang @currentCustomerPage / @totalCustomerPages</span>
-                                    <button class="btn btn-outline-primary ms-2" @onclick="NextCustomerPage" disabled="@(currentCustomerPage == totalCustomerPages)">Trang Sau</button>
+                                
+
+                               <div class="mt-4">
+                                    <Pagination TItem="Users" PageNumber="currentCustomerPage" TotalPages="totalCustomerPages" PageSize="customerPageSize" TotalItems="users.Count" OnPageChanged="GoToCustomerPage" OnPageSizeChanged="OnCustomerPageSizeChanged" />
                                 </div>
+
 
                             </div>
                         </div>
@@ -363,6 +362,18 @@
         pagedVouchers = vouchers.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
     }
 
+    private async Task GoToPage(int page)
+    {
+        currentPage = page;
+        LoadPagedVouchers();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        pageSize = newPageSize;
+        currentPage = 1;
+        await LoadVouchers();
+    }
 
     private void NextPage()
     {
@@ -384,30 +395,23 @@
 
     private void LoadPagedUsers()
     {
-
-        totalPages = (int)Math.Ceiling((double)users.Count / pageSize);
+        totalCustomerPages = (int)Math.Ceiling((double)users.Count / customerPageSize);
 
         pagedUsers = users.Skip((currentCustomerPage - 1) * customerPageSize).Take(customerPageSize).ToList();
     }
 
-    private void NextCustomerPage()
+    private async Task GoToCustomerPage(int page)
     {
-        if (currentCustomerPage < totalCustomerPages)
-        {
-            currentCustomerPage++;
-            LoadPagedUsers();
-        }
+        currentCustomerPage = page;
+        LoadPagedUsers();
     }
 
-    private void PreviousCustomerPage()
+    private async Task OnCustomerPageSizeChanged(int newPageSize)
     {
-        if (currentCustomerPage > 1)
-        {
-            currentCustomerPage--;
-            LoadPagedUsers();
-        }
+        customerPageSize = newPageSize;
+        currentCustomerPage = 1;
+        LoadPagedUsers();
     }
-
 
     private async Task LoadUsers()
     {
@@ -417,7 +421,11 @@
     private async Task LoadVouchers()
     {
         vouchers = await VoucherService.GetAll();
+        totalPages = (int)Math.Ceiling((double)vouchers.Count / pageSize);
+
+        LoadPagedVouchers();
     }
+
 
     private async Task CreateVoucher()
     {
@@ -432,13 +440,13 @@
             // Nếu có khách hàng riêng, gán số lượng bằng số lượng khách hàng đã tích
             if (selectedUserIds.Any())
             {
-                voucher.Quantity = selectedUserIds.Count.ToString();
+                voucher.Quantity = selectedUserIds.Count.ToString(); // Số lượng là số khách hàng đã tích
 
                 var userVoucher = new Vouchers
                     {
                         Code = voucher.Code,
                         Description = voucher.Description,
-                        Quantity = voucher.Quantity, // Số lượng là số khách hàng đã tích
+                        Quantity = voucher.Quantity, 
                         Percent = voucher.Percent,
                         MaxDiscountValue = voucher.MaxDiscountValue,
                         Condition = voucher.Condition,
@@ -591,7 +599,7 @@
                     var userVoucher = await UserVoucherService.GetByVoucherIdAndUserId(voucher.Id, userId);
                     if (userVoucher != null)
                     {
-                        await UserVoucherService.Delete(userVoucher.Id); // Xóa liên kết
+                        await UserVoucherService.Delete(userVoucher.Id); 
                     }
                 }
             }
@@ -647,20 +655,14 @@
 
         if (confirmed)
         {
-            // Lấy chi tiết voucher từ API
             var voucherToUpdate = await VoucherService.Details(id);
 
             if (voucherToUpdate != null)
             {
-                // Cập nhật trạng thái thành "Không hoạt động"
                 voucherToUpdate.Status = "Không hoạt động";
-
-                // Gọi API để cập nhật voucher
                 await VoucherService.Update(voucherToUpdate);
 
                 errorMessage = "Voucher đã được cập nhật trạng thái thành 'Không hoạt động'.";
-
-                // Tải lại danh sách vouchers
                 await LoadVouchers();
             }
             else
