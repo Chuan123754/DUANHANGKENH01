@@ -1,5 +1,5 @@
 ﻿@page "/admin/address/create"
-@inject AddressService AddressService
+@inject IAddressServices AddressService
 
 <html>
 <head>
@@ -130,7 +130,7 @@
             <label for="name">Tên người nhận</label>
             <input type="text" id="name" @bind="address.Name">
             <label for="phone">Số điện thoại</label>
-            <input type="text" id="phone" @bind="address.User.Phone">
+            <input type="text" id="phone" @bind="address.Name">
         </div>
 
         <div class="form-group">
@@ -163,7 +163,7 @@
 
         <div class="form-group">
             <label for="ward">Xã/phường/thị trấn</label>
-            <select disabled="@(!hasWards)">
+            <select @onchange="OnWardChange" disabled="@(!hasWards)">
                 <option value="">Chọn Xã</option>
                 @if (wards != null && wards.Count > 0)
                 {
@@ -211,48 +211,45 @@
     private List<Province> provinces = new List<Province>();
     private List<Districted> districts = new List<Districted>();
     private List<Ward> wards = new List<Ward>();
-    private Address address;
+    private Address address = new Address(); // Khởi tạo Address
     private bool hasDistricts = false;
     private bool hasWards = false;
 
     [Inject] private AddressService addressService { get; set; }
 
-    private async Task CreateAddress()
-    {
-        var newAddress = new Address
-            {
-                User_Id = 1,
-                Name = address.Name,
-
-                Province_city=address.Province_city,
-                District=address.District,
-                Ward_commune=address.Ward_commune,
-            };
-    }
-
     protected override async Task OnInitializedAsync()
     {
-        provinces = await addressService.GetProvincesAsync(); // Gọi API để lấy danh sách tỉnh
+        try
+        {
+            // Gọi API để lấy danh sách tỉnh
+            provinces = await addressService.GetProvincesAsync();
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
     }
 
     private async Task OnProvinceChange(ChangeEventArgs e)
     {
-        var selectedProvinceId = e.Value.ToString();
+        var selectedProvinceId = e.Value?.ToString();
         if (!string.IsNullOrEmpty(selectedProvinceId))
-        {   
+        {
+            // Thiết lập tỉnh hiện tại và xóa các quận huyện, xã
             address.Province_city = selectedProvinceId;
             districts = await addressService.GetDistrictsAsync(int.Parse(selectedProvinceId));
             hasDistricts = districts.Count > 0;
-            hasWards = false; // Reset trạng thái của danh sách xã
-            wards.Clear();
+            wards.Clear(); 
+            hasWards = false; // Đặt trạng thái xã về false khi tỉnh thay đổi
         }
     }
 
     private async Task OnDistrictChange(ChangeEventArgs e)
     {
-        var selectedDistrictId = e.Value.ToString();
+        var selectedDistrictId = e.Value?.ToString();
         if (!string.IsNullOrEmpty(selectedDistrictId))
         {
+            // Thiết lập huyện hiện tại và xóa các xã
             address.District = selectedDistrictId;
             wards = await addressService.GetWardsAsync(int.Parse(selectedDistrictId));
             hasWards = wards.Count > 0;
@@ -261,10 +258,12 @@
 
     private async Task OnWardChange(ChangeEventArgs e)
     {
-        var selectedWardId = e.Value.ToString();
+        var selectedWardId = e.Value?.ToString();
         if (!string.IsNullOrEmpty(selectedWardId))
         {
-            address.Ward_commune = selectedWardId; 
+            address.Ward_commune = selectedWardId;
         }
     }
+}
+
 }
