@@ -1,6 +1,8 @@
-using ClientViews.Data;
+﻿using ClientViews.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.EntityFrameworkCore;
+using ClientViews.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,21 +11,36 @@ builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
 
+// Thêm CORS nếu cần
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader();
+        });
+});
+
+// Add DbContext
+builder.Services.AddDbContext<APP_DATA_DATN>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-
+app.UseStaticFiles();
 app.UseRouting();
+app.UseCors("AllowAllOrigins");  // Enable the CORS policy here
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

@@ -23,7 +23,11 @@
   },
   "scripts": {
     "w": "webpack-dev-server --host 0.0.0.0",
-    "p": "webpack --config webpack.prod.config.js && cp index.js fslightbox.js"
+    "p": "webpack --config webpack.prod.config.js && cp index.js fslightbox.js",
+    "build-app": "sass resources/scss/app.scss wwwroot/resources/css/app.css",
+    "build-common": "sass resources/scss/components/common.scss wwwrootresources/css/components/common.css",
+    "build": "webpack",
+    "watch": "webpack --watch"
   },
   "devDependencies": {
     "@babel/core": "^7.4.4",
@@ -37,5 +41,7 @@
   },
   "dependencies": {
     "npm": "^10.8.2"
-  }
+  },
+
 }
+

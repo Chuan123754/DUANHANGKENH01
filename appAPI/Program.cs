@@ -62,7 +62,7 @@ builder.Services.AddScoped<IMaterialReponsitory, MaterialReponsitory>();
 builder.Services.AddScoped<IStyleReponsitory, StyleReponsitory>();
 builder.Services.AddScoped<ISizeReponsitory, SizeReponsitory>();
 builder.Services.AddScoped<ITextile_technologyReponsitory,  Textile_technologyReponsitory>();
-
+builder.Services.AddScoped<FilesIRepository, FilesReponsetory>();
 
 // Đăng ký CORS
 builder.Services.AddCors(options =>

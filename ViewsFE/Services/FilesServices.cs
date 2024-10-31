@@ -41,11 +41,22 @@ namespace ViewsFE.Services
             return JsonConvert.DeserializeObject<Files>(response);
         }
 
-        public async Task<List<Files>> Search(string keyword)
+        public async Task<List<Files>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)
         {
-            string requestURL = $@"{_baseUrl}/api/Files/search?query={keyword}";
-            var response = await _httpClient.GetStringAsync(requestURL);
-            return JsonConvert.DeserializeObject<List<Files>>(response);
+            var uri = $"{_baseUrl}/api/Files/get-by-type?pageNumber={pageNumber}&pageSize={pageSize}&searchTerm={Uri.EscapeDataString(searchTerm)}";
+            return await _httpClient.GetFromJsonAsync<List<Files>>(uri);
+        }
+
+        public async Task<int> GetTotalCountAsync(string searchTerm)
+        {
+            var url = $"{_baseUrl}/api/Files/Get-Total-Count?searchTerm={Uri.EscapeDataString(searchTerm)}";
+
+            // Gọi API và nhận tổng số lượng bài viết
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode(); // Kiểm tra xem phản hồi có thành công hay không
+
+            var count = await response.Content.ReadFromJsonAsync<int>();
+            return count;
         }
 
         public async Task<object> Upload(IBrowserFile file)
