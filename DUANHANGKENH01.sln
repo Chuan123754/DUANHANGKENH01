@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "appAPI", "appAPI\appAPI.csp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ViewsFE", "ViewsFE\ViewsFE.csproj", "{563BD44E-8F72-41CB-ACEB-23A76624D61A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientViews", "ClientViews\ClientViews.csproj", "{0B2F1277-D63C-4BB4-B184-22200A4A38D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClientViews", "ClientViews\ClientViews.csproj", "{0B2F1277-D63C-4BB4-B184-22200A4A38D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

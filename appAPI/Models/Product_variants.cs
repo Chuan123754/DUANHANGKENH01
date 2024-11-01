@@ -39,15 +39,20 @@ namespace appAPI.Models
         [JsonIgnore]
         public virtual Product_Posts? Posts { get; set; }
         [ForeignKey("Size_id")]
-        public virtual Size Size { get; set; }
+        [JsonIgnore]
+        public virtual Size Size { get; set; } = new Size();
         [ForeignKey("Style_id")]
-        public virtual Style Style { get; set; }
+        [JsonIgnore]
+        public virtual Style Style { get; set; } = new Style();
         [ForeignKey("Material_id")]
-        public virtual Material Material { get; set; }
+        [JsonIgnore]
+        public virtual Material Material { get; set; } = new Material();
         [ForeignKey("Color_id")]
-        public virtual Color? Color { get; set; }
+        [JsonIgnore]
+        public virtual Color? Color { get; set; } = new Color();
         [ForeignKey("Textile_technology_id")]
-        public virtual Textile_technology Textile_Technology { get; set; }
+        [JsonIgnore]
+        public virtual Textile_technology Textile_Technology { get; set; } = new Textile_technology();
         public virtual ICollection<P_variants_discount> p_variants_discount { get; set; } = new List<P_variants_discount>();
         public virtual ICollection<Product_variants_wishlist> Product_Variants_Wishlists { get; set; } = new List<Product_variants_wishlist>();
     }

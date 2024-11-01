@@ -102,12 +102,14 @@
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#category" aria-expanded="true">
-                                            Ảnh bài viết
+                                            Ảnh đại diện
                                         </button>
                                     </h2>
-                                    <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                    <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example" >
                                         <div class="accordion-body pt-0">
-                                            <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center">
+                                            <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center" data-multiple="false"
+                                              
+                                                 data-refer-id="#feature_image">
                                                 @if (!string.IsNullOrEmpty(FeatureImage))
                                                 {
                                                     <img src="@FeatureImage" class="w-100 h-100 object-cover" />
@@ -287,6 +289,18 @@
     }
 }
 <script>
+    Dom.select(document).ready(function () {
+    // Bắt sự kiện click vào feature_image
+    Dom.click('#feature_image', function () {
+        // Mở modal
+        Dom.select('#mediaModal').modal('show');
+
+        // Cài đặt các thuộc tính cần thiết cho modal
+        Dom.select('#mediaModal').attr('data-refer-id', '#feature_image');
+        Dom.select('#mediaModal').attr('data-multiple', 'false');
+    });
+});
+
     function initTinyMCE() {
         tinymce.init({
             selector: '#tinymce-textarea',
