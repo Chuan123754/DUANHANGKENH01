@@ -41,6 +41,8 @@ builder.Services.AddDbContext<APP_DATA_DATN>(options =>
 builder.Services.AddIdentity<Account, IdentityRole>()
     .AddEntityFrameworkStores<APP_DATA_DATN>()
     .AddDefaultTokenProviders();
+builder.Services.AddHttpClient<IAddressServices, AddressService>();
+builder.Services.AddScoped<IAddressServices, AddressService>();
 builder.Services.AddScoped<ILogActivityHistoryService, LogActivityHistoryService>();
 builder.Services.AddScoped<CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();

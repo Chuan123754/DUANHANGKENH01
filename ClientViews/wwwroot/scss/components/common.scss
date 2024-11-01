@@ -1,0 +1,589 @@
+//
+// Common Components
+// --------------------------------------------------
+
+//Content
+
+a {
+    text-decoration: none;
+}
+
+.title-banner h1, .title-banner h2 {
+    //width: 800px;
+    text-align: center;
+}
+
+//Banner
+.section-banner {
+    height: 672px;
+    transform-origin: center;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 80px;
+    position: relative;
+}
+
+.title-banner {
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 60px;
+
+    h1,h2 {
+        color: var(--Background-Button-link, #F2F6FF);
+        text-align: center;
+        font-family: $font-prata;
+        font-size: $fs-xl;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        text-transform: uppercase;
+        margin: 0;
+    }
+}
+
+//Post card
+.post-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    border: none;
+
+    .post-card-image {
+        position: relative;
+        display: inline-block;
+        height: 512px;
+        width: 100%;
+
+        &:hover:after {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            background: rgba(245, 245, 245, 0.32);
+        }
+    }
+
+    .post-card-tag {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        padding: 3px 8px;
+        background: #fff;
+        transform: rotate(360deg);
+        color: var(--Primary, $primary-darker);
+        font-family: $font-plus-jakarta;
+        font-size: $fs-sm;
+    }
+
+    .post-card-info {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .post-card-category {
+        display: flex;
+        align-items: center;
+        font-family: $font-plus-jakarta;
+        font-size: $fs-sm;
+        color: $dark-grey;
+
+        span:first-child {
+            margin-right: 10px;
+            width: 25px;
+            height: 1px;
+            background: $primary-darker;
+        }
+    }
+
+    .post-card-title {
+        font-family: $font-plus-jakarta;
+        font-size: $fs-md;
+        color: $primary-darker;
+        margin: 0;
+        text-transform: uppercase;
+    }
+
+    .post-card-author {
+        color: $dark-grey;
+        font-family: $font-plus-jakarta;
+        font-size: $fs-sm;
+    }
+}
+
+//Product card
+.product {
+    row-gap: 48px;
+}
+
+.product-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    border: none;
+    border-radius: unset;
+    margin-bottom: 0;
+
+    .product-image {
+        cursor: pointer;
+        width: 100%;
+        position: relative;
+
+        .img-wrap {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .img-wrap-hide {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+            width: inherit;
+            height: inherit;
+        }
+
+        .product-action {
+            position: absolute;
+            bottom: 60px;
+            display: flex;
+            width: 36px;
+            height: 36px;
+            flex-direction: column;
+            gap: 10px;
+            transition: all 0.5s ease;
+            opacity: 0;
+
+            a {
+                border-radius: 4px;
+                background: #fff;
+                box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.1);
+                padding: 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+        }
+
+        &:hover .img-wrap-hide {
+            transition: 2s ease-in-out;
+            display: inline;
+            z-index: 1;
+        }
+
+        &:hover .product-action {
+            animation: productAction 0.5s linear;
+            opacity: 1;
+            z-index: 2;
+            right: 12px;
+        }
+    }
+
+    .product-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        align-self: stretch;
+        padding: 0 20px 16px;
+
+        .btn-contract {
+            margin-top: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .product-name {
+            color: var(--Primary, #242424);
+            -webkit-text-stroke-width: 0.5;
+            -webkit-text-stroke-color: #000;
+            font-family: Prata;
+            font-size: 25px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+        }
+
+        .product-description {
+            color: var(--Drak-gray-1, #575757);
+            text-align: center;
+            /* PLUS JAKATAR/14: Uppercase */
+            font-family: "Plus Jakarta Sans";
+            font-size: 14px;
+            font-style: normal;
+            font-weight: 400;
+            line-height: normal;
+            text-transform: uppercase;
+        }
+
+        .product-price {
+            color: var(--Primary, #242424);
+            text-align: center;
+            /* PLUS JAKATAR/16: SimeBold */
+            font-family: "Plus Jakarta Sans";
+            font-size: 16px;
+            font-style: normal;
+            font-weight: 600;
+            line-height: normal;
+        }
+    }
+}
+
+.trending-box {
+    height: 857px;
+    display: flex;
+    flex-direction: row; /* Xếp theo chiều ngang */
+    gap: 24px;
+
+    .tblock-information {
+        gap: 12px;
+    }
+
+    .tblock-left {
+        background: var(--Neutral, #F5F5F5);
+        flex: 1;
+        padding: 60px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .tblock-right {
+        position: relative;
+        flex: 2.5;
+
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .img-desc {
+            position: absolute;
+            top: 70%;
+            left: 36%;
+            transform: translate(-50%, -50%);
+
+            h2 {
+                color: var(--white, #FFF);
+                text-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+                font-family: Prata;
+                font-size: 72px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: normal;
+                text-transform: uppercase;
+            }
+
+            .decoration-title {
+                div {
+                    width: 317px;
+                    height: 2px;
+                    background: var(--white, #FFF);
+                    display: block;
+                }
+
+                margin-bottom: 10px
+            }
+
+            p {
+                overflow: hidden;
+                color: var(--white, #FFF);
+                text-overflow: ellipsis;
+                font-family: Prata;
+                font-size: 21px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: 30px; /* 142.857% */
+            }
+        }
+    }
+
+    .tblock {
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    }
+
+    .flex-item {
+        img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        flex: 1; /* Chia đều không gian cho 3 ảnh */
+        border: 1px solid #ddd;
+    }
+
+    .tblock-description {
+        color: $primary-darker;
+        font-family: $font-prata;
+        font-size: $fs-21px;
+        line-height: 30px;
+    }
+
+    .author {
+        color: var(--Accent, #919296);
+        font-family: $font-plus-jakarta;
+        font-size: $fs-24px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 26px;
+    }
+
+    .date {
+        color: var(--Primary, #242424);
+        text-align: justify;
+        font-family: $font-plus-jakarta;
+        font-size: 16px;
+        font-weight: 600;
+    }
+}
+
+//Post image hover
+.post-image:hover:after,
+.tblock-right:hover:after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    top: 0;
+    background: rgba(245, 245, 245, 0.32);
+}
+
+.section-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 0;
+
+    .head {
+        color: #000;
+        text-align: center;
+        font-family: $font-weight-medium;
+        font-size: $fs-sm;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+    }
+
+    .title {
+        color: var(--Primary, #242424);
+        font-family: "Plus Jakarta Sans";
+        font-size: 56px;
+        font-style: italic;
+        font-weight: 700;
+        line-height: 60px; /* 107.143% */
+        text-transform: uppercase;
+        margin-top: 0;
+        margin-bottom: 0;
+        text-align: center;
+    }
+
+    .sub-title {
+        color: var(--Primary, #242424);
+        text-align: center;
+
+        /* PRATA/39: Uppercase */
+        -webkit-text-stroke-width: 0.5;
+        -webkit-text-stroke-color: #000;
+        font-family: Prata;
+        font-size: 39px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        text-transform: uppercase;
+    }
+
+    .decoration {
+        width: 238px;
+        height: 2px;
+        stroke-width: 2px;
+        stroke: var(--Primary, #242424);
+        background: var(--Accent, #242424);
+        margin: 48px 0;
+    }
+}
+
+.category-font-header {
+    color: var(--Primary, #242424);
+    font-family: $font-prata;
+    font-size: 39px;
+    font-weight: 400;
+    text-transform: uppercase;
+    margin-bottom: 0;
+    -webkit-text-stroke-width: 0.5;
+    -webkit-text-stroke-color: var(--Primary, #242424);
+}
+
+.category-font-normal {
+    color: var(--Primary, #242424);
+    font-family: $font-poppins;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.256px;
+    text-transform: uppercase;
+}
+
+.text-heading-content {
+    color: var(--Primary, #242424);
+    font-family: $font-prata;
+    font-size: 39px;
+    font-style: normal;
+    font-weight: 400;
+    margin: 0;
+}
+
+//Attributes custom
+p {
+    margin: 0;
+    padding: 0;
+}
+
+.mt-60px {
+    margin-top: 60px;
+}
+
+.mt-52px {
+    margin-top: 52px;
+}
+
+.mt-36px {
+    margin-top: 36px;
+}
+
+.mt-24px {
+    margin-top: 24px;
+}
+
+.mt-30px {
+    margin-top: 30px;
+}
+
+.mt-11px {
+    margin-top: 11px;
+}
+
+.mb-24px {
+    margin-bottom: 24px;
+}
+
+.mt-12px {
+    margin-top: 12px;
+}
+
+.mt-40px {
+    margin-top: 40px;
+}
+
+.mt-80px {
+    margin-top: 80px !important;
+}
+
+.mb-80px {
+    margin-bottom: 80px !important;
+}
+
+.mr-0 {
+    margin-right: 0;
+}
+
+.mt-98px {
+    margin-top: 98px;
+}
+
+.mb-25px {
+    margin-bottom: 25px;
+}
+
+.mt-48px {
+    margin-top: 48px;
+}
+
+.mb-48px {
+    margin-bottom: 48px;
+}
+
+.mb-190px {
+    margin-bottom: 190px;
+}
+
+.ml-24px {
+    margin-left: 24px;
+}
+
+.py-14px {
+    padding-top: 14px;
+    padding-bottom: 14px;
+}
+
+.mr-130px {
+    margin-right: 130px
+}
+
+.row-gap-80px {
+    row-gap: 80px;
+}
+
+.row-gap-48px {
+    row-gap: 48px;
+}
+
+:root {
+    --color-gray: #f5f5f3;
+    --secondary-text-links: #8e8e8e;
+}
+
+html,
+:host {
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    font-feature-settings: normal;
+    font-variation-settings: normal;
+    -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
+    height: 100%;
+}
+
+.text-color-black {
+    color: #212529;
+}
+
+.fs-0-7 {
+    font-size: 0.7rem;
+}
+
+.ff-prata {
+    font-family: Prata, sans-serif;
+}
+
+.ff-poppins {
+    font-family: Poppins, sans-serif;
+}
+
+.swiper {
+    width: 100%;
+    height: 100%;
+}
+
+.swiper-slide {
+    text-align: center;
+    font-size: 18px;
+    background: #fff;
+}
+
+.rounded-4px {
+    border-radius: 4px;
+}
