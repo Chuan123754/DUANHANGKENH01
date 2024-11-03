@@ -1,5 +1,6 @@
 ﻿using appAPI.Models;
 using appAPI.Repository;
+using appAPI.IRepository;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,10 +11,10 @@ namespace appAPI.Controllers
     [ApiController]
     public class DesignerController : ControllerBase
     {
-        private readonly DesignerRepon _repon;
-        public DesignerController()
+        private readonly IDesignerRepon _repon;
+        public DesignerController(IDesignerRepon repon)
         {
-            _repon = new DesignerRepon();
+            _repon = repon;
         }
         // GET: api/Designer
         [HttpGet]

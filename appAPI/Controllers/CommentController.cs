@@ -1,4 +1,4 @@
-﻿using appAPI.Repository;
+﻿using appAPI.IRepository;
 using appAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +9,10 @@ namespace appAPI.Controllers
     [ApiController]
     public class CommentController : ControllerBase
     {
-        CommentRepository _commentRepo;
-        public CommentController()
+        ICommentRepository _commentRepo;
+        public CommentController(ICommentRepository repon)
         {
-            _commentRepo = new CommentRepository();
+            _commentRepo = repon;
         }
         [HttpGet("GetAll")]
         public Task<List<Comments>> GetAll()

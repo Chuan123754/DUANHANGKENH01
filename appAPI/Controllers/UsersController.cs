@@ -9,9 +9,9 @@ namespace appAPI.Controllers
     public class UsersController : ControllerBase
     {
         APP_DATA_DATN context;
-        public UsersController()
+        public UsersController(APP_DATA_DATN _context)
         {
-            context = new APP_DATA_DATN();
+            context = _context;
         }
 
         [HttpGet("Users-get")]

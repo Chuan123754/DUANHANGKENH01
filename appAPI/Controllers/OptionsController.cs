@@ -10,9 +10,9 @@ namespace appAPI.Controllers
     public class OptionsController : ControllerBase
     {
         APP_DATA_DATN context;
-        public OptionsController()
+        public OptionsController(APP_DATA_DATN _context)
         {
-            context = new APP_DATA_DATN();
+            context = _context;
         }
         // GET: api/<OptionsController>
         [HttpGet("show")]

@@ -8,9 +8,9 @@ namespace appAPI.Repository
     public class Textile_technologyReponsitory : ITextile_technologyReponsitory
     {
         private readonly APP_DATA_DATN _context;
-        public Textile_technologyReponsitory()
+        public Textile_technologyReponsitory(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
         public async Task Create(Textile_technology texti)
         {

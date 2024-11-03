@@ -7,9 +7,9 @@ namespace appAPI.Repository
     public class MenuReponsitory : MenuIReponsitory
     {
         private readonly APP_DATA_DATN _context;
-        public MenuReponsitory()
+        public MenuReponsitory(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
         public async Task CreateMenu(Menus menu)
         {

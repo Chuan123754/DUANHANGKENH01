@@ -11,10 +11,11 @@ namespace appAPI.Controllers
     {
         private readonly APP_DATA_DATN _context;
 
-        public CartDetailsController()
+        public CartDetailsController(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
+
 
         // GET: api/cartdetails-get
         [HttpGet("cartdetails-get")]

@@ -12,10 +12,10 @@ namespace appAPI.Controllers
         private readonly APP_DATA_DATN _context;
         private readonly ICategoriesRepository _repo;
 
-        public CategoryController(ICategoriesRepository repo)
+        public CategoryController(ICategoriesRepository repo, APP_DATA_DATN context)
         {
             _repo = repo;
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
 
         // GET: api/Category/show

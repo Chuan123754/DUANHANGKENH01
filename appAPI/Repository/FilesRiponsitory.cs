@@ -13,9 +13,9 @@ namespace appAPI.Repository
         private string _getfilePath = $@"https://localhost:7011/FileMedia/";
         private string _uploadFolderPath = $@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia";
 
-        public FilesReponsetory()
+        public FilesReponsetory(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
 
         public async Task Delete(long id)

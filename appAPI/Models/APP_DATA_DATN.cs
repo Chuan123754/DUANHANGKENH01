@@ -4,12 +4,10 @@ namespace appAPI.Models
 {
     public class APP_DATA_DATN : IdentityDbContext<Account>
     {
-        public APP_DATA_DATN()
+        private readonly IConfiguration _configuration;
+        public APP_DATA_DATN(IConfiguration configuration, DbContextOptions<APP_DATA_DATN> options) : base(options)
         {
-            
-        }
-        public APP_DATA_DATN(DbContextOptions options) : base(options)
-        {
+            _configuration = configuration;
         }
         public DbSet<Activity_history> Activity_history { get; set; }
         public DbSet<Address> Address { get; set; }
@@ -50,7 +48,8 @@ namespace appAPI.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=ADMIN;Initial Catalog=DUANTOTNGHIEP04;Integrated Security=True;Trust Server Certificate=True");
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            optionsBuilder.UseSqlServer(connectionString);
 
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
