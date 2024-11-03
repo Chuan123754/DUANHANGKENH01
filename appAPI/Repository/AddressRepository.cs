@@ -71,10 +71,10 @@ namespace appAPI.Repository
             if (updateItem != null)
             {
                 updateItem.Name = address.Name;
-                updateItem.Name = address.Street;
-                updateItem.Name = address.Ward_commune;
-                updateItem.Name = address.District;
-                updateItem.Name = address.Province_city;
+                updateItem.Street = address.Street;
+                updateItem.Ward_commune = address.Ward_commune;
+                updateItem.District = address.District;
+                updateItem.Province_city = address.Province_city;
             }
             _context.Address.Update(updateItem);
             await _context.SaveChangesAsync();

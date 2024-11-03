@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using ViewsFE.Models;
 using Newtonsoft.Json;
+using ViewsFE.IServices;
 
 namespace ViewsFE.Services
 {
-    public class AddressService
+    public class AddressService: IAddressServices
     {
         private readonly HttpClient _httpClient;
 
@@ -15,7 +16,7 @@ namespace ViewsFE.Services
         {
             _httpClient = httpClient;
         }
-        public async Task<List<Address>> GetAllAddress()
+        public async Task<List<Address>> GetAll()
         {
             string requestURL = "https://localhost:7011/api/Address/GetAllAddress";
             var response = await _httpClient.GetStringAsync(requestURL);
@@ -37,7 +38,7 @@ namespace ViewsFE.Services
         {
             await _httpClient.PostAsJsonAsync("https://localhost:7011/api/Address/CreateAddress", address);
         }
-        public async Task UpdateAddress(long id , Address address)
+        public async Task UpdateAddress( Address address, long id)
         {
             await _httpClient.PutAsJsonAsync($"https://localhost:7011/api/Address/UpdateAddress?id={id}", address);
         }
@@ -45,7 +46,7 @@ namespace ViewsFE.Services
         {
             await _httpClient.PutAsJsonAsync($"https://localhost:7011/api/Address/SetAsDefault?id={id}",address);
         }
-        public async Task RemoveAddress(long id)
+        public async Task DeleteAddress(long id)
         {
             await _httpClient.DeleteAsync($"https://localhost:7011/api/Address/DeleteAddress?id={id}");
         }
@@ -59,7 +60,7 @@ namespace ViewsFE.Services
         }
         public async Task<List<Districted>> GetDistrictsAsync(int idProvince)
         {
-            string url = $"https://open.oapi.vn/location/districts?size=100&provinceId={idProvince}";
+            string url = $"https://open.oapi.vn/location/districts/{idProvince}?size=100";
             var response = await _httpClient.GetFromJsonAsync<DistrictResponse>(url);
 
             return response?.Data ?? new List<Districted>();
@@ -67,7 +68,7 @@ namespace ViewsFE.Services
 
         public async Task<List<Ward>> GetWardsAsync(int idDistrict)
         {
-            string url = $"https://open.oapi.vn/location/wards?districtId={idDistrict}";
+            string url = $"https://open.oapi.vn/location/wards/{idDistrict}";
             var response = await _httpClient.GetFromJsonAsync<WardResponse>(url); 
 
             return response?.Data ?? new List<Ward>();

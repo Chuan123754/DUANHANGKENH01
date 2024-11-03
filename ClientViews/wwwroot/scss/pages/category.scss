@@ -1,0 +1,130 @@
+//Category page
+
+.input-search {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 25px;
+
+    .search {
+        display: flex;
+        padding: 14px 12px;
+        align-items: center;
+        gap: 157px;
+        align-self: stretch;
+        border: 1px solid var(--Primary, #242424);
+        border-radius: unset;
+        color: var(--Accent, #919296);
+        font-family: Poppins;
+        font-size: 13px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+    }
+
+    button.btn-search {
+        position: absolute;
+        top: 11px;
+        right: 17px;
+        padding: 5px;
+        background: none;
+        border: none;
+        cursor: pointer;
+    }
+}
+
+.accordion-button {
+    padding: 0 !important;
+}
+
+.accordion-body {
+    padding: 12px;
+}
+
+button.accordion-button:not(.collapsed) {
+    color: unset;
+    background-color: unset;
+    box-shadow: unset;
+}
+
+button.accordion-button.filter-product-title {
+    color: var(--Primary, #242424);
+    font-family: $font-plus-jakarta;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.256px;
+    text-transform: uppercase;
+    text-decoration: none;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+}
+
+.filter-basic {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.filter-basic .candle, .filter-basic .category {
+    cursor: pointer;
+}
+
+.filter-basic label {
+    color: var(--Accent, #919296);
+    text-align: center;
+    /* PLUS JAKATAR/14: Regular */
+    font-family: "Plus Jakarta Sans";
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    text-transform: uppercase;
+}
+
+.bg-element-filter label span {
+    color: var(--Primary, #242424);
+    font-family: Poppins;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+.bg-element-filter label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.bg-element-filter label input {
+    border-radius: 4px;
+    border: 1px solid #F5F5F5;
+    background: #F5F5F5;
+}
+
+#category .bg-element-filter {
+    margin-bottom: 0;
+}
+
+.row > .bg-element-filter {
+    display: flex;
+    padding: 10px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 4px;
+    border: 1px solid #F5F5F5;
+    background: #F5F5F5;
+    width: auto !important;
+}
+
+.accordion-body > .row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    align-self: stretch;
+}
