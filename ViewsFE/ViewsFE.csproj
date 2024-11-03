@@ -35,8 +35,13 @@
     <Folder Include="Pages\Admin\Login\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\appAPI\appAPI.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="appsettings.json">
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</None>
+		<None Update="appsettings.Development.json">
+			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

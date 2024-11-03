@@ -73,43 +73,10 @@ namespace ViewsFE.Models
         public void SetMetaData(MetaData data)
         {
             meta_data = JsonSerializer.Serialize(data);
-        }
-
-        // Deserialize ImageLibrary from JSON string
-        public List<Image> GetImageLibrary()
-        {
-            return !string.IsNullOrEmpty(image_library)
-                ? JsonSerializer.Deserialize<List<Image>>(image_library)
-                : new List<Image>();
-        }
-
-        // Serialize ImageLibrary to JSON string
-        public void SetImageLibrary(List<Image> images)
-        {
-            image_library = JsonSerializer.Serialize(images);
-        }
-
-        // Deserialize Image from JSON string
-        public Image? GetImage()
-        {
-            return !string.IsNullOrEmpty(image)
-                ? JsonSerializer.Deserialize<Image>(image)
-                : null;
-        }
-
-        // Serialize Image to JSON string
-        public void SetImage(Image img)
-        {
-            image = JsonSerializer.Serialize(img);
-        }
+        }  
     }
 
-    public class Image
-    {
-        public long Id { get; set; }
-        public string? ImageUrl { get; set; }
-        public string? Title { get; set; }
-    }
+ 
 
     public class MetaData
     {

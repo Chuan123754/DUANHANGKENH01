@@ -12473,16 +12473,15 @@ html,
   align-items: center;
   border-right: 1px solid var(--Stroke, #F0F0F0);
 }
-
 .header .menu-dropdown {
   background-color: #F5F5F3;
 }
 
 .menu-dropdown {
-  height: 584px;
-  padding-top: 58px;
-  font-family: "Prata", sans-serif;
-  color: #FFFFFF;
+    height: 584px;
+    padding-top: 58px;
+    font-family: "Prata", sans-serif;
+    color: #FFFFFF;
 }
 .menu-dropdown a {
   color: #242424;
