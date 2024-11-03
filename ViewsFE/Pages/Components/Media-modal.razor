@@ -1,10 +1,9 @@
-﻿@page "/media-modal"
-@inject HttpClient Http
+﻿@inject HttpClient Http
 @using System.Net.Http.Json
 @inject FilesIServices sev
 @inject IJSRuntime JS
 
-<div class="modal fade show" id="mediaModal" style="display: block; padding-left: 0px;" tabindex="-1">
+<div class="modal fade show" id="mediaModal" tabindex="-1">
     <input type="hidden" id="media_multiple">
     <input type="hidden" id="media_refer_id">
     <div class="modal-dialog modal-xl" role="document">
@@ -40,13 +39,17 @@
                                             {
                                                 @foreach (var file in listFiles)
                                                 {
-                                                    <div class="image-item" data-name="@file.Name" data-id="@file.Id">
-                                                        <button type="button" class="btn btn-default p-0 m-0 btn-choose-image" 
+                                                    <div class="image-item" data-name="@file.Name" data-id="@file.Id" style="position: relative;" key="@file.Id">
+                                                        <button type="button" class="btn btn-default p-0 m-0 btn-choose-image"
+                                                                @onclick="() => ToggleSelectImage(file.Path)"
                                                                 data-file-id="@file.Id" data-file-image="@file.Path"
                                                                 style="width: 100%">
                                                             <img src="@file.Path" class="w-100 object-fit-cover" alt="IMG" height="150" />
                                                         </button>
-                                                        <!-- Các modal con hiển thị ảnh lớn -->
+                                                        @if (selectedImagePath == file.Path) // Kiểm tra nếu ảnh đã được chọn
+                                                        {
+                                                            <span class="selected-icon">✓</span> <!-- Dấu tích -->
+                                                        }
                                                     </div>
                                                 }
                                             }
@@ -62,20 +65,103 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-                <button id="fileConfirm" type="button" class="btn btn-primary">Chọn</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button id="fileConfirm" type="button" class="btn btn-primary" @onclick="ConfirmSelection">Chọn</button>
             </div>
         </div>
     </div>
 </div>
-<script>
-    function openMediaModal() {
-        var modalElement = document.getElementById('mediaModal');
-        var modal = new bootstrap.Modal(modalElement);
-        modal.show();
+
+
+@code {
+    [Parameter]
+    public EventCallback<string> OnImageSelected { get; set; }
+    private List<Files> listFiles = new();
+    private Files files = new Files();
+    private List<string> selectedImages = new List<string>(); // Lưu nhiều ảnh
+    private string selectedImagePath; // Lưu 1 ảnh (Feature_image)
+
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 21;
+    private int totalItems;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPosts();
     }
 
-</script>
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        listFiles = await sev.GetByTypeAsync(page_number, page_size, search_query);
+
+
+        totalItems = await sev.GetTotalCountAsync(searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+    private async Task ToggleSelectImage(string imagePath)
+    {
+        // Chọn 1 ảnh (Feature_image)
+        selectedImagePath = imagePath == selectedImagePath ? null : imagePath;
+        StateHasChanged(); // Cập nhật giao diện
+    }
+    private async Task ConfirmSelection()
+    {
+        if (!string.IsNullOrEmpty(selectedImagePath))
+        {
+            await OnImageSelected.InvokeAsync(selectedImagePath);
+        }
+        else
+        {
+            Console.WriteLine("No image selected");
+        }
+        await JS.InvokeVoidAsync("closeMediaModal");
+        StateHasChanged();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initializeDropzone");
+        }
+    }
+
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
+
+    private async Task OnSearch()
+    {
+        await LoadPosts();
+    }
+}
+
+<style>
+    .selected-icon {
+        position: absolute;
+        top: 5px; /* Khoảng cách từ trên */
+        left: 5px; /* Khoảng cách từ bên trái */
+        font-size: 24px; /* Kích thước chữ lớn hơn */
+        color: white; /* Màu sắc của dấu tích */
+        background-color: rgba(0, 0, 0, 0.5); /* Nền mờ để dễ nhìn */
+        border-radius: 50%; /* Bo tròn để giống nút chọn */
+        padding: 5px; /* Khoảng cách bên trong */
+        z-index: 10; /* Đảm bảo nút tích nằm trên ảnh */
+    }
+
+</style>
 <script>
     window.initializeDropzone = () => {
         if (typeof Dropzone !== 'undefined') {
@@ -120,50 +206,3 @@
         }
     };
 </script>
-
-
-@code {
-    private List<Files> listFiles = new();
-    private Files files = new();
-    private string search_query = string.Empty;
-    private int page_number = 1;
-    private int total_pages = 1;
-    private int page_size = 21;
-    private int totalItems;
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadPosts();
-    }
-    private async Task LoadPosts()
-    {
-        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        // Lấy danh sách tệp theo phân trang
-        listFiles = await sev.GetByTypeAsync(page_number, page_size, search_query);
-        totalItems = await sev.GetTotalCountAsync(searchTerm);
-        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
-        StateHasChanged();
-    }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await JS.InvokeVoidAsync("initializeDropzone");
-        }
-    }
-    private async Task GoToPage(int page)
-    {
-        page_number = page;
-        await LoadPosts();
-    }
-    private async Task OnPageSizeChanged(int newPageSize)
-    {
-        page_size = newPageSize;
-        page_number = 1;
-        await LoadPosts();
-    }
-    private async Task OnSearch()
-    {
-        await LoadPosts();
-    }
-
-}

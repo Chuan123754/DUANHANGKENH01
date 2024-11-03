@@ -1,4 +1,4 @@
-﻿@page "/admin/designer/create"
+﻿@* 
 @inject IDesignerServices sev
 @inject NavigationManager nav
 @inject IJSRuntime JS
@@ -7,7 +7,8 @@
 <div class="page-wrapper">
     <div class="page-header d-print-none">
         <div class="container-xl">
-            <div class="row g-2 align-items-center">
+            <div class="row 
+                g-2 align-items-center">
                 <div class="col">
                     <h2 class="page-title">
                         Thêm nhà thiết kế
@@ -131,10 +132,11 @@
                                             Ảnh nhà thiết kế
                                         </button>
                                     </h2>
-                                    <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                    <div id="designerImage" class="accordion-collapse collapse show">
                                         <div class="accordion-body pt-0">
-                                            <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
-                                                onclick="openMediaModal()">
+                                            <div id="feature_image"
+                                                 class="image-post-box d-flex align-items-center justify-content-center"
+                                                 @onclick='() => OpenMediaModalOne(false, "feature_image")'>
                                                 @if (!string.IsNullOrEmpty(designer.image))
                                                 {
                                                     <img src="@designer.image" class="w-100 h-100 object-cover" />
@@ -150,7 +152,6 @@
                                                     </div>
                                                 }
                                             </div>
-
                                         </div>
                                     </div>
                                 </div>
@@ -177,7 +178,7 @@
                                                         }
                                                     }
                                                     <div class="image-post-box d-flex align-items-center justify-content-center"
-                                                         @onclick='() => OpenMediaModalN(true, "image_library")'>
+                                                         @onclick='() => OpenMediaModal(true, "image_library")'>
                                                         <div class="icon d-flex align-items-center justify-content-center">
                                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -192,15 +193,12 @@
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </div>
             </EditForm>
-            <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
-
-            <Modal OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal>
-
+            <Media_modal OnImagesSelectedN="HandleImageSelectedMultiple"></Media_modal>
+           <Modal OnImageSelectedOne="HandleImageSelectedSingle"></Modal>
         </div>
     </div>
 </div>
@@ -209,9 +207,6 @@
     private Designer designer = new Designer();
     private MetaData metaData = new MetaData();
     private Dictionary<string, string> statuses = new Dictionary<string, string>();
-    private Media_modal mediaModalRef;
-    private Modal mediaLibraryModal;
-    private bool tinyMCEInitialized = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -220,73 +215,75 @@
         metaData = new MetaData();
     }
 
-    private async Task HandleImageSelectedN(List<string> imagePaths)
+    private async Task HandleImageSelectedMultiple(List<string> imagePaths)
     {
         designer.image_library = string.Join(",", imagePaths);
         StateHasChanged();
-        await JS.InvokeVoidAsync("openMediaModalN");
     }
 
-
-    private async Task HandleImageSelected(string imagePath)
+    public void HandleImageSelectedSingle(string imagePath)
     {
-        designer.image = imagePath;
-        StateHasChanged();
-        await JS.InvokeVoidAsync("closeMediaModal");
+        if (!string.IsNullOrEmpty(imagePath))
+        {
+            designer.image = imagePath;
+            StateHasChanged();
+        }
     }
-
-    private async Task OpenMediaModalN(bool isMultiple, string referId)
+    private async Task OpenMediaModal(bool isMultiple, string referId)
     {
-        await JS.InvokeVoidAsync("openMediaModalN", isMultiple, referId);
+        await JS.InvokeVoidAsync("openMediaModal", true, referId);
+
+    }
+    private async Task OpenMediaModalOne(bool isMultiple, string referId)
+    {
+        await JS.InvokeVoidAsync("openMediaModalSingle", referId);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            if (!tinyMCEInitialized)
-            {
-                await JS.InvokeVoidAsync("initTinyMCE");
-                tinyMCEInitialized = true;
-            }
-        }
-    }
-    public async ValueTask DisposeAsync()
-    {
-        if (tinyMCEInitialized)
-        {
-            await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
+            await JS.InvokeVoidAsync("initTinyMCE");
+            await JS.InvokeVoidAsync("setTinyMCEContent", designer.description);
         }
     }
     private async Task SubmitForm()
     {
+        designer.description = await JS.InvokeAsync<string>("getTinyMCEContent");
         designer.SetMetaData(metaData);
         await sev.Create(designer);
         nav.NavigateTo("/admin/designer");
     }
-
-
 }
 <script>
-    function openMediaModal() {
+    function openMediaModal(isMultiple, referId) {
+        clearSelectedImages();
         var modalElement = document.getElementById('mediaModal');
         if (modalElement) {
+            modalElement.setAttribute('data-multiple', isMultiple ? "true" : "false");
+            modalElement.setAttribute('data-refer-id', referId);
+
             if (!modalElement._bsModalInstance) {
                 modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
             }
             modalElement._bsModalInstance.show();
+        } else {
+            console.error("Không tìm thấy phần tử với id 'mediaModal'.");
         }
     }
 
-    function openMediaModalN(isMultiple) {
-        console.log("OpenMediaModalN called with isMultiple: " + isMultiple);
-        var modalElement = document.getElementById('mediaLibraryModal');
+    function openMediaModalSingle(referId) {
+        var modalElement = document.getElementById('mediaModal');
         if (modalElement) {
-            modalElement.setAttribute('data-multiple', isMultiple ? "true" : "false");
+            modalElement.setAttribute('data-multiple', "false");
+            modalElement.setAttribute('data-refer-id', referId);
+
             if (!modalElement._bsModalInstance) {
                 modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
             }
             modalElement._bsModalInstance.show();
+        } else {
+            console.error("Không tìm thấy phần tử với id 'mediaModal'.");
         }
     }
 
@@ -297,10 +294,231 @@
         }
     }
 
-    function closeMediaModalN() {
-        var modalElement = document.getElementById('mediaLibraryModal');
-        if (modalElement && modalElement._bsModalInstance) {
-            modalElement._bsModalInstance.hide();
+    function setTinyMCEContent(content) {
+        tinymce.get('tinymce-textarea').setContent(content);
+    }
+    function initTinyMCE() {
+        tinymce.init({
+            selector: '#tinymce-textarea',
+            plugins: 'link image code',
+            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
+        });
+    }
+
+    function getTinyMCEContent() {
+        return tinymce.get('tinymce-textarea').getContent();
+    }
+</script>
+
+
+
+
+
+    @inject HttpClient Http
+@using System.Net.Http.Json
+@inject FilesIServices sev
+@inject IJSRuntime JS
+
+<div class="modal fade show" id="mediaModal" tabindex="-1">
+    <input type="hidden" id="media_multiple" value="true">
+    <input type="hidden" id="media_refer_id" value="image_library">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Quản lý media</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <div class="page-body">
+                        <div class="container-xl">
+                            <form class="dropzone mb-5" id="dropzone-default" enctype="multipart/form-data">
+                                <div class="fallback">
+                                    <input name="file" type="file" accept="image/*" multiple />
+                                </div>
+                            </form>
+
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                        <EditForm Model="files" class="search-form" OnValidSubmit="@OnSearch">
+                                            <div class="form-group d-flex gap-2">
+                                                <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                            </div>
+                                        </EditForm>
+                                    </div>
+                                    <div id="table-default">
+                                        <div class="d-grid" style="grid-template-columns: repeat(7, 1fr); gap: 16px">
+                                            @if (listFiles != null)
+                                            {
+                                                @foreach (var file in listFiles)
+                                                {
+                                                    <div class="image-item" data-name="@file.Name" data-id="@file.Id" style="position: relative;" key="@file.Id">
+                                                        <button type="button" class="btn btn-default p-0 m-0 btn-choose-image"
+                                                                @onclick="() => ToggleSelectImage(file.Path)"
+                                                                data-file-id="@file.Id" data-file-image="@file.Path"
+                                                                style="width: 100%">
+                                                            <img src="@file.Path" class="w-100 object-fit-cover" alt="IMG" height="150" />
+                                                        </button>
+                                                        @if (IsImageSelected(file.Path))
+                                                        {
+                                                            <span class="selected-icon">✓</span>
+                                                        }
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                        <div class="mt-4">
+                                            <PaginationMediaModal TItem="Files" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button id="fileConfirm" type="button" class="btn btn-primary" @onclick="ConfirmSelection">Chọn</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public EventCallback<List<string>> OnImagesSelectedN { get; set; }
+    private List<Files> listFiles = new();
+    private Files files = new Files();
+    private List<string> selectedImages = new List<string>();
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 21;
+    private int totalItems;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPosts();
+    }
+
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        listFiles = await sev.GetByTypeAsync(page_number, page_size, search_query);
+
+        totalItems = await sev.GetTotalCountAsync(searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+
+    private async Task ToggleSelectImage(string imagePath)
+    {
+        if (selectedImages.Contains(imagePath))
+        {
+            selectedImages.Remove(imagePath);
         }
-    }   
-</script>  
+        else
+        {
+            selectedImages.Add(imagePath);
+        }
+        StateHasChanged();
+    }
+
+    private async Task ConfirmSelection()
+    {
+        await OnImagesSelectedN.InvokeAsync(selectedImages);
+        await JS.InvokeVoidAsync("eval", "bootstrap.Modal.getInstance(document.getElementById('mediaModal')).hide()");
+    }
+
+    private bool IsImageSelected(string imagePath)
+    {
+        return selectedImages.Contains(imagePath);
+    }
+
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
+
+    private async Task OnSearch()
+    {
+        await LoadPosts();
+    }
+}
+<script>
+    function openMediaModal(isMultiple, referId) {
+        var modalElement = document.getElementById('mediaModal');
+        modalElement.setAttribute('data-multiple', isMultiple);
+        modalElement.setAttribute('data-refer-id', referId);
+        var modal = new bootstrap.Modal(modalElement);
+        modal.show();
+    }
+</script>
+
+<script>
+    window.initializeDropzone = () => {
+        if (typeof Dropzone !== 'undefined') {
+            if (Dropzone.instances.length > 0) {
+                Dropzone.instances.forEach(dz => dz.destroy());
+            }
+
+            var dropzone = new Dropzone("#dropzone-default", {
+                url: "https://localhost:7011/api/Files/upload",
+                method: "post",
+                autoProcessQueue: true,
+                addRemoveLinks: true,
+                parallelUploads: 20,
+                maxFilesize: 1,
+                dictRemoveFile: "Xóa",
+                init: function () {
+                    this.on("success", function (file, response) {
+                        toastr.success('Thêm thành công.');
+                        this.removeFile(file);
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 2000);
+                    });
+
+                    this.on("error", function (file, errorMessage) {
+                        toastr.error('Thêm thất bại: ' + errorMessage);
+                        this.removeFile(file);
+                    });
+
+                    this.on("maxfilesexceeded", function (file) {
+                        toastr.error('Tệp vượt quá kích thước tối đa cho phép (1 MB).');
+                        this.removeFile(file);
+                    });
+                }
+            });
+        } else {
+            console.error("Dropzone is not defined. Make sure the script is included.");
+        }
+    };
+</script>
+
+<style>
+    .selected-icon {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        font-size: 24px;
+        color: white;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        padding: 5px;
+        z-index: 10;
+    }
+</style>
+   *@

@@ -1,34 +1,231 @@
-﻿<div class="modal modal-blur fade" id="@Id" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
-        <EditForm Action="@FormAction" Method="post" enctype="multipart/form-data">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">@Title</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    @((MarkupString)BodyContent)
-                </div>
-                <div class="modal-footer">
-                    <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-                        @ButtonCancelText
-                    </a>
-                    <button type="@ButtonType" class="btn btn-primary ms-auto">
-                        @((MarkupString)ButtonConfirmIcon)
-                        @ButtonConfirmLabel
-                    </button>
+﻿@inject HttpClient Http
+@using System.Net.Http.Json
+@inject FilesIServices sev
+@inject IJSRuntime JS
+
+<div class="modal fade show" id="mediaLibraryModal" tabindex="-1">
+    <input type="hidden" id="media_multiple">
+    <input type="hidden" id="media_refer_id">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Quản lý media</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <div class="page-body">
+                        <div class="container-xl">
+                            <form class="dropzone mb-5" id="dropzone-default-n" enctype="multipart/form-data">
+                                <div class="fallback">
+                                    <input name="file" type="file" accept="image/*" multiple />
+                                </div>
+                            </form>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                        <div></div>
+                                        <EditForm Model="files" class="search-form" OnValidSubmit="@OnSearch">
+                                            <div class="form-group d-flex gap-2">
+                                                <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                            </div>
+                                        </EditForm>
+                                    </div>
+                                    <div id="table-default">
+                                        <div class="d-grid" style="grid-template-columns: repeat(7, 1fr); gap: 16px">
+                                            @if (listFiles != null)
+                                            {
+                                                @foreach (var file in listFiles)
+                                                {
+                                                    <div class="image-item" data-id="@file.Id" style="position: relative;">
+                                                        <button type="button" class="btn btn-default p-0 m-0 btn-choose-image"
+                                                                @onclick="() => ToggleSelectImage(file.Path)"
+                                                                data-file-id="@file.Id" data-file-image="@file.Path"
+                                                                style="width: 100%">
+                                                            <img src="@file.Path" class="w-100 object-fit-cover" alt="IMG" height="150" />
+                                                        </button>
+                                                        @if (IsImageSelected(file.Path))
+                                                        {
+                                                            <span class="selected-icon">✓</span>
+                                                        }
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                        <div class="mt-4">
+                                            <PaginationMediaModal TItem="Files" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </EditForm>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button id="fileConfirm" type="button" class="btn btn-primary" @onclick="ConfirmSelection">Chọn</button>
+            </div>
+        </div>
     </div>
 </div>
+
 @code {
-    [Parameter] public string Id { get; set; }
-    [Parameter] public string Title { get; set; }
-    [Parameter] public string BodyContent { get; set; }
-    [Parameter] public string ButtonCancelText { get; set; }
-    [Parameter] public string ButtonType { get; set; }
-    [Parameter] public string ButtonConfirmLabel { get; set; }
-    [Parameter] public string ButtonConfirmIcon { get; set; }
-    [Parameter] public string FormAction { get; set; }
+    [Parameter]
+    public EventCallback<List<string>> OnImagesSelectedN { get; set; }
+    private List<Files> listFiles = new();
+    private Files files = new();
+    private List<string> selectedImages = new List<string>();
+    private bool dropzoneInitialized = false;
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 21;
+    private int totalItems;
+
+
+    private async Task SelectImages()
+    {
+        await OnImagesSelectedN.InvokeAsync(selectedImages);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPosts();
+    }
+
+    private async Task LoadPosts()
+    {
+        listFiles = await sev.GetByTypeAsync(page_number, page_size, search_query);
+        totalItems = await sev.GetTotalCountAsync(search_query);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+
+    private void ToggleSelectImage(string imagePath)
+    {
+        if (selectedImages.Contains(imagePath))
+        {
+            selectedImages.Remove(imagePath);
+        }
+        else
+        {
+            selectedImages.Add(imagePath);
+        }
+    }
+
+    private async Task ConfirmSelection()
+    {
+        await OnImagesSelectedN.InvokeAsync(selectedImages);
+        await JS.InvokeVoidAsync("closeMediaModalN");
+    }
+
+    public async Task OpenMediaModal(bool isMultiple)
+    {
+        selectedImages.Clear();
+        await JS.InvokeVoidAsync("openMediaModalN", isMultiple);
+        StateHasChanged();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !dropzoneInitialized)
+        {
+            await JS.InvokeVoidAsync("initializeDropzoneMutile");
+            dropzoneInitialized = true;
+        }
+    }
+
+    private bool IsImageSelected(string imagePath)
+    {
+        return selectedImages.Contains(imagePath);
+    }
+
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
+
+    private async Task OnSearch()
+    {
+        await LoadPosts();
+    }
 }
+<script>
+    function openMediaModalN(isMultiple) {
+        var modalElement = document.getElementById('mediaLibraryModal');
+        if (modalElement) {
+            modalElement.setAttribute('data-multiple', isMultiple ? "true" : "false");
+            if (!modalElement._bsModalInstance) {
+                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
+            }
+            modalElement._bsModalInstance.show();
+        }
+    }
+
+    window.initializeDropzoneMutile = () => {
+        if (typeof Dropzone !== 'undefined') {
+            if (Dropzone.instances.length > 0) {
+                Dropzone.instances.forEach(dz => dz.destroy());
+            }
+
+            var dropzone = new Dropzone("#dropzone-default-n", {
+                url: "https://localhost:7011/api/Files/upload",  // URL của API
+                method: "post",
+                autoProcessQueue: true,
+                addRemoveLinks: true,
+                parallelUploads: 20,
+                maxFilesize: 1, // Kích thước tối đa là 1 MB
+                dictRemoveFile: "Xóa",
+                init: function () {
+                    this.on("success", function (file, response) {
+                        toastr.success('Thêm thành công.');
+                        // Xóa tệp khỏi Dropzone sau khi upload thành công
+                        this.removeFile(file);
+
+                        setTimeout(() => {
+                            location.reload(); // Reload the page after 2 seconds
+                        }, 2000);
+                    });
+
+
+                    this.on("error", function (file, errorMessage) {
+                        toastr.error('Thêm thất bại: ' + errorMessage);
+                        this.removeFile(file); // Xóa tệp khỏi Dropzone nếu có lỗi
+                    });
+
+                    // Thông báo lỗi nếu kích thước tệp vượt quá mức tối đa
+                    this.on("maxfilesexceeded", function (file) {
+                        toastr.error('Tệp vượt quá kích thước tối đa cho phép (1 MB).');
+                        this.removeFile(file); // Xóa tệp khỏi Dropzone nếu vượt kích thước
+                    });
+                }
+            });
+        } else {
+            console.error("Dropzone is not defined. Make sure the script is included.");
+        }
+    };
+</script>
+
+<style>
+    .selected-icon {
+        position: absolute;
+        top: 5px; /* Khoảng cách từ trên */
+        left: 5px; /* Khoảng cách từ bên trái */
+        font-size: 24px; /* Kích thước chữ lớn hơn */
+        color: white; /* Màu sắc của dấu tích */
+        background-color: rgba(0, 0, 0, 0.5); /* Nền mờ để dễ nhìn */
+        border-radius: 50%; /* Bo tròn để giống nút chọn */
+        padding: 5px; /* Khoảng cách bên trong */
+        z-index: 10; /* Đảm bảo nút tích nằm trên ảnh */
+    }
+
+</style>
