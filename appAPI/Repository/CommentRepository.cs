@@ -7,9 +7,9 @@ namespace appAPI.Repository
     public class CommentRepository: ICommentRepository
     {
         APP_DATA_DATN _context;
-        public CommentRepository()
+        public CommentRepository(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
         public async Task<List<Comments>> GetAll()
         {

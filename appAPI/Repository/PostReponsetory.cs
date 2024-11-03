@@ -7,9 +7,9 @@ namespace appAPI.Repository
     public class PostReponsetory : IPostReponsetory
     {
         private readonly APP_DATA_DATN _context;
-        public PostReponsetory()
+        public PostReponsetory(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
         public async Task<Product_Posts> CreatePost(Product_Posts post, List<long> tagIds, List<long> category)
         {

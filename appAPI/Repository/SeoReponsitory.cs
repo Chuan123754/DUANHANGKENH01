@@ -7,9 +7,9 @@ namespace  appAPI.Repository
     public class SeoReponsitory : SeoIReponsitory
     {
         private readonly APP_DATA_DATN _context;
-        public SeoReponsitory()
+        public SeoReponsitory(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
         public async Task CreateSeo(Seo seo)
         {

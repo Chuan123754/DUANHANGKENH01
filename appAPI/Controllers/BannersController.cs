@@ -9,10 +9,11 @@ namespace appAPI.Controllers
     public class BannersController : ControllerBase
     {
         APP_DATA_DATN context;
-        public BannersController()
+        public BannersController(APP_DATA_DATN _context)
         {
-            context = new APP_DATA_DATN();
+            context = _context;
         }
+
 
         [HttpGet("Banners-get")]
         public IActionResult Get()

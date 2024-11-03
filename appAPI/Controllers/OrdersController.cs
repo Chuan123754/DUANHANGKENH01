@@ -12,10 +12,10 @@ namespace appAPI.Controllers
     [ApiController]
     public class OrdersController : ControllerBase
     {
-        private readonly OrderReponsitory _repo;
-        public OrdersController()
+        private readonly OrderIReponsitory _repo;
+        public OrdersController(OrderIReponsitory repon)
         {
-            _repo = new OrderReponsitory();
+            _repo = repon;
         }
         // GET: api/<OrdersController>
         [HttpGet("All-Orders")]

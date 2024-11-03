@@ -8,9 +8,9 @@ namespace appAPI.Repository
     public class TagsRepository : ITagsRepository
     {
         APP_DATA_DATN context;
-        public TagsRepository()
+        public TagsRepository(APP_DATA_DATN _context)
         {
-            context = new APP_DATA_DATN();
+            context = _context;
         }
         public async Task Create(Tags tag)
         {

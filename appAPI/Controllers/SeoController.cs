@@ -10,10 +10,10 @@ namespace appAPI.Controllers
     [ApiController]
     public class SeoController : ControllerBase
     {
-        private readonly SeoReponsitory _repon;
-        public SeoController()
+        private readonly SeoIReponsitory _repon;
+        public SeoController(SeoIReponsitory repon)
         {
-            _repon = new SeoReponsitory();
+            _repon = repon;
         }
         [HttpGet("Get-id")]
         public async Task<Seo> GetById(long id)
