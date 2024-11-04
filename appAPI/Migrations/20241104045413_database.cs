@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace appAPI.Migrations
 {
-    public partial class taodataabse : Migration
+    public partial class database : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -496,6 +496,46 @@ namespace appAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "product_post",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Slug = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    AuthorId = table.Column<long>(type: "bigint", nullable: true),
+                    Deleted = table.Column<bool>(type: "bit", nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    product_video = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Short_description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Image_library = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Feature_image = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Post_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Created_by = table.Column<long>(type: "bigint", nullable: true),
+                    Updated_by = table.Column<long>(type: "bigint", nullable: true),
+                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_product_post", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_product_post_AspNetUsers_AccountId",
+                        column: x => x.AccountId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_product_post_Designer_AuthorId",
+                        column: x => x.AuthorId,
+                        principalTable: "Designer",
+                        principalColumn: "id_Designer");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "menuitems",
                 columns: table => new
                 {
@@ -520,76 +560,6 @@ namespace appAPI.Migrations
                         principalTable: "menus",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "product_post",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Slug = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    AuthorId = table.Column<long>(type: "bigint", nullable: true),
-                    Deleted = table.Column<bool>(type: "bit", nullable: true),
-                    Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    product_video = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Short_description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Image_library = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Feature_image = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Post_date = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Created_by = table.Column<long>(type: "bigint", nullable: true),
-                    Updated_by = table.Column<long>(type: "bigint", nullable: true),
-                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    ColorId = table.Column<long>(type: "bigint", nullable: true),
-                    MaterialId = table.Column<long>(type: "bigint", nullable: true),
-                    SizeId = table.Column<long>(type: "bigint", nullable: true),
-                    StyleId = table.Column<long>(type: "bigint", nullable: true),
-                    Textile_technologyId = table.Column<long>(type: "bigint", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_product_post", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_product_post_AspNetUsers_AccountId",
-                        column: x => x.AccountId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_product_post_Color_ColorId",
-                        column: x => x.ColorId,
-                        principalTable: "Color",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_product_post_Designer_AuthorId",
-                        column: x => x.AuthorId,
-                        principalTable: "Designer",
-                        principalColumn: "id_Designer");
-                    table.ForeignKey(
-                        name: "FK_product_post_Materials_MaterialId",
-                        column: x => x.MaterialId,
-                        principalTable: "Materials",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_product_post_Sizes_SizeId",
-                        column: x => x.SizeId,
-                        principalTable: "Sizes",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_product_post_Styles_StyleId",
-                        column: x => x.StyleId,
-                        principalTable: "Styles",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_product_post_Textile_Technologies_Textile_technologyId",
-                        column: x => x.Textile_technologyId,
-                        principalTable: "Textile_Technologies",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -847,24 +817,23 @@ namespace appAPI.Migrations
                     Sale_price = table.Column<long>(type: "bigint", nullable: true),
                     Stock_quantity = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Color_id = table.Column<long>(type: "bigint", nullable: false),
                     Textile_technology_id = table.Column<long>(type: "bigint", nullable: false),
                     Material_id = table.Column<long>(type: "bigint", nullable: false),
-                    Size_id = table.Column<long>(type: "bigint", nullable: false),
                     Style_id = table.Column<long>(type: "bigint", nullable: false),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ColorId = table.Column<long>(type: "bigint", nullable: true),
+                    SizeId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_product_variants", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_product_variants_Color_Color_id",
-                        column: x => x.Color_id,
+                        name: "FK_product_variants_Color_ColorId",
+                        column: x => x.ColorId,
                         principalTable: "Color",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_product_variants_Materials_Material_id",
                         column: x => x.Material_id,
@@ -878,11 +847,10 @@ namespace appAPI.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_product_variants_Sizes_Size_id",
-                        column: x => x.Size_id,
+                        name: "FK_product_variants_Sizes_SizeId",
+                        column: x => x.SizeId,
                         principalTable: "Sizes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_product_variants_Styles_Style_id",
                         column: x => x.Style_id,
@@ -949,68 +917,6 @@ namespace appAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Cartdetails",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Product_id = table.Column<long>(type: "bigint", nullable: false),
-                    Cart_id = table.Column<long>(type: "bigint", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Cartdetails", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Cartdetails_carts_Cart_id",
-                        column: x => x.Cart_id,
-                        principalTable: "carts",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Cartdetails_product_variants_Product_id",
-                        column: x => x.Product_id,
-                        principalTable: "product_variants",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "order_details",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderId = table.Column<long>(type: "bigint", nullable: false),
-                    ProductVariants_Id = table.Column<long>(type: "bigint", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    RegularPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    SalePrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    RemainingStockQuantity = table.Column<int>(type: "int", nullable: false),
-                    ProductTitle = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_order_details", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_order_details_orders_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "orders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_order_details_product_variants_ProductVariants_Id",
-                        column: x => x.ProductVariants_Id,
-                        principalTable: "product_variants",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "p_Variants_Discounts",
                 columns: table => new
                 {
@@ -1040,6 +946,42 @@ namespace appAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "product_attributes",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Product_Variant_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Image = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Sku = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Color_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Size_Id = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_product_attributes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_product_attributes_Color_Color_Id",
+                        column: x => x.Color_Id,
+                        principalTable: "Color",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_product_attributes_product_variants_Product_Variant_Id",
+                        column: x => x.Product_Variant_Id,
+                        principalTable: "product_variants",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_product_attributes_Sizes_Size_Id",
+                        column: x => x.Size_Id,
+                        principalTable: "Sizes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Product_Variants_Wishlists",
                 columns: table => new
                 {
@@ -1063,6 +1005,68 @@ namespace appAPI.Migrations
                         principalTable: "wishlist",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Cartdetails",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Product_id = table.Column<long>(type: "bigint", nullable: false),
+                    Cart_id = table.Column<long>(type: "bigint", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cartdetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Cartdetails_carts_Cart_id",
+                        column: x => x.Cart_id,
+                        principalTable: "carts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Cartdetails_product_attributes_Product_id",
+                        column: x => x.Product_id,
+                        principalTable: "product_attributes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "order_details",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderId = table.Column<long>(type: "bigint", nullable: false),
+                    Product_Attribute_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    RegularPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    SalePrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    RemainingStockQuantity = table.Column<int>(type: "int", nullable: false),
+                    ProductTitle = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ProductVariants_Id = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_order_details", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_order_details_orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_order_details_product_attributes_ProductVariants_Id",
+                        column: x => x.ProductVariants_Id,
+                        principalTable: "product_attributes",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
@@ -1212,6 +1216,21 @@ namespace appAPI.Migrations
                 column: "Tag_Id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_product_attributes_Color_Id",
+                table: "product_attributes",
+                column: "Color_Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_product_attributes_Product_Variant_Id",
+                table: "product_attributes",
+                column: "Product_Variant_Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_product_attributes_Size_Id",
+                table: "product_attributes",
+                column: "Size_Id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_product_post_AccountId",
                 table: "product_post",
                 column: "AccountId");
@@ -1222,34 +1241,9 @@ namespace appAPI.Migrations
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_product_post_ColorId",
-                table: "product_post",
-                column: "ColorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_product_post_MaterialId",
-                table: "product_post",
-                column: "MaterialId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_product_post_SizeId",
-                table: "product_post",
-                column: "SizeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_product_post_StyleId",
-                table: "product_post",
-                column: "StyleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_product_post_Textile_technologyId",
-                table: "product_post",
-                column: "Textile_technologyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_product_variants_Color_id",
+                name: "IX_product_variants_ColorId",
                 table: "product_variants",
-                column: "Color_id");
+                column: "ColorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_product_variants_Material_id",
@@ -1262,9 +1256,9 @@ namespace appAPI.Migrations
                 column: "Post_Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_product_variants_Size_id",
+                name: "IX_product_variants_SizeId",
                 table: "product_variants",
-                column: "Size_id");
+                column: "SizeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_product_variants_Style_id",
@@ -1384,6 +1378,9 @@ namespace appAPI.Migrations
                 name: "menus");
 
             migrationBuilder.DropTable(
+                name: "product_attributes");
+
+            migrationBuilder.DropTable(
                 name: "orders");
 
             migrationBuilder.DropTable(
@@ -1396,31 +1393,25 @@ namespace appAPI.Migrations
                 name: "tags");
 
             migrationBuilder.DropTable(
-                name: "product_variants");
-
-            migrationBuilder.DropTable(
                 name: "wishlist");
 
             migrationBuilder.DropTable(
                 name: "Vouchers");
 
             migrationBuilder.DropTable(
-                name: "product_post");
+                name: "product_variants");
 
             migrationBuilder.DropTable(
                 name: "users");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
                 name: "Color");
 
             migrationBuilder.DropTable(
-                name: "Designer");
+                name: "Materials");
 
             migrationBuilder.DropTable(
-                name: "Materials");
+                name: "product_post");
 
             migrationBuilder.DropTable(
                 name: "Sizes");
@@ -1430,6 +1421,12 @@ namespace appAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "Textile_Technologies");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Designer");
         }
     }
 }

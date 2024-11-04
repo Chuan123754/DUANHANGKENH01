@@ -27,10 +27,8 @@ namespace appAPI.Models
         public long? Sale_price { get; set; }
         public int Stock_quantity { get; set; }
         public string? Description { get; set; } 
-        public long Color_id { get; set; }
         public long Textile_technology_id { get; set; }
         public long Material_id { get; set; }
-        public long Size_id { get; set; }
         public long Style_id { get; set; }
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set; }
@@ -38,22 +36,17 @@ namespace appAPI.Models
         [ForeignKey("Post_Id")]
         [JsonIgnore]
         public virtual Product_Posts? Posts { get; set; }
-        [ForeignKey("Size_id")]
-        [JsonIgnore]
-        public virtual Size Size { get; set; } = new Size();
         [ForeignKey("Style_id")]
         [JsonIgnore]
         public virtual Style Style { get; set; } = new Style();
         [ForeignKey("Material_id")]
         [JsonIgnore]
         public virtual Material Material { get; set; } = new Material();
-        [ForeignKey("Color_id")]
-        [JsonIgnore]
-        public virtual Color? Color { get; set; } = new Color();
         [ForeignKey("Textile_technology_id")]
         [JsonIgnore]
         public virtual Textile_technology Textile_Technology { get; set; } = new Textile_technology();
         public virtual ICollection<P_variants_discount> p_variants_discount { get; set; } = new List<P_variants_discount>();
         public virtual ICollection<Product_variants_wishlist> Product_Variants_Wishlists { get; set; } = new List<Product_variants_wishlist>();
+        public virtual ICollection<Product_Attributes> Product_Attributes { get; set; } = new List<Product_Attributes>();
     }
 }
