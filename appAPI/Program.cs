@@ -69,6 +69,8 @@ builder.Services.AddScoped<OrderDetailsIReponsitory, OrderDetailsReponsitory>();
 builder.Services.AddScoped<MenuIReponsitory, MenuReponsitory>();
 builder.Services.AddScoped<IDesignerRepon, DesignerRepon>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<IProductAttributesRepository, ProductAttributesRepository>();
+builder.Services.AddScoped<IProductVariantsRepository, ProductVariantsRepository>();
 
 // Đăng ký CORS
 builder.Services.AddCors(options =>
