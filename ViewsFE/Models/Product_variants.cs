@@ -15,7 +15,7 @@ namespace ViewsFE.Models
     {
         [Key]
         public long Id { get; set; }
-        public long Post_Id { get; set; }
+        public long Post_Id { get; set; } // là sản phẩm
         [StringLength(255)]
         public string? Image { get; set; }
         [StringLength(100)]
