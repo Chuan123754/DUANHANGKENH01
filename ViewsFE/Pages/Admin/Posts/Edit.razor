@@ -297,13 +297,11 @@
                 .Where(id => id > 0)
                 .ToList();
         }
-
-
-        await sev.CreatePost(Posts, SelectedTags, SelectedCategories);
+     //   await sev.CreatePost(Posts, SelectedTags, SelectedCategories);
         nav.NavigateTo("/admin/post");
     }
 }
-<script>
+@* <script>
     function openMediaModal() {
         var modalElement = document.getElementById('mediaModal');
         if (modalElement) {
@@ -425,4 +423,4 @@
         }
         return '';
     }
-</script>
+</script> *@

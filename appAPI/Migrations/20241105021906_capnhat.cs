@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace appAPI.Migrations
 {
-    public partial class database : Migration
+    public partial class capnhat : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -815,25 +815,17 @@ namespace appAPI.Migrations
                     Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Regular_price = table.Column<long>(type: "bigint", nullable: true),
                     Sale_price = table.Column<long>(type: "bigint", nullable: true),
-                    Stock_quantity = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Textile_technology_id = table.Column<long>(type: "bigint", nullable: false),
                     Material_id = table.Column<long>(type: "bigint", nullable: false),
                     Style_id = table.Column<long>(type: "bigint", nullable: false),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ColorId = table.Column<long>(type: "bigint", nullable: true),
-                    SizeId = table.Column<long>(type: "bigint", nullable: true)
+                    Deleted_at = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_product_variants", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_product_variants_Color_ColorId",
-                        column: x => x.ColorId,
-                        principalTable: "Color",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_product_variants_Materials_Material_id",
                         column: x => x.Material_id,
@@ -846,11 +838,6 @@ namespace appAPI.Migrations
                         principalTable: "product_post",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_product_variants_Sizes_SizeId",
-                        column: x => x.SizeId,
-                        principalTable: "Sizes",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_product_variants_Styles_Style_id",
                         column: x => x.Style_id,
@@ -956,7 +943,8 @@ namespace appAPI.Migrations
                     Sku = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Color_Id = table.Column<long>(type: "bigint", nullable: false),
-                    Size_Id = table.Column<long>(type: "bigint", nullable: false)
+                    Size_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Product_VariantId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -968,11 +956,10 @@ namespace appAPI.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_product_attributes_product_variants_Product_Variant_Id",
-                        column: x => x.Product_Variant_Id,
+                        name: "FK_product_attributes_product_variants_Product_VariantId",
+                        column: x => x.Product_VariantId,
                         principalTable: "product_variants",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_product_attributes_Sizes_Size_Id",
                         column: x => x.Size_Id,
@@ -1221,9 +1208,9 @@ namespace appAPI.Migrations
                 column: "Color_Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_product_attributes_Product_Variant_Id",
+                name: "IX_product_attributes_Product_VariantId",
                 table: "product_attributes",
-                column: "Product_Variant_Id");
+                column: "Product_VariantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_product_attributes_Size_Id",
@@ -1241,11 +1228,6 @@ namespace appAPI.Migrations
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_product_variants_ColorId",
-                table: "product_variants",
-                column: "ColorId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_product_variants_Material_id",
                 table: "product_variants",
                 column: "Material_id");
@@ -1254,11 +1236,6 @@ namespace appAPI.Migrations
                 name: "IX_product_variants_Post_Id",
                 table: "product_variants",
                 column: "Post_Id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_product_variants_SizeId",
-                table: "product_variants",
-                column: "SizeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_product_variants_Style_id",
@@ -1399,22 +1376,22 @@ namespace appAPI.Migrations
                 name: "Vouchers");
 
             migrationBuilder.DropTable(
+                name: "Color");
+
+            migrationBuilder.DropTable(
                 name: "product_variants");
 
             migrationBuilder.DropTable(
-                name: "users");
+                name: "Sizes");
 
             migrationBuilder.DropTable(
-                name: "Color");
+                name: "users");
 
             migrationBuilder.DropTable(
                 name: "Materials");
 
             migrationBuilder.DropTable(
                 name: "product_post");
-
-            migrationBuilder.DropTable(
-                name: "Sizes");
 
             migrationBuilder.DropTable(
                 name: "Styles");

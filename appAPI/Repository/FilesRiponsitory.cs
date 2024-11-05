@@ -11,7 +11,7 @@ namespace appAPI.Repository
     {
         private readonly APP_DATA_DATN _context;
         private string _getfilePath = $@"https://localhost:7011/FileMedia/";
-        private string _uploadFolderPath = $@"E:\HangKenh\appAPI\FileMedia";
+        private string _uploadFolderPath = $@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia";
 
         public FilesReponsetory(APP_DATA_DATN context)
         {
@@ -47,7 +47,6 @@ namespace appAPI.Repository
         {
             return await _context.Files.FindAsync(id);
         }
-
         public async Task<List<Files>> Search(string keyword)
         {
             if (string.IsNullOrEmpty(keyword))

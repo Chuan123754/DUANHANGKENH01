@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241104144417_update2")]
-    partial class update2
+    [Migration("20241105021906_capnhat")]
+    partial class capnhat
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

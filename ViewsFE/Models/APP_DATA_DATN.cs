@@ -50,7 +50,7 @@ namespace ViewsFE.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=LAPTOP-I6GJF6D7\\XUANDUNG04;Initial Catalog=DUANTOTNGHIEP04;Integrated Security=True;Trust Server Certificate=True");
+            optionsBuilder.UseSqlServer("Data Source=ADMIN;Initial Catalog=DUANTOTNGHIEP04;Integrated Security=True;Trust Server Certificate=True");
 
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -1,4 +1,5 @@
 ﻿@page "/admin/designer"
+@using System.Text.Json
 @inject NavigationManager nav
 @inject IDesignerServices sev
 @inject IJSRuntime JSRuntime
@@ -65,14 +66,19 @@
                                         <tr class="post-row">
                                             <td>@item.id_Designer</td>
                                             <td class="sort-img">
-                                                @if (!string.IsNullOrEmpty(item.image?.FirstOrDefault().ToString()))
+                                             
+                                                @if (!string.IsNullOrEmpty(item.image))
                                                 {
-                                                    <a href="@item.image.FirstOrDefault().ToString()" target="_blank">
-                                                        <img src="@item.image.FirstOrDefault().ToString()" width="80" height="80" alt="" />
-                                                    </a>
+                                                    <img src="@item.image" width="80" height="80" alt="Designer Image" />
+                                                  @*   var imageUrl = JsonSerializer.Deserialize<List<string>>(item.image)?.FirstOrDefault();
+                                                    if (!string.IsNullOrEmpty(imageUrl))
+                                                    {
+                                                        <a href="@imageUrl" target="_blank">
+                                                            <img src="@imageUrl" width="80" height="80" alt="Designer Image" />
+                                                        </a>
+                                                    } *@
                                                 }
-
-                                            </td>
+                                            </td>                                      
                                             <td class="sort-title">
                                                 @*   <a href="@($"/admin/designer/design-list/{item.id_Designer}")">@item.Name</a> *@
                                                 @item.Name
@@ -84,7 +90,9 @@
                                                 </div>
                                             </td>
                                             <td class="sort-city">@item.slug</td>
-                                            <td class="sort-status">@item.status</td>
+                                            <td class="sort-status">
+                                                <span class="@item.StatusClass">@item.StatusLabel</span>
+                                            </td>
                                             <td class="sort-date">@item.create_at</td>
                                         </tr>
                                     }

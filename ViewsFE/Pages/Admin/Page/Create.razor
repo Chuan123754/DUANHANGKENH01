@@ -190,96 +190,15 @@
     {
      
         // Lấy dữ liệu từ Tom Select
-        var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
-        if (!string.IsNullOrEmpty(tags))
-        {
-            SelectedTags = tags.Split(',')
-                .Select(id => long.TryParse(id, out long result) ? result : 0)
-                .Where(id => id > 0)
-                .ToList();
-        }
+            var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
+            if (!string.IsNullOrEmpty(tags))
+            {
+                SelectedTags = tags.Split(',')
+                    .Select(id => long.TryParse(id, out long result) ? result : 0)
+                    .Where(id => id > 0)
+                    .ToList();
+            }
         await sev.CreatePage(Posts, SelectedTags);
         nav.NavigateTo("/admin/page");
     }
 }
-<script>
-
-    function openMediaModal() {
-        var modalElement = document.getElementById('mediaModal');
-        if (modalElement) {
-            if (!modalElement._bsModalInstance) {
-                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
-            }
-            modalElement._bsModalInstance.show();
-        } else {
-            console.error("Không tìm thấy phần tử với id 'mediaModal'.");
-        }
-    }
-    function closeMediaModal() {
-        var modalElement = document.getElementById('mediaModal');
-        if (modalElement && modalElement._bsModalInstance) {
-            modalElement._bsModalInstance.hide();
-        }
-    }
-
-    window.TagsList = [];
-    function initializeTagsList(tags) {
-        if (tags && tags.length > 0) {
-            window.TagsList = tags;
-            console.log('TagsList initialized:', window.TagsList);
-        } else {
-            console.log('Failed to initialize TagsList. Empty or undefined.');
-        }
-    }
-
-
-
-    function initializeTomSelect(selector) {
-        resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới
-
-        const element = document.querySelector(selector);
-        if (element) {
-            new TomSelect(selector, {
-                create: true, // Cho phép thêm mới cho từ khóa
-                persist: false,
-                hideSelected: true,
-                closeAfterSelect: true,
-                delimiter: ',',
-                plugins: ['remove_button'],
-                sortField: {
-                    field: 'text',
-                    direction: 'asc'
-                },
-                searchField: ['text'],
-                maxOptions: null,
-                preload: false, // Đặt thành false để chỉ tải kết quả khi người dùng tìm kiếm
-                load: function (query, callback) {
-                    if (!window.TagsList || window.TagsList.length === 0) {
-                        console.log('TagsList is empty or undefined.');
-                        return callback();
-                    }
-
-                    // Chỉ hiển thị khi có nội dung được nhập
-                    if (query.length > 0) {
-                        const results = window.TagsList.filter(tag =>
-                            tag?.title?.toLowerCase().includes(query.toLowerCase())
-                        );
-
-                        callback(results.map(tag => ({ value: tag.id, text: tag.title })));
-                    } else {
-                        callback(); // Không trả về kết quả nếu không có query
-                    }
-                }
-            });
-        }
-    }
-
-    function getSelectedValues(selector) {
-        const element = document.querySelector(selector);
-        if (element && element.tomselect) {
-            return element.tomselect.getValue().join(','); // Chuyển đổi mảng thành chuỗi
-        }
-        return '';
-    }
-
-</script>
