@@ -1,6 +1,6 @@
-﻿using ViewsFE.Models;
+﻿using ClientViews.Models;
 
-namespace ViewsFE.IServices
+namespace ClientViews.IServices
 {
     public interface IPostSer
     {

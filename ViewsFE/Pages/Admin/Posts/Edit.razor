@@ -46,7 +46,7 @@
 
                                 <div class="mb-3">
                                     <label for="tinymce-textarea" class="form-label">Mô tả</label>
-                                    <InputTextArea @bind-Value="Posts.Description" class="form-control" id="tinymce-textarea" rows="7" />
+                                    <textarea id="tinymce-textarea" @bind="Posts.Description" class="form-control" rows="7"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -233,7 +233,7 @@
     private List<long> SelectedTags = new List<long>();
     private List<Designer> designersList = new List<Designer>();
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
-
+    private bool tinyMCEInitialized = false;
 
     private async Task HandleImageSelected(string imagePath)
     {
@@ -250,12 +250,13 @@
         designersList = await des.GetAll();
         Posts.Status = Product_Posts.STATUS_DRAFT;
     }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && !tinyMCEInitialized)
         {
-            // Khởi tạo TinyMCE
             await JS.InvokeVoidAsync("initTinyMCE");
+            tinyMCEInitialized = true;
         }
         if (TagsList?.Count > 0)
         {
@@ -269,10 +270,15 @@
             await JS.InvokeVoidAsync("initializeTomSelectForCategories", "#categories");
         }
     }
+    public async ValueTask DisposeAsync()
+    {
+        if (tinyMCEInitialized)
+        {
+            await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
+        }
+    }
     private async void HandleValidSubmit()
     {
-        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
-
         // Lấy dữ liệu từ Tom Select
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         if (!string.IsNullOrEmpty(tags))
@@ -314,27 +320,6 @@
         if (modalElement && modalElement._bsModalInstance) {
             modalElement._bsModalInstance.hide();
         }
-    }
-
-    Dom.select(document).ready(function () {
-        // Xoá sự kiện click cũ trước khi đăng ký mới
-        Dom.off('#feature_image', 'click');
-
-        // Bắt sự kiện click vào feature_image để mở modal
-        Dom.click('#feature_image', function () {
-            openMediaModal();
-        });
-    });
-    function initTinyMCE() {
-        tinymce.init({
-            selector: '#tinymce-textarea',
-            plugins: 'link image code',
-            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
-        });
-    }
-
-    function getTinyMCEContent() {
-        return tinymce.get('tinymce-textarea').getContent();
     }
 
 

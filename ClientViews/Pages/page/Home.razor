@@ -1,5 +1,5 @@
 ﻿@page "/"
-
+@inject IPostSer sev
 <section class="section-banner">
     <div class="banner">
         <div class="banner-item">
@@ -749,5 +749,12 @@
 </section>
 
 @code {
+    private List<Product_Posts> product_posts_list = new List<Product_Posts>();
+    private async Task LoadPosts()
+    {
+      
+      //  product_posts_list = await sev.GetAllType("project");
+        product_posts_list = product_posts_list.Where(s => s.Type == "project").OrderByDescending(s => s.Title).Take(3).ToList();
 
+    }
 }

@@ -9,8 +9,12 @@
         <div class="container-xl">
             <div class="row g-2 align-items-center">
                 <div class="col d-flex gap-3">
-                    <h2 class="page-title">Danh sách nhà thiết kế</h2>
-                    <NavLink class="btn btn-sm btn-outline-primary" href="/admin/designer/create">Thêm nhà thiết kế</NavLink>
+                    <h2 class="page-title">
+                        Danh sách nhà thiết kế
+                    </h2>
+                    <a class="btn btn-sm btn-outline-primary" href="/admin/designer/create">
+                        Thêm nhà thiết kế
+                    </a>
                 </div>
             </div>
         </div>
@@ -24,7 +28,6 @@
                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
                         <div></div>
                         <EditForm Model="designer" OnValidSubmit="@OnSearch">
-                            <DataAnnotationsValidator />
                             <div class="form-group d-flex gap-2">
                                 <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
                                 <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
@@ -33,14 +36,14 @@
                     </div>
 
                     <div id="table-default" class="table-responsive">
-                        @if (designersList != null && designersList.Count > 0)
+                        @if (designersList != null && designersList.Any())
                         {
                             <table class="table">
                                 <thead>
                                     <tr>
                                         <th>ID</th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-title">Ảnh</button>
+                                            <button class="table-sort" data-sort="sort-img">Ảnh</button>
                                         </th>
                                         <th>
                                             <button class="table-sort" data-sort="sort-title">Tên nhà thiết kế</button>
@@ -49,7 +52,7 @@
                                             <button class="table-sort" data-sort="sort-score">Đường dẫn</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-score">Trạng thái</button>
+                                            <button class="table-sort" data-sort="sort-status">Trạng thái</button>
                                         </th>
                                         <th>
                                             <button class="table-sort" data-sort="sort-date">Thời gian</button>
@@ -59,9 +62,9 @@
                                 <tbody>
                                     @foreach (var item in designersList)
                                     {
-                                        <tr>
+                                        <tr class="post-row">
                                             <td>@item.id_Designer</td>
-                                            <td>
+                                            <td class="sort-img">
                                                 @if (!string.IsNullOrEmpty(item.image?.FirstOrDefault().ToString()))
                                                 {
                                                     <a href="@item.image.FirstOrDefault().ToString()" target="_blank">
@@ -71,7 +74,8 @@
 
                                             </td>
                                             <td class="sort-title">
-                                                <a href="@($"/admin/designer/design-list/{item.id_Designer}")">@item.Name</a>
+                                                @*   <a href="@($"/admin/designer/design-list/{item.id_Designer}")">@item.Name</a> *@
+                                                @item.Name
                                                 <br />
                                                 <!-- Tạo các hành động sửa và xóa cho sản phẩm con -->
                                                 <div class="cell-action">
@@ -92,7 +96,9 @@
                         }
                         else
                         {
-                            <p class="text-center">Không có dữ liệu</p>
+                            <tr>
+                                <td colspan="7" class="text-center">Không có dữ liệu</td>
+                            </tr>
                         }
                     </div>
                 </div>
@@ -145,7 +151,7 @@
         {
             try
             {
-                await sev.Delete(id);  
+                await sev.Delete(id);
                 await JSRuntime.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
             }
             catch (Exception ex)
@@ -155,8 +161,13 @@
         }
         await LoadPosts();
     }
-    private void NavEditCtgr(long id)
+    private async Task NavEditCtgr(long id)
     {
-        nav.NavigateTo($"/admin/product/edit/{id}");
+        await JSRuntime.InvokeVoidAsync("navigateTo", $"/admin/designer/edit/{id}");
     }
 }
+<script>
+    function navigateTo(url) {
+        window.location.href = url;
+    }
+</script>

@@ -219,7 +219,7 @@
         designer = new Designer();
         metaData = new MetaData();
     }
-
+  
     private async Task HandleImageSelectedN(List<string> imagePaths)
     {
         designer.image_library = string.Join(",", imagePaths);
@@ -264,8 +264,6 @@
         await sev.Create(designer);
         nav.NavigateTo("/admin/designer");
     }
-
-
 }
 <script>
     function openMediaModal() {
