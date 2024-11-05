@@ -67,6 +67,8 @@ builder.Services.AddScoped<IMaterialServices, MaterialServices>();
 builder.Services.AddScoped<IStyleServices, StyleServices>();
 builder.Services.AddScoped<ITextile_technologyServices, Textile_technologyServices>();
 builder.Services.AddScoped<AddressService>();
+builder.Services.AddScoped<IProductAttributeServices, ProductAttributeServices>();
+builder.Services.AddScoped<IProductVariantServices, ProductVariantServices>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
