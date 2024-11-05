@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
@@ -28,5 +29,54 @@ namespace appAPI.Models
         public DateTime update_at { get; set; }
         [JsonIgnore]
         public virtual ICollection<Product_Posts>? Product_Posts { get; set; }
+        // Define constant values for statuses
+        public const string STATUS_UNACTIVE = "UNACTIVE";
+        public const string STATUS_ACTIVE = "ACTIVE";
+
+        // Dictionary to hold status labels
+        public static readonly Dictionary<string, string> STATUSES = new Dictionary<string, string>
+        {
+            { STATUS_ACTIVE, "Hoạt động" },
+            { STATUS_UNACTIVE, "Không hoạt động" }
+        };
+
+        // Dictionary to hold status classes (for styling purposes)
+        public static readonly Dictionary<string, string> STATUS_CLASSES = new Dictionary<string, string>
+        {
+            { STATUS_UNACTIVE, "text-danger" },
+            { STATUS_ACTIVE, "text-success" }
+        };
+
+        // Get the label for the current status
+        public string StatusLabel => STATUSES.ContainsKey(status) ? STATUSES[status] : string.Empty;
+
+        // Get the CSS class for the current status
+        public string StatusClass => STATUS_CLASSES.ContainsKey(status) ? STATUS_CLASSES[status] : string.Empty;
+
+        // Deserialize MetaData from JSON string
+        public MetaData GetMetaData()
+        {
+            return !string.IsNullOrEmpty(meta_data)
+                ? JsonSerializer.Deserialize<MetaData>(meta_data)
+                : new MetaData();
+        }
+
+        // Serialize MetaData to JSON string
+        public void SetMetaData(MetaData data)
+        {
+            meta_data = JsonSerializer.Serialize(data);
+        }
+    }
+
+
+    public class MetaData
+    {
+        public string? facebook { get; set; }
+        public string? twitter { get; set; }
+        public string? instagram { get; set; }
+        public string? youtube { get; set; }
+        public string? tiktok { get; set; }
+        public string? linkedin { get; set; }
+        public string? pinterest { get; set; }
     }
 }

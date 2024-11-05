@@ -6,7 +6,7 @@
 @inject IDesignerServices des
 @inject IJSRuntime JS
 
-<EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
+<EditForm Model="Posts" OnValidSubmit="HandleValidSubmit" >
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="page-wrapper">
@@ -14,7 +14,7 @@
             <div class="container-xl">
                 <div class="row g-2 align-items-center">
                     <div class="col">
-                        <h2 class="page-title">Sửa dự án</h2>
+                        <h2 class="page-title">Thêm dự án</h2>
                     </div>
                 </div>
             </div>
@@ -43,10 +43,11 @@
                                     <label for="shortDescription" class="form-label">Mô tả ngắn</label>
                                     <InputTextArea id="shortDescription" class="form-control" rows="3" @bind-Value="Posts.Short_description" />
                                 </div>
+
                                 <!-- Mô tả -->
                                 <div class="mb-3">
                                     <label for="tinymce-textarea" class="form-label">Mô tả</label>
-                                    <InputTextArea @bind-Value="Posts.Description" class="form-control" id="tinymce-textarea" rows="7" />
+                                    <textarea id="tinymce-textarea" @bind="Posts.Description" class="form-control" rows="7"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -96,7 +97,39 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- #region ảnh đại diện -->
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#category" aria-expanded="true">
+                                            Ảnh đại diện
+                                        </button>
+                                    </h2>
+                                    <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                        <div class="accordion-body pt-0">
+                                            <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
+                                                 data-multiple="false" data-refer-id="#feature_image" onclick="openMediaModal()">
+                                                @if (!string.IsNullOrEmpty(Posts.Feature_image))
+                                                {
+                                                    <img src="@Posts.Feature_image" class="w-100 h-100 object-cover" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="icon d-flex align-items-center justify-content-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M12 5v14" />
+                                                            <path d="M5 12h14" />
+                                                        </svg>
+                                                    </div>
+                                                }
+                                            </div>
 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- #endregion -->
                             <!-- Danh mục bài viết -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
@@ -191,6 +224,8 @@
         </div>
     </div>
 </EditForm>
+
+<Media_modal OnImageSelected="HandleImageSelected"></Media_modal>
 @code {
     [Parameter]
     public long Id { get; set; }
@@ -199,10 +234,16 @@
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
     private List<Designer> designersList = new List<Designer>();
     private List<Tags> TagsList = new();
-    private string FeatureImage { get; set; }
     private List<long> SelectedCategories = new List<long>();
     private List<long> SelectedTags = new List<long>();
+    private bool tinyMCEInitialized = false;
 
+    private async Task HandleImageSelected(string imagePath)
+    {
+        Posts.Feature_image = imagePath;
+        StateHasChanged(); // Cập nhật giao diện
+        await JS.InvokeVoidAsync("closeMediaModal"); // Gọi hàm JavaScript để đóng modal
+    }
     protected override async Task OnInitializedAsync()
     {
         Posts = await sev.GetByIdType(Id, "project");
@@ -217,8 +258,12 @@
     {
         if (firstRender)
         {
-            // Khởi tạo TinyMCE
-            await JS.InvokeVoidAsync("initTinyMCE");
+
+            if (!tinyMCEInitialized)
+            {
+                await JS.InvokeVoidAsync("initTinyMCE");
+                tinyMCEInitialized = true;
+            }
         }
         if (TagsList?.Count > 0)
         {
@@ -230,6 +275,13 @@
         {
             await JS.InvokeVoidAsync("initializeCateList", CategoriesList);
             await JS.InvokeVoidAsync("initializeTomSelectForCategories", "#categories");
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (tinyMCEInitialized)
+        {
+            await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
         }
     }
     private async Task OnTagsChange(ChangeEventArgs e)
@@ -267,8 +319,6 @@
 
     private async Task HandleValidSubmit()
     {
-        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
-
         // Lấy dữ liệu từ Tom Select
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         if (!string.IsNullOrEmpty(tags))
@@ -288,124 +338,7 @@
                 .ToList();
         }
 
-        await sev.CreateProject(Posts, SelectedTags, SelectedCategories);
+        await sev.Update(Posts);
         nav.NavigateTo("/admin/project");
     }
 }
-<script>
-    function initTinyMCE() {
-        tinymce.init({
-            selector: '#tinymce-textarea',
-            plugins: 'link image code',
-            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
-        });
-    }
-
-    function getTinyMCEContent() {
-        return tinymce.get('tinymce-textarea').getContent();
-    }
-
-
-    window.TagsList = [];
-    window.CategoriesList = [];
-    function initializeTagsList(tags) {
-        if (tags && tags.length > 0) {
-            window.TagsList = tags;
-            console.log('TagsList initialized:', window.TagsList);
-        } else {
-            console.log('Failed to initialize TagsList. Empty or undefined.');
-        }
-    }
-    function initializeCateList(cate) {
-        if (cate && cate.length > 0) {
-            window.CategoriesList = cate;
-            console.log('cate initialized:', window.CategoriesList);
-        } else {
-            console.log('Failed to initialize TagsList. Empty or undefined.');
-        }
-    }
-
-    function resetTomSelect(selector) {
-        const element = document.querySelector(selector);
-        if (element && element.tomselect) {
-            element.tomselect.destroy(); // Hủy bỏ instance hiện tại
-        }
-    }
-
-    function initializeTomSelect(selector) {
-        resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới
-
-        const element = document.querySelector(selector);
-        if (element) {
-            new TomSelect(selector, {
-                create: true, // Cho phép thêm mới cho từ khóa
-                persist: false,
-                hideSelected: true,
-                closeAfterSelect: true,
-                delimiter: ',',
-                plugins: ['remove_button'],
-                sortField: {
-                    field: 'text',
-                    direction: 'asc'
-                },
-                searchField: ['text'],
-                maxOptions: null,
-                preload: false, // Đặt thành false để chỉ tải kết quả khi người dùng tìm kiếm
-                load: function (query, callback) {
-                    if (!window.TagsList || window.TagsList.length === 0) {
-                        console.log('TagsList is empty or undefined.');
-                        return callback();
-                    }
-
-                    // Chỉ hiển thị khi có nội dung được nhập
-                    if (query.length > 0) {
-                        const results = window.TagsList.filter(tag =>
-                            tag?.title?.toLowerCase().includes(query.toLowerCase())
-                        );
-
-                        callback(results.map(tag => ({ value: tag.id, text: tag.title })));
-                    } else {
-                        callback(); // Không trả về kết quả nếu không có query
-                    }
-                }
-            });
-        }
-    }
-
-    function initializeTomSelectForCategories(selector) {
-        resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới
-
-        const element = document.querySelector(selector);
-        if (element) {
-            new TomSelect(selector, {
-                create: false,
-                persist: false,
-                hideSelected: true,
-                closeAfterSelect: false,
-                delimiter: ',',
-                plugins: ['remove_button'],
-                sortField: {
-                    field: 'text',
-                    direction: 'asc'
-                },
-                searchField: ['text'],
-                maxOptions: null,
-                preload: true,
-                load: function (query, callback) {
-                    const results = query ?
-                        window.CategoriesList.filter(cate => cate?.title?.toLowerCase().includes(query.toLowerCase())) :
-                        window.CategoriesList;
-
-                    callback(results.map(cate => ({ value: cate.id, text: cate.title })));
-                }
-            });
-        }
-    }
-    function getSelectedValues(selector) {
-        const element = document.querySelector(selector);
-        if (element && element.tomselect) {
-            return element.tomselect.getValue().join(','); // Chuyển đổi mảng thành chuỗi
-        }
-        return '';
-    }
-</script>
