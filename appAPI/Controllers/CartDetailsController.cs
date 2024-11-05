@@ -23,7 +23,7 @@ namespace appAPI.Controllers
         {
             var cartDetails = _context.Cart_Details
                 .Include(cd => cd.Carts)
-                .Include(cd => cd.Product_Variants)
+                .Include(cd => cd.Product_Attributes)
                 .ToList();
             return Ok(cartDetails);
         }
@@ -34,7 +34,7 @@ namespace appAPI.Controllers
         {
             var cartDetail = _context.Cart_Details
                 .Include(cd => cd.Carts)
-                .Include(cd => cd.Product_Variants)
+                .Include(cd => cd.Product_Attributes)
                 .FirstOrDefault(cd => cd.Id == id);
 
             if (cartDetail == null)

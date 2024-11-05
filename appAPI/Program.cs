@@ -69,6 +69,8 @@ builder.Services.AddScoped<OrderDetailsIReponsitory, OrderDetailsReponsitory>();
 builder.Services.AddScoped<MenuIReponsitory, MenuReponsitory>();
 builder.Services.AddScoped<IDesignerRepon, DesignerRepon>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<IProductAttributesRepository, ProductAttributesRepository>();
+builder.Services.AddScoped<IProductVariantsRepository, ProductVariantsRepository>();
 
 // Đăng ký CORS
 builder.Services.AddCors(options =>
@@ -130,7 +132,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
+    FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
     RequestPath = "/FileMedia"
 });
 

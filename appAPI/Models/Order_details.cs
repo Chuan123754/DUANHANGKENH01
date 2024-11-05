@@ -15,7 +15,7 @@ namespace appAPI.Models
         [Key]
         public long Id { get; set; }
         public long OrderId { get; set; }
-        public long ProductVariants_Id { get; set; }
+        public long Product_Attribute_Id { get; set; }
         public int Quantity { get; set; }
         public decimal RegularPrice { get; set; }
         public decimal SalePrice { get; set; }
@@ -30,6 +30,6 @@ namespace appAPI.Models
         public virtual Orders? Orders { get; set; }
         [ForeignKey("ProductVariants_Id")]
         [JsonIgnore]
-        public virtual Product_variants? ProductVariants { get; set; }
+        public virtual Product_Attributes? ProductAttributes { get; set; }
     }
 }

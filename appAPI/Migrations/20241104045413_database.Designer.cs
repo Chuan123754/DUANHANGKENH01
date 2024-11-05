@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using appAPI.Models;
 
@@ -11,9 +12,10 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    partial class APP_DATA_DATNModelSnapshot : ModelSnapshot
+    [Migration("20241104045413_database")]
+    partial class database
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -959,9 +961,6 @@ namespace appAPI.Migrations
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("Product_VariantId")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("Product_Variant_Id")
                         .HasColumnType("bigint");
 
@@ -979,7 +978,7 @@ namespace appAPI.Migrations
 
                     b.HasIndex("Color_Id");
 
-                    b.HasIndex("Product_VariantId");
+                    b.HasIndex("Product_Variant_Id");
 
                     b.HasIndex("Size_Id");
 
@@ -1070,6 +1069,9 @@ namespace appAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
+                    b.Property<long?>("ColorId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("Created_at")
                         .HasColumnType("datetime2");
 
@@ -1095,6 +1097,9 @@ namespace appAPI.Migrations
                     b.Property<long?>("Sale_price")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("SizeId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Sku")
                         .HasMaxLength(100)
                         .IsUnicode(false)
@@ -1103,6 +1108,9 @@ namespace appAPI.Migrations
                     b.Property<string>("Status")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("Stock_quantity")
+                        .HasColumnType("int");
 
                     b.Property<long>("Style_id")
                         .HasColumnType("bigint");
@@ -1115,9 +1123,13 @@ namespace appAPI.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ColorId");
+
                     b.HasIndex("Material_id");
 
                     b.HasIndex("Post_Id");
+
+                    b.HasIndex("SizeId");
 
                     b.HasIndex("Style_id");
 
@@ -1857,17 +1869,19 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Product_Attributes", b =>
                 {
                     b.HasOne("appAPI.Models.Color", "Color")
-                        .WithMany("Product_Attributes")
+                        .WithMany()
                         .HasForeignKey("Color_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Product_variants", "Product_Variant")
                         .WithMany("Product_Attributes")
-                        .HasForeignKey("Product_VariantId");
+                        .HasForeignKey("Product_Variant_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("appAPI.Models.Size", "Size")
-                        .WithMany("Product_Attributes")
+                        .WithMany()
                         .HasForeignKey("Size_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1894,6 +1908,10 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Product_variants", b =>
                 {
+                    b.HasOne("appAPI.Models.Color", null)
+                        .WithMany("Product_Variants")
+                        .HasForeignKey("ColorId");
+
                     b.HasOne("appAPI.Models.Material", "Material")
                         .WithMany("Product_Variants")
                         .HasForeignKey("Material_id")
@@ -1905,6 +1923,10 @@ namespace appAPI.Migrations
                         .HasForeignKey("Post_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("appAPI.Models.Size", null)
+                        .WithMany("Product_Variants")
+                        .HasForeignKey("SizeId");
 
                     b.HasOne("appAPI.Models.Style", "Style")
                         .WithMany("Product_Variants")
@@ -2046,7 +2068,7 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Color", b =>
                 {
-                    b.Navigation("Product_Attributes");
+                    b.Navigation("Product_Variants");
                 });
 
             modelBuilder.Entity("appAPI.Models.Designer", b =>
@@ -2100,7 +2122,7 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Size", b =>
                 {
-                    b.Navigation("Product_Attributes");
+                    b.Navigation("Product_Variants");
                 });
 
             modelBuilder.Entity("appAPI.Models.Style", b =>
