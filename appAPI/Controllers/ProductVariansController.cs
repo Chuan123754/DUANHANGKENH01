@@ -24,7 +24,7 @@ namespace appAPI.Controllers
             {
                 return Ok(result);
             }
-            return NotFound(result);
+            return NotFound();
         }
         [HttpGet("GetProductById")]
         public async Task<IActionResult> GetById(long id)
@@ -34,7 +34,7 @@ namespace appAPI.Controllers
             {
                 return Ok(result);
             }
-            return NotFound(result);
+            return NotFound();
         }
         [HttpPost("CreateProduct")]
         public async Task<IActionResult> Create(Product_variants productVariant)
@@ -66,12 +66,15 @@ namespace appAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(long id)
         {
-            var result = _repo.Delete(id);
-            if (result != null)
+            try
             {
-                return Ok(result);
+                await _repo.Delete(id);
+                return Ok();
             }
-            return NotFound();
+            catch(Exception ex)
+            {
+                return NotFound();
+            }
         }
     }
 }

@@ -22,32 +22,22 @@ namespace appAPI.Repository
         public async Task Delete(long id)
         {
             var deleteItem = await _context.Product_Attributes.FindAsync(id);
-            if(deleteItem!= null)
-            {
-                _context.Product_Attributes.Remove(deleteItem);  
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                throw new NotImplementedException("Not Found");
-            }
+            _context.Product_Attributes.Remove(deleteItem);  
+            await _context.SaveChangesAsync();
+
 
         }
 
         public async Task<List<Product_Attributes>> GetAllProductAttributes()
         {
-            var lst_ProductAttributes = await _context.Product_Attributes
+            return await _context.Product_Attributes
                                                     .Include(p=>p.Size)
                                                     .Include(p=>p.Color)
                                                     .Include(p=>p.Product_Variant).ThenInclude(p=>p.Style)
                                                     .Include(p=>p.Product_Variant).ThenInclude(p=>p.Material)
                                                     .Include(p=>p.Product_Variant).ThenInclude(p=>p.Textile_Technology)
                                                     .ToListAsync();
-            if (lst_ProductAttributes.Count <= 0)
-            {
-                throw new NotImplementedException("Not Found");
-            }
-            return lst_ProductAttributes;
+
         }
 
         public async Task<Product_Attributes> GetProductAttributesById(long id)
@@ -101,13 +91,20 @@ namespace appAPI.Repository
             return productAttributes;
         }
 
-        public async Task Update(Product_Attributes productAttribute)
+        public async Task Update(Product_Attributes productAttribute , long id)
         {
-            if (await GetProductAttributesById(productAttribute.Id) == null)
+            var updateItem = await _context.Product_Attributes.FindAsync(id);
+            if(updateItem != null)
             {
-                throw new KeyNotFoundException("Not Found");
-            }
-            _context.Entry(productAttribute).State = EntityState.Modified;
+                updateItem.Image=productAttribute.Image;
+                updateItem.Sku = productAttribute.Sku;
+                updateItem.Status = productAttribute.Status;
+                updateItem.Color_Id = productAttribute.Color_Id;
+                updateItem.Size_Id = productAttribute.Size_Id;
+
+                _context.Product_Attributes.Update(updateItem);
+                await _context.SaveChangesAsync();
+            }    
         }
     }
 }

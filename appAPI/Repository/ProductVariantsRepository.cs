@@ -21,41 +21,19 @@ namespace appAPI.Repository
         public async Task Delete(long id)
         {
             var deleteItem = await _context.product_variants.FindAsync(id);
-            if (deleteItem != null)
-            {
-                _context.product_variants.Remove(deleteItem);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                throw new NotImplementedException("Not Found");
-            }
+            _context.product_variants.Remove(deleteItem);
+            await _context.SaveChangesAsync();  
         }
 
         public async Task<List<Product_variants>> GetAllProductVarians()
         {
-            var lst_Product = await _context.product_variants.ToListAsync();
-            if (lst_Product != null)
-            {
-                return lst_Product;
-            }
-            else
-            {
-                throw new NotImplementedException("Not Found");
-            }
+            return await _context.product_variants.ToListAsync();
+
         }
 
         public async Task<Product_variants> GetProductVariantsById(long id)
         {
-            var product = await _context.product_variants.FindAsync(id);
-            if(product != null)
-            {
-                return product;
-            }
-            else
-            {
-                throw new NotImplementedException("Not Found");
-            }
+            return await _context.product_variants.FindAsync(id);
         }
 
         public async Task Update(Product_variants productVariants, long id)
@@ -81,8 +59,8 @@ namespace appAPI.Repository
             }
             else
             {
-                throw new NotImplementedException("Not Found");
-            }
+                throw new KeyNotFoundException("Not Found");
+            }    
         }
     }
 }

@@ -19,15 +19,13 @@ namespace appAPI.Models
         public string? Image {  get; set; }
         public string Sku { get; set; } // tồn kho tính theo tấm 
         public string? Status { get; set; } 
-        public long Color_Id { get; set; }
-        public long Size_Id { get; set; }
+        public long? Color_Id { get; set; }
+        public long? Size_Id { get; set; }
         [ForeignKey("Size_Id")]
-        [JsonIgnore]
-        public virtual Size Size { get; set; } = new Size();
+        public virtual Size? Size { get; set; } 
         [ForeignKey("Color_Id")]
-        [JsonIgnore]
-        public virtual Color? Color { get; set; } = new Color();
-        [JsonIgnore]
+        public virtual Color? Color { get; set; }
+        [ForeignKey("Product_Variant_Id")]
         public virtual Product_variants? Product_Variant { get; set; }
 
     }

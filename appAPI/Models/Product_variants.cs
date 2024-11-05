@@ -26,9 +26,9 @@ namespace appAPI.Models
         public long? Regular_price { get; set; }
         public long? Sale_price { get; set; }
         public string? Description { get; set; } 
-        public long Textile_technology_id { get; set; }
-        public long Material_id { get; set; }
-        public long Style_id { get; set; }
+        public long? Textile_technology_id { get; set; }
+        public long? Material_id { get; set; }
+        public long? Style_id { get; set; }
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set; }
         public DateTime? Deleted_at { get; set; }

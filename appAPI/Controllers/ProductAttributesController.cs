@@ -1,4 +1,5 @@
 ﻿using appAPI.IRepository;
+using appAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,6 +45,44 @@ namespace appAPI.Controllers
             }
             return NotFound();
         }
-
+        [HttpPost("CreateProductAttrubute")]
+        public async Task<IActionResult> Create(Product_Attributes producesAttribute)
+        {
+            try
+            {
+                await _repo.Create(producesAttribute);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPut("UpdateProductAttrubutes")]
+        public async Task<IActionResult> Update(Product_Attributes producesAttribute, long id)
+        {
+            try
+            {
+                await _repo.Update(producesAttribute, id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpDelete("DeleteProductAttribute")]
+        public async Task<IActionResult> Delete(long id)
+        {
+            try
+            {
+                await _repo.Delete(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
