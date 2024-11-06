@@ -70,10 +70,10 @@ namespace ViewsFE.Models
         public void SetMetaData(MetaData data)
         {
             meta_data = JsonSerializer.Serialize(data);
-        }  
+        }
     }
 
- 
+
 
     public class MetaData
     {

@@ -55,7 +55,12 @@ builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IPostReponsetory, PostReponsetory>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+
+
 builder.Services.AddHostedService<VoucherExpiryChecker>();
+builder.Services.AddHostedService<DiscountStatusChecker>();
+
+
 builder.Services.AddScoped<IColorReponsitory, ColorReponsitory>();
 builder.Services.AddScoped<IMaterialReponsitory, MaterialReponsitory>();    
 builder.Services.AddScoped<IStyleReponsitory, StyleReponsitory>();
@@ -132,7 +137,6 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
     RequestPath = "/FileMedia"
 });
 

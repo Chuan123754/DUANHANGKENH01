@@ -66,19 +66,20 @@
                                         <tr class="post-row">
                                             <td>@item.id_Designer</td>
                                             <td class="sort-img">
-                                             
+
+
                                                 @if (!string.IsNullOrEmpty(item.image))
                                                 {
                                                     <img src="@item.image" width="80" height="80" alt="Designer Image" />
-                                                  @*   var imageUrl = JsonSerializer.Deserialize<List<string>>(item.image)?.FirstOrDefault();
-                                                    if (!string.IsNullOrEmpty(imageUrl))
-                                                    {
-                                                        <a href="@imageUrl" target="_blank">
-                                                            <img src="@imageUrl" width="80" height="80" alt="Designer Image" />
-                                                        </a>
-                                                    } *@
+                                                    @*   var imageUrl = JsonSerializer.Deserialize<List<string>>(item.image)?.FirstOrDefault();
+                                        if (!string.IsNullOrEmpty(imageUrl))
+                                        {
+                                        <a href="@imageUrl" target="_blank">
+                                        <img src="@imageUrl" width="80" height="80" alt="Designer Image" />
+                                        </a>
+                                        } *@
                                                 }
-                                            </td>                                      
+                                            </td>
                                             <td class="sort-title">
                                                 @*   <a href="@($"/admin/designer/design-list/{item.id_Designer}")">@item.Name</a> *@
                                                 @item.Name

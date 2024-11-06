@@ -28,13 +28,23 @@ namespace ViewsFE.Services
         {
             // Chuyển đổi danh sách tagIds và category thành chuỗi query string
             var tagIdsString = string.Join("&tagIds=", tagIds);
-            var categoriesString = string.Join("&cate=", category);
+            var categoriesString = string.Join("&categoryIds=", category);
 
             // Gửi yêu cầu POST với các tham số cần thiết
             var response = await _client.PostAsJsonAsync($"{_baseUrl}/api/Product_Post/Create-post?{tagIdsString}&{categoriesString}", post);
-            response.EnsureSuccessStatusCode(); // Kiểm tra phản hồi
+      
+            
+            
+            
+            
+            
+            /// https://localhost:7011/api/Product_Post/Create-post?tagIds=1&tagIds=2&cate=1
 
-            await response.Content.ReadFromJsonAsync<Product_Posts>(); // Trả về sản phẩm vừa tạo
+            // Kiểm tra phản hồi
+            response.EnsureSuccessStatusCode();
+
+            // Đọc và trả về sản phẩm vừa tạo
+             await response.Content.ReadFromJsonAsync<Product_Posts>();
         }
 
         public async Task CreateProduct(Product_Posts post, List<long> tagIds, List<long> category)
