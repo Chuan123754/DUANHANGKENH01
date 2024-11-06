@@ -42,7 +42,7 @@ namespace appAPI.Controllers
             try
             {
                 await _repo.Create(productVariant);
-                return Ok();
+                return Ok(productVariant.Id);
             }
             catch (Exception ex)
             {

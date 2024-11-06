@@ -43,10 +43,7 @@ namespace appAPI.Repository
             {
                 updateItem.Post_Id = productVariants.Post_Id;
                 updateItem.Image=productVariants.Image;
-                updateItem.Sku = productVariants.Sku;
                 updateItem.Status = productVariants.Status;
-                updateItem.Regular_price = productVariants.Regular_price;
-                updateItem.Sale_price = productVariants.Sale_price;
                 updateItem.Description = productVariants.Description;
                 updateItem.Textile_technology_id = productVariants.Textile_technology_id;
                 updateItem.Material_id = productVariants.Material_id;

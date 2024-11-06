@@ -96,8 +96,11 @@ namespace appAPI.Repository
             var updateItem = await _context.Product_Attributes.FindAsync(id);
             if(updateItem != null)
             {
+                updateItem.SKU = productAttribute.SKU;
                 updateItem.Image=productAttribute.Image;
-                updateItem.Sku = productAttribute.Sku;
+                updateItem.Regular_price = productAttribute.Regular_price;
+                updateItem.Sale_price = productAttribute.Sale_price;
+                updateItem.Stock = productAttribute.Stock;  
                 updateItem.Status = productAttribute.Status;
                 updateItem.Color_Id = productAttribute.Color_Id;
                 updateItem.Size_Id = productAttribute.Size_Id;

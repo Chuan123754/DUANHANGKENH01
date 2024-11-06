@@ -18,13 +18,8 @@ namespace appAPI.Models
         public long Post_Id { get; set; }
         [StringLength(255)]
         public string? Image { get; set; }
-        [StringLength(100)]
-        [Unicode(false)]
-        public string? Sku { get; set; }
         [StringLength(20)]
         public string? Status { get; set; }
-        public long? Regular_price { get; set; }
-        public long? Sale_price { get; set; }
         public string? Description { get; set; } 
         public long? Textile_technology_id { get; set; }
         public long? Material_id { get; set; }

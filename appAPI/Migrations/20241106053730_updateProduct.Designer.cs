@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241105021906_capnhat")]
-    partial class capnhat
+    [Migration("20241106053730_updateProduct")]
+    partial class updateProduct
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -955,33 +955,38 @@ namespace appAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<long>("Color_Id")
+                    b.Property<long?>("Color_Id")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("Product_VariantId")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("Product_Variant_Id")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("Size_Id")
+                    b.Property<long?>("Regular_price")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Sku")
-                        .IsRequired()
+                    b.Property<string>("SKU")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("Sale_price")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("Size_Id")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Stock")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Color_Id");
 
-                    b.HasIndex("Product_VariantId");
+                    b.HasIndex("Product_Variant_Id");
 
                     b.HasIndex("Size_Id");
 
@@ -1085,31 +1090,20 @@ namespace appAPI.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<long>("Material_id")
+                    b.Property<long?>("Material_id")
                         .HasColumnType("bigint");
 
                     b.Property<long>("Post_Id")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("Regular_price")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("Sale_price")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Sku")
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
-
                     b.Property<string>("Status")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<long>("Style_id")
+                    b.Property<long?>("Style_id")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("Textile_technology_id")
+                    b.Property<long?>("Textile_technology_id")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("Updated_at")
@@ -1860,19 +1854,17 @@ namespace appAPI.Migrations
                 {
                     b.HasOne("appAPI.Models.Color", "Color")
                         .WithMany("Product_Attributes")
-                        .HasForeignKey("Color_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Color_Id");
 
                     b.HasOne("appAPI.Models.Product_variants", "Product_Variant")
                         .WithMany("Product_Attributes")
-                        .HasForeignKey("Product_VariantId");
+                        .HasForeignKey("Product_Variant_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("appAPI.Models.Size", "Size")
                         .WithMany("Product_Attributes")
-                        .HasForeignKey("Size_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Size_Id");
 
                     b.Navigation("Color");
 
@@ -1898,9 +1890,7 @@ namespace appAPI.Migrations
                 {
                     b.HasOne("appAPI.Models.Material", "Material")
                         .WithMany("Product_Variants")
-                        .HasForeignKey("Material_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Material_id");
 
                     b.HasOne("appAPI.Models.Product_Posts", "Posts")
                         .WithMany("Product_Variants")
@@ -1910,15 +1900,11 @@ namespace appAPI.Migrations
 
                     b.HasOne("appAPI.Models.Style", "Style")
                         .WithMany("Product_Variants")
-                        .HasForeignKey("Style_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Style_id");
 
                     b.HasOne("appAPI.Models.Textile_technology", "Textile_Technology")
                         .WithMany("Product_Variants")
-                        .HasForeignKey("Textile_technology_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Textile_technology_id");
 
                     b.Navigation("Material");
 

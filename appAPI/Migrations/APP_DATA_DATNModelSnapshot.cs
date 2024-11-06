@@ -962,15 +962,23 @@ namespace appAPI.Migrations
                     b.Property<long>("Product_Variant_Id")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("Regular_price")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("SKU")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long?>("Sale_price")
+                        .HasColumnType("bigint");
+
                     b.Property<long?>("Size_Id")
                         .HasColumnType("bigint");
 
-                    b.Property<string>("Sku")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Stock")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -1085,17 +1093,6 @@ namespace appAPI.Migrations
 
                     b.Property<long>("Post_Id")
                         .HasColumnType("bigint");
-
-                    b.Property<long?>("Regular_price")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("Sale_price")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Sku")
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(100)");
 
                     b.Property<string>("Status")
                         .HasMaxLength(20)

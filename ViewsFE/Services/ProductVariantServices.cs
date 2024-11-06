@@ -12,9 +12,25 @@ namespace ViewsFE.Services
         {
             _client= client;
         }
-        public async Task Create(Product_variants productVariants)
+        public async Task<long> Create(Product_variants productVariants)
         {
-             await _client.PostAsJsonAsync("https://localhost:7011/api/ProductVarians/CreateProduct",productVariants);
+             var response = await _client.PostAsJsonAsync("https://localhost:7011/api/ProductVarians/CreateProduct",productVariants);
+            if (response.IsSuccessStatusCode)
+            {
+                // Đọc phản hồi dưới dạng chuỗi và sau đó chuyển đổi thành long
+                var idString = await response.Content.ReadAsStringAsync();
+                if (long.TryParse(idString, out long id))
+                {
+                    return id;
+                }
+                else
+                {
+                    throw new Exception("Phản hồi không hợp lệ, không thể chuyển đổi thành ID.");
+                }
+            }
+
+            throw new Exception("Không thể tạo sản phẩm.");
+
         }
 
         public async Task Delete(long id)
