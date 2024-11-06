@@ -35,17 +35,6 @@ namespace appAPI.Repository
             return await _context.Orders.FindAsync(id);
         }
 
-        public async Task<List<Orders>> Search(string code)
-        {
-
-            if (string.IsNullOrEmpty(code))
-            {
-                return new List<Orders>();
-            }
-            return await _context.Orders
-            .Where(f => f.Code.Contains(code)).ToListAsync();
-        }
-
         public async Task Update(Orders orders)
         {
             _context.Entry(orders).State = EntityState.Modified;

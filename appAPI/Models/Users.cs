@@ -33,6 +33,8 @@ namespace appAPI.Models
         public string? Address { get; set; }
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Orders> Orders { get; set; } = new List<Orders>();
         [InverseProperty("Users")]
         [JsonIgnore]
         public Wishlist? Wishlist { get; set; }

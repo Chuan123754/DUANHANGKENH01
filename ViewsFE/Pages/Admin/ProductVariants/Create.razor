@@ -1,0 +1,393 @@
+﻿@page "/admin/productVariants/Create"
+@using System.ComponentModel.DataAnnotations
+@using ViewsFE.DTO
+@using appAPI.DTO
+@inject NavigationManager nav
+@inject IProductAttributeServices productAttributes
+@inject IPostSer post
+@inject IProductVariantServices productVariant
+@inject IMaterialServices material
+@inject ISizeServices size
+@inject IColorServices color
+@inject IStyleServices style
+@inject ITextile_technologyServices tech
+
+<style>
+    .form-check {
+        margin-bottom: 0.5rem;
+        gap: 5px;
+    }
+
+    .form-check-label {
+        margin-right: 3px; 
+    }
+</style>
+<EditForm Model="product" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="page-wrapper">
+        <div class="page-header d-print-none">
+            <div class="container-xl">
+                <div class="row g-2 align-items-center">
+                    <div class="col">
+                        <h2 class="page-title">Thêm thuộc tính sản phẩm</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-body">
+            <div class="container-xl">
+                <div class="row">
+                    <div class="col-md-9 col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    @*Tên sản phẩm *@
+                                    <label class="form-label">Chọn Sản Phẩm <span class="text-danger">*</span></label>
+                                    <select class="form-select" @bind="product.Post_Id" disabled="@isProductVariantCreated">
+                                        <option value="">Chọn sản phẩm</option>
+                                        @foreach (var item in product_posts_list)
+                                        {
+                                            <option value="@item.Id">@item.Title</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Chọn Công Nghệ Dệt <span class="text-danger">*</span></label>
+                                    <select class="form-select" @bind="product.Textile_technology_id" disabled="@isProductVariantCreated">
+                                        <option value="">Chọn công nghệ dệt</option>
+                                        @foreach (var tech in textileTechnologyList)
+                                        {
+                                            <option value="@tech.Id">@tech.Title</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Chọn Kiểu Dáng <span class="text-danger">*</span></label>
+                                    <select class="form-select" @bind="product.Style_id" disabled="@isProductVariantCreated">
+                                        <option value="">Chọn kiểu dáng</option>
+                                        @foreach (var style in styleList)
+                                        {
+                                            <option value="@style.Id">@style.Title</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Chọn Chất Liệu <span class="text-danger">*</span></label>
+                                    <select class="form-select" @bind="product.Material_id" disabled="@isProductVariantCreated">
+                                        <option value="">Chọn chất liệu</option>
+                                        @foreach (var material in materialList)
+                                        {
+                                            <option value="@material.Id">@material.Title</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="description" class="form-label"> Mô tả</label>
+                                    <InputText @bind-Value="product.Description" class="form-control" disabled="@isProductVariantCreated" />
+                                </div>
+                                <button class="btn btn-primary" @onclick="CreateProductVariant">Tạo Product Variant</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="col-md-3 col-12">
+                         <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#category" aria-expanded="true">
+                                            Ảnh sản phẩm
+                                        </button>
+                                    </h2>
+                                    <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                        <div class="accordion-body pt-0">
+                                            <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
+                                                 data-multiple="false" data-refer-id="#feature_image" onclick="openMediaModal()">
+                                                
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                         </div>
+           @*               BIẾN THỂ *@
+                        @if(isProductVariantCreated )
+                        {
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#category" aria-expanded="true">
+                                            Biến thể sản phẩm
+                                        </button>
+                                    </h2>
+                                    <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                        <div class="accordion-body pt-0">
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">Chọn Màu Sắc <span class="text-danger">*</span></label>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-outline-primary dropdown-toggle" type="button" id="colorDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Chọn màu sắc
+                                                    </button>
+                                                    <ul class="dropdown-menu" aria-labelledby="colorDropdown">
+                                                        @foreach (var color in colorList)
+                                                        {
+                                                            <li>
+                                                                <div class="form-check d-flex justify-content-between align-items-center">
+                                                                    <!-- Thêm màu sắc -->
+                                                                    <label class="form-check-label d-flex align-items-center" for="color-@color.Id">
+                                                                        <span class="color-box" style="background-color:@color.Color_code; width: 20px; height: 20px; margin-right: 10px; border-radius: 50%;"></span>
+                                                                        @color.Title
+                                                                    </label>
+                                                                    <input type="checkbox"
+                                                                           id="color-@color.Id"
+                                                                           @onchange="(e) => OnColorSelectionChanged(color.Id, e.Value)" />
+                                                                </div>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group mb-3">
+                                                <label class="form-label">Chọn Kích Thước <span class="text-danger">*</span></label>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-outline-primary dropdown-toggle" type="button" id="sizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Chọn kích thước
+                                                    </button>
+                                                    <ul class="dropdown-menu" aria-labelledby="sizeDropdown">
+                                                        @foreach (var size in sizeList)
+                                                        {
+                                                            <li>
+                                                                <div class="form-check d-flex justify-content-between align-items-center">
+                                                  
+                                                                    <label class="form-check-label d-flex align-items-center" for="size-@size.Id">
+                                                                        @size.Title
+                                                                    </label>
+                                                                    <input type="checkbox"
+                                                                           id="size-@size.Id"
+                                                                           @onchange="(e) => OnSizeSelectionChanged(size.Id, e.Value)" />
+                                                                </div>
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-primary" @onclick="CreateProductAttributes">Tạo biến thể</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }               
+                    </div>
+                    @if (isProductAttributesCreated)
+                    {
+                        <div class="col-md-12 col-12">
+                            <h3>Danh sách Biến Thể Sản Phẩm</h3>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Màu Sắc</th>
+                                        <th>Kích Thước</th>
+                                        <th>Hình Ảnh</th>
+                                        <th>Gía bán</th>
+                                        <th>Gía giảm</th>
+                                        <th>Số lượng kho</th>
+                                        <th>Hành Động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in LST_ProductAttributes)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <input type="text" @bind="@item.SKU" class="form-control" />
+                                            </td>
+                                              <td>
+                                                <input type="text" @bind="@item.Status" class="form-control" />
+                                            </td>
+                                            <td>@item.Color?.Title</td>
+                                            <td>@item.Size?.Title</td>
+                                            <td>@item.Image</td>
+                                              <td>
+                                                <input type="text" @bind="@item.Regular_price" class="form-control" />
+                                            </td>
+                                            <td>
+                                                <input type="text" @bind="@item.Sale_price" class="form-control" />
+                                            </td>
+                                            <td>
+                                                <input type="text" @bind="@item.Stock" class="form-control" />
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-danger" @onclick="() => DeleteProductAttribute(item.Id)">Xóa</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                            <button class="btn btn-primary" @onclick="UpdateProductAttributes">Xác Nhận</button>
+                        </div>
+                    }
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private Product_variants product = new Product_variants();
+    private List<Product_Posts> product_posts_list = new List<Product_Posts>();
+    private Product_Attributes product_Attributes = new Product_Attributes();
+    private List<Product_Attributes> LST_ProductAttributes = new List<Product_Attributes>();
+    private List<Style> styleList = new List<Style>();
+    private List<Textile_technology> textileTechnologyList = new List<Textile_technology>();
+    private List<Material> materialList = new List<Material>();
+    private List<Size> sizeList = new List<Size>();
+    private List<Color> colorList = new List<Color>();
+    private Dictionary<long, bool> colorSelections = new();
+    private Dictionary<long, bool> sizeSelections = new();
+    private bool isProductVariantCreated = false;
+    private long IdProductVariantCreated; // biến lưu id sản phẩm vừa tạo được 
+    private bool isProductAttributesCreated = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        product_posts_list = await post.GetByTypeAsync("product", page_number, page_size, search_query);
+        colorList = await color.GetAll();
+        sizeList = await size.GetAll();
+        materialList = await material.GetAll();
+        textileTechnologyList = await tech.GetAll();
+        styleList = await style.GetAll();
+        foreach (var color in colorList)
+        {
+            colorSelections[color.Id] = false;
+        }
+        foreach (var size in sizeList)
+        {
+            sizeSelections[size.Id] = false;
+        }
+
+
+    }
+
+    private void OnColorSelectionChanged(long colorId, object isChecked)
+    {
+        colorSelections[colorId] = (bool)isChecked; 
+        updateVariants();
+    }
+
+    private void OnSizeSelectionChanged(long sizeId, object isChecked)
+    {
+        sizeSelections[sizeId] = (bool)isChecked; 
+        updateVariants(); 
+    }
+
+    private void updateVariants()
+    {
+        // xử lý khi các tùy chọn màu và kích thước được thay đổi
+        var selectedColors = colorSelections
+            .Where(c => c.Value)
+            .Select(c => colorList.FirstOrDefault(color => color.Id == c.Key)?.Title)
+            .ToList();
+
+        var selectedSizes = sizeSelections
+            .Where(s => s.Value)
+            .Select(s => sizeList.FirstOrDefault(size => size.Id == s.Key)?.Title)
+            .ToList();
+
+    }
+    private async Task CreateProductVariant()
+    {
+        try
+        {
+            product.Post_Id = product.Post_Id;
+            product.Image = null;
+            product.Status = "Hoạt động";
+            product.Textile_technology_id = product.Textile_technology_id;
+            product.Material_id = product.Material_id;
+            product.Style_id = product.Style_id;
+            product.Created_at = DateTime.Now;
+
+
+            IdProductVariantCreated = await productVariant.Create(product);
+            isProductVariantCreated = true;           
+            Console.WriteLine(IdProductVariantCreated);
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+    private async Task CreateProductAttributes()
+    {
+        var lstProductAttributes = new List<Product_Attributes>();
+        var selectedColors = colorSelections.Where(c => c.Value).Select(c => c.Key).ToList();
+        var selectedSizes = sizeSelections.Where(s => s.Value).Select(s => s.Key).ToList();
+        if (!selectedColors.Any() || !selectedSizes.Any())
+        {
+            // Hiển thị thông báo lỗi nếu không có màu hoặc kích thước nào được chọn
+            Console.WriteLine("Vui lòng chọn ít nhất một màu và một kích thước.");
+            return;
+        }
+        foreach (var colorId in selectedColors)
+        {
+            foreach (var sizeId in selectedSizes)
+            {
+                var productAttribute = new Product_Attributes
+                    {
+                        Product_Variant_Id = IdProductVariantCreated,
+                        Color_Id = colorId,
+                        Size_Id = sizeId,
+                        Status = "Hoạt động",
+                        SKU = "1"  // Tạo SKU cho mỗi biến thể (nếu cần)
+                    };
+
+                lstProductAttributes.Add(productAttribute);
+            }
+        }
+
+        foreach (var productAttribute in lstProductAttributes)
+        {
+            await productAttributes.Create(productAttribute);
+            isProductAttributesCreated = true;
+        }
+        LST_ProductAttributes = await productAttributes.GetProductAttributesByProductVarianId(IdProductVariantCreated);
+    }
+    private async Task UpdateProductAttributes()
+    {
+        foreach (var item in LST_ProductAttributes)
+        {
+            await productAttributes.Update(item, item.Id);
+        }
+    }
+    private async Task DeleteProductAttribute(long id)
+    {
+        try
+        {
+            await productAttributes.Delete(id);
+            var attributeToRemove = LST_ProductAttributes.FirstOrDefault(attr => attr.Id == id);
+            if (attributeToRemove != null)
+            {
+                LST_ProductAttributes.Remove(attributeToRemove);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi xóa sản phẩm: {ex.Message}");
+        }
+    }
+    private async Task HandleValidSubmit()
+    {
+        // Logic để xử lý dữ liệu khi form được submit thành công
+        Console.WriteLine("Form submitted successfully!");
+    }
+}

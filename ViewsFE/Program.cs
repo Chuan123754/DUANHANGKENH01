@@ -80,6 +80,8 @@ builder.Services.AddScoped<IVariantsDiscountServices, VariantsDiscountServices>(
 builder.Services.AddScoped<IloginServices, LoginServices>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<AddressService>();
+builder.Services.AddScoped<IProductAttributeServices, ProductAttributeServices>();
+builder.Services.AddScoped<IProductVariantServices, ProductVariantServices>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

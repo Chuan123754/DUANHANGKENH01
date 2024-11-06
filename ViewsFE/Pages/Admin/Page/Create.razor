@@ -190,20 +190,18 @@
     {
      
         // Lấy dữ liệu từ Tom Select
-        var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
-        if (!string.IsNullOrEmpty(tags))
-        {
-            SelectedTags = tags.Split(',')
-                .Select(id => long.TryParse(id, out long result) ? result : 0)
-                .Where(id => id > 0)
-                .ToList();
-        }
+            var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
+            if (!string.IsNullOrEmpty(tags))
+            {
+                SelectedTags = tags.Split(',')
+                    .Select(id => long.TryParse(id, out long result) ? result : 0)
+                    .Where(id => id > 0)
+                    .ToList();
+            }
         await sev.CreatePage(Posts, SelectedTags);
         nav.NavigateTo("/admin/page");
     }
 }
-
-
 
 <script>
 
@@ -283,3 +281,4 @@
     }
 
 </script>
+
