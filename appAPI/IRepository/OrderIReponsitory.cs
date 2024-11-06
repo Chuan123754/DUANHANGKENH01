@@ -9,6 +9,5 @@ namespace appAPI.IRepository
         Task Create(Orders orders);
         Task Update(Orders orders);
         Task Delete(long id);
-        Task<List<Orders>> Search(string code);
     }
 }

@@ -223,7 +223,6 @@
     }
     private async Task HandleImageSelectedN(List<string> imagePaths)
     {
-
         designer.image_library = string.Join(",", imagePaths);
         StateHasChanged();
         await JS.InvokeVoidAsync("openMediaModalN");
@@ -266,42 +265,3 @@
         nav.NavigateTo("/admin/designer");
     }
 }
-<script>
-    function openMediaModal() {
-        var modalElement = document.getElementById('mediaModal');
-        if (modalElement) {
-            if (!modalElement._bsModalInstance) {
-                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
-            }
-            modalElement._bsModalInstance.show();
-        }
-    }
-
-    function openMediaModalN(isMultiple) {
-        console.log("OpenMediaModalN called with isMultiple: " + isMultiple);
-        var modalElement = document.getElementById('mediaLibraryModal');
-        if (modalElement) {
-            modalElement.setAttribute('data-multiple', isMultiple ? "true" : "false");
-            if (!modalElement._bsModalInstance) {
-                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
-            }
-            modalElement._bsModalInstance.show();
-        }
-    }
-
-    function closeMediaModal() {
-        var modalElement = document.getElementById('mediaModal');
-        if (modalElement && modalElement._bsModalInstance) {
-            modalElement._bsModalInstance.hide();
-        }
-    }
-
-    function closeMediaModalN() {
-        var modalElement = document.getElementById('mediaLibraryModal');
-        if (modalElement && modalElement._bsModalInstance) {
-            modalElement._bsModalInstance.hide();
-        }
-    }
-</script>  
-
-

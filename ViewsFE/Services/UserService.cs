@@ -32,9 +32,9 @@ namespace ViewsFE.Services
             return JsonConvert.DeserializeObject<Users>(response);
         }
 
-        public async Task Create(Users user)
+        public async Task<Users> Create(Users user)
         {
-            user.Id = 0; 
+            user.Id = 0;
             user.Created_at = DateTime.Now;
             user.Updated_at = DateTime.Now;
 
@@ -44,11 +44,11 @@ namespace ViewsFE.Services
                 throw new Exception("Email đã tồn tại.");
             }
 
-            // Kiểm tra trùng lặp số điện thoại
-            if (await IsPhoneExists(user.Phone))
-            {
-                throw new Exception("Số điện thoại đã tồn tại.");
-            }
+            //// Kiểm tra trùng lặp số điện thoại
+            //if (await IsPhoneExists(user.Phone))
+            //{
+            //    throw new Exception("Số điện thoại đã tồn tại.");
+            //}
 
             string userRequestURL = "https://localhost:7011/api/Users/Users-post";
             var userJsonContent = JsonConvert.SerializeObject(user);
@@ -61,7 +61,6 @@ namespace ViewsFE.Services
                 throw new Exception($"API call failed with status code {userResponse.StatusCode} and message: {errorContent}");
             }
 
-            // Lấy đối tượng người dùng từ phản hồi
             var createdUserJson = await userResponse.Content.ReadAsStringAsync();
             var createdUser = JsonConvert.DeserializeObject<Users>(createdUserJson);
 
@@ -70,10 +69,11 @@ namespace ViewsFE.Services
                 throw new Exception("Không thể lấy được người dùng vừa tạo.");
             }
 
+            // Tạo giỏ hàng cho người dùng mới
             var cart = new Carts
             {
                 Id = 0,
-                UserId = createdUser.Id, 
+                UserId = createdUser.Id,
                 Status = "New",
                 Description = "Giỏ hàng mặc định"
             };
@@ -88,7 +88,11 @@ namespace ViewsFE.Services
                 var errorContent = await cartResponse.Content.ReadAsStringAsync();
                 throw new Exception($"API call failed with status code {cartResponse.StatusCode} and message: {errorContent}");
             }
+
+            // Trả về đối tượng người dùng vừa được tạo
+            return createdUser;
         }
+
 
         public async Task Update(Users user)
         {

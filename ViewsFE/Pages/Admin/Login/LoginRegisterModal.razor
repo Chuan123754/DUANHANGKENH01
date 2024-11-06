@@ -1,0 +1,384 @@
+﻿@page "/admin/Loginclient"
+@using Blazored.SessionStorage
+@inject NavigationManager Navigation
+@inject IloginServices LoginServices
+@inject ISessionStorageService SessionStorage
+@inject IUserService UserService
+
+<style>
+
+    .modal {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        display: none;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        margin: 5% auto;
+        padding: 20px;
+        border-radius: 8px;
+        width: 80%;
+        max-width: 900px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        position: relative;
+    }
+
+    .close {
+        color: #aaa;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 24px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover, .close:focus {
+        color: #000;
+        text-decoration: none;
+    }
+
+    /* Layout Styles */
+    .account-container {
+        display: flex;
+        gap: 20px;
+    }
+
+    .col2-set {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .col-1, .col-2 {
+        flex: 1;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    h3 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+
+    /* Form Styles */
+    form label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    form input[type="text"],
+    form input[type="email"],
+    form input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .forgot-password {
+        color: #007bff;
+        text-decoration: none;
+    }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+    .btn-login, .btn-register {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #fff;
+        background-color: #000;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+        .btn-login:hover, .btn-register:hover {
+            background-color: #333;
+        }
+
+    .login-banner {
+        margin-top: 20px;
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0px 2px 7px rgba(0, 0, 0, 0.25);
+    }
+
+    .privacy-notice {
+        background: #eee;
+        border: 1px solid #ccc;
+        padding: 10px;
+        font-size: 14px;
+        color: #333;
+        margin-bottom: 15px;
+        border-radius: 4px;
+    }
+</style>
+
+<div class="modal" style="@(isModalOpen ? "display: block;" : "display: none;")">
+    <div class="modal-content">
+        <span class="close" @onclick="CloseModal">&times;</span>
+        <!-- Form Đăng nhập và Đăng ký -->
+        <div class="account-container">
+            <div class="col2-set" id="customer_login">
+                <!-- Form Đăng nhập -->
+                <div class="col-1">
+                    <h3>Đăng nhập</h3>
+                    <form @onsubmit="HandleLoginAsync">
+                        <p class="message">@loginMessage</p> <!-- Thông báo đăng nhập -->
+                        <label for="username">Tên đăng nhập hoặc email *</label>
+                        <input type="text" @bind="loginModel.Username" id="username" placeholder="Tên đăng nhập hoặc email" required>
+
+                        <label for="password">Mật khẩu *</label>
+                        <input type="password" @bind="loginModel.Password" id="password" placeholder="Mật khẩu" required>
+
+                        <div class="form-options">
+                            <label>
+                                <input type="checkbox" id="rememberme"> Ghi nhớ mật khẩu
+                            </label>
+                            <a href="#" class="forgot-password">Quên mật khẩu?</a>
+                        </div>
+
+                        <button type="submit" class="btn-login">Đăng nhập</button>
+
+                        <img src="https://thamlenhangkenh.com/wp-content/uploads/2024/06/login-banner.png" alt="Banner" class="login-banner">
+                    </form>
+                </div>
+
+                <!-- Form Đăng ký -->
+                <div class="col-2">
+                    <h3>Đăng ký</h3>
+                    <form @onsubmit="HandleRegisterAsync">
+                        <p class="message">@registerMessage</p> <!-- Thông báo đăng ký -->
+                        <label for="reg_uname">Tên đăng nhập *</label>
+                        <input type="text" @bind="registerModel.Username" id="reg_uname" placeholder="Nhập tên đăng nhập" required>
+
+                        <label for="reg_email">Email *</label>
+                        <input type="email" @bind="registerModel.Email" id="reg_email" placeholder="Nhập e-mail" required>
+
+                        <label for="reg_password">Mật khẩu *</label>
+                        <input type="password" @bind="registerModel.Password" id="reg_password" placeholder="Nhập mật khẩu" required>
+
+                        <input type="password" @bind="registerModel.ConfirmPassword" placeholder="Nhập lại mật khẩu" required>
+
+                        <p class="privacy-notice">
+                            Dữ liệu cá nhân của bạn sẽ được sử dụng để hỗ trợ trải nghiệm của bạn trên toàn bộ trang web này.
+                            Để quản lý quyền truy cập vào tài khoản và cho các mục đích khác được mô tả trong privacy policy.
+                        </p>
+
+                        <button type="submit" class="btn-register">Đăng ký</button>
+                    </form>
+                </div>
+            </div>
+        </div> 
+    </div>
+</div>
+
+
+<div>
+    @if (isLoggedIn)
+    {
+        <p class="message">Đã lưu vào session.</p>
+        <button @onclick="HandleLogout" class="btn-logout">Đăng xuất</button>
+    }
+    else
+    {
+        <button @onclick="OpenModal">Đăng nhập / Đăng ký</button>
+    }
+</div>
+
+
+
+@code {
+    private bool isModalOpen = false;
+    private bool isLoggedIn = false;
+
+    private LoginModel loginModel = new LoginModel();
+    private RegisterModel registerModel = new RegisterModel();
+
+    private string loginMessage = string.Empty;
+    private string registerMessage = string.Empty;
+    private bool firstRender = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Kiểm tra xem SessionStorage có chứa token không
+            var token = await SessionStorage.GetItemAsStringAsync("token");
+            if (!string.IsNullOrEmpty(token))
+            {
+                isLoggedIn = true;
+                loginMessage = "Đã lưu vào SessionStorage.";
+            }
+
+            // Cập nhật trạng thái để không chạy lại trong các lần render sau
+            this.firstRender = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OpenModal()
+    {
+        isModalOpen = true;
+    }
+
+    private void CloseModal()
+    {
+        isModalOpen = false;
+        loginMessage = string.Empty;
+        registerMessage = string.Empty;
+    }
+
+    private async Task HandleLoginAsync()
+    {
+        try
+        {
+            var signInModel = new SignInModel
+                {
+                    Email = loginModel.Username,
+                    Password = loginModel.Password,
+                };
+
+            var token = await LoginServices.Login(signInModel);
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                loginMessage = "Đăng nhập thành công!";
+
+                await SessionStorage.SetItemAsStringAsync("token", token);
+                isLoggedIn = true;
+                Navigation.NavigateTo("/admin/Loginclient", forceLoad: true);
+            }
+            else
+            {
+                loginMessage = "Tên đăng nhập hoặc mật khẩu không đúng!";
+            }
+        }
+        catch (Exception ex)
+        {
+            loginMessage = $"Lỗi: {ex.Message}";
+        }
+    }
+
+    private async Task HandleRegisterAsync()
+    {
+        try
+        {
+            // Tạo SignUpModel với thông tin đăng ký
+            var signUpModel = new SignUpModel
+                {
+                    FirstName = registerModel.Username,
+                    LastName = registerModel.Username,
+                    Email = registerModel.Email,
+                    Password = registerModel.Password,
+                    ConfirmPassword = registerModel.ConfirmPassword,
+                    Role = "Customer"
+                };
+            var signUpSuccess = await LoginServices.SignUp(signUpModel);
+
+            // Kiểm tra xem đăng ký có thành công không
+            if (signUpSuccess.Contains("thành công"))
+            {
+                // Đăng nhập tự động sau khi đăng ký thành công
+                var signInModel = new SignInModel
+                    {
+                        Email = registerModel.Email,
+                        Password = registerModel.Password
+                    };
+
+                var token = await LoginServices.Login(signInModel);
+
+                if (!string.IsNullOrEmpty(token))
+                {
+                    registerMessage = "Đăng ký và đăng nhập thành công! Vui Lòng đợi một chút!";
+
+                    // Lưu token vào SessionStorage
+                    await SessionStorage.SetItemAsStringAsync("token", token);
+
+                    var newUser = new Users
+                        {
+                            Name = registerModel.Username,
+                            Phone = "0123456789",
+                            Email = registerModel.Email,
+                            EmailVerifiedAt = DateTime.Now,
+                            Password = registerModel.Password,
+                            Address = "Nothing",
+                            RememberToken = "Nothing",
+                        };
+                    var createdUser = await UserService.Create(newUser);
+
+                    if (createdUser != null && createdUser.Id > 0)
+                    {
+                        StateHasChanged();
+                        await Task.Delay(2000);
+                        // Chuyển hướng đến trang chi tiết người dùng
+                        Navigation.NavigateTo($"/admin/UserDetails/{createdUser.Id}");
+                    }
+                    else
+                    {
+                        registerMessage = "Không thể tạo người dùng.";
+                    }
+                }
+                else
+                {
+                    registerMessage = "Lỗi: Đăng ký thành công nhưng đăng nhập thất bại.";
+                }
+            }
+            else
+            {
+                registerMessage = "Lỗi: Đăng ký không thành công!";
+            }
+        }
+        catch (Exception ex)
+        {
+            registerMessage = $"Lỗi: {ex.Message}";
+        }
+    }
+
+
+
+    private async Task HandleLogout()
+    {
+        await SessionStorage.RemoveItemAsync("token");
+        isLoggedIn = false;
+        loginMessage = "Bạn đã đăng xuất thành công!";
+    }
+
+    public class LoginModel
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+
+    public class RegisterModel
+    {
+        public string Username { get; set; }
+        public string Email { get; set; }
+        public string Password { get; set; }
+        public string ConfirmPassword { get; set; }
+    }
+}
+
+

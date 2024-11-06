@@ -1,0 +1,108 @@
+﻿@page "/admin/UserDetails/{userId:long}"
+@inject IUserService UserService
+@inject NavigationManager Navigation
+
+<h3>Chi tiết Người dùng</h3>
+
+@if (user == null)
+{
+    <p>Đang tải thông tin người dùng...</p>
+}
+else
+{
+    <EditForm Model="@user" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="Name">Tên</label>
+            <InputText id="Name" class="form-control" @bind-Value="user.Name" />
+        </div>
+
+        <div class="form-group">
+            <label for="Phone">Số điện thoại</label>
+            <InputText id="Phone" class="form-control" @bind-Value="user.Phone" />
+        </div>
+
+        <div class="form-group">
+            <label for="Email">Email</label>
+            <InputText id="Email" class="form-control" @bind-Value="user.Email" Disabled="true" />
+        </div>
+
+        <div class="form-group">
+            <label for="Address">Địa chỉ</label>
+            <InputText id="Address" class="form-control" @bind-Value="user.Address" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+    </EditForm>
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <p class="text-success">@message</p>
+    }
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <p class="text-danger">@errorMessage</p>
+    }
+}
+
+@code {
+    [Parameter]
+    public long userId { get; set; }
+
+    private Users user;
+    private string message = string.Empty;
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            user = await UserService.GetById(userId);
+            if (user == null)
+            {
+                errorMessage = "Người dùng không tồn tại.";
+                Navigation.NavigateTo("/admin/UserList");
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi: {ex.Message}";
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            // Lấy tất cả người dùng
+            var allUsers = await UserService.GetAll();
+
+            // Kiểm tra nếu số điện thoại đã tồn tại cho user khác
+            if (!string.IsNullOrEmpty(user.Phone))
+            {
+                var phoneExists = allUsers.Any(u => u.Phone == user.Phone && u.Id != user.Id);
+
+                if (phoneExists)
+                {
+                    errorMessage = "Số điện thoại đã được sử dụng bởi người dùng khác.";
+                    return;
+                }
+            }
+
+            // Cập nhật thông tin người dùng
+            await UserService.Update(user);
+            message = "Cập nhật thông tin thành công!";
+            errorMessage = string.Empty; // Reset error message nếu cập nhật thành công
+            StateHasChanged();
+            await Task.Delay(2000);
+            Navigation.NavigateTo($"/");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Lỗi khi cập nhật thông tin: {ex.Message}";
+        }
+    }
+}

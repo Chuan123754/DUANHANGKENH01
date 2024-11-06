@@ -28,11 +28,13 @@ namespace appAPI.Models
         public DateTime? EmailVerifiedAt { get; set; }
         [StringLength(255)]
         public string? Password { get; set; }
-        [StringLength(155)]
+        [StringLength(int.MaxValue)]
         public string? RememberToken { get; set; }
         public string? Address { get; set; }
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Orders> Orders { get; set; } = new List<Orders>();
         [InverseProperty("Users")]
         [JsonIgnore]
         public Wishlist? Wishlist { get; set; }
