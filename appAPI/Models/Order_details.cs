@@ -17,18 +17,10 @@ namespace appAPI.Models
         public long OrderId { get; set; }
         public long Product_Attribute_Id { get; set; }
         public int Quantity { get; set; }
-        public decimal RegularPrice { get; set; }
-        public decimal SalePrice { get; set; }
-        public decimal Price { get; set; }
-        public int RemainingStockQuantity { get; set; }
-        [StringLength(255)]
-        public string? ProductTitle { get; set; }
-        public DateTime? Created_at { get; set; }
-        public DateTime? Update_at { get; set; }
         [ForeignKey("OrderId")]
         [JsonIgnore]
         public virtual Orders? Orders { get; set; }
-        [ForeignKey("ProductVariants_Id")]
+        [ForeignKey("Product_Attribute_Id")]
         [JsonIgnore]
         public virtual Product_Attributes? ProductAttributes { get; set; }
     }

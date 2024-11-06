@@ -17,8 +17,8 @@ namespace appAPI.Models
         public string Type { get; set; }
         public int Set_as_default { get; set; } = 1; // thiếp laajo địa chỉ mặc định 
         public string? Status { get; set; }
+        [ForeignKey("User_Id")]
         [JsonIgnore]
-        [ForeignKey("UserId")]
         public virtual Users? User { get; set; }
     }
 }
