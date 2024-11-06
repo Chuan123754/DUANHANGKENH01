@@ -316,8 +316,10 @@
                 .ToList();
         }
 
-
+        // Gọi phương thức tạo bài viết
         await sev.CreatePost(Posts, SelectedTags, SelectedCategories);
+
+        // Điều hướng sau khi tạo bài viết
         nav.NavigateTo("/admin/post");
     }
 }

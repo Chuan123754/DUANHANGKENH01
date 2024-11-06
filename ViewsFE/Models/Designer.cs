@@ -55,12 +55,9 @@ namespace ViewsFE.Models
             { STATUS_ACTIVE, "text-success" }
         };
 
-        // Get the label for the current status
-        public string StatusLabel => STATUSES.ContainsKey(status) ? STATUSES[status] : string.Empty;
+        public string StatusLabel => !string.IsNullOrEmpty(status) && STATUSES.ContainsKey(status) ? STATUSES[status] : "Trạng thái không xác định";
 
-        // Get the CSS class for the current status
-        public string StatusClass => STATUS_CLASSES.ContainsKey(status) ? STATUS_CLASSES[status] : string.Empty;
-
+        public string StatusClass => !string.IsNullOrEmpty(status) && STATUS_CLASSES.ContainsKey(status) ? STATUS_CLASSES[status] : string.Empty;
         // Deserialize MetaData from JSON string
         public MetaData GetMetaData()
         {
@@ -73,10 +70,10 @@ namespace ViewsFE.Models
         public void SetMetaData(MetaData data)
         {
             meta_data = JsonSerializer.Serialize(data);
-        }  
+        }
     }
 
- 
+
 
     public class MetaData
     {

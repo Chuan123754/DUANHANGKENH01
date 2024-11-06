@@ -82,8 +82,8 @@
                                             <td class="sort-tags">
                                                 @post.TagName
                                             </td>
-                                            <td class="sort-score">
-                                                @post.Status
+                                            <td class="sort-status">
+                                                <span class="@post.StatusClass">@post.StatusLabel</span>
                                             </td>
                                             <td class="sort-date">
                                                 @post.Created_at
