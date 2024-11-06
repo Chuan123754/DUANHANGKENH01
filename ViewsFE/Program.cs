@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using ViewsFE.Models;
+using appAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAuthorizationCore();
@@ -25,6 +26,15 @@ builder.Services.AddAuthorizationCore(config =>
 {
     config.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")); // cấu hình xác thực cho Blazor 
 });
+
+// Thêm cấu hình session
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // thời gian timeout của session
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 // Thêm CORS nếu cần
 builder.Services.AddCors(options =>
 {
@@ -66,6 +76,9 @@ builder.Services.AddScoped<ISizeServices, SizeServices>();
 builder.Services.AddScoped<IMaterialServices, MaterialServices>();
 builder.Services.AddScoped<IStyleServices, StyleServices>();
 builder.Services.AddScoped<ITextile_technologyServices, Textile_technologyServices>();
+builder.Services.AddScoped<IVariantsDiscountServices, VariantsDiscountServices>();
+builder.Services.AddScoped<IloginServices, LoginServices>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<AddressService>();
 var app = builder.Build();
 
@@ -82,6 +95,8 @@ app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRouting();
+
+app.UseSession();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
