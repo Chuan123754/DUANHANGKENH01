@@ -12,6 +12,10 @@ namespace appAPI.Repository
         {
             context = _context;
         }
+        public async Task<List<Post_tags>> GetTagByPostId(long postId)
+        {
+            return await context.Post_Tags.Where(p => p.Post_Id == postId).ToListAsync();
+        }
         public async Task Create(Tags tag)
         {
             context.Tags.Add(tag);

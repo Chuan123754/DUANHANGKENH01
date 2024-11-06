@@ -5,7 +5,7 @@
 @inject ICategoriesServices cate
 @inject IDesignerServices des
 @inject IJSRuntime JS
-
+@inject IDesignerServices Desiner
 
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -59,8 +59,54 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                      @*  Banner *@
+                        <div class="accordion bg-white mt-3">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#banner_block" aria-expanded="true">
+                                        Cấu hình banner
+                                    </button>
+                                </h2>
+                                <div id="banner_block" class="accordion-collapse collapse show">
+                                    <div class="card-body pb-4 px-4" style="height: 300px">
+                                        <div class="mb-3">
+                                            <label for="title" class="form-label">Tiêu đề</label>
+                                            <input type="text" class="form-control" name="meta_data[banner_title]"
+                                                   placeholder="Tiêu đề" value="{{ dt_get_meta($post, 'banner_title') }}">
+                                        </div>
+                                        <div>
 
+                                            <div id="banner_image"
+                                                 class="image-post-box d-flex align-items-center justify-content-center open-media-modal"
+                                                 data-multiple="false"
+                                                 data-refer-id="#banner_image"
+                                                 data-input-name="meta_data[banner_image]"
+                                                 data-image-ids="{{ $bannerId }}">
+
+                                                <input type="hidden" name="meta_data[banner_image][0][id]" value="{{ $bannerId }}">
+                                                <input type="hidden" name="meta_data[banner_image][0][image]" value="{{ $bannerImage }}">
+                                                <img src="{{ $bannerImage }}"
+                                                     class="w-100 h-100 object-cover">
+
+
+                                                <div class="icon d-flex align-items-center justify-content-center {{ $bannerId ? 'd-none' : '' }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1"
+                                                         stroke="currentColor" fill="none" stroke-linecap="round"
+                                                         stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M12 5l0 14" />
+                                                        <path d="M5 12l14 0" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                  
                     <!-- Phần bên phải -->
                     <div class="col-md-3 col-12">
                         <div class="sticky-top position-sticky">
@@ -176,6 +222,27 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Từ khóa -->
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
+                                            Từ khóa
+                                        </button>
+                                    </h2>
+                                    <div id="tag" class="accordion-collapse collapse show">
+                                        <div class="accordion-body pt-0">
+                                            <select id="tags-selects" multiple class="form-control" placeholder="Nhập từ khoá">
+                                                @foreach (var tag in TagsList)
+                                                {
+                                                    <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <!-- Danh mục sản phẩm -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
@@ -243,26 +310,7 @@
                                 </div>
                             </div>
 
-                            <!-- Từ khóa -->
-                            <div class="accordion bg-white mb-3">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
-                                            Từ khóa
-                                        </button>
-                                    </h2>
-                                    <div id="tag" class="accordion-collapse collapse show">
-                                        <div class="accordion-body pt-0">
-                                            <select id="tags-selects" multiple class="form-control" placeholder="Nhập từ khoá">
-                                                @foreach (var tag in TagsList)
-                                                {
-                                                    <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
-                                                }
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                         
                         </div>
                     </div>
                 </div>
@@ -272,7 +320,7 @@
 
 </EditForm>
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
-
+<Media_manager OnImageSelected="HandleImageBannerSelected" @ref="media_Manager"></Media_manager>
 <Modal OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal>
 
 
@@ -286,6 +334,7 @@
     private List<long> SelectedTags = new List<long>();
     private Media_modal mediaModalRef;
     private Modal mediaLibraryModal;
+    private Media_manager media_Manager;
     private bool tinyMCEInitialized = false;
 
 
@@ -297,11 +346,19 @@
     }
 
 
-    private async Task HandleImageSelected(string imagePath)
+    private async Task HandleImageBannerSelected(string imagePath)
     {
         Posts.Feature_image = imagePath;
         StateHasChanged();
         await JS.InvokeVoidAsync("closeMediaModal");
+ 
+    }
+    private async Task HandleImageSelected(string imagePath)
+    {
+        Posts.Feature_image = imagePath;
+        StateHasChanged();
+
+        await JS.InvokeVoidAsync("closeMediaBannerModal");
     }
     private async Task OpenMediaModalN(bool isMultiple, string referId)
     {
@@ -382,7 +439,15 @@
             modalElement._bsModalInstance.show();
         }
     }
-
+    function openMediaBannerModal() {
+        var modalElement = document.getElementById('mediaBannerModal');
+        if (modalElement) {
+            if (!modalElement._bsModalInstance) {
+                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
+            }
+            modalElement._bsModalInstance.show();
+        }
+    }
     function openMediaModalN(isMultiple) {
         console.log("OpenMediaModalN called with isMultiple: " + isMultiple);
         var modalElement = document.getElementById('mediaLibraryModal');
@@ -408,7 +473,12 @@
             modalElement._bsModalInstance.hide();
         }
     }
-
+    function closeMediaBannerModal() {
+        var modalElement = document.getElementById('mediaBannerModal');
+        if (modalElement && modalElement._bsModalInstance) {
+            modalElement._bsModalInstance.hide();
+        }
+    }
     window.TagsList = [];
     window.CategoriesList = [];
     function initializeTagsList(tags) {

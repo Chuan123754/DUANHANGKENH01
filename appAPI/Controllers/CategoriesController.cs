@@ -50,7 +50,19 @@ namespace appAPI.Controllers
                 return StatusCode(500, e.Message);
             }
         }
-
+        [HttpGet("GetCategoryByPostId")]
+        public async Task<IActionResult> GetCategoryByPostId(long postId)
+        {
+            try
+            {
+                var result = await _repo.GetCategoryByPosstId(postId);
+                return Ok(result);
+            }
+            catch(Exception e) 
+            {
+                return BadRequest(e.Message);   
+            }
+        }
         // POST: api/Category/add-category
         [HttpPost("add-category")]
         public async Task<ActionResult> Add(Categories c)

@@ -152,7 +152,13 @@
     private List<long> SelectedTags = new List<long>();
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
     private bool tinyMCEInitialized = false;
+    private string selectedImagePath;
 
+    private async Task OpenMediaModal()
+    {       
+        selectedImagePath = Posts.Feature_image;
+        await JS.InvokeVoidAsync("openMediaModal");
+    }
     private async Task HandleImageSelected(string imagePath)
     {
         Posts.Feature_image = imagePath;
@@ -188,6 +194,7 @@
             await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
         }
     }
+ 
     private async void HandleValidSubmit()
     {
         // Lấy dữ liệu từ Tom Select

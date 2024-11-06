@@ -5,6 +5,7 @@ namespace ViewsFE.IServices
     public interface ICategoriesServices
     {
         Task<List<Categories>> GetAll();
+        Task<List<Post_categories>> GetCategoryByPosstId(long postId);
         Task<Categories> Details(long id);
         Task Create(Categories c);
         Task Update(Categories c);
