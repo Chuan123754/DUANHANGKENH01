@@ -140,12 +140,17 @@
                                          data-bs-parent="#accordion-example">
                                         <div class="accordion-body pt-0">
                                             <div class="form-group">
+
                                                 <select id="categories" @bind="Posts.CategoryName" class="form-control" placeholder="Chọn danh mục" multiple>
+
+
                                                     @foreach (var cate in CategoriesList)
                                                     {
+
                                                         <option value="@cate.Id" selected="@SelectedCategories.Contains(cate.Id)">@cate.Title</option>
                                                     }
                                                 </select>
+
                                                 <div id="category_ids_error" class="validate-error">
                                                 </div>
                                                 <a href="javascript:void(0)" id="add_category"
@@ -227,6 +232,7 @@
     [Parameter]
     public long Id { get; set; }
     private Product_Posts Posts = new Product_Posts();
+    private List<Post_categories> lsstPostCate = new List<Post_categories>();
     private List<Categories> CategoriesList = new List<Categories>();
     private List<Tags> TagsList = new List<Tags>();
     private List<long> SelectedCategories = new List<long>();
@@ -249,6 +255,7 @@
         CategoriesList = await cate.GetAll();
         designersList = await des.GetAll();
         Posts.Status = Product_Posts.STATUS_DRAFT;
+        lsstPostCate = await cate.GetCategoryByPosstId(Id);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -308,6 +315,8 @@
             if (!modalElement._bsModalInstance) {
                 modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
             }
+            // Cập nhật selectedImagePath với Posts.Feature_image
+            window.selectedImagePath = '@Posts.Feature_image';
             modalElement._bsModalInstance.show();
         } else {
             console.error("Không tìm thấy phần tử với id 'mediaModal'.");
@@ -423,4 +432,8 @@
         }
         return '';
     }
-</script> *@
+</script>
+<script>
+    console.log('@Posts.Feature_image'); // Kiểm tra giá trị
+    window.selectedImagePath = '@Posts.Feature_image';
+</script>

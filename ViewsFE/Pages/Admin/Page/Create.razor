@@ -188,7 +188,7 @@
     }
     private async void HandleValidSubmit()
     {
-     
+        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
         // Lấy dữ liệu từ Tom Select
             var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
             if (!string.IsNullOrEmpty(tags))
@@ -227,7 +227,7 @@
     function initializeTagsList(tags) {
         if (tags && tags.length > 0) {
             window.TagsList = tags;
-            console.log('TagsList initialized:', window.TagsList);
+            //console.log('TagsList initialized:', window.TagsList);
         } else {
             console.log('Failed to initialize TagsList. Empty or undefined.');
         }
@@ -279,6 +279,10 @@
         }
         return '';
     }
-
+    function resetTomSelect(selector) {
+        const element = document.querySelector(selector);
+        if (element && element.tomselect) {
+            element.tomselect.destroy(); // Hủy bỏ instance hiện tại
+        }
+    }
 </script>
-

@@ -33,7 +33,7 @@ namespace appAPI.Repository
         {
             return await _context.Categories.ToListAsync();
         }
-
+        
         public async Task<List<Categories>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm)
         {
             return await _context.Categories
@@ -42,6 +42,11 @@ namespace appAPI.Repository
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+        }
+
+        public async Task<List<Post_categories>> GetCategoryByPosstId(long postId)
+        {
+            return await _context.Post_Categories.Where(c=>c.Post_Id == postId).Include(c=>c.Categories).ToListAsync();
         }
 
         public async Task<int> GetTotalCountAsync(string type, string searchTerm)

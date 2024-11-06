@@ -33,7 +33,7 @@ namespace ViewsFE.Models
         public string? Type { get; set; }
         public string? product_video { get; set; }
         public string? Short_description { get; set; }
-        public string? Description { get; set; }
+        public string? Description { get; set; } = string.Empty;
         public string? Image_library { get; set; }
         public string? Feature_image { get; set; }
         public string? CategoryName { get; set; }
