@@ -36,7 +36,6 @@ namespace appAPI.Models
         public string ? Description { get; set; }
         public string? Image_library { get; set; }
         public string? Feature_image { get; set; }
-
         public DateTime? Post_date { get; set; }
 
         public long? Created_by { get; set; }

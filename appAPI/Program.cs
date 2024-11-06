@@ -14,7 +14,6 @@ using appAPI.Background_Service;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 // Đăng ký DbContext và cấu hình chuỗi kết nối từ appsettings.json
 builder.Services.AddDbContext<APP_DATA_DATN>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -67,7 +66,14 @@ builder.Services.AddScoped<IMaterialReponsitory, MaterialReponsitory>();
 builder.Services.AddScoped<IStyleReponsitory, StyleReponsitory>();
 builder.Services.AddScoped<ISizeReponsitory, SizeReponsitory>();
 builder.Services.AddScoped<ITextile_technologyReponsitory,  Textile_technologyReponsitory>();
-
+builder.Services.AddScoped<FilesIRepository, FilesReponsetory>();
+builder.Services.AddScoped<IBannerRepository, BannerRepository>();
+builder.Services.AddScoped<SeoIReponsitory, SeoReponsitory>();
+builder.Services.AddScoped<OrderIReponsitory, OrderReponsitory>();
+builder.Services.AddScoped<OrderDetailsIReponsitory, OrderDetailsReponsitory>();
+builder.Services.AddScoped<MenuIReponsitory, MenuReponsitory>();
+builder.Services.AddScoped<IDesignerRepon, DesignerRepon>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 // Đăng ký CORS
 builder.Services.AddCors(options =>
@@ -75,7 +81,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigins",
         policyBuilder =>
         {
-            policyBuilder.WithOrigins("https://localhost:7277") // Đảm bảo đây là URL đúng
+            policyBuilder.WithOrigins("https://localhost:7277", "https://localhost:7241") // Đảm bảo đây là URL đúng
                          .AllowAnyHeader()
                          .AllowAnyMethod();
         });

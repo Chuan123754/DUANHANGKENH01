@@ -7,9 +7,9 @@ namespace appAPI.Repository
     public class OptionsRepository : IOptionsRepository
     {
         APP_DATA_DATN context;
-        public OptionsRepository()
+        public OptionsRepository(APP_DATA_DATN _context)
         {
-            context = new APP_DATA_DATN();
+            context = _context;
         }
         public async Task Create(Options op)
         {

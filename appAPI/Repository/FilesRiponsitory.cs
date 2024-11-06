@@ -13,9 +13,9 @@ namespace appAPI.Repository
         private string _getfilePath = $@"https://localhost:7011/FileMedia/";
         private string _uploadFolderPath = $@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia";
 
-        public FilesReponsetory()
+        public FilesReponsetory(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
 
         public async Task Delete(long id)
@@ -52,14 +52,53 @@ namespace appAPI.Repository
         {
             if (string.IsNullOrEmpty(keyword))
             {
-                return new List<Files>();
+                return await GetAll(); // Reuse GetAll method for consistency
             }
 
             return await _context.Files
-                .Where(f => f.Name.Contains(keyword) || f.Slug.Contains(keyword))
+                .Where(f => f.Name.Contains(keyword))
+                .Select(x => new Files
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Slug = x.Slug,
+                    Mine = x.Mine,
+                    Size = x.Size,
+                    Ext = x.Ext,
+                    Path = _getfilePath + x.Name, // Ensure consistent path construction
+                    Created_at = x.Created_at,
+                    Updated_at = x.Updated_at
+                })
+                .ToListAsync();
+        }
+        public async Task<List<Files>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)
+        {
+            return await _context.Files
+                .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)))
+                .OrderBy(p => p.Name)
+                .Select(x => new Files
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Slug = x.Slug,
+                    Mine = x.Mine,
+                    Size = x.Size,
+                    Ext = x.Ext,
+                    Path = _getfilePath + x.Name, // Ensure consistent path construction
+                    Created_at = x.Created_at,
+                    Updated_at = x.Updated_at
+                })
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
         }
 
+        public async Task<int> GetTotalCountAsync(string searchTerm)
+        {
+            // Lấy tổng số sản phẩm theo loại và tìm kiếm với điều kiện Deleted = false
+            return await _context.Files
+                .CountAsync(p => (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)));
+        }
         public async Task Upload(IFormFile file)
         {
             if (file == null || file.Length == 0)

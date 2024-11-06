@@ -1,5 +1,4 @@
-﻿@page "/account/allaccount"
-@using ViewsFE.Models.DTO
+@page "/admin/account/allaccount"
 @inject NavigationManager Navigation
 @inject HttpClient Http
 @inject IJSRuntime JS
@@ -51,6 +50,7 @@
                     <td>
                         <button class="btn btn-info" @onclick="() => EditAccount(account.Account.Id)">Sửa</button>
                         <button class="btn btn-danger" @onclick="() => DeleteAccount(account.Account.Id)">Xóa</button>
+
                         <button @onclick="() => ToggleLock(account.Account.Id)" class="btn btn-warning">Toggle Lock</button>
                     </td>
                         </div>
@@ -124,6 +124,7 @@
         {
             await accountService.DeleteAccountAsync(accountId);
             await LoadAccounts();
+            StateHasChanged();
         }
     }
 

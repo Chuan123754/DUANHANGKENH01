@@ -52,7 +52,7 @@
                                             <button class="table-sort" data-sort="sort-score">Thẻ</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-score">Trạng thái</button>
+                                            <button class="table-sort" data-sort="sort-status">Trạng thái</button>
                                         </th>
                                         <th>
                                             <button class="table-sort" data-sort="sort-date">Thời gian</button>
@@ -76,7 +76,9 @@
                                             </td>
                                             <td class="sort-city">@post.AuthorId</td>
                                             <td class="sort-score">@post.TagName</td>
-                                            <td class="sort-status">@post.Status</td>
+                                            <td class="sort-status">
+                                                <span class="@post.StatusClass">@post.StatusLabel</span>
+                                            </td>
                                             <td class="sort-date">@post.Created_at</td>
                                         </tr>
                                     }
@@ -143,7 +145,19 @@
     }
     protected async Task NavDeleteCtgr(long id)
     {
-        await sev.Delete(id);
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Bạn muốn xóa bản ghi này?");
+        if (confirmed)
+        {
+            try
+            {
+                await sev.Delete(id);
+                await JSRuntime.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("ShowToastr", "error", "Có lỗi xảy ra khi xóa bản ghi.");
+            }
+        }
         await LoadPosts();
     }
 }

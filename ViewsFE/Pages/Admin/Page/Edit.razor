@@ -4,6 +4,7 @@
 @inject ITagsServices stag
 @inject IJSRuntime JS
 
+
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -13,7 +14,7 @@
                 <div class="row g-2 align-items-center">
                     <div class="col">
                         <h2 class="page-title">
-                            Sửa trang
+                            Thêm trang
                         </h2>
                     </div>
                 </div>
@@ -43,7 +44,7 @@
 
                                 <div class="mb-3">
                                     <label for="tinymce-textarea" class="form-label">Mô tả</label>
-                                    <InputTextArea @bind-Value="Posts.Description" class="form-control" id="tinymce-textarea" rows="7" />
+                                    <textarea id="tinymce-textarea" @bind="Posts.Description" class="form-control" rows="7"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -82,6 +83,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- #region ảnh đại diện -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
@@ -91,15 +93,29 @@
                                     </h2>
                                     <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                         <div class="accordion-body pt-0">
-                                            {
-                                            }
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                            <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
+                                                 data-multiple="false" data-refer-id="#feature_image" onclick="openMediaModal()">
+                                                @if (!string.IsNullOrEmpty(Posts.Feature_image))
+                                                {
+                                                    <img src="@Posts.Feature_image" class="w-100 h-100 object-cover" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="icon d-flex align-items-center justify-content-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M12 5v14" />
+                                                            <path d="M5 12h14" />
+                                                        </svg>
+                                                    </div>
+                                                }
+                                            </div>
 
                                         </div>
-
                                     </div>
                                 </div>
                             </div>
+                            <!-- #endregion -->
                             <!-- Từ khóa -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
@@ -110,7 +126,7 @@
                                     </h2>
                                     <div id="tag" class="accordion-collapse collapse show">
                                         <div class="accordion-body pt-0">
-                                            <select id="tags-selects" @bind="Posts.TagName" multiple class="form-control" placeholder="Nhập từ khoá">
+                                            <select id="tags-selects" multiple class="form-control" placeholder="Nhập từ khoá">
                                                 @foreach (var tag in TagsList)
                                                 {
                                                     <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
@@ -127,15 +143,22 @@
         </div>
     </div>
 </EditForm>
+<Media_modal OnImageSelected="HandleImageSelected"></Media_modal>
 @code {
     [Parameter]
     public long Id { get; set; }
     private Product_Posts Posts = new Product_Posts();
     private List<Tags> TagsList = new List<Tags>();
     private List<long> SelectedTags = new List<long>();
-    private string FeatureImage { get; set; }
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
+    private bool tinyMCEInitialized = false;
 
+    private async Task HandleImageSelected(string imagePath)
+    {
+        Posts.Feature_image = imagePath;
+        StateHasChanged(); // Cập nhật giao diện
+        await JS.InvokeVoidAsync("closeMediaModal"); // Gọi hàm JavaScript để đóng modal
+    }
     protected override async Task OnInitializedAsync()
     {
         Posts = await sev.GetByIdType(Id, "page");
@@ -145,12 +168,11 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && !tinyMCEInitialized)
         {
-            // Khởi tạo TinyMCE
             await JS.InvokeVoidAsync("initTinyMCE");
-            // Khởi tạo Tom Select cho select tags và categories
-
+            tinyMCEInitialized = true;
+            StateHasChanged();
         }
         if (TagsList?.Count > 0)
         {
@@ -159,11 +181,15 @@
         }
 
     }
-
+    public async ValueTask DisposeAsync()
+    {
+        if (tinyMCEInitialized)
+        {
+            await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
+        }
+    }
     private async void HandleValidSubmit()
     {
-        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
-
         // Lấy dữ liệu từ Tom Select
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         if (!string.IsNullOrEmpty(tags))
@@ -173,23 +199,28 @@
                 .Where(id => id > 0)
                 .ToList();
         }
-        await sev.CreatePage(Posts, SelectedTags);
+        await sev.Update(Posts);
         nav.NavigateTo("/admin/page");
     }
 }
 <script>
-    function initTinyMCE() {
-        tinymce.init({
-            selector: '#tinymce-textarea',
-            plugins: 'link image code',
-            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
-        });
+    function openMediaModal() {
+        var modalElement = document.getElementById('mediaModal');
+        if (modalElement) {
+            if (!modalElement._bsModalInstance) {
+                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
+            }
+            modalElement._bsModalInstance.show();
+        } else {
+            console.error("Không tìm thấy phần tử với id 'mediaModal'.");
+        }
     }
-
-    function getTinyMCEContent() {
-        return tinymce.get('tinymce-textarea').getContent();
+    function closeMediaModal() {
+        var modalElement = document.getElementById('mediaModal');
+        if (modalElement && modalElement._bsModalInstance) {
+            modalElement._bsModalInstance.hide();
+        }
     }
-
 
     window.TagsList = [];
     function initializeTagsList(tags) {
@@ -200,8 +231,6 @@
             console.log('Failed to initialize TagsList. Empty or undefined.');
         }
     }
-
-
 
     function initializeTomSelect(selector) {
         resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới

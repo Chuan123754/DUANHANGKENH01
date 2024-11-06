@@ -1,53 +1,15 @@
 ﻿@inherits LayoutComponentBase
-
-
-<!-- SEO Meta Tags -->
-<title>@PageTitle</title>
-<meta name="description" content="@PageDescription" />
-<meta name="keywords" content="@PageKeywords" />
-
-<!-- Open Graph Meta Tags -->
-<meta property="og:title" content="@PageTitle" />
-<meta property="og:description" content="@PageDescription" />
-<meta property="og:image" content="@PageImage" />
-<meta property="og:url" content="@PageUrl" />
-<meta property="og:type" content="website" />
-<meta property="og:site_name" content="@PageSiteName" />
-
-<!-- Twitter Card Meta Tags -->
-<meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="@PageTitle" />
-<meta name="twitter:description" content="@PageDescription" />
-<meta name="twitter:image" content="@PageImage" />
-
-<link rel="icon" type="image/x-icon" href="@PageFavicon" />
-<link rel="canonical" href="@PageCanonicalUrl" />
 <!-- Main Layout -->
 <div>
+    <div id="overlay"></div>
+
+    <ClientViews.Pages.Component.Header/>
+    <a onclick="topFunction()" id="btn-to-top">
+        <svg xmlns="http://www.w3.org/2000/svg" width="21" height="23" viewBox="0 0 21 23" fill="none">
+            <path d="M10.2891 22.9102L10.2891 1.08941M10.2891 1.08941C10.2891 1.08941 9.13522 5.29576 6.44291 7.81957C3.7506 10.3434 0.289062 10.3434 0.289062 10.3434M10.2891 1.08941C10.2891 1.08941 11.4429 5.25608 14.1352 7.75608C16.8275 10.2561 20.2891 10.2561 20.2891 10.2561"
+                  stroke="#242424" stroke-width="2.2" stroke-linejoin="bevel" />
+        </svg>
+    </a>
     @Body
+    <ClientViews.Pages.Component.Footer/>
 </div>
-@code {
-    [Parameter]
-    public string PageTitle { get; set; }
-
-    [Parameter]
-    public string PageDescription { get; set; }
-
-    [Parameter]
-    public string PageKeywords { get; set; }
-
-    [Parameter]
-    public string PageImage { get; set; }
-
-    [Parameter]
-    public string PageUrl { get; set; }
-
-    [Parameter]
-    public string PageSiteName { get; set; }
-
-    [Parameter]
-    public string PageFavicon { get; set; }
-
-    [Parameter]
-    public string PageCanonicalUrl { get; set; }
-}

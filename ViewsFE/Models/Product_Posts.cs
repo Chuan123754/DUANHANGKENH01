@@ -80,7 +80,7 @@ namespace ViewsFE.Models
         // Dictionary to hold status classes (for styling purposes)
         public static readonly Dictionary<string, string> STATUS_CLASSES = new Dictionary<string, string>
         {
-           { STATUS_DRAFT, "text-default" },
+           { STATUS_DRAFT, "text-danger" },
             { STATUS_PENDING, "text-warning" },
              { STATUS_PUBLISH, "text-success" }
         };
@@ -90,7 +90,6 @@ namespace ViewsFE.Models
 
         // Get the CSS class for the current status
         public string StatusClass => STATUS_CLASSES.ContainsKey(Status) ? STATUS_CLASSES[Status] : string.Empty;
-
 
     }
 }

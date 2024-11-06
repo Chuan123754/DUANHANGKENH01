@@ -46,11 +46,13 @@
 
                                 <div class="mb-3">
                                     <label for="tinymce-textarea" class="form-label">Mô tả</label>
-                                    <InputTextArea @bind-Value="Posts.Description" class="form-control" id="tinymce-textarea" rows="7" />
+                                    <textarea id="tinymce-textarea" @bind="Posts.Description" class="form-control" rows="7"></textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <!-- #region Form right -->
+
                     <div class="col-md-3 col-12">
                         <div class="sticky-top position-sticky">
                             <div class="accordion bg-white mb-3 mt-3 mt-md-0">
@@ -63,10 +65,11 @@
                                     </h2>
                                     <div class="accordion-collapse collapse show" id="action-1" data-bs-parent="#accordion-example">
                                         <div class="accordion-body pt-0">
+
+                                            <!-- #region trạng thái -->
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Trạng thái</label>
                                                 <select @bind="Posts.Status" class="form-control">
-
                                                     @foreach (var status in statuses)
                                                     {
                                                         <option value="@status.Key" selected="@(Posts.Status == status.Key)">
@@ -75,11 +78,15 @@
                                                     }
                                                 </select>
                                             </div>
+                                            <!-- #endregion -->
+
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Mẫu</label>
                                                 <select name="meta_data[page_template]" class="form-control" id="">
                                                 </select>
                                             </div>
+
+                                            <!-- #region tác giả -->
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Tác giả</label>
                                                 <InputSelect @bind-Value="Posts.AuthorId" class="form-control" multiple>
@@ -89,6 +96,7 @@
                                                     }
                                                 </InputSelect>
                                             </div>
+                                            <!-- #endregion -->
                                             <!-- Nút gửi -->
                                             <button type="submit" class="btn btn-primary" style="float: right">
                                                 Đăng
@@ -98,19 +106,21 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- #region ảnh đại diện -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#category" aria-expanded="true">
-                                            Ảnh bài viết
+                                            Ảnh đại diện
                                         </button>
                                     </h2>
                                     <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                         <div class="accordion-body pt-0">
-                                            <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center">
-                                                @if (!string.IsNullOrEmpty(FeatureImage))
+                                            <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
+                                                 data-multiple="false" data-refer-id="#feature_image" onclick="openMediaModal()">
+                                                @if (!string.IsNullOrEmpty(Posts.Feature_image))
                                                 {
-                                                    <img src="@FeatureImage" class="w-100 h-100 object-cover" />
+                                                    <img src="@Posts.Feature_image" class="w-100 h-100 object-cover" />
                                                 }
                                                 else
                                                 {
@@ -123,10 +133,13 @@
                                                     </div>
                                                 }
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <!-- #endregion -->
+                            <!-- #region category -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
@@ -193,7 +206,8 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Từ khóa -->
+                            <!-- #endregion category -->
+                            <!--  #region Từ khóa(tags) -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
@@ -213,38 +227,54 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <!-- #endregion  Từ khóa(tags) -->
                         </div>
                     </div>
+
+                    <!-- #endregion Form right-->
+
                 </div>
             </div>
         </div>
     </div>
 </EditForm>
+
+<Media_modal OnImageSelected="HandleImageSelected"></Media_modal>
+
 @code {
     private Product_Posts Posts = new Product_Posts();
     private List<Categories> CategoriesList = new List<Categories>();
     private List<Tags> TagsList = new List<Tags>();
     private List<long> SelectedCategories = new List<long>();
     private List<long> SelectedTags = new List<long>();
-    private string FeatureImage { get; set; }
     private List<Designer> designersList = new List<Designer>();
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
+    private bool tinyMCEInitialized = false;
 
-  
+    private async Task HandleImageSelected(string imagePath)
+    {
+        Posts.Feature_image = imagePath;
+        StateHasChanged(); // Cập nhật giao diện
+        await JS.InvokeVoidAsync("closeMediaModal"); // Gọi hàm JavaScript để đóng modal
+    }
+
+
     protected override async Task OnInitializedAsync()
     {
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAll();
         designersList = await des.GetAll();
-        Posts.Status = Product_Posts.STATUS_DRAFT;
+        Posts.Status = Product_Posts.STATUS_PUBLISH;
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // Khởi tạo TinyMCE
-            await JS.InvokeVoidAsync("initTinyMCE");
+            if (!tinyMCEInitialized)
+            {
+                await JS.InvokeVoidAsync("initTinyMCE");
+                tinyMCEInitialized = true;
+            }
         }
         if (TagsList?.Count > 0)
         {
@@ -258,10 +288,15 @@
             await JS.InvokeVoidAsync("initializeTomSelectForCategories", "#categories");
         }
     }
+    public async ValueTask DisposeAsync()
+    {
+        if (tinyMCEInitialized)
+        {
+            await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
+        }
+    }
     private async void HandleValidSubmit()
     {
-        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
-
         // Lấy dữ liệu từ Tom Select
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         if (!string.IsNullOrEmpty(tags))
@@ -281,24 +316,31 @@
                 .ToList();
         }
 
-
+        // Gọi phương thức tạo bài viết
         await sev.CreatePost(Posts, SelectedTags, SelectedCategories);
+
+        // Điều hướng sau khi tạo bài viết
         nav.NavigateTo("/admin/post");
     }
 }
 <script>
-    function initTinyMCE() {
-        tinymce.init({
-            selector: '#tinymce-textarea',
-            plugins: 'link image code',
-            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
-        });
+    function openMediaModal() {
+        var modalElement = document.getElementById('mediaModal');
+        if (modalElement) {
+            if (!modalElement._bsModalInstance) {
+                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
+            }
+            modalElement._bsModalInstance.show();
+        } else {
+            console.error("Không tìm thấy phần tử với id 'mediaModal'.");
+        }
     }
-
-    function getTinyMCEContent() {
-        return tinymce.get('tinymce-textarea').getContent();
+    function closeMediaModal() {
+        var modalElement = document.getElementById('mediaModal');
+        if (modalElement && modalElement._bsModalInstance) {
+            modalElement._bsModalInstance.hide();
+        }
     }
-
 
     window.TagsList = [];
     window.CategoriesList = [];

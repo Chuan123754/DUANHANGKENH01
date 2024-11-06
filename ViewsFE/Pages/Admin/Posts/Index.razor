@@ -78,9 +78,11 @@
                                                 </div>
                                             </td>
                                             <td class="sort-city">@post.AuthorId</td>
-                                            <td class="table-sort">@post.CategoryName</td>
+                                            <td class="sort-type">@post.CategoryName</td>
                                             <td class="sort-score">@post.TagName</td>
-                                            <td class="sort-status">@post.Status</td>
+                                            <td class="sort-status">
+                                                <span class="@post.StatusClass">@post.StatusLabel</span>
+                                            </td>
                                             <td class="sort-date">@post.Created_at</td>
                                         </tr>
                                     }
@@ -150,3 +152,5 @@
         await LoadPosts();
     }
 }
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="assets/libs/tabler/libs/list.js/dist/list.min.js" defer=""></script>

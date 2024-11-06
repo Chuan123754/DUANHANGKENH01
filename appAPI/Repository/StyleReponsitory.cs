@@ -8,9 +8,9 @@ namespace appAPI.Repository
     public class StyleReponsitory : IStyleReponsitory
     {
         private readonly APP_DATA_DATN _context;
-        public StyleReponsitory()
+        public StyleReponsitory(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
         public async Task Create(Style style)
         {

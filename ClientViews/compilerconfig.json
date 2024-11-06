@@ -1,0 +1,10 @@
+﻿[
+  {
+    "outputFile": "wwwroot/resources/scss/components/common.css",
+    "inputFile": "wwwroot/resources/scss/components/common.scss"
+  },
+  {
+    "outputFile": "wwwroot/resources/scss/components/elements.css",
+    "inputFile": "wwwroot/resources/scss/components/elements.scss"
+  }
+]

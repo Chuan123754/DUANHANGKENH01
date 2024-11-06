@@ -55,12 +55,9 @@ namespace ViewsFE.Models
             { STATUS_ACTIVE, "text-success" }
         };
 
-        // Get the label for the current status
-        public string StatusLabel => STATUSES.ContainsKey(status) ? STATUSES[status] : string.Empty;
+        public string StatusLabel => !string.IsNullOrEmpty(status) && STATUSES.ContainsKey(status) ? STATUSES[status] : "Trạng thái không xác định";
 
-        // Get the CSS class for the current status
-        public string StatusClass => STATUS_CLASSES.ContainsKey(status) ? STATUS_CLASSES[status] : string.Empty;
-
+        public string StatusClass => !string.IsNullOrEmpty(status) && STATUS_CLASSES.ContainsKey(status) ? STATUS_CLASSES[status] : string.Empty;
         // Deserialize MetaData from JSON string
         public MetaData GetMetaData()
         {
@@ -74,42 +71,9 @@ namespace ViewsFE.Models
         {
             meta_data = JsonSerializer.Serialize(data);
         }
-
-        // Deserialize ImageLibrary from JSON string
-        public List<Image> GetImageLibrary()
-        {
-            return !string.IsNullOrEmpty(image_library)
-                ? JsonSerializer.Deserialize<List<Image>>(image_library)
-                : new List<Image>();
-        }
-
-        // Serialize ImageLibrary to JSON string
-        public void SetImageLibrary(List<Image> images)
-        {
-            image_library = JsonSerializer.Serialize(images);
-        }
-
-        // Deserialize Image from JSON string
-        public Image? GetImage()
-        {
-            return !string.IsNullOrEmpty(image)
-                ? JsonSerializer.Deserialize<Image>(image)
-                : null;
-        }
-
-        // Serialize Image to JSON string
-        public void SetImage(Image img)
-        {
-            image = JsonSerializer.Serialize(img);
-        }
     }
 
-    public class Image
-    {
-        public long Id { get; set; }
-        public string? ImageUrl { get; set; }
-        public string? Title { get; set; }
-    }
+
 
     public class MetaData
     {

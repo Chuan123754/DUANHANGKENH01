@@ -112,75 +112,75 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Danh Sách Voucher -->
                 <div class="col-md-9 col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <!-- Search Box -->
-                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
-                                <div></div>
-                                <EditForm Model="voucher" OnValidSubmit="@SearchVouchers">
-                                    <div class="form-group d-flex gap-2">
-                                        <InputText id="searchInput" class="form-control" @bind-Value="searchText" placeholder="Nhập từ khóa tìm kiếm" />
-                                        <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
-                                    </div>
-                                </EditForm>
-                            </div>
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>STT</th>
-                                        <th>Mã Voucher</th>
-                                        <th>Mô Tả</th>
-                                        <th>Giá trị</th>
-                                        <th>Giá trị tối đa</th>
-                                        <th>Điều kiện</th>
-                                        <th>Số lượng</th>
-                                        <th>Trạng thái</th>
-                                        <th>Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (pagedVouchers != null && pagedVouchers.Any())
-                                    {
-                                        int index = 0;
-                                        @foreach (var voucher in pagedVouchers)
+                    <!-- Danh Sách Voucher -->
+                    <div class="col-md-12 col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <!-- Search Box -->
+                                <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                    <div></div>
+                                    <EditForm Model="voucher" OnValidSubmit="@SearchVouchers">
+                                        <div class="form-group d-flex gap-2">
+                                            <InputText id="searchInput" class="form-control" @bind-Value="searchText" placeholder="Nhập từ khóa tìm kiếm" />
+                                            <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                        </div>
+                                    </EditForm>
+                                </div>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>STT</th>
+                                            <th>Mã Voucher</th>
+                                            <th>Mô Tả</th>
+                                            <th>Giá trị</th>
+                                            <th>Giá trị tối đa</th>
+                                            <th>Điều kiện</th>
+                                            <th>Số lượng</th>
+                                            <th>Trạng thái</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (pagedVouchers != null && pagedVouchers.Any())
+                                        {
+                                            int index = 0;
+                                            @foreach (var voucher in pagedVouchers)
+                                            {
+                                                <tr>
+                                                    <td>@(++index + (currentPage - 1) * pageSize)</td>
+                                                    <td>@voucher.Code</td>
+                                                    <td>@voucher.Description</td>
+                                                    <td>@voucher.Percent</td>
+                                                    <td>@voucher.MaxDiscountValue</td>
+                                                    <td>@voucher.Condition</td>
+                                                    <td>@voucher.Quantity</td>
+                                                    <td>@voucher.Status</td>
+                                                    <td>
+                                                        <button class="btn btn-primary" @onclick="() => EditVoucher(voucher.Id)">Sửa</button>
+
+                                                        <button class="btn btn-danger" @onclick="() => ConfirmDelete(voucher.Id)">Xóa</button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
                                         {
                                             <tr>
-                                                <td>@(++index + (currentPage - 1) * pageSize)</td>
-                                                <td>@voucher.Code</td>
-                                                <td>@voucher.Description</td>
-                                                <td>@voucher.Percent</td>
-                                                <td>@voucher.MaxDiscountValue</td>
-                                                <td>@voucher.Condition</td>
-                                                <td>@voucher.Quantity</td>
-                                                <td>@voucher.Status</td>
-                                                <td>
-                                                    <button class="btn btn-primary" @onclick="() => EditVoucher(voucher.Id)">Sửa</button>
-
-                                                    <button class="btn btn-danger" @onclick="() => ConfirmDelete(voucher.Id)">Xóa</button>
-                                                </td>
+                                                <td colspan="8" class="text-center">Không có dữ liệu để hiển thị.</td>
                                             </tr>
                                         }
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td colspan="8" class="text-center">Không có dữ liệu để hiển thị.</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
 
-                           <div class="mt-4">
-                                <Pagination TItem="Vouchers" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="vouchers.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                                <div class="mt-4">
+                                    <Pagination TItem="Vouchers" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="vouchers.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                                </div>
+
                             </div>
-
                         </div>
                     </div>
-
-                    <div class="col-md-12 col-12">
+                    <div class="col-md-12 col-12 pt-3">
                         <div class="card">
                             <div class="card-body">
                                 <!-- Search Box -->
@@ -231,9 +231,9 @@
                                     </tbody>
                                 </table>
 
-                                
 
-                               <div class="mt-4">
+
+                                <div class="mt-4">
                                     <Pagination TItem="Users" PageNumber="currentCustomerPage" TotalPages="totalCustomerPages" PageSize="customerPageSize" TotalItems="users.Count" OnPageChanged="GoToCustomerPage" OnPageSizeChanged="OnCustomerPageSizeChanged" />
                                 </div>
 
@@ -242,7 +242,7 @@
                         </div>
                     </div>
 
-                </div>            
+                </div>
             </div>
         </div>
     </div>
@@ -266,14 +266,14 @@
 
 
     private string errorMessage = string.Empty;
-    private int selectedUserCount = 0; 
+    private int selectedUserCount = 0;
 
     private int currentPage = 1;
     private int pageSize = 5;
     private int totalPages = 1;
 
     private int currentCustomerPage = 1;
-    private int customerPageSize = 5; 
+    private int customerPageSize = 5;
     private int totalCustomerPages = 1;
     private List<Users> pagedUsers = new List<Users>();
 
@@ -283,7 +283,7 @@
         {
             if (!selectedUserIds.Contains(userId))
             {
-                selectedUserIds.Add(userId); 
+                selectedUserIds.Add(userId);
                 selectedUserCount++;
             }
         }
@@ -315,10 +315,10 @@
         {
             if (selectedUserIds.Contains(userId))
             {
-                selectedUserIds.Remove(userId); 
+                selectedUserIds.Remove(userId);
             }
         }
-        ToggleUserSelection(userId, isChecked); 
+        ToggleUserSelection(userId, isChecked);
     }
 
 
@@ -341,18 +341,18 @@
         voucher.Create_at = DateTime.Now;
         voucher.Update_at = DateTime.Now;
         voucher.Start_time = DateTime.Now;
-        voucher.End_time = DateTime.Now.AddDays(1); 
+        voucher.End_time = DateTime.Now.AddDays(1);
 
         vouchers = await VoucherService.GetAll();
         totalPages = (int)Math.Ceiling((double)vouchers.Count / pageSize); // Tính tổng số trang
         LoadPagedVouchers();
 
-         users = await VoucherService.GetUsers();
+        users = await VoucherService.GetUsers();
         totalCustomerPages = (int)Math.Ceiling((double)users.Count / customerPageSize); // Tính tổng số trang khách hàng
-        LoadPagedUsers(); 
+        LoadPagedUsers();
 
         await LoadVouchers();
-        await LoadUsers(); 
+        await LoadUsers();
     }
 
     private void LoadPagedVouchers()
@@ -415,7 +415,7 @@
 
     private async Task LoadUsers()
     {
-        users = await VoucherService.GetUsers(); 
+        users = await VoucherService.GetUsers();
     }
 
     private async Task LoadVouchers()
@@ -434,7 +434,7 @@
             if (voucher.Status == "Không hoạt động")
             {
                 errorMessage = "Voucher đang không hoạt động. Không thể thêm khách hàng.";
-                return; 
+                return;
             }
 
             // Nếu có khách hàng riêng, gán số lượng bằng số lượng khách hàng đã tích
@@ -446,7 +446,7 @@
                     {
                         Code = voucher.Code,
                         Description = voucher.Description,
-                        Quantity = voucher.Quantity, 
+                        Quantity = voucher.Quantity,
                         Percent = voucher.Percent,
                         MaxDiscountValue = voucher.MaxDiscountValue,
                         Condition = voucher.Condition,
@@ -515,7 +515,7 @@
         }
     }
 
-    
+
 
     private async Task EditVoucher(long id)
     {
@@ -526,7 +526,7 @@
             // Lấy khách hàng có voucher từ cơ sở dữ liệu
             var userVouchers = await UserVoucherService.GetByVoucherId(id);
 
-            selectedUserIds.Clear(); 
+            selectedUserIds.Clear();
             initialUserIds.Clear();
 
             foreach (var userVoucher in userVouchers)
@@ -535,7 +535,7 @@
                 initialUserIds = selectedUserIds.ToList();
             }
 
-            selectedUserCount = selectedUserIds.Count; 
+            selectedUserCount = selectedUserIds.Count;
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
@@ -560,13 +560,13 @@
             if (voucher.Status == "Không hoạt động")
             {
                 errorMessage = "Voucher đang không hoạt động. Không thể thêm hoặc cập nhật khách hàng.";
-                return; 
+                return;
             }
 
             // Nếu voucher có khách hàng riêng, gán số lượng bằng số lượng khách hàng được tích
             if (selectedUserIds.Any())
             {
-                voucher.Quantity = selectedUserIds.Count.ToString(); 
+                voucher.Quantity = selectedUserIds.Count.ToString();
             }
 
             selectedUserIds = selectedUserIds.Distinct().ToList();
@@ -599,7 +599,7 @@
                     var userVoucher = await UserVoucherService.GetByVoucherIdAndUserId(voucher.Id, userId);
                     if (userVoucher != null)
                     {
-                        await UserVoucherService.Delete(userVoucher.Id); 
+                        await UserVoucherService.Delete(userVoucher.Id);
                     }
                 }
             }
@@ -671,8 +671,6 @@
             }
         }
     }
-
-
     private async Task SearchVouchers()
     {
         if (string.IsNullOrEmpty(searchText))

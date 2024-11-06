@@ -4,6 +4,7 @@ using appAPI.Models;
 using System.Threading.Tasks;
 using appAPI.Repository;
 using System.Net.Http;
+using appAPI.IRepository;
 
 namespace appAPI.Controllers
 {
@@ -11,11 +12,11 @@ namespace appAPI.Controllers
     [ApiController]
     public class FilesController : ControllerBase
     {
-        private readonly FilesReponsetory _filesRepository;
+        private readonly FilesIRepository _filesRepository;
 
-        public FilesController()
+        public FilesController(FilesIRepository filesIRepository)
         {
-            _filesRepository = new FilesReponsetory();
+            _filesRepository = filesIRepository;
         }
 
         [HttpGet("get-all-files")]
@@ -68,12 +69,25 @@ namespace appAPI.Controllers
                 return BadRequest($"Lỗi khi xóa tệp: {ex.Message}");
             }
         }
-
-        [HttpGet("search")]
-        public async Task<IActionResult> Search(string query)
+        [HttpGet("get-by-type")]
+        public async Task<IActionResult> GetByType([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 21, [FromQuery] string? searchTerm = null)
         {
-            var result = await _filesRepository.Search(query);
-            return Ok(result);
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Page number and page file must be greater than 0.");
+            }
+
+            var list = await _filesRepository.GetByTypeAsync(pageNumber, pageSize, searchTerm);
+
+
+            return Ok(list);
         }
+        [HttpGet("Get-Total-Count")]
+        public async Task<IActionResult> GetTotalCount([FromQuery] string? searchTerm = null)
+        {
+            var totalCount = await _filesRepository.GetTotalCountAsync(searchTerm);
+            return Ok(totalCount);
+        }
+        
     }
 }

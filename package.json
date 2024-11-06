@@ -1,0 +1,22 @@
+{
+  "name": "duanhangkenh01",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^22.8.4",
+    "sass": "^1.80.5", 
+    "vite": "^5.4.10"
+  },
+  "dependencies": {
+
+  }
+}

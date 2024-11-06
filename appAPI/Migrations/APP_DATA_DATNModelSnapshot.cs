@@ -17,7 +17,7 @@ namespace appAPI.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.13")
+                .HasAnnotation("ProductVersion", "6.0.20")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -956,9 +956,6 @@ namespace appAPI.Migrations
                     b.Property<long?>("AuthorId")
                         .HasColumnType("bigint");
 
-                    b.Property<long?>("ColorId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime?>("Created_at")
                         .HasColumnType("datetime2");
 
@@ -980,17 +977,11 @@ namespace appAPI.Migrations
                     b.Property<string>("Image_library")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("MaterialId")
-                        .HasColumnType("bigint");
-
                     b.Property<DateTime?>("Post_date")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Short_description")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<long?>("SizeId")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("Slug")
                         .HasMaxLength(255)
@@ -1000,12 +991,6 @@ namespace appAPI.Migrations
                     b.Property<string>("Status")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
-
-                    b.Property<long?>("StyleId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long?>("Textile_technologyId")
-                        .HasColumnType("bigint");
 
                     b.Property<string>("Title")
                         .HasMaxLength(255)
@@ -1029,16 +1014,6 @@ namespace appAPI.Migrations
                     b.HasIndex("AccountId");
 
                     b.HasIndex("AuthorId");
-
-                    b.HasIndex("ColorId");
-
-                    b.HasIndex("MaterialId");
-
-                    b.HasIndex("SizeId");
-
-                    b.HasIndex("StyleId");
-
-                    b.HasIndex("Textile_technologyId");
 
                     b.ToTable("product_post");
                 });
@@ -1860,39 +1835,19 @@ namespace appAPI.Migrations
                         .WithMany("Product_Posts")
                         .HasForeignKey("AuthorId");
 
-                    b.HasOne("appAPI.Models.Color", null)
-                        .WithMany("Product_Posts")
-                        .HasForeignKey("ColorId");
-
-                    b.HasOne("appAPI.Models.Material", null)
-                        .WithMany("Product_Posts")
-                        .HasForeignKey("MaterialId");
-
-                    b.HasOne("appAPI.Models.Size", null)
-                        .WithMany("Product_Posts")
-                        .HasForeignKey("SizeId");
-
-                    b.HasOne("appAPI.Models.Style", null)
-                        .WithMany("Product_Posts")
-                        .HasForeignKey("StyleId");
-
-                    b.HasOne("appAPI.Models.Textile_technology", null)
-                        .WithMany("Product_Posts")
-                        .HasForeignKey("Textile_technologyId");
-
                     b.Navigation("Designer");
                 });
 
             modelBuilder.Entity("appAPI.Models.Product_variants", b =>
                 {
                     b.HasOne("appAPI.Models.Color", "Color")
-                        .WithMany()
+                        .WithMany("Product_Variants")
                         .HasForeignKey("Color_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Material", "Material")
-                        .WithMany()
+                        .WithMany("Product_Variants")
                         .HasForeignKey("Material_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1904,19 +1859,19 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Size", "Size")
-                        .WithMany()
+                        .WithMany("Product_Variants")
                         .HasForeignKey("Size_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Style", "Style")
-                        .WithMany()
+                        .WithMany("Product_Variants")
                         .HasForeignKey("Style_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Textile_technology", "Textile_Technology")
-                        .WithMany()
+                        .WithMany("Product_Variants")
                         .HasForeignKey("Textile_technology_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2053,7 +2008,7 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Color", b =>
                 {
-                    b.Navigation("Product_Posts");
+                    b.Navigation("Product_Variants");
                 });
 
             modelBuilder.Entity("appAPI.Models.Designer", b =>
@@ -2068,7 +2023,7 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Material", b =>
                 {
-                    b.Navigation("Product_Posts");
+                    b.Navigation("Product_Variants");
                 });
 
             modelBuilder.Entity("appAPI.Models.Menus", b =>
@@ -2105,12 +2060,12 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Size", b =>
                 {
-                    b.Navigation("Product_Posts");
+                    b.Navigation("Product_Variants");
                 });
 
             modelBuilder.Entity("appAPI.Models.Style", b =>
                 {
-                    b.Navigation("Product_Posts");
+                    b.Navigation("Product_Variants");
                 });
 
             modelBuilder.Entity("appAPI.Models.Tags", b =>
@@ -2120,7 +2075,7 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Textile_technology", b =>
                 {
-                    b.Navigation("Product_Posts");
+                    b.Navigation("Product_Variants");
                 });
 
             modelBuilder.Entity("appAPI.Models.Users", b =>

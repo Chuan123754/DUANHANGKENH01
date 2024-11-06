@@ -14,7 +14,7 @@
             <div class="container-xl">
                 <div class="row g-2 align-items-center">
                     <div class="col">
-                        <h2 class="page-title">Sửa dự án</h2>
+                        <h2 class="page-title">Thêm dự án</h2>
                     </div>
                 </div>
             </div>
@@ -43,10 +43,11 @@
                                     <label for="shortDescription" class="form-label">Mô tả ngắn</label>
                                     <InputTextArea id="shortDescription" class="form-control" rows="3" @bind-Value="Posts.Short_description" />
                                 </div>
+
                                 <!-- Mô tả -->
                                 <div class="mb-3">
                                     <label for="tinymce-textarea" class="form-label">Mô tả</label>
-                                    <InputTextArea @bind-Value="Posts.Description" class="form-control" id="tinymce-textarea" rows="7" />
+                                    <textarea id="tinymce-textarea" @bind="Posts.Description" class="form-control" rows="7"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -96,7 +97,39 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- #region ảnh đại diện -->
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#category" aria-expanded="true">
+                                            Ảnh đại diện
+                                        </button>
+                                    </h2>
+                                    <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                        <div class="accordion-body pt-0">
+                                            <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
+                                                 data-multiple="false" data-refer-id="#feature_image" onclick="openMediaModal()">
+                                                @if (!string.IsNullOrEmpty(Posts.Feature_image))
+                                                {
+                                                    <img src="@Posts.Feature_image" class="w-100 h-100 object-cover" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="icon d-flex align-items-center justify-content-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M12 5v14" />
+                                                            <path d="M5 12h14" />
+                                                        </svg>
+                                                    </div>
+                                                }
+                                            </div>
 
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- #endregion -->
                             <!-- Danh mục bài viết -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
@@ -191,6 +224,8 @@
         </div>
     </div>
 </EditForm>
+
+<Media_modal OnImageSelected="HandleImageSelected"></Media_modal>
 @code {
     [Parameter]
     public long Id { get; set; }
@@ -199,10 +234,16 @@
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
     private List<Designer> designersList = new List<Designer>();
     private List<Tags> TagsList = new();
-    private string FeatureImage { get; set; }
     private List<long> SelectedCategories = new List<long>();
     private List<long> SelectedTags = new List<long>();
+    private bool tinyMCEInitialized = false;
 
+    private async Task HandleImageSelected(string imagePath)
+    {
+        Posts.Feature_image = imagePath;
+        StateHasChanged(); // Cập nhật giao diện
+        await JS.InvokeVoidAsync("closeMediaModal"); // Gọi hàm JavaScript để đóng modal
+    }
     protected override async Task OnInitializedAsync()
     {
         Posts = await sev.GetByIdType(Id, "project");
@@ -217,8 +258,12 @@
     {
         if (firstRender)
         {
-            // Khởi tạo TinyMCE
-            await JS.InvokeVoidAsync("initTinyMCE");
+
+            if (!tinyMCEInitialized)
+            {
+                await JS.InvokeVoidAsync("initTinyMCE");
+                tinyMCEInitialized = true;
+            }
         }
         if (TagsList?.Count > 0)
         {
@@ -230,6 +275,13 @@
         {
             await JS.InvokeVoidAsync("initializeCateList", CategoriesList);
             await JS.InvokeVoidAsync("initializeTomSelectForCategories", "#categories");
+        }
+    }
+    public async ValueTask DisposeAsync()
+    {
+        if (tinyMCEInitialized)
+        {
+            await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
         }
     }
     private async Task OnTagsChange(ChangeEventArgs e)
@@ -267,8 +319,6 @@
 
     private async Task HandleValidSubmit()
     {
-        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
-
         // Lấy dữ liệu từ Tom Select
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         if (!string.IsNullOrEmpty(tags))
@@ -293,16 +343,22 @@
     }
 }
 <script>
-    function initTinyMCE() {
-        tinymce.init({
-            selector: '#tinymce-textarea',
-            plugins: 'link image code',
-            toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | code'
-        });
+    function openMediaModal() {
+        var modalElement = document.getElementById('mediaModal');
+        if (modalElement) {
+            if (!modalElement._bsModalInstance) {
+                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
+            }
+            modalElement._bsModalInstance.show();
+        } else {
+            console.error("Không tìm thấy phần tử với id 'mediaModal'.");
+        }
     }
-
-    function getTinyMCEContent() {
-        return tinymce.get('tinymce-textarea').getContent();
+    function closeMediaModal() {
+        var modalElement = document.getElementById('mediaModal');
+        if (modalElement && modalElement._bsModalInstance) {
+            modalElement._bsModalInstance.hide();
+        }
     }
 
 

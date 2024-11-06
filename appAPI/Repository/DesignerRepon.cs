@@ -7,9 +7,9 @@ namespace appAPI.Repository
     public class DesignerRepon : IDesignerRepon
     {
         APP_DATA_DATN _context;
-        public DesignerRepon()
+        public DesignerRepon(APP_DATA_DATN context)
         {
-            _context = new APP_DATA_DATN();
+            _context = context;
         }
         public async Task Create(Designer at)
         {
