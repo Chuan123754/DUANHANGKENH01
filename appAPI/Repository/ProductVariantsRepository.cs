@@ -36,6 +36,15 @@ namespace appAPI.Repository
             return await _context.product_variants.FindAsync(id);
         }
 
+        public async Task<int> GetTotalCountAsync(string status, string? searchTerm)
+        {
+            // Đếm tổng số sản phẩm trong bảng product_variants theo trạng thái và tìm kiếm với điều kiện Deleted_at là null
+            return await _context.product_variants
+                .CountAsync(p => p.Status == status && p.Deleted_at == null &&
+                                 (string.IsNullOrEmpty(searchTerm) || p.Description.Contains(searchTerm)));
+        }
+
+
         public async Task Update(Product_variants productVariants, long id)
         {
             var updateItem = await GetProductVariantsById(id);

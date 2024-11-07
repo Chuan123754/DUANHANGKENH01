@@ -76,5 +76,17 @@ namespace appAPI.Controllers
                 return NotFound();
             }
         }
+
+        [HttpGet("Get-Total-Count")]
+        public async Task<IActionResult> GetTotalCount([FromQuery] string type, [FromQuery] string? searchTerm = null)
+        {
+            if (string.IsNullOrEmpty(type))
+            {
+                return BadRequest("Type is required.");
+            }
+
+            var totalCount = await _repo.GetTotalCountAsync(type, searchTerm);
+            return Ok(totalCount);
+        }
     }
 }

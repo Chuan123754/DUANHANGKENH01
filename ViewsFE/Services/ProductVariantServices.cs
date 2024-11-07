@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using ViewsFE.IServices;
 using ViewsFE.Models;
 
@@ -7,10 +8,12 @@ namespace ViewsFE.Services
     public class ProductVariantServices : IProductVariantServices
     {
         private readonly HttpClient _client;
+        private readonly string _baseUrl;
 
-        public ProductVariantServices(HttpClient client)
+        public ProductVariantServices(HttpClient client, IConfiguration configuration)
         {
             _client= client;
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl"); // Lấy URL từ appsettings.json
         }
         public async Task<long> Create(Product_variants productVariants)
         {
@@ -56,5 +59,22 @@ namespace ViewsFE.Services
         {
             await _client.PutAsJsonAsync($"https://localhost:7011/api/ProductVarians/UpdateProduct?id={id}", productVariants);
         }
+
+        public async Task<int> GetTotalCountAsync(string type, string searchTerm)
+        {
+            var url = $"{_baseUrl}/api/Product_Post/Get-Total-Count?type={type}&searchTerm={Uri.EscapeDataString(searchTerm)}";
+            var response = await _client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var count = await response.Content.ReadFromJsonAsync<int>();
+            return count;
+        }
+
+        public async Task<List<Product_Attributes>> GetProductAttributesByProductVarianId(long productVariantId)
+        {
+            var response = await _client.GetStringAsync($"{_baseUrl}/api/ProductAttributes/GetByProductVariantId?productVariantId={productVariantId}");
+            return JsonConvert.DeserializeObject<List<Product_Attributes>>(response);
+        }
+
     }
 }
