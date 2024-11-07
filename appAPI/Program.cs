@@ -58,7 +58,7 @@ builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
 
 builder.Services.AddHostedService<VoucherExpiryChecker>();
-builder.Services.AddHostedService<DiscountStatusChecker>();
+//builder.Services.AddHostedService<DiscountStatusChecker>();
 
 
 builder.Services.AddScoped<IColorReponsitory, ColorReponsitory>();
@@ -137,6 +137,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
+    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
     RequestPath = "/FileMedia"
 });
 

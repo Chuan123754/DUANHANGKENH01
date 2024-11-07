@@ -265,8 +265,71 @@
     }
     private async Task SubmitForm()
     {
+        designer.description = await JS.InvokeAsync<string>("getTinyMCEContent");
         designer.SetMetaData(metaData);
         await sev.Create(designer);
         nav.NavigateTo("/admin/designer");
     }
 }
+
+<script>
+    function openMediaModal() {
+        var modalElement = document.getElementById('mediaModal');
+        if (modalElement) {
+            if (!modalElement._bsModalInstance) {
+                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
+            }
+            modalElement._bsModalInstance.show();
+        }
+    }
+    function openMediaBannerModal() {
+        var modalElement = document.getElementById('mediaBannerModal');
+        if (modalElement) {
+            if (!modalElement._bsModalInstance) {
+                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
+            }
+            modalElement._bsModalInstance.show();
+        }
+    }
+    function openMediaModalN(isMultiple) {
+        console.log("OpenMediaModalN called with isMultiple: " + isMultiple);
+        var modalElement = document.getElementById('mediaLibraryModal');
+        if (modalElement) {
+            modalElement.setAttribute('data-multiple', isMultiple ? "true" : "false");
+            if (!modalElement._bsModalInstance) {
+                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
+            }
+            modalElement._bsModalInstance.show();
+        }
+    }
+
+    function closeMediaModal() {
+        var modalElement = document.getElementById('mediaModal');
+        if (modalElement && modalElement._bsModalInstance) {
+            modalElement._bsModalInstance.hide();
+        }
+    }
+
+    function closeMediaModalN() {
+        var modalElement = document.getElementById('mediaLibraryModal');
+        if (modalElement && modalElement._bsModalInstance) {
+            modalElement._bsModalInstance.hide();
+        }
+    }
+    function closeMediaBannerModal() {
+        var modalElement = document.getElementById('mediaBannerModal');
+        if (modalElement && modalElement._bsModalInstance) {
+            modalElement._bsModalInstance.hide();
+        }
+    }
+    window.TagsList = [];
+    window.CategoriesList = [];
+    function initializeTagsList(tags) {
+        if (tags && tags.length > 0) {
+            window.TagsList = tags;
+            console.log('TagsList initialized:', window.TagsList);
+        } else {
+            console.log('Failed to initialize TagsList. Empty or undefined.');
+        }
+    }
+</script>

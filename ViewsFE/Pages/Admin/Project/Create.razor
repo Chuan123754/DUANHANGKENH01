@@ -317,7 +317,7 @@
 
     private async Task HandleValidSubmit()
     {
-
+        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
         // Lấy dữ liệu từ Tom Select
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         if (!string.IsNullOrEmpty(tags))

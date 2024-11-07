@@ -46,7 +46,7 @@
                                                                 style="width: 100%">
                                                             <img src="@file.Path" class="w-100 object-fit-cover" alt="IMG" height="150" />
                                                         </button>
-                                                        @if (selectedImagePath == file.Path) // Kiểm tra nếu ảnh đã được chọn
+                                                        @if (SelectedImagePath == file.Path) // Kiểm tra nếu ảnh đã được chọn
                                                         {
                                                             <span class="selected-icon">✓</span> <!-- Dấu tích -->
                                                         }
@@ -75,11 +75,13 @@
 
 @code {
     [Parameter]
+    public string SelectedImagePath { get; set; }
+    [Parameter]
     public EventCallback<string> OnImageSelected { get; set; }
     private List<Files> listFiles = new();
     private Files files = new Files();
     private List<string> selectedImages = new List<string>(); // Lưu nhiều ảnh
-    private string selectedImagePath; // Lưu 1 ảnh (Feature_image)
+                                                              // private string selectedImagePath; // Lưu 1 ảnh (Feature_image)
 
     private string search_query = string.Empty;
     private int page_number = 1;
@@ -102,15 +104,17 @@
     }
     private async Task ToggleSelectImage(string imagePath)
     {
-        // Chọn 1 ảnh (Feature_image)
-        selectedImagePath = imagePath == selectedImagePath ? null : imagePath;
-        StateHasChanged(); // Cập nhật giao diện
+        // Cập nhật ảnh được chọn trong modal
+        SelectedImagePath = imagePath == SelectedImagePath ? null : imagePath;
+        await OnImageSelected.InvokeAsync(SelectedImagePath);
+        StateHasChanged();
+        
     }
     private async Task ConfirmSelection()
     {
-        if (!string.IsNullOrEmpty(selectedImagePath))
+        if (!string.IsNullOrEmpty(SelectedImagePath))
         {
-            await OnImageSelected.InvokeAsync(selectedImagePath);
+            await OnImageSelected.InvokeAsync(SelectedImagePath);
         }
         else
         {
@@ -139,7 +143,7 @@
         page_number = 1;
         await LoadPosts();
     }
-
+    
     private async Task OnSearch()
     {
         await LoadPosts();
@@ -203,4 +207,7 @@
             console.error("Dropzone is not defined. Make sure the script is included.");
         }
     };
+
+
+    console.log(SelectedImagePath)
 </script>
