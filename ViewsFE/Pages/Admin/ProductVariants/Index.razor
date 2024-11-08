@@ -1,0 +1,249 @@
+﻿@page "/admin/productVarians"
+@inject NavigationManager Navigation
+@inject IProductVariantServices productVarians
+@inject IProductAttributeServices productAttribute
+@inject ISizeServices SizeServices
+@inject IMaterialServices MaterialService
+@inject ITextile_technologyServices Textile_technologyServices
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">Danh sách sản phẩm</h2>
+                    <a href="/admin/product/create" class="btn btn-sm btn-outline-primary">
+                        Thêm sản phẩm
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Search form -->
+                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                        <div></div>
+                        <EditForm Model="product_posts" OnValidSubmit="@OnSearch">
+                            <div class="form-group d-flex gap-2">
+                                <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                            </div>
+                        </EditForm>
+                    </div>
+
+                    <!-- Product Table -->
+                    <div id="table-default" class="table-responsive">
+                        @if (product_Varians_list != null && product_Varians_list.Any())
+                        {
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Title")'>Post_Id</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Author")'>Description</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Category")'>Textile_technology_id</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Tags")'>Material_id</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Status")'>Style_id</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Status")'>Trạng thái</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @onclick='() => SortBy("Date")'>Thời gian</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @foreach (var post in product_Varians_list)
+                                    {
+                                        <tr class="post-row">
+                                            <td>@post.Id</td>
+                                            <td>
+                                                @post.Post_Id
+                                                <br />
+                                                <div class="cell-action">
+                                                    <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(post.Id)">Chỉnh sửa</a>
+                                                    <a class="cell-action-delete text-danger" @onclick="() => ConfirmDelete(post.Id)">Xóa</a>
+                                                </div>
+                                            </td>
+                                            <td>@post.Description</td>
+                                            <td class="sort-type">
+                                                @(TextileTechnology_list.FirstOrDefault(t => t.Id == post.Textile_technology_id)?.Title ?? "N/A")
+                                            </td>
+                                            <td class="sort-tags">
+                                                @(Material_list.FirstOrDefault(m => m.Id == post.Material_id)?.Title ?? "N/A")
+                                            </td>
+                                            <td class="sort-tags">
+                                                @(Size_list.FirstOrDefault(s => s.Id == post.Style_id)?.Title ?? "N/A")
+                                            </td>
+                                            <td class="sort-status">
+                                                <span class="@post.Status">@post.Status</span>
+                                            </td>
+                                            <td class="sort-date">
+                                                @post.Created_at
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" @onclick="() => ShowAttributes(post.Id)">Chi tiết</button>
+                                            </td>
+                                        </tr>
+                                    }
+
+
+                                </tbody>
+
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center">Không có dữ liệu</td>
+                            </tr>
+                        }
+
+                    </div>
+                    @if (showAttributes)
+                    {
+                        @if (productAttributesList != null && productAttributesList.Any())
+                        {
+                            <div class="mt-4">
+                                <h3>Danh sách Product Attributes</h3>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>SKU</th>
+                                            <th>Regular Price</th>
+                                            <th>Sale Price</th>
+                                            <th>Stock</th>
+                                            <th>Color</th>
+                                            <th>Size</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var attributes in productAttributesList)
+                                        {
+                                            <tr>
+                                                <td>@attributes.Id</td>
+                                                <td>@attributes.SKU</td>
+                                                <td>@attributes.Regular_price</td>
+                                                <td>@attributes.Sale_price</td>
+                                                <td>@attributes.Stock</td>
+                                                <td>@attributes.Color?.Title</td>
+                                                <td>@attributes.Size?.Title</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="mt-4">
+                                <h3>Danh sách Product Attributes</h3>
+                                <div class="text-center">Không có dữ liệu</div>
+                            </div>
+                        }
+                    }
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Product_variants> product_Varians_list = new List<Product_variants>();
+
+    private List<Size> Size_list = new List<Size>();
+    private List<Material> Material_list = new List<Material>();
+    private List<Textile_technology> TextileTechnology_list = new List<Textile_technology>();
+
+    private Product_Posts product_posts = new Product_Posts();
+    private List<Product_Attributes> productAttributesList = new List<Product_Attributes>();
+    private bool showAttributes = false;
+
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private int totalItems;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPosts();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
+
+    private async Task ShowAttributes(long productVariantId)
+    {
+        productAttributesList = await productAttribute.GetProductAttributesByProductVarianId(productVariantId);
+        showAttributes = true;
+        StateHasChanged();
+    }
+
+
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        product_Varians_list = await productVarians.GetAllProductVarians();
+
+        Size_list = await SizeServices.GetAll();
+        Material_list = await MaterialService.GetAll();
+        TextileTechnology_list = await Textile_technologyServices.GetAll();
+
+
+        totalItems = await productVarians.GetTotalCountAsync("product", searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+
+    private async Task OnSearch()
+    {
+        // product_Varians_list = await productVarians.GetByTypeAsync("product", page_number, page_size, search_query);
+    }
+    private async Task SortBy(string column)
+    {
+
+    }
+    private async Task NavEditCtgr(long id)
+    {
+        Navigation.NavigateTo($"/admin/product/edit/{id}");
+    }
+
+    private async Task ConfirmDelete(long id)
+    {
+        await productVarians.Delete(id);
+        await LoadPosts();
+    }
+}

@@ -6,6 +6,8 @@ namespace ViewsFE.IServices
     {
         Task<List<Product_variants>> GetAllProductVarians();
         Task<Product_variants> GetProductVariantsById(long id);
+        Task<List<Product_Attributes>> GetProductAttributesByProductVarianId(long productVariantId);
+        Task<int> GetTotalCountAsync(string type, string searchTerm);
         Task<long> Create (Product_variants productVariants);
         Task Update(Product_variants productVariants, long id);
         Task Delete(long id);

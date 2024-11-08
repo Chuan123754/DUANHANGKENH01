@@ -1345,8 +1345,8 @@ namespace appAPI.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("RememberToken")
-                        .HasMaxLength(155)
-                        .HasColumnType("nvarchar(155)");
+                        .HasMaxLength(2147483647)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("Updated_at")
                         .HasColumnType("datetime2");
