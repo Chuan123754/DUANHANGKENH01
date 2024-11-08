@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 using ClientViews.Models;
+using ClientViews.IServices;
+using ClientViews.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +27,7 @@ builder.Services.AddCors(options =>
 // Add DbContext
 builder.Services.AddDbContext<APP_DATA_DATN>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddScoped<IPostSer, PostServices>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
