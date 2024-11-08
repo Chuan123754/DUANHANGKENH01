@@ -84,7 +84,6 @@
     private int page_size = 21;
     private int totalItems;
 
-
     private async Task SelectImages()
     {
         await OnImagesSelectedN.InvokeAsync(selectedImages);
@@ -119,6 +118,7 @@
     {
         await OnImagesSelectedN.InvokeAsync(selectedImages);
         await JS.InvokeVoidAsync("closeMediaModalN");
+        StateHasChanged();
     }
 
     public async Task OpenMediaModal(bool isMultiple)
@@ -214,18 +214,3 @@
         }
     };
 </script>
-
-<style>
-    .selected-icon {
-        position: absolute;
-        top: 5px; /* Khoảng cách từ trên */
-        left: 5px; /* Khoảng cách từ bên trái */
-        font-size: 24px; /* Kích thước chữ lớn hơn */
-        color: white; /* Màu sắc của dấu tích */
-        background-color: rgba(0, 0, 0, 0.5); /* Nền mờ để dễ nhìn */
-        border-radius: 50%; /* Bo tròn để giống nút chọn */
-        padding: 5px; /* Khoảng cách bên trong */
-        z-index: 10; /* Đảm bảo nút tích nằm trên ảnh */
-    }
-
-</style>

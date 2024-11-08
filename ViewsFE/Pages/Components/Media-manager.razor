@@ -78,7 +78,6 @@
     public EventCallback<string> OnImageSelected { get; set; }
     private List<Files> listFiles = new();
     private Files files = new Files();
-    private List<string> selectedImages = new List<string>(); // Lưu nhiều ảnh
     private string selectedImagePath; // Lưu 1 ảnh (Feature_image)
 
     private string search_query = string.Empty;
@@ -96,8 +95,6 @@
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
         listFiles = await sev.GetByTypeAsync(page_number, page_size, search_query);
-
-
         totalItems = await sev.GetTotalCountAsync(searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
@@ -147,21 +144,6 @@
         await LoadPosts();
     }
 }
-
-<style>
-    .selected-icon {
-        position: absolute;
-        top: 5px; /* Khoảng cách từ trên */
-        left: 5px; /* Khoảng cách từ bên trái */
-        font-size: 24px; /* Kích thước chữ lớn hơn */
-        color: white; /* Màu sắc của dấu tích */
-        background-color: rgba(0, 0, 0, 0.5); /* Nền mờ để dễ nhìn */
-        border-radius: 50%; /* Bo tròn để giống nút chọn */
-        padding: 5px; /* Khoảng cách bên trong */
-        z-index: 10; /* Đảm bảo nút tích nằm trên ảnh */
-    }
-
-</style>
 <script>
     window.initializeDropzoneBanner = () => {
         if (typeof Dropzone !== 'undefined') {
@@ -187,8 +169,6 @@
                             location.reload(); // Reload the page after 2 seconds
                         }, 2000);
                     });
-
-
                     this.on("error", function (file, errorMessage) {
                         toastr.error('Thêm thất bại: ' + errorMessage);
                         this.removeFile(file); // Xóa tệp khỏi Dropzone nếu có lỗi

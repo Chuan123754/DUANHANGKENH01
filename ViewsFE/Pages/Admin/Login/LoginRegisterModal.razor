@@ -327,19 +327,19 @@
                             Address = "Nothing",
                             RememberToken = "Nothing",
                         };
-                    var createdUser = await UserService.Create(newUser);
+                    // var createdUser = await UserService.Create(newUser);
 
-                    if (createdUser != null && createdUser.Id > 0)
-                    {
-                        StateHasChanged();
-                        await Task.Delay(2000);
-                        // Chuyển hướng đến trang chi tiết người dùng
-                        Navigation.NavigateTo($"/admin/UserDetails/{createdUser.Id}");
-                    }
-                    else
-                    {
-                        registerMessage = "Không thể tạo người dùng.";
-                    }
+                    // if (createdUser != null && createdUser.Id > 0)
+                    // {
+                    //     StateHasChanged();
+                    //     await Task.Delay(2000);
+                    //     // Chuyển hướng đến trang chi tiết người dùng
+                    //     Navigation.NavigateTo($"/admin/UserDetails/{createdUser.Id}");
+                    // }
+                    // else
+                    // {
+                    //     registerMessage = "Không thể tạo người dùng.";
+                    // }
                 }
                 else
                 {

@@ -309,8 +309,6 @@
                                     </div>
                                 </div>
                             </div>
-
-                         
                         </div>
                     </div>
                 </div>
@@ -350,15 +348,15 @@
     {
         Posts.Feature_image = imagePath;
         StateHasChanged();
-        await JS.InvokeVoidAsync("closeMediaModal");
+        await JS.InvokeVoidAsync("closeMediaBannerModal");
  
     }
     private async Task HandleImageSelected(string imagePath)
     {
-        Posts.Feature_image = imagePath;
+        // Nếu imagePath là null, xóa ảnh đại diện
+        Posts.Feature_image = imagePath ?? string.Empty;
         StateHasChanged();
-
-        await JS.InvokeVoidAsync("closeMediaBannerModal");
+        await JS.InvokeVoidAsync("closeMediaModal");
     }
     private async Task OpenMediaModalN(bool isMultiple, string referId)
     {
@@ -484,7 +482,6 @@
     function initializeTagsList(tags) {
         if (tags && tags.length > 0) {
             window.TagsList = tags;
-            console.log('TagsList initialized:', window.TagsList);
         } else {
             console.log('Failed to initialize TagsList. Empty or undefined.');
         }
@@ -492,7 +489,6 @@
     function initializeCateList(cate) {
         if (cate && cate.length > 0) {
             window.CategoriesList = cate;
-            console.log('cate initialized:', window.CategoriesList);
         } else {
             console.log('Failed to initialize TagsList. Empty or undefined.');
         }
