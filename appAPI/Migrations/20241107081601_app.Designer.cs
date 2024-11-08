@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241106114750_updateDiscount")]
-    partial class updateDiscount
+    [Migration("20241107081601_app")]
+    partial class app
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -163,9 +163,6 @@ namespace appAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long?>("UserId")
-                        .HasColumnType("bigint");
-
                     b.Property<long>("User_Id")
                         .HasColumnType("bigint");
 
@@ -175,7 +172,7 @@ namespace appAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("User_Id");
 
                     b.ToTable("Address");
                 });
@@ -707,20 +704,7 @@ namespace appAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<DateTime?>("Created_at")
-                        .HasColumnType("datetime2");
-
                     b.Property<long>("OrderId")
-                        .HasColumnType("bigint");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("ProductTitle")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<long?>("ProductVariants_Id")
                         .HasColumnType("bigint");
 
                     b.Property<long>("Product_Attribute_Id")
@@ -729,23 +713,11 @@ namespace appAPI.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<decimal>("RegularPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("RemainingStockQuantity")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("SalePrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime?>("Update_at")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
 
-                    b.HasIndex("ProductVariants_Id");
+                    b.HasIndex("Product_Attribute_Id");
 
                     b.ToTable("order_details");
                 });
@@ -818,17 +790,11 @@ namespace appAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<string>("Address")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<DateTime?>("Approved_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Code")
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
+                    b.Property<string>("CreatedByAdminId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("Created_at")
                         .HasColumnType("datetime2");
@@ -836,24 +802,12 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Deleted_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Name")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Phone_number")
-                        .HasMaxLength(20)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(20)");
 
                     b.Property<string>("Status")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
-
-                    b.Property<decimal>("Total")
-                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("Update_at")
                         .HasColumnType("datetime2");
@@ -862,6 +816,8 @@ namespace appAPI.Migrations
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedByAdminId");
 
                     b.HasIndex("User_id");
 
@@ -1391,8 +1347,8 @@ namespace appAPI.Migrations
                         .HasColumnType("varchar(20)");
 
                     b.Property<string>("RememberToken")
-                        .HasMaxLength(155)
-                        .HasColumnType("nvarchar(155)");
+                        .HasMaxLength(2147483647)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("Updated_at")
                         .HasColumnType("datetime2");
@@ -1663,7 +1619,9 @@ namespace appAPI.Migrations
                 {
                     b.HasOne("appAPI.Models.Users", "User")
                         .WithMany("Addresses")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("User_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -1747,7 +1705,9 @@ namespace appAPI.Migrations
 
                     b.HasOne("appAPI.Models.Product_Attributes", "ProductAttributes")
                         .WithMany()
-                        .HasForeignKey("ProductVariants_Id");
+                        .HasForeignKey("Product_Attribute_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Orders");
 
@@ -1786,9 +1746,15 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Orders", b =>
                 {
+                    b.HasOne("appAPI.Models.Account", "Admin")
+                        .WithMany("CreatedOrders")
+                        .HasForeignKey("CreatedByAdminId");
+
                     b.HasOne("appAPI.Models.Users", "Users")
-                        .WithMany()
+                        .WithMany("Orders")
                         .HasForeignKey("User_id");
+
+                    b.Navigation("Admin");
 
                     b.Navigation("Users");
                 });
@@ -2019,6 +1985,8 @@ namespace appAPI.Migrations
                 {
                     b.Navigation("Activity_history");
 
+                    b.Navigation("CreatedOrders");
+
                     b.Navigation("Posts");
                 });
 
@@ -2112,6 +2080,8 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Users", b =>
                 {
                     b.Navigation("Addresses");
+
+                    b.Navigation("Orders");
 
                     b.Navigation("UserVouchers");
 

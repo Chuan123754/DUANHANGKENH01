@@ -76,6 +76,8 @@ builder.Services.AddScoped<ISizeServices, SizeServices>();
 builder.Services.AddScoped<IMaterialServices, MaterialServices>();
 builder.Services.AddScoped<IStyleServices, StyleServices>();
 builder.Services.AddScoped<ITextile_technologyServices, Textile_technologyServices>();
+
+builder.Services.AddScoped<IVariantsDiscountServices, VariantsDiscountServices>();
 builder.Services.AddScoped<IloginServices, LoginServices>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<AddressService>();
