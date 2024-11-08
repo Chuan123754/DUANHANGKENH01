@@ -104,12 +104,12 @@
                                     <div class="accordion-body pt-0">
                                         <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
                                              onclick="openMediaModal()">
-                                            @if (!string.IsNullOrEmpty(product_Attributes.Image))
+                                           @*  @if (!string.IsNullOrEmpty(product_Attributes.Image))
                                             {
                                                 <img src="@product_Attributes.Image" class="w-100 h-100 object-cover" />
                                             }
                                             else
-                                            {
+                                            { *@
                                                 <div class="icon d-flex align-items-center justify-content-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -117,7 +117,7 @@
                                                         <path d="M5 12h14" />
                                                     </svg>
                                                 </div>
-                                            }
+                                       @*      } *@
                                         </div>
 
                                     </div>
@@ -225,7 +225,29 @@
                                         </td>
                                         <td>@item.Color?.Title</td>
                                         <td>@item.Size?.Title</td>
-                                        <td>@item.Image</td>
+                                        <td>                                         
+                                            <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                                <div class="accordion-body pt-0">
+                                                    <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
+                                                         @onclick="() => SelectProductAttribute(item)">
+                                                        @if (!string.IsNullOrEmpty(item.Image))
+                                                        {
+                                                            <img src="@item.Image" class="w-20 h-20 object-cover" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="icon d-flex align-items-center justify-content-center">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
+                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                    <path d="M12 5v14" />
+                                                                    <path d="M5 12h14" />
+                                                                </svg>
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td>
                                             <input type="text" @bind="@item.Regular_price" class="form-control" />
                                         </td>
@@ -262,6 +284,7 @@
     private Product_variants product = new Product_variants();
     private List<Product_Posts> product_posts_list = new List<Product_Posts>();
     private Product_Attributes product_Attributes = new Product_Attributes();
+    private Product_Attributes SelectedProductAttribute { get; set; } = null;
     private List<Product_Attributes> LST_ProductAttributes = new List<Product_Attributes>();
     private List<Style> styleList = new List<Style>();
     private List<Textile_technology> textileTechnologyList = new List<Textile_technology>();
@@ -295,10 +318,19 @@
     }
     private async Task HandleImageSelected(string imagePath)
     {
-        // Nếu imagePath là null, xóa ảnh đại diện
-        product_Attributes.Image = imagePath ?? string.Empty;
-        StateHasChanged();
-        await JS.InvokeVoidAsync("closeMediaModal");
+        if (SelectedProductAttribute != null)
+        {
+            // Gán ảnh đã chọn cho item hiện tại trong danh sách
+            SelectedProductAttribute.Image = imagePath ?? string.Empty;
+            StateHasChanged();
+            await JS.InvokeVoidAsync("closeMediaModal");
+        }
+    }
+    private async Task SelectProductAttribute(Product_Attributes attribute)
+    {
+        // Cập nhật đối tượng `SelectedProductAttribute` để chỉ vào item cần thay đổi
+        SelectedProductAttribute = attribute;
+        await JS.InvokeVoidAsync("openMediaModal");
     }
     private void OnColorSelectionChanged(long colorId, object isChecked)
     {
@@ -381,7 +413,7 @@
         }
         LST_ProductAttributes = await productAttributes.GetProductAttributesByProductVarianId(IdProductVariantCreated);
         IdProductVariantCreated = 0;
-        nav.NavigateTo("/admin/product");
+       
     }
     private async Task UpdateProductAttributes()
     {
@@ -389,6 +421,7 @@
         {
             await productAttributes.Update(item, item.Id);
         }
+        nav.NavigateTo("/admin/product");
     }
     private async Task DeleteProductAttribute(long id)
     {
