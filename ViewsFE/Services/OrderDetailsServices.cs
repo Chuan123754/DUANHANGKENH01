@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System.Net;
 using ViewsFE.IServices;
 using ViewsFE.Models;
 
@@ -34,6 +35,20 @@ namespace ViewsFE.Services
             string requestURL = $"https://localhost:7011/api/OrderDetails/Details?id={id}";
             var response = await _client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<Order_details>(response);
+        }
+
+        public async Task<Order_details> GetByOrderIdAndProductAttributeId(long orderId, long productAttributeId)
+        {
+            string requestURL = $"https://localhost:7011/api/OrderDetails/GetByOrderIdAndProductAttributeId?orderId={orderId}&productAttributeId={productAttributeId}";
+            var response = await _client.GetAsync(requestURL);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+            response.EnsureSuccessStatusCode(); 
+            var responseContent = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<Order_details>(responseContent);
         }
 
         public async Task<List<Order_details>> GetOrderDetailsByOrderId(long idOrder)

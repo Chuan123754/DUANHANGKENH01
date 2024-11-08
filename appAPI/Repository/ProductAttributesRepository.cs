@@ -39,6 +39,7 @@ namespace appAPI.Repository
                                      .Include(p => p.Product_Variant).ThenInclude(p => p.Style)
                                      .Include(p => p.Product_Variant).ThenInclude(p => p.Material)
                                      .Include(p => p.Product_Variant).ThenInclude(p => p.Textile_Technology)
+                                     .Include(p => p.Product_Variant).ThenInclude(p => p.Posts)
                                      .ToListAsync();
             }
             catch (Exception ex)

@@ -28,11 +28,21 @@ namespace appAPI.Controllers
         [HttpGet("GetOrderDetailsByOrderId")]
         public async Task<IActionResult> GetOrderDetailsByOrderId(long idOrder)
         {
-            var lstOrderDetails = await _repo.GetAlldetail();
+            var lstOrderDetails = await _repo.GetOrderDetailsByOrderId(idOrder);
             if (lstOrderDetails != null)
             {
                 return Ok(lstOrderDetails);
             }
+            return NotFound();
+        }
+        [HttpGet("GetByOrderIdAndProductAttributeId")]
+        public async Task<IActionResult> GetByOrderIdAndProductAttributeId(long orderId, long productAttributeId)
+        {
+            var result = await _repo.GetByOrderIdAndProductAttributeId(orderId,productAttributeId);
+            if (result != null)
+            {
+                return Ok(result);
+            }    
             return NotFound();
         }
         [HttpGet("Details")]

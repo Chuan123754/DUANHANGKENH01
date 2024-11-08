@@ -52,7 +52,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header d-flex align-items-center justify-content-between">
-                            <h3 class="card-title">Invoices</h3>
+                            <h2 class="card-title">MÃ HÓA ĐƠN :  @selectedOrderId</h2>
                             <!-- Nút thêm sản phẩm -->
                             <button class="btn btn-secondary" @onclick="ShowAddProductModal">
                                 Thêm sản phẩm
@@ -80,15 +80,16 @@
                                                         <th>Chất Liệu</th>
                                                         <th>Size</th>
                                                         <th>Màu</th>
-                                                        <th>Số Lượng</th>
+                                                        <th>Số Lượng trong kho</th>
                                                         <th>Giá Tiền</th>
+                                                        <th>Thao tác</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     @foreach (var product in lst_ProductAttributes)
                                                     {
                                                         <tr>
-                                                            <td>@product.SKU</td> 
+                                                            <td>@product.Product_Variant.Posts.Title</td> 
                                                             <td><img src="@product.Image" alt="Hình ảnh" style="width: 50px; height: auto;" /></td> <!-- Hình ảnh -->
                                                             <td>@product.Status</td> 
                                                             <td>@product.Product_Variant?.Description</td>
@@ -97,8 +98,19 @@
                                                             <td>@product.Product_Variant?.Material?.Title</td> 
                                                             <td>@product.Size?.Title</td> 
                                                             <td>@product.Color?.Title</td> 
-                                                            <td>@product.Stock</td> 
-                                                            <td>@product.Regular_price</td> 
+                                                            <td>@product.Stock Tấm</td> 
+                                                            <td>@product.Regular_price VNĐ</td>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <input type="number" class="form-control text-center" style="width: 60px;"
+                                                                           value="@(productQuantities.ContainsKey(product.Id) ? productQuantities[product.Id] : 1)"
+                                                                           @oninput="(e) => UpdateQuantity(product.Id, int.TryParse(e.Value?.ToString(), out var value) ? value : 1)"
+                                                                           min="1" />
+                                                                </div>
+                                                                <button class="btn btn-primary mt-2" @onclick="() => AddProduct(order_Details, product.Id)">Chọn</button>
+                                                            </td>
+
+
                                                         </tr>
                                                     }
                                                 </tbody>
@@ -133,11 +145,7 @@
                             <table class="table card-table table-vcenter text-nowrap datatable">
                                 <thead>
                                     <tr>
-                                        <th class="w-1"><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices"></th>
-                                        <th class="w-1">
-                                            No. <!-- Download SVG icon from http://tabler-icons.io/i/chevron-up -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm icon-thick" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6 15l6 -6l6 6" /></svg>
-                                        </th>
+                                        <th class="w-1"><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices">All</th>
                                         <th>Tên sản phẩm</th>
                                         <th>Chất liệu</th>
                                         <th>Công nghệ dệt</th>
@@ -153,7 +161,20 @@
                                     @foreach (var item in lst_OrderDetail)
                                     {
                                         <tr>
-                                            <td> </td>
+                                            <td>
+                                                <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select item">
+                                            </td>
+                                            <td>@item.ProductAttributes.Product_Variant.Posts.Title </td>
+                                            <td>@item.ProductAttributes.Product_Variant.Material.Title </td>
+                                            <td>@item.ProductAttributes.Product_Variant.Textile_Technology.Title </td>
+                                            <td>@item.ProductAttributes.Product_Variant.Style.Title </td>
+                                            <td>@item.ProductAttributes.Color.Title</td>
+                                            <td>@item.ProductAttributes.Size.Title</td>
+                                            <td>@item.Quantity </td>
+                                            <td>@(item.Quantity*item.ProductAttributes.Regular_price) VNĐ</td>
+                                            <td>
+                                                <button class="btn btn-danger" @onclick="() => DeleteOrderDetail(item.Id)">Xóa</button>
+                                            </td>
 
                                            
                                         </tr>
@@ -178,8 +199,8 @@
     private List<Orders> lst_Orders = new List<Orders>();
     private List<Product_Attributes> lst_ProductAttributes = new List<Product_Attributes>();
     private List<Users> lst_Customer = new List<Users>();
-
     private bool isAddProductModalVisible = false;
+    private Dictionary<long, int> productQuantities = new Dictionary<long, int>();
 
     private async Task SelectOrder(long orderId)
     {
@@ -187,11 +208,24 @@
         lst_OrderDetail = await orderDetail.GetOrderDetailsByOrderId(selectedOrderId);
         await LoadOrderDetails();
     }
-
-    private async Task LoadOrderDetails()
+    private void UpdateQuantity(long productId, int quantity)
     {
-        lst_OrderDetail = await orderDetail.GetOrderDetailsByOrderId(selectedOrderId);
-        StateHasChanged();
+        if (productQuantities.ContainsKey(productId))
+        {
+            productQuantities[productId] = quantity;
+        }
+        else
+        {
+            productQuantities.Add(productId, quantity);
+        }
+    }
+    private int GetQuantity(long productId)
+    {
+        return productQuantities.ContainsKey(productId) ? productQuantities[productId] : 1;
+    }
+    private void ShowAddProductDetailModal()
+    {
+        isAddProductModalVisible = true;
     }
     private async void ShowAddProductModal()
     {
@@ -203,9 +237,14 @@
     {
         isAddProductModalVisible = false;
     }
+    private async Task LoadOrderDetails()
+    {
+        lst_OrderDetail = await orderDetail.GetOrderDetailsByOrderId(selectedOrderId);
+        StateHasChanged();
+    }
     protected override async Task OnInitializedAsync()
     {
-         await LoadOrders();
+        await LoadOrders();
         lst_ProductAttributes = await productAttribute.GetAllProductAttributes();
     }
     private async Task LoadOrders()
@@ -218,14 +257,43 @@
         await order.Delete(id);
         await LoadOrders();
     }
+    private async Task DeleteOrderDetail(long id)
+    {
+        await orderDetail.Delete(id);
+        await LoadOrderDetails();
+    }
     private async Task CreateOrder()
     {
         await order.Create(orders);
         lst_Orders = await order.GetAll();
         await LoadOrders();
     }
-    private async Task AddProduct()
+    private async Task AddProduct(Order_details orderDetails, long productAttributeId)
     {
-        
+        int quantity = productQuantities.ContainsKey(productAttributeId) ? productQuantities[productAttributeId] : 1;
+        // Kiểm tra xem sản phẩm đã tồn tại trong hóa đơn chưa
+        var existingOrderDetail = await orderDetail.GetByOrderIdAndProductAttributeId(selectedOrderId, productAttributeId);
+        if (existingOrderDetail != null)
+        {
+            // cộng dồn
+            existingOrderDetail.Quantity += quantity;
+            await orderDetail.Update(existingOrderDetail, existingOrderDetail.Id);
+        }
+        else
+        {
+            // tạo mới
+            orderDetails = new Order_details
+                {
+                    Quantity = quantity,
+                    OrderId = selectedOrderId,
+                    Product_Attribute_Id = productAttributeId
+                };
+
+            await orderDetail.Create(orderDetails);
+        }
+        await LoadOrderDetails();
+        productQuantities[productAttributeId] = 1;
     }
+
 }
+

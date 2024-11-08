@@ -18,10 +18,8 @@ namespace appAPI.Models
         public long Product_Attribute_Id { get; set; }
         public int Quantity { get; set; }
         [ForeignKey("OrderId")]
-        [JsonIgnore]
         public virtual Orders? Orders { get; set; }
         [ForeignKey("Product_Attribute_Id")]
-        [JsonIgnore]
         public virtual Product_Attributes? ProductAttributes { get; set; }
     }
 }
