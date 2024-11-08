@@ -16,26 +16,62 @@ namespace appAPI.Controllers
             _repo  = repon;
         }
         [HttpGet("All")]
-        public async Task<List<Order_details>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return await _repo.GetAlldetail();
+            var lstOrderDetails = await _repo.GetAlldetail();
+            if (lstOrderDetails != null)
+            {
+                return Ok(lstOrderDetails);
+            }
+            return NotFound();
+        }
+        [HttpGet("GetOrderDetailsByOrderId")]
+        public async Task<IActionResult> GetOrderDetailsByOrderId(long idOrder)
+        {
+            var lstOrderDetails = await _repo.GetAlldetail();
+            if (lstOrderDetails != null)
+            {
+                return Ok(lstOrderDetails);
+            }
+            return NotFound();
         }
         [HttpGet("Details")]
-        public async Task<Order_details> Details(long id)
+        public async Task<IActionResult> Details(long id)
         {
-            return await _repo.GetByIdOrderdetails(id);
+            var orderDetail = await _repo.GetByIdOrderdetails(id);
+            if (orderDetail != null)
+            {
+                return Ok(orderDetail);
+            }
+            return NotFound(); 
         }
 
         [HttpPost("Create")]
-        public async Task Post(Order_details order_Details)
+        public async Task<IActionResult> Post(Order_details order_Details)
         {
-            await _repo.Create(order_Details);
+            try
+            {
+                await _repo.Create(order_Details);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("Update")]
-        public async Task Put(Order_details order_Details)
+        public async Task<IActionResult> Put(Order_details order_Details, long id )
         {
-            await _repo.Update(order_Details);
+            try
+            {
+                await _repo.Update(order_Details, id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("Delete")]

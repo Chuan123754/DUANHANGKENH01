@@ -1,23 +1,32 @@
-﻿using ViewsFE.IServices;
+﻿using Newtonsoft.Json;
+using ViewsFE.IServices;
 using ViewsFE.Models;
 
 namespace ViewsFE.Services
 {
     public class OrderServices : OrderIServices
     {
-        public Task Create(Orders orders)
+        private readonly HttpClient _client;
+
+        public OrderServices(HttpClient client)
         {
-            throw new NotImplementedException();
+            _client = client;
+        }
+        public async Task Create(Orders order)
+        {
+            await _client.PostAsJsonAsync("https://localhost:7011/api/Orders/Create", order);
         }
 
-        public Task Delete(long id)
+        public async Task Delete(long id)
         {
-            throw new NotImplementedException();
+            await _client.DeleteAsync($"https://localhost:7011/api/Orders/Delete?id={id}");
         }
 
-        public Task<List<Orders>> GetAll()
+        public async Task<List<Orders>> GetAll()
         {
-            throw new NotImplementedException();
+            string requestURL = "https://localhost:7011/api/Orders/All-Orders";
+            var response = await _client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<List<Orders>>(response);
         }
 
         public Task<Orders> GetByIdOrders(long id)

@@ -33,12 +33,21 @@ namespace appAPI.Repository
         {
             return await _context.Order_Details.FindAsync(id);
         }
-
-
-        public async Task Update(Order_details orderdetails)
+        public async Task<List<Order_details>> GetOrderDetailsByOrderId(long idOrder)
         {
-            _context.Entry(orderdetails).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            return await _context.Order_Details.Where(o=>o.OrderId == idOrder).ToListAsync();
+        }
+
+        public async Task Update(Order_details orderdetails, long id)
+        {
+            var updateItem = await GetByIdOrderdetails(id);
+            if (updateItem != null)
+            {
+                updateItem.Quantity = orderdetails.Quantity;
+
+                _context.Order_Details.Update(updateItem);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

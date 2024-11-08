@@ -17,7 +17,6 @@ namespace appAPI.Controllers
         {
             _repo = repon;
         }
-        // GET: api/<OrdersController>
         [HttpGet("All-Orders")]
         public async Task<List<Orders>> GetAllOrders()
         {
@@ -29,25 +28,68 @@ namespace appAPI.Controllers
         {
             return await _repo.GetByIdOrders(id);
         }
+        [HttpGet("GetOrderByIdAdmin")]
+        public async Task<IActionResult> GetOrderByIdAdmin(string idAdmin)
+        {
+            var lstOrder = await _repo.GetOrderByIdAdmin(idAdmin);
+            if (lstOrder != null)
+            {
+                return Ok(lstOrder);
+            }
+            return NotFound();
+        }
+        [HttpGet("GetOrderByIdUser")]
+        public async Task<IActionResult> GetOrderByIdUser(long idUser)
+        {
+            var lstOrder = await _repo.GetOrderByIdUser(idUser);
+            if (lstOrder != null)
+            {
+                return Ok(lstOrder);
+            }
+            return NotFound();
+        }
         // POST api/<OrdersController>
         [HttpPost("Create")]
-        public async Task Post(Orders orders)
+        public async Task<IActionResult> Post(Orders orders)
         {
-            await _repo.Create(orders);
+            try
+            {
+                await _repo.Create(orders);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
 
         // PUT api/<OrdersController>/5
         [HttpPut("Update")]
-        public async Task Put(Orders orders)
+        public async Task<IActionResult> Put(Orders orders,long id)
         {
-            await _repo.Update(orders);
+            var result = _repo.Update(orders,id);
+            if (result != null)
+            {
+                return Ok();
+            }
+            return BadRequest();
         }
 
         // DELETE api/<OrdersController>/5
         [HttpDelete("Delete")]
-        public async Task Delete(long id)
+        public async Task<IActionResult> Delete(long id)
         {
-            await _repo.Delete(id);
+            try
+            {
+                await _repo.Delete(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return NotFound();
+            }
+
         }
     }
 }

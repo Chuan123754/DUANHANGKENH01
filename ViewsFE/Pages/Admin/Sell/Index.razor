@@ -1,11 +1,240 @@
 ﻿@page "/admin/sell"
 @inject NavigationManager nav
+@inject OrderIServices order
+@inject OrderDetailsIServices orderService
 @inject IProductAttributeServices productAttribute
 @inject IProductVariantServices productVariant
  
+<style>
+    .custom-modal-size {
+        max-width: 200%; 
+    }
 
-<h3>Index</h3>
+    .modal-dialog-scrollable {
+        max-height: 80vh; 
+        overflow-y: auto;
+    }
+
+    .table {
+        width: 100%;
+        table-layout: auto;
+    }
+</style>
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        SELLING
+                    </h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <button class="btn btn-primary d-none d-sm-inline-block" @onclick="CreateOrder">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                            Tạo hóa đơn
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <h3 class="card-title">Invoices</h3>
+                            <!-- Nút thêm sản phẩm -->
+                            <button class="btn btn-secondary" @onclick="ShowAddProductModal">
+                                Thêm sản phẩm
+                            </button>
+                        </div>
+                        @if (isAddProductModalVisible)
+                        {
+                            <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 75%; width: auto;">
+                                    <!-- Thêm modal-dialog-scrollable để có thể cuộn khi có quá nhiều dữ liệu -->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Thêm Sản Phẩm</h5>
+                                            <button type="button" class="btn-close" @onclick="CloseAddProductModal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <!-- Tạo bảng để hiển thị các thuộc tính của sản phẩm -->
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Tên Sản Phẩm</th>
+                                                        <th>Hình Ảnh</th>
+                                                        <th>Trạng Thái</th>
+                                                        <th>Mô Tả</th>
+                                                        <th>Công Nghệ Dệt</th>
+                                                        <th>Phong Cách</th>
+                                                        <th>Chất Liệu</th>
+                                                        <th>Size</th>
+                                                        <th>Màu</th>
+                                                        <th>Số Lượng</th>
+                                                        <th>Giá Tiền</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach (var product in lst_ProductAttributes)
+                                                    {
+                                                        <tr>
+                                                            <td>@product.SKU</td> 
+                                                            <td><img src="@product.Image" alt="Hình ảnh" style="width: 50px; height: auto;" /></td> <!-- Hình ảnh -->
+                                                            <td>@product.Status</td> 
+                                                            <td>@product.Product_Variant?.Description</td>
+                                                            <td>@product.Product_Variant?.Textile_Technology?.Title</td>
+                                                            <td>@product.Product_Variant?.Style?.Title</td> 
+                                                            <td>@product.Product_Variant?.Material?.Title</td> 
+                                                            <td>@product.Size?.Title</td> 
+                                                            <td>@product.Color?.Title</td> 
+                                                            <td>@product.Stock</td> 
+                                                            <td>@product.Regular_price</td> 
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" @onclick="CloseAddProductModal">Đóng</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-backdrop fade show"></div>
+
+                        }
+                        <div class="card-body border-bottom py-3">
+                            <div class="d-flex flex-wrap gap-3">
+                                @foreach (var order in lst_Orders)
+                                {
+                                    <div class="invoice-item position-relative p-3 text-center bg-light border rounded">
+                                        <button type="button" class="btn-close position-absolute top-0 end-0 me-2 mt-2"
+                                                title="Xóa hóa đơn"
+                                                @onclick="() => DeleteOrder(order.Id)">
+                                        </button>
+                                        Hóa đơn #@order.Id
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table card-table table-vcenter text-nowrap datatable">
+                                <thead>
+                                    <tr>
+                                        <th class="w-1"><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices"></th>
+                                        <th class="w-1">
+                                            No. <!-- Download SVG icon from http://tabler-icons.io/i/chevron-up -->
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm icon-thick" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6 15l6 -6l6 6" /></svg>
+                                        </th>
+                                        <th>Tên sản phẩm</th>
+                                        <th>Chất liệu</th>
+                                        <th>Công nghệ dệt</th>
+                                        <th>Phong cách</th>
+                                        <th>Màu</th>
+                                        <th>Kích thước</th>
+                                        <th>Số lượng</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
+                                        <td><span class="text-secondary">001401</span></td>
+                                        <td><a href="invoice.html" class="text-reset" tabindex="-1">Design Works</a></td>
+                                        <td>
+                                            <span class="flag flag-xs flag-country-us me-2"></span>
+                                            Carlson Limited
+                                        </td>
+                                        <td>
+                                            87956621
+                                        </td>
+                                        <td>
+                                            15 Dec 2017
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-success me-1"></span> Paid
+                                        </td>
+                                        <td>$887</td>
+                                        <td class="text-end">
+                                            <span class="dropdown">
+                                                <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Actions</button>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a class="dropdown-item" href="#">
+                                                        Action
+                                                    </a>
+                                                    <a class="dropdown-item" href="#">
+                                                        Another action
+                                                    </a>
+                                                </div>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
+    private Orders orders = new Orders();
+    private Order_details order_Details = new Order_details();
+    private Users customer = new Users();
+    private Address address = new Address();
+    private List<Orders> lst_Orders = new List<Orders>();
+    private List<Product_Attributes> lst_ProductAttributes = new List<Product_Attributes>();
+    private List<Users> lst_Customer = new List<Users>();
 
+    private bool isAddProductModalVisible = false;
+
+    private async void ShowAddProductModal()
+    {
+        isAddProductModalVisible = true;
+        lst_ProductAttributes = await productAttribute.GetAllProductAttributes();
+    }
+    private void CloseAddProductModal()
+    {
+        isAddProductModalVisible = false;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+         await LoadOrders();
+        lst_ProductAttributes = await productAttribute.GetAllProductAttributes();
+    }
+    private async Task LoadOrders()
+    {
+        lst_Orders = await order.GetAll();
+        StateHasChanged(); 
+    }
+    private async Task DeleteOrder(long id)
+    {
+        await order.Delete(id);
+        await LoadOrders();
+    }
+    private async Task CreateOrder()
+    {
+        await order.Create(orders);
+        lst_Orders = await order.GetAll();
+        await LoadOrders();
+    }
+    private async Task AddProduct()
+    {
+        
+    }
 }

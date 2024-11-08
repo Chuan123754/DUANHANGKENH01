@@ -30,7 +30,6 @@ namespace appAPI.Repository
             return await _context.product_variants.ToListAsync();
 
         }
-
         public async Task<Product_variants> GetProductVariantsById(long id)
         {
             return await _context.product_variants.FindAsync(id);

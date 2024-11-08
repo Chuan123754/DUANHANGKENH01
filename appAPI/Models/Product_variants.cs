@@ -28,21 +28,14 @@ namespace appAPI.Models
         public DateTime? Updated_at { get; set; }
         public DateTime? Deleted_at { get; set; }
         [ForeignKey("Post_Id")]
-        [JsonIgnore]
         public virtual Product_Posts? Posts { get; set; }
         [ForeignKey("Style_id")]
-        [JsonIgnore]
         public virtual Style? Style { get; set; }
         [ForeignKey("Material_id")]
-        [JsonIgnore]
         public virtual Material? Material { get; set; } 
         [ForeignKey("Textile_technology_id")]
-        [JsonIgnore]
         public virtual Textile_technology? Textile_Technology { get; set; }
-
-        [JsonIgnore]
         public virtual ICollection<Product_variants_wishlist> Product_Variants_Wishlists { get; set; } = new List<Product_variants_wishlist>();
-        [JsonIgnore]
-        public virtual ICollection<Product_Attributes> Product_Attributes { get; set; } = new List<Product_Attributes>();
+        public virtual ICollection<Product_Attributes>? Product_Attributes { get; set; } = new List<Product_Attributes>();
     }
 }
