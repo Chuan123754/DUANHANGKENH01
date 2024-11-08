@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using ViewsFE.DTO;
 using ViewsFE.IServices;
 using ViewsFE.Models;
@@ -8,10 +9,11 @@ namespace ViewsFE.Services
     public class ProductAttributeServices : IProductAttributeServices
     {
         private readonly HttpClient _client;
-
-        public ProductAttributeServices(HttpClient client)
+        private readonly string _baseUrl;
+        public ProductAttributeServices(HttpClient client, IConfiguration configuration)
         {
             _client = client;
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
         public async Task Create(Product_Attributes productAttribute)
         {
@@ -43,7 +45,15 @@ namespace ViewsFE.Services
             var response = await _client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Product_Attributes>>(response);
         }
+        public async Task<int> GetTotalCountAsync(string type, string searchTerm)
+        {
+            var url = $"{_baseUrl}/api/Product_Post/Get-Total-Count?type={type}&searchTerm={Uri.EscapeDataString(searchTerm)}";
+            var response = await _client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
 
+            var count = await response.Content.ReadFromJsonAsync<int>();
+            return count;
+        }
         public Task<List<Product_Attributes_DTO>> GetVariantByProductVariantId(List<long> variantIds)
         {
             throw new NotImplementedException();

@@ -62,14 +62,12 @@
                         {
                             <div class="modal fade show d-block" tabindex="-1" role="dialog">
                                 <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 75%; width: auto;">
-                                    <!-- Thêm modal-dialog-scrollable để có thể cuộn khi có quá nhiều dữ liệu -->
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title">Thêm Sản Phẩm</h5>
                                             <button type="button" class="btn-close" @onclick="CloseAddProductModal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            <!-- Tạo bảng để hiển thị các thuộc tính của sản phẩm -->
                                             <table class="table table-bordered">
                                                 <thead>
                                                     <tr>
@@ -119,7 +117,8 @@
                             <div class="d-flex flex-wrap gap-3">
                                 @foreach (var order in lst_Orders)
                                 {
-                                    <div class="invoice-item position-relative p-3 text-center bg-light border rounded">
+                                    <div class="invoice-item position-relative p-3 text-center bg-light border rounded"
+                                         @onclick="async () => await SelectOrder(order.Id)">
                                         <button type="button" class="btn-close position-absolute top-0 end-0 me-2 mt-2"
                                                 title="Xóa hóa đơn"
                                                 @onclick="() => DeleteOrder(order.Id)">
@@ -151,38 +150,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
-                                        <td><span class="text-secondary">001401</span></td>
-                                        <td><a href="invoice.html" class="text-reset" tabindex="-1">Design Works</a></td>
-                                        <td>
-                                            <span class="flag flag-xs flag-country-us me-2"></span>
-                                            Carlson Limited
-                                        </td>
-                                        <td>
-                                            87956621
-                                        </td>
-                                        <td>
-                                            15 Dec 2017
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-success me-1"></span> Paid
-                                        </td>
-                                        <td>$887</td>
-                                        <td class="text-end">
-                                            <span class="dropdown">
-                                                <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Actions</button>
-                                                <div class="dropdown-menu dropdown-menu-end">
-                                                    <a class="dropdown-item" href="#">
-                                                        Action
-                                                    </a>
-                                                    <a class="dropdown-item" href="#">
-                                                        Another action
-                                                    </a>
-                                                </div>
-                                            </span>
-                                        </td>
-                                    </tr>
+                                    @foreach (var item in lst_OrderDetail)
+                                    {
+                                        <tr>
+                                            <td> </td>
+
+                                           
+                                        </tr>
+                                    }
                                 </tbody>
                             </table>
                         </div>
@@ -194,19 +169,34 @@
 </div>
 
 @code {
+    private long selectedOrderId;
     private Orders orders = new Orders();
     private Order_details order_Details = new Order_details();
     private Users customer = new Users();
     private Address address = new Address();
+    private List<Order_details> lst_OrderDetail = new List<Order_details>();
     private List<Orders> lst_Orders = new List<Orders>();
     private List<Product_Attributes> lst_ProductAttributes = new List<Product_Attributes>();
     private List<Users> lst_Customer = new List<Users>();
 
     private bool isAddProductModalVisible = false;
 
+    private async Task SelectOrder(long orderId)
+    {
+        selectedOrderId = orderId;
+        lst_OrderDetail = await orderDetail.GetOrderDetailsByOrderId(selectedOrderId);
+        await LoadOrderDetails();
+    }
+
+    private async Task LoadOrderDetails()
+    {
+        lst_OrderDetail = await orderDetail.GetOrderDetailsByOrderId(selectedOrderId);
+        StateHasChanged();
+    }
     private async void ShowAddProductModal()
     {
         isAddProductModalVisible = true;
+
         lst_ProductAttributes = await productAttribute.GetAllProductAttributes();
     }
     private void CloseAddProductModal()

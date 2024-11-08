@@ -12,6 +12,7 @@ namespace ViewsFE.IServices
         Task Update(Product_Attributes productAttribute, long id);
         Task Delete(long id);
         // lấy danh sách biến thể dựa trên id sản phảm(product_variant)
+        Task<int> GetTotalCountAsync(string type, string searchTerm);
         Task<List<Product_Attributes_DTO>> GetVariantByProductVariantId(List<long> variantIds);
     }
 }
