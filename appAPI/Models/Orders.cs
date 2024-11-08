@@ -17,12 +17,12 @@ namespace appAPI.Models
         [Key]
         public long Id { get; set; }
         public string? CreatedByAdminId { get; set; }
-        public long? User_id { get; set; } // khách hàng
+        public long? User_id { get; set; } // khách hàng ( hóa đơn treo có thể chưa thêm khách hàng )
         [StringLength(20)]
         public string? Status { get; set; } 
         public string? Note { get; set; }
         public DateTime? Approved_at { get; set; }
-        public DateTime? Created_at { get; set; }
+        public DateTime? Created_at { get; set; } = DateTime.Now;
         public DateTime? Update_at { get; set; }
         public DateTime? Deleted_at { get; set; }
         [JsonIgnore]

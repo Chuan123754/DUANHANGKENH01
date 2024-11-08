@@ -58,7 +58,7 @@ builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 
 
 builder.Services.AddHostedService<VoucherExpiryChecker>();
-builder.Services.AddHostedService<DiscountStatusChecker>();
+//builder.Services.AddHostedService<DiscountStatusChecker>();
 
 
 builder.Services.AddScoped<IColorReponsitory, ColorReponsitory>();

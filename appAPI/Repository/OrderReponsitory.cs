@@ -14,7 +14,7 @@ namespace appAPI.Repository
         }
         public async Task Create(Orders orders)
         {
-            _context.Orders.Add(orders);
+            await _context.Orders.AddAsync(orders);
             await _context.SaveChangesAsync();
         }
 
@@ -24,7 +24,14 @@ namespace appAPI.Repository
             _context.Orders.Remove(itemdelete);
             await _context.SaveChangesAsync();
         }
-
+        public async Task<List<Orders>> GetOrderByIdAdmin(string idAdmin)
+        {
+            return await _context.Orders.Where(o=>o.CreatedByAdminId == idAdmin).ToListAsync();
+        }
+        public async Task<List<Orders>> GetOrderByIdUser(long idUser)
+        {
+            return await _context.Orders.Where(o => o.User_id == idUser).ToListAsync();
+        }
         public async Task<List<Orders>> GetAll()
         {
            return await _context.Orders.ToListAsync();
@@ -35,10 +42,20 @@ namespace appAPI.Repository
             return await _context.Orders.FindAsync(id);
         }
 
-        public async Task Update(Orders orders)
+        public async Task Update(Orders orders, long id)
         {
-            _context.Entry(orders).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            var updateItem = await _context.Orders.FindAsync(id);
+            if (updateItem != null)
+            {
+                updateItem.User_id = orders.User_id;
+                updateItem.Status = orders.Status;
+                updateItem.Note = orders.Note;
+                updateItem.Update_at = DateTime.Now;
+
+                _context.Orders.Update(updateItem);
+                await _context.SaveChangesAsync();
+
+            }
         }
     }
 }

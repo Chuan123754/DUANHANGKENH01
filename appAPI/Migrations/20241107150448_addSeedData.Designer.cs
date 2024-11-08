@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using appAPI.Models;
 
@@ -11,9 +12,10 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    partial class APP_DATA_DATNModelSnapshot : ModelSnapshot
+    [Migration("20241107150448_addSeedData")]
+    partial class addSeedData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1499,21 +1501,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "a7bebbc7-faed-47f1-bf58-8b68ae00dcc5",
+                            ConcurrencyStamp = "43ace886-cc2a-4648-a96b-f40eee2f8d70",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "13ff7248-0a38-4649-8667-fcecc5c8259e",
+                            ConcurrencyStamp = "35233e38-3bbc-42bd-b7ea-7970cb2fa218",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "d1d94c9a-d79f-4aa4-ace2-cbbaddf091c8",
+                            ConcurrencyStamp = "a480cfbd-beb0-472e-9e7c-63f1c94f0485",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });

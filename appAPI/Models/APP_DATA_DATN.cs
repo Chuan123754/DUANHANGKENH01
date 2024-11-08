@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 namespace appAPI.Models
 {
@@ -55,6 +56,26 @@ namespace appAPI.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<IdentityRole>().HasData(
+                new IdentityRole
+                {
+                    Id = "ADMIN_ROLE_ID",
+                    Name = "Admin",
+                    NormalizedName = "ADMIN"
+                },
+                new IdentityRole
+                {
+                    Id = "EMPLOYEE_ROLE_ID",
+                    Name = "Employee",
+                    NormalizedName = "EMPLOYEE"
+                },
+                new IdentityRole
+                {
+                    Id = "DESIGNER_ROLE_ID",
+                    Name = "Designer",
+                NormalizedName = "DESIGNER"
+                }
+            );
         }
     }
 }

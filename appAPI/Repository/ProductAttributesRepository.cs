@@ -1,6 +1,7 @@
 ﻿using appAPI.DTO;
 using appAPI.IRepository;
 using appAPI.Models;
+using appAPI.Models.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace appAPI.Repository
@@ -31,13 +32,12 @@ namespace appAPI.Repository
         public async Task<List<Product_Attributes>> GetAllProductAttributes()
         {
             return await _context.Product_Attributes
-                                                    .Include(p=>p.Size)
-                                                    .Include(p=>p.Color)
-                                                    .Include(p=>p.Product_Variant).ThenInclude(p=>p.Style)
-                                                    .Include(p=>p.Product_Variant).ThenInclude(p=>p.Material)
-                                                    .Include(p=>p.Product_Variant).ThenInclude(p=>p.Textile_Technology)
+                                                    .Include(p => p.Size)
+                                                    .Include(p => p.Color)
+                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Style)
+                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Material)
+                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Textile_Technology)
                                                     .ToListAsync();
-
         }
 
         public async Task<Product_Attributes> GetProductAttributesById(long id)
@@ -109,5 +109,54 @@ namespace appAPI.Repository
                 await _context.SaveChangesAsync();
             }    
         }
+        public async Task<List<ProductDTO>> GetProductDTOsAsync()
+        {
+            var productDTOs = await _context.Product_Attributes
+             .Join(_context.product_variants,
+                 pa => pa.Product_Variant_Id,
+                 pv => pv.Id,
+                 (pa, pv) => new { pa, pv })
+             .Join(_context.Posts,
+                 combined => combined.pv.Post_Id,
+                 pp => pp.Id,
+                 (combined, pp) => new { combined.pa, combined.pv, pp })
+             .Join(_context.Textile_Technologies,
+                 combined => combined.pv.Textile_technology_id,
+                 tt => tt.Id,
+                 (combined, tt) => new { combined.pa, combined.pv, combined.pp, tt })
+             .Join(_context.Styles,
+                 combined => combined.pv.Style_id,
+                 style => style.Id,
+                 (combined, style) => new { combined.pa, combined.pv, combined.pp, combined.tt, style })
+             .Join(_context.Materials,
+                 combined => combined.pv.Material_id,
+                 material => material.Id,
+                 (combined, material) => new { combined.pa, combined.pv, combined.pp, combined.tt, combined.style, material })
+             .Join(_context.Sizes,
+                 combined => combined.pa.Size_Id,
+                 size => size.Id,
+                 (combined, size) => new { combined.pa, combined.pv, combined.pp, combined.tt, combined.style, combined.material, size })
+             .Join(_context.Color,
+                 combined => combined.pa.Color_Id,
+                 color => color.Id,
+                 (combined, color) => new ProductDTO
+                 {
+                     ProductName = combined.pp.Title,            // Tên sản phẩm (Title của Product_Post)
+                     Image = combined.pa.Image,                  // Hình ảnh (Image của Product_Attributes)
+                     Status = combined.pa.Status,                // Trạng thái (Status của Product_Attributes)
+                     Description = combined.pv.Description,      // Mô tả (Description của Product_Variants)
+                     TextileTechnology = combined.pv.Textile_Technology.Title,     // Công nghệ dệt (Title của Textile_Technologies)
+                     Style = combined.pv.Style.Title,             // Phong cách (Title của Styles)
+                     Material = combined.pv.Material.Title,      // Chất liệu (Title của Materials)
+                     Size = combined.pa.Size.Title,               // Size (Title của Sizes)
+                     Color = combined.pa.Color.Title,                          // Màu (Title của Color)
+                     Stock = combined.pa.Stock,                  // Số lượng (Stock của Product_Attributes)
+                     RegularPrice = combined.pa.Regular_price   // Giá tiền (Regular_price của Product_Attributes)
+                 })
+             .ToListAsync();
+
+                    return productDTOs;
+                }
+
     }
 }

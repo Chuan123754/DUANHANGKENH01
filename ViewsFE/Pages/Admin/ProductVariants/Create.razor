@@ -284,13 +284,11 @@
         colorSelections[colorId] = (bool)isChecked; 
         updateVariants();
     }
-
     private void OnSizeSelectionChanged(long sizeId, object isChecked)
     {
         sizeSelections[sizeId] = (bool)isChecked; 
         updateVariants(); 
     }
-
     private void updateVariants()
     {
         // xử lý khi các tùy chọn màu và kích thước được thay đổi
@@ -361,6 +359,8 @@
             isProductAttributesCreated = true;
         }
         LST_ProductAttributes = await productAttributes.GetProductAttributesByProductVarianId(IdProductVariantCreated);
+        IdProductVariantCreated = 0;
+        nav.NavigateTo("/admin/product");
     }
     private async Task UpdateProductAttributes()
     {

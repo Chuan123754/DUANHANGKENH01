@@ -51,7 +51,10 @@
 			<CopyToPublishDirectory>Never</CopyToPublishDirectory>
 		</None>
 	</ItemGroup>
+
+	<ItemGroup>
     <ProjectReference Include="..\appAPI\appAPI.csproj" />
   </ItemGroup>
+	
 
 </Project>

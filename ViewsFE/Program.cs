@@ -76,12 +76,14 @@ builder.Services.AddScoped<ISizeServices, SizeServices>();
 builder.Services.AddScoped<IMaterialServices, MaterialServices>();
 builder.Services.AddScoped<IStyleServices, StyleServices>();
 builder.Services.AddScoped<ITextile_technologyServices, Textile_technologyServices>();
-builder.Services.AddScoped<IVariantsDiscountServices, VariantsDiscountServices>();
 builder.Services.AddScoped<IloginServices, LoginServices>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<AddressService>();
 builder.Services.AddScoped<IProductAttributeServices, ProductAttributeServices>();
 builder.Services.AddScoped<IProductVariantServices, ProductVariantServices>();
+builder.Services.AddScoped<OrderDetailsIServices, OrderDetailsServices>();
+builder.Services.AddScoped<OrderIServices,OrderServices>(); 
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
