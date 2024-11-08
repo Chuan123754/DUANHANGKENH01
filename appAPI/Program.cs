@@ -18,6 +18,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<APP_DATA_DATN>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+    });
+
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
@@ -83,11 +90,12 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigins",
         policyBuilder =>
         {
-            policyBuilder.WithOrigins("https://localhost:7277", "https://localhost:7241") // Đảm bảo đây là URL đúng
+            policyBuilder.AllowAnyOrigin()
                          .AllowAnyHeader()
                          .AllowAnyMethod();
         });
 });
+
 
 // Cấu hình Identity cho Account và các role
 builder.Services.AddIdentity<Account, IdentityRole>()
