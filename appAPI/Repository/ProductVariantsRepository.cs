@@ -27,7 +27,12 @@ namespace appAPI.Repository
 
         public async Task<List<Product_variants>> GetAllProductVarians()
         {
-            return await _context.product_variants.ToListAsync();
+            return await _context.product_variants
+                .Include(p=>p.Posts)
+                .Include(p=>p.Textile_Technology)
+                .Include(p=>p.Material)
+                .Include(p=>p.Style)
+                .ToListAsync();
 
         }
         public async Task<Product_variants> GetProductVariantsById(long id)

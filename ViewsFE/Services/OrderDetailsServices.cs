@@ -1,33 +1,51 @@
-﻿using ViewsFE.IServices;
+﻿using Newtonsoft.Json;
+using ViewsFE.IServices;
 using ViewsFE.Models;
 
 namespace ViewsFE.Services
 {
     public class OrderDetailsServices : OrderDetailsIServices
     {
-        public Task Create(Order_details orderdetails)
+        private readonly HttpClient _client;
+
+        public OrderDetailsServices(HttpClient client)
         {
-            throw new NotImplementedException();
+            _client = client;
+        }
+        public async Task Create(Order_details orderdetails)
+        {
+            await _client.PostAsJsonAsync("https://localhost:7011/api/OrderDetails/Create", orderdetails);
         }
 
-        public Task Delete(long id)
+        public async Task Delete(long id)
         {
-            throw new NotImplementedException();
+            await _client.DeleteAsync($"https://localhost:7011/api/OrderDetails/Delete?id={id}");
         }
 
-        public Task<List<Order_details>> GetAlldetail()
+        public async Task<List<Order_details>> GetAlldetail()
         {
-            throw new NotImplementedException();
+            string requestURL = "https://localhost:7011/api/OrderDetails/All";
+            var response = await _client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<List<Order_details>>(response);
         }
 
-        public Task<Order_details> GetByIdOrderdetails(long id)
+        public async Task<Order_details> GetByIdOrderdetails(long id)
         {
-            throw new NotImplementedException();
+            string requestURL = $"https://localhost:7011/api/OrderDetails/Details?id={id}";
+            var response = await _client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<Order_details>(response);
         }
 
-        public Task Update(Order_details orderdetails)
+        public async Task<List<Order_details>> GetOrderDetailsByOrderId(long idOrder)
         {
-            throw new NotImplementedException();
+            string requestURL = $"https://localhost:7011/api/OrderDetails/GetOrderDetailsByOrderId?idOrder={idOrder}";
+            var response = await _client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<List<Order_details>>(response);
+        }
+
+        public async Task Update(Order_details orderdetails , long id)
+        {
+            await _client.PutAsJsonAsync($"https://localhost:7011/api/OrderDetails/Update?id={id}", orderdetails);
         }
     }
 }
