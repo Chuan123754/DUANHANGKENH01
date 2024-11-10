@@ -1,5 +1,7 @@
 ﻿@page "/admin/sell"
 @inject NavigationManager nav
+@inject IUserService user
+@inject IAddressServices address
 @inject OrderIServices order
 @inject OrderDetailsIServices orderDetail
 @inject IProductAttributeServices productAttribute
@@ -71,8 +73,9 @@
                                             <table class="table table-bordered">
                                                 <thead>
                                                     <tr>
-                                                        <th>Tên Sản Phẩm</th>
                                                         <th>Hình Ảnh</th>
+                                                        <th>Tên Sản Phẩm</th>
+                                                  
                                                         <th>Trạng Thái</th>
                                                         <th>Mô Tả</th>
                                                         <th>Công Nghệ Dệt</th>
@@ -89,8 +92,8 @@
                                                     @foreach (var product in lst_ProductAttributes)
                                                     {
                                                         <tr>
-                                                            <td>@product.Product_Variant.Posts.Title</td> 
                                                             <td><img src="@product.Image" alt="Hình ảnh" style="width: 50px; height: auto;" /></td> <!-- Hình ảnh -->
+                                                            <td>@product.Product_Variant.Posts.Title</td>                                                            
                                                             <td>@product.Status</td> 
                                                             <td>@product.Product_Variant?.Description</td>
                                                             <td>@product.Product_Variant?.Textile_Technology?.Title</td>
@@ -146,6 +149,7 @@
                                 <thead>
                                     <tr>
                                         <th class="w-1"><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices">All</th>
+                                        <th>Hình Ảnh</th>
                                         <th>Tên sản phẩm</th>
                                         <th>Chất liệu</th>
                                         <th>Công nghệ dệt</th>
@@ -164,6 +168,7 @@
                                             <td>
                                                 <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select item">
                                             </td>
+                                            <td><img src="@item.ProductAttributes.Image" alt="Hình ảnh" style="width: 50px; height: auto;" /></td> <!-- Hình ảnh -->
                                             <td>@item.ProductAttributes.Product_Variant.Posts.Title </td>
                                             <td>@item.ProductAttributes.Product_Variant.Material.Title </td>
                                             <td>@item.ProductAttributes.Product_Variant.Textile_Technology.Title </td>
@@ -174,13 +179,83 @@
                                             <td>@(item.Quantity*item.ProductAttributes.Regular_price) VNĐ</td>
                                             <td>
                                                 <button class="btn btn-danger" @onclick="() => DeleteOrderDetail(item.Id)">Xóa</button>
-                                            </td>
-
-                                           
+                                            </td>                                                                                     
                                         </tr>
                                     }
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <h2 class="card-title">Tổng tiền: @totalAmount VNĐ</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <h3 class="card-title">Thông tin khách hàng</h3>
+                            <button class="btn btn-primary" @onclick="ListCustomer">
+                                Chọn khách hàng
+                            </button>
+                            @if (isAddCustomerModalVisible)
+                            {
+                                <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 75%; width: auto;">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Thêm Sản Phẩm</h5>
+                                                <button type="button" class="btn-close" @onclick="CloseModalAddCustomer" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>STT</th>
+                                                            <th>Họ và tên </th>
+                                                            <th>Số điện thoại</th>
+                                                            <th>Email</th>
+                                                            <th>Thao tác</th>                                                           
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @foreach (var item in lst_Customer)
+                                                        {
+                                                            <tr>
+                                                               
+                                                                <td>1</td>
+                                                                <td>@item.Name</td>
+                                                                <td>@item.Phone</td>
+                                                                <td>@item.Email</td>
+                                                                <td>
+                                                                    <button class="btn btn-primary mt-2" @onclick="() => AddCustomer(item)">Chọn</button>
+                                                                </td>
+
+
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" @onclick="CloseAddProductModal">Đóng</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-backdrop fade show"></div>
+
+                            }
+                        </div>
+                        <div class="table-responsive">
+                            <h2>@(isCustomerAdded ? customerName : "Khách lẻ")</h2>
+                  
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Thông tin đơn hàng</h3>
                         </div>
                     </div>
                 </div>
@@ -191,21 +266,28 @@
 
 @code {
     private long selectedOrderId;
+    private string customerName = ""; 
+    private bool isCustomerAdded = false; // Kiểm tra xem khách hàng đã được thêm chưa
     private Orders orders = new Orders();
     private Order_details order_Details = new Order_details();
-    private Users customer = new Users();
-    private Address address = new Address();
+    private Users Customer = new Users();
+    private List<Users> lst_Customer = new List<Users>();
+    private Address Address = new Address();
+    private List<Address> lst_Address = new List<Address>();
     private List<Order_details> lst_OrderDetail = new List<Order_details>();
     private List<Orders> lst_Orders = new List<Orders>();
     private List<Product_Attributes> lst_ProductAttributes = new List<Product_Attributes>();
-    private List<Users> lst_Customer = new List<Users>();
-    private bool isAddProductModalVisible = false;
+    private bool isAddProductModalVisible = false; // kiểm tra modal sản phẩm được mở chưa
+    private bool isAddCustomerModalVisible = false; // modal khách hàng
     private Dictionary<long, int> productQuantities = new Dictionary<long, int>();
+    private decimal totalAmount = 0;
 
-    private async Task SelectOrder(long orderId)
+    private async Task SelectOrder(long orderId) // chọn hóa đơn 
     {
         selectedOrderId = orderId;
         lst_OrderDetail = await orderDetail.GetOrderDetailsByOrderId(selectedOrderId);
+        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
+
         await LoadOrderDetails();
     }
     private void UpdateQuantity(long productId, int quantity)
@@ -218,48 +300,51 @@
         {
             productQuantities.Add(productId, quantity);
         }
-    }
+    } // thay đổi số lượng trong modal sản phẩm
     private int GetQuantity(long productId)
     {
         return productQuantities.ContainsKey(productId) ? productQuantities[productId] : 1;
-    }
+    } // lấy số lượng
     private void ShowAddProductDetailModal()
     {
         isAddProductModalVisible = true;
-    }
+    } // mở modal sản phẩm
     private async void ShowAddProductModal()
     {
         isAddProductModalVisible = true;
 
         lst_ProductAttributes = await productAttribute.GetAllProductAttributes();
-    }
+    }// danh sách sản phẩm trong modal
     private void CloseAddProductModal()
     {
         isAddProductModalVisible = false;
     }
-    private async Task LoadOrderDetails()
+    private async Task LoadOrderDetails() // danh sách đơn hàng chi tiết của đơn hàng được chọn
     {
         lst_OrderDetail = await orderDetail.GetOrderDetailsByOrderId(selectedOrderId);
+        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
         StateHasChanged();
     }
     protected override async Task OnInitializedAsync()
     {
         await LoadOrders();
+        var totalAmount = lst_OrderDetail.Sum(item => item.Quantity * item.ProductAttributes.Regular_price);
         lst_ProductAttributes = await productAttribute.GetAllProductAttributes();
-    }
+    } // LOAD
     private async Task LoadOrders()
     {
         lst_Orders = await order.GetAll();
         StateHasChanged(); 
-    }
+    } // load loại thẻ order khi có thay đổi
     private async Task DeleteOrder(long id)
     {
         await order.Delete(id);
         await LoadOrders();
-    }
-    private async Task DeleteOrderDetail(long id)
+    }// xóa order
+    private async Task DeleteOrderDetail(long id) // xóa orderdetail
     {
         await orderDetail.Delete(id);
+        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
         await LoadOrderDetails();
     }
     private async Task CreateOrder()
@@ -267,7 +352,7 @@
         await order.Create(orders);
         lst_Orders = await order.GetAll();
         await LoadOrders();
-    }
+    }// tạo order
     private async Task AddProduct(Order_details orderDetails, long productAttributeId)
     {
         int quantity = productQuantities.ContainsKey(productAttributeId) ? productQuantities[productAttributeId] : 1;
@@ -293,6 +378,43 @@
         }
         await LoadOrderDetails();
         productQuantities[productAttributeId] = 1;
+        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
+    } // thêm sản phẩm vào order
+    private async void OpenModalAddCustomer()
+    {
+        isAddCustomerModalVisible = true;
+    }
+    private async void CloseModalAddCustomer()
+    {
+        isAddCustomerModalVisible = false;
+    }
+    private async void ListCustomer()
+    {
+        isAddCustomerModalVisible = true;
+        lst_Customer = await user.GetAll();
+    }
+
+    private async Task AddCustomer(Users selectedCustomer )
+    {
+        // Cập nhật thông tin khách hàng cho đơn hàng đã chọn
+        var orderToUpdate = await order.GetByIdOrders(selectedOrderId); // Giả sử bạn có dịch vụ `orderService`
+        if (orderToUpdate != null)
+        {
+            orderToUpdate.User_id = selectedCustomer.Id; // Gán ID khách hàng vào đơn hàng
+            orderToUpdate.Users.Name = selectedCustomer.Name; // Cập nhật tên khách hàng (tuỳ chọn)
+            await order.Update(orderToUpdate,orderToUpdate.Id); // Lưu thay đổi
+        }
+
+        // Đóng modal và cập nhật lại thông tin hiển thị
+        isAddCustomerModalVisible = false;
+        customerName = selectedCustomer.Name;
+        isCustomerAdded = true;
+
+        // Cập nhật lại thông tin đơn hàng
+        lst_OrderDetail = await orderDetail.GetOrderDetailsByOrderId(selectedOrderId);
+        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
+
+        await LoadOrderDetails();
     }
 
 }
