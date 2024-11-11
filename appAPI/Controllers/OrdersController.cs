@@ -68,12 +68,15 @@ namespace appAPI.Controllers
         [HttpPut("Update")]
         public async Task<IActionResult> Put(Orders orders,long id)
         {
-            var result = _repo.Update(orders,id);
-            if (result != null)
+            try
             {
-                return Ok();
+                await _repo.Update(orders, id);
+                return Ok(orders);
             }
-            return BadRequest();
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         // DELETE api/<OrdersController>/5

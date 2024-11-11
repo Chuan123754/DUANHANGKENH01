@@ -40,7 +40,7 @@ namespace ViewsFE.Models
         [JsonIgnore]
         public virtual Textile_technology? Textile_Technology { get; set; }
         [JsonIgnore]
-        public virtual ICollection<P_variants_discount> p_variants_discount { get; set; } = new List<P_variants_discount>();
+        public virtual ICollection<P_attribute_discount> p_variants_discount { get; set; } = new List<P_attribute_discount>();
         [JsonIgnore]
         public virtual ICollection<Product_variants_wishlist> Product_Variants_Wishlists { get; set; } = new List<Product_variants_wishlist>();
         [JsonIgnore]

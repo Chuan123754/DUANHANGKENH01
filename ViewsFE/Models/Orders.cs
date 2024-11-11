@@ -16,23 +16,13 @@ namespace ViewsFE.Models
     {
         [Key]
         public long Id { get; set; }
-        [StringLength(50)]
-        [Unicode(false)]
-        public string? Code { get; set; }
-        public long? User_id { get; set; }
-        public decimal Total { get; set; }
-        [StringLength(20)]
-        [Unicode(false)]
-        public string? Phone_number { get; set; }
-        [StringLength(255)]
-        public string? Name { get; set; }
-        [StringLength(255)]
-        public string? Address { get; set; }
+        public string? CreatedByAdminId { get; set; }
+        public long? User_id { get; set; } // khách hàng ( hóa đơn treo có thể chưa thêm khách hàng )
         [StringLength(20)]
         public string? Status { get; set; }
         public string? Note { get; set; }
         public DateTime? Approved_at { get; set; }
-        public DateTime? Created_at { get; set; }
+        public DateTime? Created_at { get; set; } = DateTime.Now;
         public DateTime? Update_at { get; set; }
         public DateTime? Deleted_at { get; set; }
         [JsonIgnore]
@@ -41,6 +31,9 @@ namespace ViewsFE.Models
         public virtual ICollection<order_trackings> Order_trackings { get; set; } = new List<order_trackings>();
         [JsonIgnore]
         public virtual ICollection<Order_Vouchers> OrderVouchers { get; set; } = new List<Order_Vouchers>();
+        [ForeignKey("CreatedByAdminId")]
+        [JsonIgnore]
+        public virtual Account? Admin { get; set; }
         [ForeignKey("User_id")]
         [JsonIgnore]
 

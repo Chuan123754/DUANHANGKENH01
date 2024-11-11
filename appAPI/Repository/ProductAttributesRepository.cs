@@ -31,14 +31,25 @@ namespace appAPI.Repository
 
         public async Task<List<Product_Attributes>> GetAllProductAttributes()
         {
-            return await _context.Product_Attributes
-                                                    .Include(p => p.Size)
-                                                    .Include(p => p.Color)
-                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Style)
-                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Material)
-                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Textile_Technology)
-                                                    .ToListAsync();
+            try
+            {
+                return await _context.Product_Attributes
+                                     .Include(p => p.Size)
+                                     .Include(p => p.Color)
+                                     .Include(p => p.Product_Variant).ThenInclude(p => p.Style)
+                                     .Include(p => p.Product_Variant).ThenInclude(p => p.Material)
+                                     .Include(p => p.Product_Variant).ThenInclude(p => p.Textile_Technology)
+                                     .Include(p => p.Product_Variant).ThenInclude(p => p.Posts)
+                                     .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi, ví dụ:
+                Console.WriteLine("Error in GetAllProductAttributes: " + ex.Message);
+                return new List<Product_Attributes>();
+            }
         }
+
 
         public async Task<Product_Attributes> GetProductAttributesById(long id)
         {

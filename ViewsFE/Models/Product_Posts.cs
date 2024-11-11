@@ -33,7 +33,7 @@ namespace ViewsFE.Models
         public string? Type { get; set; }
         public string? product_video { get; set; }
         public string? Short_description { get; set; }
-        public string? Description { get; set; } = string.Empty;
+        public string? Description { get; set; } 
         public string? Image_library { get; set; }
         public string? Feature_image { get; set; }
         public string? CategoryName { get; set; }
@@ -59,9 +59,6 @@ namespace ViewsFE.Models
         [JsonIgnore]
         [ForeignKey("AuthorId")]
         public virtual Designer? Designer { get; set; }
-        [InverseProperty("Product_Posts")]
-        [JsonIgnore]
-        public virtual Seo? Seo { get; set; } = new Seo();
         public virtual Banner? Banner { get; set; }
 
         // Define constant values for statuses
