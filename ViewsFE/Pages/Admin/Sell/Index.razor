@@ -6,6 +6,7 @@
 @inject OrderDetailsIServices orderDetail
 @inject IProductAttributeServices productAttribute
 @inject IProductVariantServices productVariant
+@inject IJSRuntime JS
  
 <style>
     .custom-modal-size {
@@ -20,6 +21,11 @@
     .table {
         width: 100%;
         table-layout: auto;
+    }
+
+    .border {
+        border-width: 2px;
+        border-color: #007bff;
     }
 </style>
 <div class="page-wrapper">
@@ -74,9 +80,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th>Hình Ảnh</th>
-                                                        <th>Tên Sản Phẩm</th>
-                                                  
-                                                        <th>Trạng Thái</th>
+                                                        <th>Tên Sản Phẩm</th>                                                  
                                                         <th>Mô Tả</th>
                                                         <th>Công Nghệ Dệt</th>
                                                         <th>Phong Cách</th>
@@ -92,9 +96,8 @@
                                                     @foreach (var product in lst_ProductAttributes)
                                                     {
                                                         <tr>
-                                                            <td><img src="@product.Image" alt="Hình ảnh" style="width: 50px; height: auto;" /></td> <!-- Hình ảnh -->
+                                                            <td><img src="@product.Image" alt="Hình ảnh" style="width: 130px; height: auto;" /></td> <!-- Hình ảnh -->
                                                             <td>@product.Product_Variant.Posts.Title</td>                                                            
-                                                            <td>@product.Status</td> 
                                                             <td>@product.Product_Variant?.Description</td>
                                                             <td>@product.Product_Variant?.Textile_Technology?.Title</td>
                                                             <td>@product.Product_Variant?.Style?.Title</td> 
@@ -105,7 +108,7 @@
                                                             <td>@product.Regular_price VNĐ</td>
                                                             <td>
                                                                 <div class="input-group">
-                                                                    <input type="number" class="form-control text-center" style="width: 60px;"
+                                                                    <input type="number" class="form-control text-center" style="width: 100px;"
                                                                            value="@(productQuantities.ContainsKey(product.Id) ? productQuantities[product.Id] : 1)"
                                                                            @oninput="(e) => UpdateQuantity(product.Id, int.TryParse(e.Value?.ToString(), out var value) ? value : 1)"
                                                                            min="1" />
@@ -194,7 +197,10 @@
                     <div class="card">
                         <div class="card-header d-flex align-items-center justify-content-between">
                             <h3 class="card-title">Thông tin khách hàng</h3>
-                            <button class="btn btn-primary" @onclick="ListCustomer">
+                            <div class="col-auto">
+                                <div class="border rounded p-2" style="width: 200px;">Khách lẻ</div>
+                            </div>
+                            <button class="btn btn-primary" @onclick="OpenModalAddCustomer">
                                 Chọn khách hàng
                             </button>
                             @if (isAddCustomerModalVisible)
@@ -203,7 +209,7 @@
                                     <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 75%; width: auto;">
                                         <div class="modal-content">
                                             <div class="modal-header">
-                                                <h5 class="modal-title">Thêm Sản Phẩm</h5>
+                                                <h5 class="modal-title">Danh sách khách hàng</h5>
                                                 <button type="button" class="btn-close" @onclick="CloseModalAddCustomer" aria-label="Close"></button>
                                             </div>
                                             <div class="modal-body">
@@ -236,9 +242,7 @@
                                                     </tbody>
                                                 </table>
                                             </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" @onclick="CloseAddProductModal">Đóng</button>
-                                            </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -246,16 +250,31 @@
 
                             }
                         </div>
-                        <div class="table-responsive">
-                            <h2>@(isCustomerAdded ? customerName : "Khách lẻ")</h2>
-                  
-                        </div>
+                        @if (isDeliveryVisible)
+                        {
+                            <div class="table-responsive">
+                                <div class="container px-4 text-center">
+                                    <div class="row gx-2 justify-content-center">
+                                        <div class="col-auto">
+                                            <div class="border rounded p-2" style="width: 200px;">Custom column padding</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="border rounded p-2" style="width: 200px;">Custom column padding</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
                     </div>
                 </div>
                 <div class="col-lg-6">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header d-flex align-items-center justify-content-between">
                             <h3 class="card-title">Thông tin đơn hàng</h3>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" @bind="isDeliveryVisible">
+                                <label class="form-check-label" for="flexSwitchCheckChecked">Giao hàng</label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -279,8 +298,12 @@
     private List<Product_Attributes> lst_ProductAttributes = new List<Product_Attributes>();
     private bool isAddProductModalVisible = false; // kiểm tra modal sản phẩm được mở chưa
     private bool isAddCustomerModalVisible = false; // modal khách hàng
+    private bool isDeliveryVisible = false;
     private Dictionary<long, int> productQuantities = new Dictionary<long, int>();
     private decimal totalAmount = 0;
+    private string nameCustomer ;
+    private string phoneCustomer;
+    private string emailCustomer;
 
     private async Task SelectOrder(long orderId) // chọn hóa đơn 
     {
@@ -311,9 +334,17 @@
     } // mở modal sản phẩm
     private async void ShowAddProductModal()
     {
-        isAddProductModalVisible = true;
+        if(selectedOrderId == 0)
+        {
+            isAddProductModalVisible = false;
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn hóa đơn trước");
+        }
+        else
+        {
+            isAddProductModalVisible = true;
+            lst_ProductAttributes = await productAttribute.GetAllProductAttributes();
+        }
 
-        lst_ProductAttributes = await productAttribute.GetAllProductAttributes();
     }// danh sách sản phẩm trong modal
     private void CloseAddProductModal()
     {
@@ -382,27 +413,31 @@
     } // thêm sản phẩm vào order
     private async void OpenModalAddCustomer()
     {
-        isAddCustomerModalVisible = true;
+        if (selectedOrderId == 0)
+        {
+            isAddCustomerModalVisible = false;
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn hóa đơn trước");
+        }
+        else
+        {
+            isAddCustomerModalVisible = true;
+            lst_Customer = await user.GetAll();
+        }
+
     }
     private async void CloseModalAddCustomer()
     {
         isAddCustomerModalVisible = false;
     }
-    private async void ListCustomer()
-    {
-        isAddCustomerModalVisible = true;
-        lst_Customer = await user.GetAll();
-    }
 
     private async Task AddCustomer(Users selectedCustomer )
     {
         // Cập nhật thông tin khách hàng cho đơn hàng đã chọn
-        var orderToUpdate = await order.GetByIdOrders(selectedOrderId); // Giả sử bạn có dịch vụ `orderService`
+        var orderToUpdate = await order.GetByIdOrders(selectedOrderId); 
         if (orderToUpdate != null)
         {
-            orderToUpdate.User_id = selectedCustomer.Id; // Gán ID khách hàng vào đơn hàng
-            orderToUpdate.Users.Name = selectedCustomer.Name; // Cập nhật tên khách hàng (tuỳ chọn)
-            await order.Update(orderToUpdate,orderToUpdate.Id); // Lưu thay đổi
+            orderToUpdate.User_id = selectedCustomer.Id;
+            await order.Update(orderToUpdate,orderToUpdate.Id); 
         }
 
         // Đóng modal và cập nhật lại thông tin hiển thị
@@ -418,4 +453,3 @@
     }
 
 }
-

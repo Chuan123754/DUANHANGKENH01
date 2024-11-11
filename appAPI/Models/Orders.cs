@@ -34,7 +34,6 @@ namespace appAPI.Models
         [ForeignKey("CreatedByAdminId")]
         public virtual Account? Admin { get; set; }
         [ForeignKey("User_id")]
-
         public virtual Users? Users { get; set; }
     }
 }
