@@ -88,5 +88,16 @@ namespace appAPI.Controllers
             var totalCount = await _repo.GetTotalCountAsync(type, searchTerm);
             return Ok(totalCount);
         }
+
+        [HttpGet("FindVariant")]
+        public async Task<IActionResult> FindVariant(long postId, byte textileTechnologyId, byte styleId, byte materialId)
+        {
+            var result = await _repo.FindVariant(postId, textileTechnologyId, styleId, materialId);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return NotFound("Biến thể với các thuộc tính này không tồn tại.");
+        }
     }
 }

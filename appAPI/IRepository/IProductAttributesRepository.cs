@@ -15,5 +15,7 @@ namespace appAPI.IRepository
         // lấy danh sách biến thể dựa trên id sản phảm(product_variant)
         Task<List<Product_Attributes_DTO>> GetVariantByProductVariantId(List<long> variantIds);
         Task<List<ProductDTO>> GetProductDTOsAsync();
+
+
     }
 }

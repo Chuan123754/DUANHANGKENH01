@@ -10,7 +10,9 @@ namespace appAPI.IRepository
         Task<int> GetTotalCountAsync(string type, string searchTerm);
         Task Create(Product_variants productVariants);
         Task Update(Product_variants productVariants , long id);
-        Task Delete(long id);      
-        
+        Task Delete(long id);
+
+        Task<Product_variants?> FindVariant(long postId, byte textileTechnologyId, byte styleId, byte materialId);
+
     }
 }

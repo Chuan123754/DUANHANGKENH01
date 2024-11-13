@@ -32,11 +32,8 @@ namespace appAPI.Models
         [JsonIgnore]
         public virtual ICollection<Order_Vouchers> OrderVouchers { get; set; } = new List<Order_Vouchers>();
         [ForeignKey("CreatedByAdminId")]
-        [JsonIgnore]
         public virtual Account? Admin { get; set; }
         [ForeignKey("User_id")]
-        [JsonIgnore]
-
         public virtual Users? Users { get; set; }
     }
 }

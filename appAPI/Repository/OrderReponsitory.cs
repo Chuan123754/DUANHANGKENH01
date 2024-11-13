@@ -34,12 +34,18 @@ namespace appAPI.Repository
         }
         public async Task<List<Orders>> GetAll()
         {
-           return await _context.Orders.ToListAsync();
+           return await _context.Orders
+                .Include(o=>o.Admin)
+                .Include(o=>o.Users)
+                .ToListAsync();
         }
 
         public async Task<Orders> GetByIdOrders(long id)
         {
-            return await _context.Orders.FindAsync(id);
+            return await _context.Orders
+                .Include(o => o.Admin)
+                .Include(o => o.Users)
+                .FirstAsync(o => o.Id == id);
         }
 
         public async Task Update(Orders orders, long id)

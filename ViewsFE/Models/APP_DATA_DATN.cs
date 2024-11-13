@@ -28,7 +28,7 @@ namespace ViewsFE.Models
         public DbSet<order_trackings> Order_Trackings { get; set; }
         public DbSet<Order_details> Order_Details { get; set; }
         public DbSet<Order_Vouchers> OrderVouchers { get; set; }
-        public DbSet<P_variants_discount> p_Variants_Discounts { get; set; }
+        public DbSet<P_attribute_discount> p_Variants_Discounts { get; set; }
         public DbSet<Post_categories> Post_Categories { get; set; }
         public DbSet<Post_tags> Post_Tags { get; set; }
         public DbSet<Product_Posts> Posts { get; set; }

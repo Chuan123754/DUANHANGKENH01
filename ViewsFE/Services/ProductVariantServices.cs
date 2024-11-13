@@ -76,5 +76,16 @@ namespace ViewsFE.Services
             return JsonConvert.DeserializeObject<List<Product_Attributes>>(response);
         }
 
+        public async Task<Product_variants> FindVariant(long postId, byte textileTechnologyId, byte styleId, byte materialId)
+        {
+            string requestURL = $"https://localhost:7011/api/ProductVarians/FindVariant?postId={postId}&textileTechnologyId={textileTechnologyId}&styleId={styleId}&materialId={materialId}";
+            var response = await _client.GetAsync(requestURL);
+            if (response.IsSuccessStatusCode)
+            {
+                var responseData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<Product_variants>(responseData);
+            }
+            return null;
+        }
     }
 }
