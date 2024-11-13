@@ -32,66 +32,58 @@ namespace ViewsFE.Services
             return JsonConvert.DeserializeObject<Users>(response);
         }
 
-        public async Task<Users> Create(Users user)
-        {
-            user.Id = 0;
-            user.Created_at = DateTime.Now;
-            user.Updated_at = DateTime.Now;
-
-            // Kiểm tra trùng lặp email
-            if (await IsEmailExists(user.Email))
+            public async Task<Users> Create(Users user)
             {
-                throw new Exception("Email đã tồn tại.");
+                user.Created_at = DateTime.Now;
+                user.Updated_at = DateTime.Now;
+
+                // Kiểm tra trùng lặp email
+                if (await IsEmailExists(user.Email))
+                {
+                    throw new Exception("Email đã tồn tại.");
+                }
+                string userRequestURL = "https://localhost:7011/api/Users/Users-post";
+                var userJsonContent = JsonConvert.SerializeObject(user);
+                var userContent = new StringContent(userJsonContent, Encoding.UTF8, "application/json");
+                var userResponse = await _httpClient.PostAsync(userRequestURL, userContent);
+
+                if (!userResponse.IsSuccessStatusCode)
+                {
+                    var errorContent = await userResponse.Content.ReadAsStringAsync();
+                    throw new Exception($"API call failed with status code {userResponse.StatusCode} and message: {errorContent}");
+                }
+
+                var createdUserJson = await userResponse.Content.ReadAsStringAsync();
+                var createdUser = JsonConvert.DeserializeObject<Users>(createdUserJson);
+
+                if (createdUser == null)
+                {
+                    throw new Exception("Không thể lấy được người dùng vừa tạo.");
+                }
+
+                // Tạo giỏ hàng cho người dùng mới
+                var cart = new Carts
+                {
+                    Id = 0,
+                    UserId = createdUser.Id,
+                    Status = "New",
+                    Description = "Giỏ hàng mặc định"
+                };
+
+                string cartRequestURL = "https://localhost:7011/api/Carts/carts-post";
+                var cartJsonContent = JsonConvert.SerializeObject(cart);
+                var cartContent = new StringContent(cartJsonContent, Encoding.UTF8, "application/json");
+                var cartResponse = await _httpClient.PostAsync(cartRequestURL, cartContent);
+
+                if (!cartResponse.IsSuccessStatusCode)
+                {
+                    var errorContent = await cartResponse.Content.ReadAsStringAsync();
+                    throw new Exception($"API call failed with status code {cartResponse.StatusCode} and message: {errorContent}");
+                }
+
+                // Trả về đối tượng người dùng vừa được tạo
+                return createdUser;
             }
-
-            //// Kiểm tra trùng lặp số điện thoại
-            //if (await IsPhoneExists(user.Phone))
-            //{
-            //    throw new Exception("Số điện thoại đã tồn tại.");
-            //}
-
-            string userRequestURL = "https://localhost:7011/api/Users/Users-post";
-            var userJsonContent = JsonConvert.SerializeObject(user);
-            var userContent = new StringContent(userJsonContent, Encoding.UTF8, "application/json");
-            var userResponse = await _httpClient.PostAsync(userRequestURL, userContent);
-
-            if (!userResponse.IsSuccessStatusCode)
-            {
-                var errorContent = await userResponse.Content.ReadAsStringAsync();
-                throw new Exception($"API call failed with status code {userResponse.StatusCode} and message: {errorContent}");
-            }
-
-            var createdUserJson = await userResponse.Content.ReadAsStringAsync();
-            var createdUser = JsonConvert.DeserializeObject<Users>(createdUserJson);
-
-            if (createdUser == null)
-            {
-                throw new Exception("Không thể lấy được người dùng vừa tạo.");
-            }
-
-            // Tạo giỏ hàng cho người dùng mới
-            var cart = new Carts
-            {
-                Id = 0,
-                UserId = createdUser.Id,
-                Status = "New",
-                Description = "Giỏ hàng mặc định"
-            };
-
-            string cartRequestURL = "https://localhost:7011/api/Carts/carts-post";
-            var cartJsonContent = JsonConvert.SerializeObject(cart);
-            var cartContent = new StringContent(cartJsonContent, Encoding.UTF8, "application/json");
-            var cartResponse = await _httpClient.PostAsync(cartRequestURL, cartContent);
-
-            if (!cartResponse.IsSuccessStatusCode)
-            {
-                var errorContent = await cartResponse.Content.ReadAsStringAsync();
-                throw new Exception($"API call failed with status code {cartResponse.StatusCode} and message: {errorContent}");
-            }
-
-            // Trả về đối tượng người dùng vừa được tạo
-            return createdUser;
-        }
 
 
         public async Task Update(Users user)
@@ -120,7 +112,6 @@ namespace ViewsFE.Services
             }
             catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                // Nếu mã trạng thái là 404, thì email chưa tồn tại
                 return false;
             }
         }
