@@ -157,10 +157,15 @@ namespace appAPI.Repository
                 id = s.Post_Id,
                 type = type,
                 Title = s.Posts.Title,
-                longDes = s.Posts.Description,
-                shortDes = s.Posts.Short_description,
+                Description = s.Posts.Description,
+                Short_description = s.Posts.Short_description,
                 status = s.Posts.Status,
-                slug = s.Posts.Slug
+                slug = s.Posts.Slug,
+                Feature_image = s.Posts.Feature_image,
+                Image_library = s.Posts.Image_library,
+                AuthorId = s.Posts.AuthorId,
+                product_video = s.Posts.product_video
+
             }).FirstOrDefault();
 
             var lstTags = _context.Post_Tags.Include(s => s.Posts).Where(s => s.Post_Id == id).Select(s=>s.Tag_Id).ToList();

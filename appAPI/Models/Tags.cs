@@ -23,7 +23,6 @@ namespace appAPI.Models
         public string? Type { get; set; }
         public string? Description { get; set; }
         public DateTime? Created_at { get; set; }
-        public DateTime? Updated_at { get; set; }
       
         public virtual ICollection<Post_tags> Post_tags { get; set; } = new List<Post_tags>();
 
