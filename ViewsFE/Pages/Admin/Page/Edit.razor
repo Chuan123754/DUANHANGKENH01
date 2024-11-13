@@ -171,6 +171,17 @@
     {
         Posts = await sev.GetByIdType(Id, "page");
         TagsList = await stag.GetAll();
+        if (Posts?.Post_tags != null)
+        {
+            // Lấy danh sách Tag_Id từ Post_tags
+            SelectedTags = Posts.Post_tags
+                                .Select(pt => pt.Tag_Id) // Lấy chỉ ID của các tag
+                                .ToList();
+        }
+        else
+        {
+            SelectedTags = new List<long>(); // Nếu không có tag nào, gán danh sách trống
+        }
         Posts.Status = Product_Posts.STATUS_DRAFT;
     }
 
@@ -199,7 +210,6 @@
 
     private async void HandleValidSubmit()
     {
-        // Lấy dữ liệu từ Tom Select
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         if (!string.IsNullOrEmpty(tags))
         {
@@ -208,7 +218,9 @@
                 .Where(id => id > 0)
                 .ToList();
         }
-        await sev.Update(Posts);
+
+        // Gọi hàm `Update` để gửi dữ liệu
+        await sev.Update(Posts, SelectedTags);
         nav.NavigateTo("/admin/page");
     }
 }
@@ -236,9 +248,15 @@
     function initializeTagsList(tags) {
         if (tags && tags.length > 0) {
             window.TagsList = tags;
-            //console.log('TagsList initialized:', window.TagsList);
         } else {
             console.log('Failed to initialize TagsList. Empty or undefined.');
+        }
+    }
+
+    function resetTomSelect(selector) {
+        const element = document.querySelector(selector);
+        if (element && element.tomselect) {
+            element.tomselect.destroy(); // Hủy bỏ instance hiện tại
         }
     }
     function initializeTomSelect(selector) {
@@ -288,14 +306,5 @@
         }
         return '';
     }
-    function resetTomSelect(selector) {
-        const element = document.querySelector(selector);
-        if (element && element.tomselect) {
-            element.tomselect.destroy(); // Hủy bỏ instance hiện tại
-        }
-    }
-</script>
-<script>
-    console.log(selectedImagePath),
-        console.log(Posts.Feature_image)
+   
 </script>

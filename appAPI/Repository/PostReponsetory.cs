@@ -1,5 +1,6 @@
 ﻿using appAPI.IRepository;
 using appAPI.Models;
+using appAPI.Models.DTO;
 using Microsoft.EntityFrameworkCore;
 
 namespace appAPI.Repository
@@ -149,10 +150,40 @@ namespace appAPI.Repository
               .ToListAsync();
         }
 
-        public async Task<Product_Posts> GetByIdAndType(long id, string type)
+        public async Task<ModelPostTag> GetByIdAndType(long id, string type)
         {
-            return await _context.Posts.FirstOrDefaultAsync(p => p.Id == id && p.Type == type && p.Deleted == false);
-        }   
+            var objpost = _context.Post_Tags.Include(s=>s.Posts).Where(s => s.Post_Id == id).Select(s=>new ProductModel
+            {
+                id = s.Post_Id,
+                type = type,
+                Title = s.Posts.Title,
+                longDes = s.Posts.Description,
+                shortDes = s.Posts.Short_description,
+                status = s.Posts.Status,
+                slug = s.Posts.Slug
+            }).FirstOrDefault();
+
+            var lstTags = _context.Post_Tags.Include(s => s.Posts).Where(s => s.Post_Id == id).Select(s=>s.Tag_Id).ToList();
+
+
+            ModelPostTag post_Tag = new ModelPostTag();
+            post_Tag.objPost = objpost;
+            post_Tag.lstTags = lstTags;
+
+            return post_Tag;
+
+            //return await _context.Posts
+            //                     .Include(p => p.Post_tags)          // Bao gồm thông tin tags
+            //                     .ThenInclude(pt => pt.Tag)          // Nếu cần lấy thông tin chi tiết của từng Tag
+            //                     .Include(p => p.Post_categories)    // Bao gồm thông tin categories
+            //                     .ThenInclude(pc => pc.Categories)     // Nếu cần lấy thông tin chi tiết của từng Category
+            //                     .FirstOrDefaultAsync(p => p.Id == id && p.Type == type && p.Deleted == false);
+        }
+
+
+
+      
+
 
         public async Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string? searchTerm)
         {
@@ -172,21 +203,116 @@ namespace appAPI.Repository
                 .CountAsync(p => p.Type == type && p.Deleted == false &&
                                 (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
         }
+    
 
-        public async Task Update(Product_Posts post)
+        public async Task Update(Product_Posts post, List<long> tagIds)
         {
-            var item = _context.Posts.Find(post.Id);
+            // Kiểm tra xem post có tồn tại trong cơ sở dữ liệu không
+            var item = await _context.Posts.FindAsync(post.Id);
             if (item == null)
             {
-                return;
+                return; // Nếu không tìm thấy post, thoát hàm
             }
+
+            // Cập nhật thông tin của post
             item.Title = post.Title;
             item.Slug = post.Slug;
             item.Status = post.Status;
             item.AuthorId = post.AuthorId;
             item.Updated_by = post.Updated_by;
             item.Updated_at = DateTime.Now;
-            _context.Posts.Update(post);
+
+            _context.Posts.Update(item); // Cập nhật post trong ngữ cảnh
+
+            // Cập nhật danh sách tags
+            var existingTagIds = _context.Post_Tags
+                                         .Where(pt => pt.Post_Id == post.Id)
+                                         .Select(pt => pt.Tag_Id)
+                                         .ToList();
+
+            // Tìm các tags cần thêm
+            var tagsToAdd = tagIds.Except(existingTagIds).ToList();
+            foreach (var tagId in tagsToAdd)
+            {
+                var postTag = new Post_tags
+                {
+                    Post_Id = post.Id,
+                    Tag_Id = tagId
+                };
+                _context.Post_Tags.Add(postTag);
+            }
+
+            // Tìm các tags cần xóa
+            var tagsToRemove = existingTagIds.Except(tagIds).ToList();
+            var postTagsToRemove = _context.Post_Tags
+                                            .Where(pt => pt.Post_Id == post.Id && tagsToRemove.Contains(pt.Tag_Id))
+                                            .ToList();
+            _context.Post_Tags.RemoveRange(postTagsToRemove);
+
+            // Lưu tất cả thay đổi vào cơ sở dữ liệu
+            await _context.SaveChangesAsync();
+        }
+
+
+
+        public async Task Updatetagcate(Product_Posts post, List<long> tagIds, List<long> categoryIds)
+        {
+            // Kiểm tra xem post có tồn tại trong cơ sở dữ liệu không
+            var item = await _context.Posts.FindAsync(post.Id);
+            if (item == null)
+            {
+                return; // Nếu không tìm thấy post, thoát hàm
+            }
+
+            // Cập nhật thông tin của post
+            item.Title = post.Title;
+            item.Slug = post.Slug;
+            item.Status = post.Status;
+            item.AuthorId = post.AuthorId;
+            item.Updated_by = post.Updated_by;
+            item.Updated_at = DateTime.Now;
+
+            _context.Posts.Update(item); // Cập nhật post trong ngữ cảnh
+
+            // Cập nhật danh sách tags
+            var existingTagIds = _context.Post_Tags
+                                         .Where(pt => pt.Post_Id == post.Id)
+                                         .Select(pt => pt.Tag_Id)
+                                         .ToList();
+
+            // Tìm các tags cần thêm
+            var tagsToAdd = tagIds.Except(existingTagIds).ToList();
+            foreach (var tagId in tagsToAdd)
+            {
+                var postTag = new Post_tags
+                {
+                    Post_Id = post.Id,
+                    Tag_Id = tagId
+                };
+                _context.Post_Tags.Add(postTag);
+            }
+
+            // Tìm các tags cần xóa
+            var tagsToRemove = existingTagIds.Except(tagIds).ToList();
+            var postTagsToRemove = _context.Post_Tags
+                                            .Where(pt => pt.Post_Id == post.Id && tagsToRemove.Contains(pt.Tag_Id))
+                                            .ToList();
+            _context.Post_Tags.RemoveRange(postTagsToRemove);
+            var existingCate = _context.Post_Categories
+                                       .Where(ct => ct.Post_Id == post.Id)
+                                       .Select (ct => ct.Category_Id)
+                                       .ToList();
+            var cateAdd = categoryIds .Except(existingCate).ToList();
+            foreach(var cateId in cateAdd)
+            {
+                var postCate = new Post_categories
+                {
+                    Post_Id = post.Id,
+                    Category_Id = cateId
+                };
+                _context.Post_Categories.Add(postCate);
+            }
+            // Lưu tất cả thay đổi vào cơ sở dữ liệu
             await _context.SaveChangesAsync();
         }
     }

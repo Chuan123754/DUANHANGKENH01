@@ -205,8 +205,12 @@
     }
     protected override async Task OnInitializedAsync()
     {
+        statuses = Product_Posts.STATUSES.ToDictionary(k => k.Key, v => v.Value);
+        Posts = new Product_Posts
+            {
+                Status = Product_Posts.STATUS_PUBLISH // Thiết lập giá trị mặc định
+            };
         TagsList = await stag.GetAll();
-        Posts.Status = Product_Posts.STATUS_DRAFT; 
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

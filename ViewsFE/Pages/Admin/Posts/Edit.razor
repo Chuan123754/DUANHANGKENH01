@@ -6,6 +6,40 @@
 @inject IDesignerServices des
 @inject IJSRuntime JS
 
+<EditForm Model="PostTags" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="shortDescription" class="form-label">Mô tả ngắn</label>
+        <InputTextArea id="shortDescription" class="form-control" rows="3" @bind-Value="Posts.Short_description" />
+    </div>
+
+    <div class="mb-3">
+        <label for="tinymce-textarea" class="form-label">Mô tả</label>
+        <textarea id="tinymce-textarea" @bind="Posts.Description" class="form-control" rows="7"></textarea>
+    </div>
+
+    <div class="accordion bg-white mb-3">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
+                    Từ khóa
+                </button>
+            </h2>
+            <div id="tag" class="accordion-collapse collapse show">
+                <div class="accordion-body pt-0">
+                    <select id="tags-selects" @bind="Posts.TagName" multiple class="form-control" placeholder="Nhập từ khoá">
+                        @foreach (var tag in TagsList)
+                        {
+                            <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    </EditForm>
 
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -50,7 +84,54 @@
                                 </div>
                             </div>
                         </div>
+                        @*  Banner *@
+                        <div class="accordion bg-white mt-3">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#banner_block" aria-expanded="true">
+                                        Cấu hình banner
+                                    </button>
+                                </h2>
+                                <div id="banner_block" class="accordion-collapse collapse show">
+                                    <div class="card-body pb-4 px-4" style="height: 300px">
+                                        <div class="mb-3">
+                                            <label for="title" class="form-label">Tiêu đề</label>
+                                            <input type="text" class="form-control" name="meta_data[banner_title]"
+                                                   placeholder="Tiêu đề" value="#">
+                                        </div>
+                                        <div>
+
+                                            <div id="banner_image"
+                                                 class="image-post-box d-flex align-items-center justify-content-center open-media-modal"
+                                                 data-multiple="false"
+                                                 data-refer-id="#banner_image"
+                                                 data-input-name="meta_data[banner_image]"
+                                                 data-image-ids="{{ $bannerId }}">
+
+                                                <input type="hidden" name="meta_data[banner_image][0][id]" value="{{ $bannerId }}">
+                                                <input type="hidden" name="meta_data[banner_image][0][image]" value="{{ $bannerImage }}">
+                                                <img src=""
+                                                     class="w-100 h-100 object-cover">
+
+
+                                                <div class="icon d-flex align-items-center justify-content-center {{ $bannerId ? 'd-none' : '' }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1"
+                                                         stroke="currentColor" fill="none" stroke-linecap="round"
+                                                         stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M12 5l0 14" />
+                                                        <path d="M5 12l14 0" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    <!-- #region Form right --> 
                     <div class="col-md-3 col-12">
                         <div class="sticky-top position-sticky">
                             <div class="accordion bg-white mb-3 mt-3 mt-md-0">
@@ -119,10 +200,13 @@
                                                     </div>
                                                 }
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <!-- #endregion -->
+                            <!-- #region category -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
@@ -136,12 +220,9 @@
                                         <div class="accordion-body pt-0">
                                             <div class="form-group">
 
-                                                <select id="categories" @bind="Posts.CategoryName" class="form-control" placeholder="Chọn danh mục" multiple>
-
-
+                                                <select id="categories" class="form-control" placeholder="Chọn danh mục" multiple>
                                                     @foreach (var cate in CategoriesList)
                                                     {
-
                                                         <option value="@cate.Id" selected="@SelectedCategories.Contains(cate.Id)">@cate.Title</option>
                                                     }
                                                 </select>
@@ -222,11 +303,14 @@
         </div>
     </div>
 </EditForm>
-<Media_modal OnImageSelected="HandleImageSelected"></Media_modal>
+
+<Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 @code {
     [Parameter]
     public long Id { get; set; }
     private Product_Posts Posts = new Product_Posts();
+    private ModelPostTag PostTags = new ModelPostTag();
+
     private List<Post_categories> lsstPostCate = new List<Post_categories>();
     private List<Categories> CategoriesList = new List<Categories>();
     private List<Tags> TagsList = new List<Tags>();
@@ -235,7 +319,7 @@
     private List<Designer> designersList = new List<Designer>();
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
     private bool tinyMCEInitialized = false;
-
+    private Media_modal mediaModalRef;
     private async Task HandleImageSelected(string imagePath)
     {
         Posts.Feature_image = imagePath;
@@ -245,6 +329,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        PostTags = await sev.GetByIdType_New(Id, "post");
+
         Posts = await sev.GetByIdType(Id, "post");
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAll();
@@ -281,6 +367,7 @@
     }
     private async void HandleValidSubmit()
     {
+        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
         // Lấy dữ liệu từ Tom Select
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         if (!string.IsNullOrEmpty(tags))

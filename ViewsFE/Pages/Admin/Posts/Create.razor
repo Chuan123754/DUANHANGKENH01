@@ -6,7 +6,6 @@
 @inject IDesignerServices des
 @inject IJSRuntime JS
 
-
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -301,10 +300,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        statuses = Product_Posts.STATUSES.ToDictionary(k => k.Key, v => v.Value);
+        Posts = new Product_Posts
+            {
+                Status = Product_Posts.STATUS_PUBLISH // Thiết lập giá trị mặc định
+            };
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAll();
         designersList = await des.GetAll();
-        Posts.Status = Product_Posts.STATUS_PUBLISH;
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

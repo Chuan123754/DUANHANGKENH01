@@ -22,7 +22,6 @@
                 <DataAnnotationsValidator></DataAnnotationsValidator>
                 <ValidationSummary></ValidationSummary>
                 <div class="row">
-
                     <div class="col-md-9 col-12">
                         <!-- Gọi form_left -->
                         <div class="card">
@@ -95,7 +94,54 @@
                                 </div>
                             </div>
                         </div>
+                        @*  Banner *@
+                        <div class="accordion bg-white mt-3">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#banner_block" aria-expanded="true">
+                                        Cấu hình banner
+                                    </button>
+                                </h2>
+                                <div id="banner_block" class="accordion-collapse collapse show">
+                                    <div class="card-body pb-4 px-4" style="height: 300px">
+                                        <div class="mb-3">
+                                            <label for="title" class="form-label">Tiêu đề</label>
+                                            <input type="text" class="form-control" name="meta_data[banner_title]"
+                                                   placeholder="Tiêu đề" value="#">
+                                        </div>
+                                        <div>
+
+                                            <div id="banner_image"
+                                                 class="image-post-box d-flex align-items-center justify-content-center open-media-modal"
+                                                 data-multiple="false"
+                                                 data-refer-id="#banner_image"
+                                                 data-input-name="meta_data[banner_image]"
+                                                 data-image-ids="{{ $bannerId }}">
+
+                                                <input type="hidden" name="meta_data[banner_image][0][id]" value="{{ $bannerId }}">
+                                                <input type="hidden" name="meta_data[banner_image][0][image]" value="{{ $bannerImage }}">
+                                                <img src=""
+                                                     class="w-100 h-100 object-cover">
+
+
+                                                <div class="icon d-flex align-items-center justify-content-center {{ $bannerId ? 'd-none' : '' }}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1"
+                                                         stroke="currentColor" fill="none" stroke-linecap="round"
+                                                         stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M12 5l0 14" />
+                                                        <path d="M5 12l14 0" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+
                     <div class="col-md-3 col-12">
                         <!-- Gọi form_right -->
                         <div class="sticky-top position-sticky">
@@ -116,6 +162,7 @@
                                                         <option value="@status.Key" selected="@(designer.status == status.Key)">@status.Value</option>
                                                     }
                                                 </select>
+
                                             </div>
                                             <button type="button" class="btn btn-primary" style="float: right" @onclick="SubmitForm">Đăng</button>
                                             <div class="clearfix"></div>
@@ -156,8 +203,6 @@
                                 </div>
                             </div>
 
-
-                            @*            Thư viện ảnh *@
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
@@ -194,17 +239,14 @@
                                     </div>
                                 </div>
                             </div>
-                            @*End thư viện ảnh *@
-
-
 
                         </div>
                     </div>
                 </div>
-
             </EditForm>
             <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
-             <Modal OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal> 
+
+            <Modal OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal>
 
         </div>
     </div>
@@ -227,6 +269,7 @@
         statuses = Designer.STATUSES.ToDictionary(k => k.Key, v => v.Value);
         metaData = designer.GetMetaData();
     }
+
     private async Task HandleImageSelectedN(List<string> imagePaths)
     {
         designer.image_library = string.Join(",", imagePaths);
@@ -234,12 +277,12 @@
         await JS.InvokeVoidAsync("openMediaModalN");
     }
 
-
     private async Task HandleImageSelected(string imagePath)
     {
-        designer.image = imagePath;
-        await JS.InvokeVoidAsync("closeMediaModal");
+        // Nếu imagePath là null, xóa ảnh đại diện
+        designer.image = imagePath ?? string.Empty;
         StateHasChanged();
+        await JS.InvokeVoidAsync("closeMediaModal");
     }
 
 
@@ -267,6 +310,7 @@
     }
     private async Task SubmitForm()
     {
+        designer.description = await JS.InvokeAsync<string>("getTinyMCEContent");
         designer.SetMetaData(metaData);
         await sev.Update(designer);
         nav.NavigateTo("/admin/designer");
@@ -284,118 +328,27 @@
             console.error("Không tìm thấy phần tử với id 'mediaModal'.");
         }
     }
-
+    function openMediaModalN(isMultiple) {
+        console.log("OpenMediaModalN called with isMultiple: " + isMultiple);
+        var modalElement = document.getElementById('mediaLibraryModal');
+        if (modalElement) {
+            modalElement.setAttribute('data-multiple', isMultiple ? "true" : "false");
+            if (!modalElement._bsModalInstance) {
+                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
+            }
+            modalElement._bsModalInstance.show();
+        }
+    }
     function closeMediaModal() {
         var modalElement = document.getElementById('mediaModal');
         if (modalElement && modalElement._bsModalInstance) {
             modalElement._bsModalInstance.hide();
         }
     }
-</script>
-
-<script>
-
-    window.TagsList = [];
-    window.CategoriesList = [];
-    function initializeTagsList(tags) {
-        if (tags && tags.length > 0) {
-            window.TagsList = tags;
-            console.log('TagsList initialized:', window.TagsList);
-        } else {
-            console.log('Failed to initialize TagsList. Empty or undefined.');
+    function closeMediaModalN() {
+        var modalElement = document.getElementById('mediaLibraryModal');
+        if (modalElement && modalElement._bsModalInstance) {
+            modalElement._bsModalInstance.hide();
         }
     }
-    function initializeCateList(cate) {
-        if (cate && cate.length > 0) {
-            window.CategoriesList = cate;
-            console.log('cate initialized:', window.CategoriesList);
-        } else {
-            console.log('Failed to initialize TagsList. Empty or undefined.');
-        }
-    }
-
-    function resetTomSelect(selector) {
-        const element = document.querySelector(selector);
-        if (element && element.tomselect) {
-            element.tomselect.destroy(); // Hủy bỏ instance hiện tại
-        }
-    }
-
-    function initializeTomSelect(selector) {
-        resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới
-
-        const element = document.querySelector(selector);
-        if (element) {
-            new TomSelect(selector, {
-                create: true, // Cho phép thêm mới cho từ khóa
-                persist: false,
-                hideSelected: true,
-                closeAfterSelect: true,
-                delimiter: ',',
-                plugins: ['remove_button'],
-                sortField: {
-                    field: 'text',
-                    direction: 'asc'
-                },
-                searchField: ['text'],
-                maxOptions: null,
-                preload: false, // Đặt thành false để chỉ tải kết quả khi người dùng tìm kiếm
-                load: function (query, callback) {
-                    if (!window.TagsList || window.TagsList.length === 0) {
-                        console.log('TagsList is empty or undefined.');
-                        return callback();
-                    }
-
-                    // Chỉ hiển thị khi có nội dung được nhập
-                    if (query.length > 0) {
-                        const results = window.TagsList.filter(tag =>
-                            tag?.title?.toLowerCase().includes(query.toLowerCase())
-                        );
-
-                        callback(results.map(tag => ({ value: tag.id, text: tag.title })));
-                    } else {
-                        callback(); // Không trả về kết quả nếu không có query
-                    }
-                }
-            });
-        }
-    }
-
-    function initializeTomSelectForCategories(selector) {
-        resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới
-
-        const element = document.querySelector(selector);
-        if (element) {
-            new TomSelect(selector, {
-                create: false,
-                persist: false,
-                hideSelected: true,
-                closeAfterSelect: false,
-                delimiter: ',',
-                plugins: ['remove_button'],
-                sortField: {
-                    field: 'text',
-                    direction: 'asc'
-                },
-                searchField: ['text'],
-                maxOptions: null,
-                preload: true,
-                load: function (query, callback) {
-                    const results = query ?
-                        window.CategoriesList.filter(cate => cate?.title?.toLowerCase().includes(query.toLowerCase())) :
-                        window.CategoriesList;
-
-                    callback(results.map(cate => ({ value: cate.id, text: cate.title })));
-                }
-            });
-        }
-    }
-    function getSelectedValues(selector) {
-        const element = document.querySelector(selector);
-        if (element && element.tomselect) {
-            return element.tomselect.getValue().join(','); // Chuyển đổi mảng thành chuỗi
-        }
-        return '';
-    }
-
 </script>

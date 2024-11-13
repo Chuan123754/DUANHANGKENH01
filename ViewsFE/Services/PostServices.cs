@@ -1,5 +1,6 @@
 ﻿using ViewsFE.IServices;
 using ViewsFE.Models;
+using ViewsFE.Models.DTO;
 
 namespace ViewsFE.Services
 {
@@ -72,10 +73,45 @@ namespace ViewsFE.Services
         {
             return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/Get-all-type?Type={type}");
         }
-        
+
         public async Task<Product_Posts> GetByIdType(long id, string type)
         {
-            return await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/BetGyIdType?id={id}&type={type}");
+            // Gọi API và lấy dữ liệu
+            var post = await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/GetGyIdType?id={id}&type={type}");
+
+            // Kiểm tra giá trị trả về
+            if (post != null)
+            {
+                Console.WriteLine($"Post ID: {post.Id}");
+                Console.WriteLine($"Post Title: {post.Title}");
+
+                // Kiểm tra Post_tags
+                if (post.Post_tags != null && post.Post_tags.Any())
+                {
+                    foreach (var tag in post.Post_tags)
+                    {
+                        Console.WriteLine($"Tag_Id: {tag.Tag_Id}, Tag Title: {tag.Tag?.Title}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Post_tags is null or empty.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("API returned null. Check if the URL or parameters are correct.");
+            }
+
+            return post;
+        }
+
+        public async Task<ModelPostTag> GetByIdType_New(long id, string type)
+        {
+            // Gọi API và lấy dữ liệu
+            var post = await _client.GetFromJsonAsync<ModelPostTag>($"{_baseUrl}/api/Product_Post/GetGyIdType?id={id}&type={type}");
+
+            return post;
         }
 
         public async Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm)
@@ -93,10 +129,18 @@ namespace ViewsFE.Services
 
             var count = await response.Content.ReadFromJsonAsync<int>();
             return count;
-        }
-        public async Task Update(Product_Posts post)
+        }     
+        public async Task Update(Product_Posts post, List<long> tagIds)
         {
-            await _client.PutAsJsonAsync($"{_baseUrl}/api/Product_Post/Edit-post", post);
+            var tagIdsQuery = string.Join("&tagIds=", tagIds);
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/Product_Post/Edit-post?tagIds={tagIdsQuery}", post);
+        }
+
+        public async Task Updatetagcate(Product_Posts post, List<long> tagIds, List<long> categoryIds)
+        {
+            var tagIdsString = string.Join("&", tagIds.Select(id => $"tagIds={id}"));
+            var categoriesString = string.Join("&", categoryIds.Select(c => $"cate={c}"));
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/Product_Post/Edit-posttagscate?tagIds={tagIdsString}&categoryIds={categoriesString}", post);
         }
     }
 }

@@ -14,11 +14,11 @@ namespace appAPI.Models
         public long Tag_Id { get; set; }
 
         [ForeignKey("Post_Id")]
-        [JsonIgnore]
+    
         public virtual Product_Posts? Posts { get; set; }
 
         [ForeignKey("Tag_Id")]
-        [JsonIgnore]
+      
         public virtual Tags? Tag { get; set; }
     }
 
