@@ -142,12 +142,65 @@ namespace appAPI.Repository
                 .Include(p => p.Post_categories).ThenInclude(p => p.Categories)
                 .ToListAsync();
         }
-        public async Task<List<Product_Posts>> GetAll()
+        public async Task<List<ModelPostTag>> GetAll()
         {
-            return await _context.Posts
-              .Include(p => p.Post_tags).ThenInclude(pt => pt.Tag)
-              .Include(p => p.Post_categories).ThenInclude(p => p.Categories)
-              .ToListAsync();
+            // Lấy tất cả sản phẩm với các thông tin liên quan
+            var objPosts = await _context.Post_Tags
+                .Include(s => s.Posts)
+                .Select(s => new ProductModel
+                {
+                    id = s.Post_Id,
+                    Title = s.Posts.Title,
+                    slug = s.Posts.Slug,
+                    type = s.Posts.Type,
+                    status = s.Posts.Status,
+                    AuthorId = s.Posts.AuthorId,
+                    Deleted = s.Posts.Deleted,
+                    product_video = s.Posts.product_video,
+                    Short_description = s.Posts.Short_description,
+                    Description = s.Posts.Description,
+                    Feature_image = s.Posts.Feature_image,
+                    Image_library = s.Posts.Image_library,
+                })
+                .ToListAsync();
+
+            // Lấy tất cả thẻ và danh mục liên quan đến từng sản phẩm
+            var postTags = new List<ModelPostTag>();
+
+            foreach (var post in objPosts)
+            {
+                // Lấy các thẻ liên quan đến sản phẩm hiện tại
+                var lstTags = await _context.Post_Tags
+                    .Where(s => s.Post_Id == post.id)
+                    .Select(s => new TagDTO
+                    {
+                        Id = s.Tag.Id,
+                        Name = s.Tag.Title
+                    })
+                    .ToListAsync();
+
+                // Lấy các danh mục liên quan đến sản phẩm hiện tại
+                var lstCategories = await _context.Post_Categories
+                    .Where(s => s.Post_Id == post.id)
+                    .Select(s => new CategoryDTO
+                    {
+                        Id = s.Categories.Id,
+                        Name = s.Categories.Title
+                    })
+                    .ToListAsync();
+
+                // Tạo ModelPostTag cho sản phẩm và thêm vào danh sách
+                var postTag = new ModelPostTag
+                {
+                    objPost = post,
+                    lstTags = lstTags,
+                    lstCategories = lstCategories
+                };
+
+                postTags.Add(postTag);
+            }
+
+            return postTags;
         }
 
         public async Task<ModelPostTag> GetByIdAndType(long id, string type)
@@ -155,40 +208,41 @@ namespace appAPI.Repository
             var objpost = _context.Post_Tags.Include(s=>s.Posts).Where(s => s.Post_Id == id).Select(s=>new ProductModel
             {
                 id = s.Post_Id,
-                type = type,
+         
                 Title = s.Posts.Title,
-                Description = s.Posts.Description,
-                Short_description = s.Posts.Short_description,
-                status = s.Posts.Status,
                 slug = s.Posts.Slug,
+                type = type,
+                status = s.Posts.Status,
+                AuthorId = s.Posts.AuthorId,            
+                Deleted = s.Posts.Deleted,
+                product_video = s.Posts.product_video,
+                Short_description = s.Posts.Short_description,
+                Description = s.Posts.Description,
                 Feature_image = s.Posts.Feature_image,
                 Image_library = s.Posts.Image_library,
-                AuthorId = s.Posts.AuthorId,
-                product_video = s.Posts.product_video
+        
 
             }).FirstOrDefault();
 
-            var lstTags = _context.Post_Tags.Include(s => s.Posts).Where(s => s.Post_Id == id).Select(s=>s.Tag_Id).ToList();
+            var lstTags = _context.Post_Tags.Include(s => s.Posts).Where(s => s.Post_Id == id).Select(s=> new TagDTO
+            {
+                Id = s.Tag.Id,
+                Name = s.Tag.Title
+            }).ToList();
+            var lstCate = _context.Post_Categories.Include(s => s.Posts).Where(s => s.Post_Id == id).Select(s => new CategoryDTO
+            {
+                Id = s.Categories.Id,
+                Name = s.Categories.Title
+            }).ToList();
 
 
             ModelPostTag post_Tag = new ModelPostTag();
             post_Tag.objPost = objpost;
             post_Tag.lstTags = lstTags;
+            post_Tag.lstCategories = lstCate;
 
             return post_Tag;
-
-            //return await _context.Posts
-            //                     .Include(p => p.Post_tags)          // Bao gồm thông tin tags
-            //                     .ThenInclude(pt => pt.Tag)          // Nếu cần lấy thông tin chi tiết của từng Tag
-            //                     .Include(p => p.Post_categories)    // Bao gồm thông tin categories
-            //                     .ThenInclude(pc => pc.Categories)     // Nếu cần lấy thông tin chi tiết của từng Category
-            //                     .FirstOrDefaultAsync(p => p.Id == id && p.Type == type && p.Deleted == false);
         }
-
-
-
-      
-
 
         public async Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string? searchTerm)
         {
@@ -224,6 +278,10 @@ namespace appAPI.Repository
             item.Slug = post.Slug;
             item.Status = post.Status;
             item.AuthorId = post.AuthorId;
+            item.Image_library = post.Image_library;
+            item.Feature_image = post.Feature_image;
+            item.Description = post.Description;
+            item.Short_description = post.Short_description;
             item.Updated_by = post.Updated_by;
             item.Updated_at = DateTime.Now;
 
@@ -274,6 +332,10 @@ namespace appAPI.Repository
             item.Slug = post.Slug;
             item.Status = post.Status;
             item.AuthorId = post.AuthorId;
+            item.Image_library = post.Image_library;
+            item.Feature_image = post.Feature_image;
+            item.Description = post.Description;
+            item.Short_description = post.Short_description;
             item.Updated_by = post.Updated_by;
             item.Updated_at = DateTime.Now;
 

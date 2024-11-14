@@ -78,31 +78,7 @@ namespace ViewsFE.Services
         {
             // Gọi API và lấy dữ liệu
             var post = await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/GetGyIdType?id={id}&type={type}");
-
-            // Kiểm tra giá trị trả về
-            if (post != null)
-            {
-                Console.WriteLine($"Post ID: {post.Id}");
-                Console.WriteLine($"Post Title: {post.Title}");
-
-                // Kiểm tra Post_tags
-                if (post.Post_tags != null && post.Post_tags.Any())
-                {
-                    foreach (var tag in post.Post_tags)
-                    {
-                        Console.WriteLine($"Tag_Id: {tag.Tag_Id}, Tag Title: {tag.Tag?.Title}");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Post_tags is null or empty.");
-                }
-            }
-            else
-            {
-                Console.WriteLine("API returned null. Check if the URL or parameters are correct.");
-            }
-
+           
             return post;
         }
 
@@ -110,6 +86,14 @@ namespace ViewsFE.Services
         {
             // Gọi API và lấy dữ liệu
             var post = await _client.GetFromJsonAsync<ModelPostTag>($"{_baseUrl}/api/Product_Post/GetGyIdType?id={id}&type={type}");
+            if (post.objPost == null)
+                post.objPost = new ProductModel();
+
+            if (post.lstTags == null)
+                post.lstTags = new List<TagDTO>();
+
+            if (post.lstCategories == null)
+                post.lstCategories = new List<CategoryDTO>();
 
             return post;
         }
