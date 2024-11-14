@@ -72,5 +72,15 @@ namespace appAPI.Repository
                 throw new KeyNotFoundException("Not Found");
             }    
         }
+
+        public async Task<Product_variants?> FindVariant(long postId, byte textileTechnologyId, byte styleId, byte materialId)
+        {
+            return await _context.product_variants
+                .FirstOrDefaultAsync(pv => pv.Post_Id == postId &&
+                                           pv.Textile_technology_id == textileTechnologyId &&
+                                           pv.Style_id == styleId &&
+                                           pv.Material_id == materialId);
+        }
+
     }
 }

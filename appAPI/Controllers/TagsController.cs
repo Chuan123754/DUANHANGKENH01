@@ -62,7 +62,6 @@ namespace appAPI.Controllers
                 }
 
                 t.Created_at = DateTime.UtcNow;
-                t.Updated_at = DateTime.UtcNow;
                 _tagsRepository.Add(t);
                 return Ok(new { message = "Tag added successfully" });
             }
@@ -88,7 +87,6 @@ namespace appAPI.Controllers
                 data.Slug = t.Slug;
                 data.Type = t.Type;
                 data.Description = t.Description;
-                data.Updated_at = DateTime.UtcNow;
 
                 _tagsRepository.Update(data);
                 return Ok(new { message = "Tag updated successfully" });

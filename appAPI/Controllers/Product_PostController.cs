@@ -65,16 +65,14 @@ namespace appAPI.Controllers
         }
 
         // Lấy sản phẩm theo ID
-        [HttpGet("BetGyIdType")]
+        [HttpGet("GetGyIdType")]
         public async Task<IActionResult> GetByIdProduct(long id, string type)
         {
-            var item = await _postRepository.GetByIdAndType(id, type);
-            if (item == null)
-            {
-                return NotFound("Not found");
-            }
-            return Ok(item);
+            var post = await _postRepository.GetByIdAndType(id, type);
+
+            return Ok(new { lstTags = post.lstTags, objPost = post.objPost });
         }
+
         [HttpPost("Create-product")]
         public async Task<IActionResult> CreateProduct([FromBody] Product_Posts post, [FromQuery] List<long> tagIds, [FromQuery] List<long> cate)
         {
@@ -117,14 +115,30 @@ namespace appAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
-
             var createdProject = await _postRepository.CreateProject(post, tagIds, cate);
             return Ok(new { message = "Thêm dự án thành công", Post_Id = createdProject.Id });
         }
         [HttpPut("Edit-post")]
-        public async Task EditPost(Product_Posts posts)
+        public async Task<IActionResult> EditPost([FromBody] Product_Posts post, [FromQuery] List<long> tagIds)
         {
-            await _postRepository.Update(posts);
+            if (post == null || post.Id <= 0)
+            {
+                return BadRequest("Invalid post data.");
+            }
+
+            await _postRepository.Update(post, tagIds);
+            return Ok("Post and tags updated successfully.");
+        }
+        [HttpPut("Edit-posttagscate")]
+        public async Task<IActionResult> EditPostTagsCate([FromBody] Product_Posts post, [FromQuery] List<long> tagIds, [FromQuery] List<long> categoryIds)
+        {
+            if (post == null || post.Id <= 0)
+            {
+                return BadRequest("Invalid post data.");
+            }
+
+            await _postRepository.Updatetagcate(post, tagIds, categoryIds);
+            return Ok("Post, tags, and categories updated successfully.");
         }
 
         [HttpDelete("Delete-post")]

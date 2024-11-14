@@ -63,5 +63,7 @@ namespace ViewsFE.Services
         {
             await _client.PutAsJsonAsync($"https://localhost:7011/api/ProductAttributes/UpdateProductAttrubutes?id={id}", productAttribute);
         }
+        
+
     }
 }

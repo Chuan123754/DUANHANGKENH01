@@ -49,11 +49,11 @@ namespace appAPI.Models
         public DateTime? Updated_at { get; set; }
         [JsonIgnore]
         public virtual ICollection<Product_variants> Product_Variants { get; set; } = new List<Product_variants>();
-        [JsonIgnore]
+       
         public virtual ICollection<Post_tags> Post_tags { get; set; } = new List<Post_tags>();
-        [JsonIgnore]
+      
         public virtual ICollection<Post_categories> Post_categories { get; set; } = new List<Post_categories>();
-        [JsonIgnore]
+      
         [ForeignKey("AuthorId")]
         public virtual Designer? Designer { get; set; }
         [JsonIgnore]

@@ -368,15 +368,5 @@
         if (modalElement && modalElement._bsModalInstance) {
             modalElement._bsModalInstance.hide();
         }
-    }
-    window.TagsList = [];
-    window.CategoriesList = [];
-    function initializeTagsList(tags) {
-        if (tags && tags.length > 0) {
-            window.TagsList = tags;
-            console.log('TagsList initialized:', window.TagsList);
-        } else {
-            console.log('Failed to initialize TagsList. Empty or undefined.');
-        }
-    }
+    } 
 </script>

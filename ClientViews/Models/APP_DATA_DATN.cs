@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 namespace ClientViews.Models
 {
     public class APP_DATA_DATN : IdentityDbContext<Account>
     {
-        public APP_DATA_DATN()
+        private readonly IConfiguration _configuration;
+        public APP_DATA_DATN(IConfiguration configuration, DbContextOptions<APP_DATA_DATN> options) : base(options)
         {
-            
-        }
-        public APP_DATA_DATN(DbContextOptions options) : base(options)
-        {
+            _configuration = configuration;
         }
         public DbSet<Activity_history> Activity_history { get; set; }
         public DbSet<Address> Address { get; set; }
@@ -50,7 +49,8 @@ namespace ClientViews.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=LAPTOP-I6GJF6D7\\XUANDUNG04;Initial Catalog=DUANTOTNGHIEP04;Integrated Security=True;Trust Server Certificate=True");
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            optionsBuilder.UseSqlServer(connectionString);
 
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
