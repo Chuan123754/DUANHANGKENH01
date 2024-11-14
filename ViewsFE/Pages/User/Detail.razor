@@ -1,5 +1,6 @@
 ﻿@page "/admin/UserDetails/{userId:long}"
 @inject IUserService UserService
+@inject IAccountService accountService
 @inject NavigationManager Navigation
 
 <h3>Chi tiết Người dùng</h3>
@@ -77,10 +78,9 @@ else
     {
         try
         {
-            // Lấy tất cả người dùng
             var allUsers = await UserService.GetAll();
 
-            // Kiểm tra nếu số điện thoại đã tồn tại cho user khác
+            // Kiểm tra số điện thoại đã tồn tại 
             if (!string.IsNullOrEmpty(user.Phone))
             {
                 var phoneExists = allUsers.Any(u => u.Phone == user.Phone && u.Id != user.Id);
@@ -92,13 +92,29 @@ else
                 }
             }
 
-            // Cập nhật thông tin người dùng
-            await UserService.Update(user);
-            message = "Cập nhật thông tin thành công!";
-            errorMessage = string.Empty; // Reset error message nếu cập nhật thành công
-            StateHasChanged();
-            await Task.Delay(2000);
-            Navigation.NavigateTo($"/");
+            var allAccount = await accountService.GetAll();
+            var account = allAccount.FirstOrDefault(a => a.Email == user.Email);
+
+            if (account != null)
+            {
+                account.PhoneNumber = user.Phone;
+
+                // Cập nhật tài khoản
+                var updateResult = await accountService.UpdateAccountAsync(account, account.Id);
+
+                user.Phone = account.PhoneNumber;
+                await UserService.Update(user);
+                message = "Cập nhật thông tin thành công!";
+                errorMessage = string.Empty;
+
+                StateHasChanged();
+                await Task.Delay(2000);
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                errorMessage = "Không tìm thấy tài khoản tương ứng với email của người dùng.";
+            }        
         }
         catch (Exception ex)
         {

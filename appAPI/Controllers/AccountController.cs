@@ -18,6 +18,14 @@ namespace appAPI.Controllers
         {
             _repo = repo;
         }
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> Get()
+        {
+            var accounts = await _repo.GetAllAsync();
+            return Ok(accounts); 
+        }
+
         [HttpPost("SignUp")]
         public async Task<IActionResult> SignUp(SignUpModel model)
         {
@@ -65,7 +73,7 @@ namespace appAPI.Controllers
         {
             try
             {
-                var updateAccount = _repo.GetAccountById(id);
+                var updateAccount = await _repo.GetAccountById(id);
                 if (updateAccount == null)
                 {
                     return NotFound();
