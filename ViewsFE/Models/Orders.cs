@@ -14,9 +14,11 @@ namespace ViewsFE.Models
 
     public partial class Orders
     {
+
         [Key]
         public long Id { get; set; }
         public string? CreatedByAdminId { get; set; }
+        public decimal? TotalAmount { get; set; }
         public long? User_id { get; set; } // khách hàng ( hóa đơn treo có thể chưa thêm khách hàng )
         [StringLength(20)]
         public string? Status { get; set; }
@@ -32,11 +34,8 @@ namespace ViewsFE.Models
         [JsonIgnore]
         public virtual ICollection<Order_Vouchers> OrderVouchers { get; set; } = new List<Order_Vouchers>();
         [ForeignKey("CreatedByAdminId")]
-        [JsonIgnore]
         public virtual Account? Admin { get; set; }
         [ForeignKey("User_id")]
-        [JsonIgnore]
-
         public virtual Users? Users { get; set; }
     }
 }

@@ -807,6 +807,9 @@ namespace appAPI.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<decimal?>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime?>("Update_at")
                         .HasColumnType("datetime2");
 
@@ -1265,9 +1268,6 @@ namespace appAPI.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime?>("Updated_at")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
 
                     b.ToTable("tags");
@@ -1499,21 +1499,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "a7bebbc7-faed-47f1-bf58-8b68ae00dcc5",
+                            ConcurrencyStamp = "fb608a40-c5cb-4608-94d4-df0ed0c4d40e",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "13ff7248-0a38-4649-8667-fcecc5c8259e",
+                            ConcurrencyStamp = "23599741-e174-441c-8cd5-810aeed9a957",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "d1d94c9a-d79f-4aa4-ace2-cbbaddf091c8",
+                            ConcurrencyStamp = "f373181e-a420-43bf-b217-8a97924f5721",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });

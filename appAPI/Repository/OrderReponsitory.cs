@@ -56,6 +56,7 @@ namespace appAPI.Repository
                 updateItem.User_id = orders.User_id;
                 updateItem.Status = orders.Status;
                 updateItem.Note = orders.Note;
+                updateItem.TotalAmount = orders.TotalAmount;
                 updateItem.Update_at = DateTime.Now;
 
                 _context.Orders.Update(updateItem);

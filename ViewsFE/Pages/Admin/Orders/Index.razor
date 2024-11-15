@@ -1,0 +1,95 @@
+﻿@page "/admin/orders"
+@inject NavigationManager nav
+@inject OrderIServices orderService 
+@inject OrderDetailsIServices orderDetailsService
+
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        DANH SÁCH ĐƠN HÀNG
+                    </h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <button class="btn btn-primary d-none d-sm-inline-block" @onclick="NavigateToSell">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                            Tạo đơn hàng mới
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table card-table table-vcenter text-nowrap datatable">
+                                <thead>
+                                    <tr>                       
+                                        <th>Id</th>
+                                        <th>Người tạo</th>
+                                        <th>Tên khách hàng</th>
+                                        <th>Số điện thoại</th>
+                                        <th>Loại hóa đơn</th>
+                                        <th>tổng tiền</th>
+                                        <th>Ngày tạo</th>
+                                        <th>trạng thái</th>                      
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in lst_Orders)
+                                    {
+                                        <tr>
+                                            <td>@item.Id</td>
+                                            <td> đây là ngươi tạo @* @(item.Admin.LastName + " " + item.Admin.FirstName) *@</td>
+                                            <td>@item.Users.Name</td>
+                                            <td>@item.Users.Phone</td>
+                                            <td>@item.Note</td>
+                                            <td>@item.TotalAmount VNĐ</td>
+                                            <td>@item.Created_at</td>
+                                            <td>@item.Status</td>
+                                            <td>hành động</td>                                            
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+@code {
+    private List<Orders> lst_Orders = new List<Orders>();
+    private List<Order_details> lst_OrderDetails = new List<Order_details>();
+
+    private void NavigateToSell()
+    {
+        nav.NavigateTo("/admin/sell");
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await ListOrder();
+    }
+    public async Task ListOrder()
+    {
+        lst_Orders = await orderService.GetAll();
+    }
+}

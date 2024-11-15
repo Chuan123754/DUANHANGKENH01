@@ -526,6 +526,8 @@
     }
     private async Task CreateOrder()
     {
+        orders.User_id = 1;
+        orders.CreatedByAdminId = "5fee4a33-eb7d-45dd-87dc-0818607a1f3c";
         orders.Status = "Hóa đơn treo";        
         await orderService.Create(orders);
         lst_Orders = await orderService.GetAll();
@@ -550,7 +552,7 @@
             orders.Note = "Tại quầy";
         }
         else
-        {
+        { 
             orders.Note = "Giao hàng";
         }
         await orderService.Update(orders, orders.Id);
@@ -558,7 +560,7 @@
     }
     private async Task AddProduct(Order_details orderDetails, long productAttributeId)
     {
-        int quantity = productQuantities.ContainsKey(productAttributeId) ? productQuantities[productAttributeId] : 0;
+        int quantity = productQuantities.ContainsKey(productAttributeId) ? productQuantities[productAttributeId] : 1;
 
         // Kiểm tra số lượng hợp lệ
         if (quantity <= 0)
@@ -607,7 +609,7 @@
 
         await LoadOrderDetails(); 
         productQuantities[productAttributeId] = 0;
-        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
+        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 1);
     }
     private async void OpenModalAddCustomer()
     {
@@ -665,6 +667,7 @@
     }
     private async void CheckOut()
     {
+        await LoadOrderDetails();
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate != null)
         {
@@ -672,6 +675,7 @@
             {
                 orderToUpdate.User_id = 1;
             }
+            orderToUpdate.TotalAmount = totalAmount;
             orderToUpdate.Status = "Đã thanh toán";  // Cập nhật trạng thái          
             await orderService.Update(orderToUpdate, orderToUpdate.Id);
             foreach(var item in lst_OrderDetail)
@@ -690,10 +694,10 @@
             }
         }
         selectedOrderId = 0;  
-        customerName = "";  
+        customerName = "";
+        totalAmount = 0;
         isCustomerAdded = false;  
-        lst_OrderDetail.Clear();  
-        totalAmount = 0;  
+        lst_OrderDetail.Clear();    
         productQuantities.Clear();  
         isAddProductModalVisible = false;  
         isAddCustomerModalVisible = false;  

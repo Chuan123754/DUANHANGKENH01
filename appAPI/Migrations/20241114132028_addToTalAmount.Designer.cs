@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241108081714_adhagda")]
-    partial class adhagda
+    [Migration("20241114132028_addToTalAmount")]
+    partial class addToTalAmount
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1267,9 +1267,6 @@ namespace appAPI.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime?>("Updated_at")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
 
                     b.ToTable("tags");
@@ -1501,21 +1498,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "a7bebbc7-faed-47f1-bf58-8b68ae00dcc5",
+                            ConcurrencyStamp = "5f98f83e-514e-432d-ae6b-aab55872ed7e",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "13ff7248-0a38-4649-8667-fcecc5c8259e",
+                            ConcurrencyStamp = "e602c080-e519-4afa-9e64-20e0a2f14b7f",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "d1d94c9a-d79f-4aa4-ace2-cbbaddf091c8",
+                            ConcurrencyStamp = "249d6cae-8743-447e-a42b-f939a16c6fc8",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
