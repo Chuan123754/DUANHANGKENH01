@@ -1,4 +1,4 @@
-﻿@page "/ "
+﻿@page "/Admin/productVariant/Create"
 @using System.ComponentModel.DataAnnotations
 @using ViewsFE.DTO
 @using appAPI.DTO
@@ -208,8 +208,8 @@
                                     <th>Màu Sắc</th>
                                     <th>Kích Thước</th>
                                     <th>Hình Ảnh</th>
+                                    <th>Gía gốc</th>
                                     <th>Gía bán</th>
-                                    <th>Gía giảm</th>
                                     <th>Số lượng kho</th>
                                     <th>Hành Động</th>
                                 </tr>
@@ -412,13 +412,10 @@
             await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn ít nhất một màu và một kích thước.");
             return;
         }
-
         foreach (var colorId in selectedColors)
         {
             foreach (var sizeId in selectedSizes)
-            {
-                
-
+            {              
                 var productAttribute = new Product_Attributes
                     {
                         Product_Variant_Id = IdProductVariantCreated,
@@ -427,9 +424,7 @@
                         Status = product_Attributes.Stock == 0 ? "Hết hàng" : "Còn hàng",
                         SKU = "1", 
                        
-                    };
-
-                
+                    };           
                 await productAttributes.Create(productAttribute);
                 await JS.InvokeVoidAsync("toastr.success", "Tạo thành công Oke!!");
                 isProductAttributesCreated = true;

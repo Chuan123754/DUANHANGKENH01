@@ -13,7 +13,7 @@
             <div class="row g-2 align-items-center">
                 <div class="col d-flex gap-3">
                     <h2 class="page-title">Danh sách sản phẩm</h2>
-                    <a href="/admin/product/create" class="btn btn-sm btn-outline-primary">
+                    <a href="/Admin/productVariant/Create" class="btn btn-sm btn-outline-primary">
                         Thêm sản phẩm
                     </a>
                 </div>
@@ -130,7 +130,8 @@
                                     <thead>
                                         <tr>
                                             <th>ID</th>
-                                            <th>SKU</th>
+                                            <th>Hình ảnh</th>
+                                            <th>SKU</th>                 
                                             <th>Regular Price</th>
                                             <th>Sale Price</th>
                                             <th>Stock</th>
@@ -143,6 +144,7 @@
                                         {
                                             <tr>
                                                 <td>@attributes.Id</td>
+                                                <td><img src="@attributes.Image" alt="Hình ảnh" style="width: 130px; height: auto;" /></td>
                                                 <td>@attributes.SKU</td>
                                                 <td>@attributes.Regular_price</td>
                                                 <td>@attributes.Sale_price</td>

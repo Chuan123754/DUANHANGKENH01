@@ -304,6 +304,7 @@
                                 <div class="container px-4 text-center">
                                     <div class="row gx-2 justify-content-center">
                                         <h1> Thông tin địa chỉ</h1>
+                                        <button class="btn btn-success" @onclick="OpenModalCreateCustomer">Chọn địa chỉ</button>
                                         <div class="col-auto">
                                             <div class="border rounded p-2" style="width: 200px;">Custom column padding</div>
                                         </div>
@@ -333,7 +334,7 @@
                         <div class="card-header d-flex align-items-center justify-content-between">
                             <h3 class="card-title">Thông tin đơn hàng</h3>
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" @bind="isDeliveryVisible" >
+                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" @bind="IsDeliveryVisible" >
                                 <label class="form-check-label" for="flexSwitchCheckChecked">Giao hàng</label>                       
                             </div>
                         </div>  
@@ -437,6 +438,8 @@
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate?.User_id != null)
         {
+            ShowAddress(orderToUpdate.User_id.Value); // gọi tới hàm chọn đại chỉ ng dung
+            IsDeliveryVisible = orderToUpdate.Note == "Giao hàng";
             var customer = await userService.GetById(orderToUpdate.Users.Id);
             customerName = customer?.Name;
             isCustomerAdded = customer != null;
@@ -445,8 +448,8 @@
         {
             customerName = "Khách lẻ";
             isCustomerAdded = false;
+            IsDeliveryVisible = orderToUpdate?.Note == "Giao hàng";
         }
-
         await LoadOrderDetails();
     }
     private async Task UpdateQuantity(long productId, int quantity)
@@ -526,10 +529,20 @@
     }
     private async Task CreateOrder()
     {
-        orders.User_id = 1;
-        orders.CreatedByAdminId = "5fee4a33-eb7d-45dd-87dc-0818607a1f3c";
-        orders.Status = "Hóa đơn treo";        
-        await orderService.Create(orders);
+        var pendingOrders = lst_Orders.Where(order => order.Status == "Hóa đơn treo").ToList();
+
+        if (pendingOrders.Count >= 7)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Chỉ có thể tạo tối đa 7 hóa đơn treo");
+            return;
+        }
+        var newOrder = new Orders
+        {
+            Note = "Tại quầy",
+            CreatedByAdminId = "5fee4a33-eb7d-45dd-87dc-0818607a1f3c",
+            Status = "Hóa đơn treo"
+        };
+        await orderService.Create(newOrder);
         lst_Orders = await orderService.GetAll();
         await LoadOrders();
     }// tạo order
@@ -541,22 +554,33 @@
             if (isDeliveryVisible != value)
             {
                 isDeliveryVisible = value;
-                UpdateOrderNote(); 
+                orders.Note = isDeliveryVisible ? "Giao hàng" : "Tại quầy"; // Cập nhật ghi chú ngay lập tức
+                _ = UpdateOrderNote(); // Gọi hàm async không blocking
+                StateHasChanged(); // Thông báo thay đổi trạng thái
             }
         }
     }
     private async Task UpdateOrderNote()
     {
-        if(isDeliveryVisible==false)
+        orders = await orderService.GetByIdOrders(selectedOrderId);
+        if (orders == null)
         {
-            orders.Note = "Tại quầy";
+            Console.WriteLine("Orders object is null. Cannot update note.");
+            return;
         }
-        else
-        { 
-            orders.Note = "Giao hàng";
+
+        try
+        {
+            // Cập nhật ghi chú
+            orders.Note = isDeliveryVisible ? "Giao hàng" : "Tại quầy";
+
+            // Gọi API cập nhật
+            await orderService.Update(orders, selectedOrderId);
         }
-        await orderService.Update(orders, orders.Id);
-        lst_Orders = await orderService.GetAll();
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating order note: {ex.Message}");
+        }
     }
     private async Task AddProduct(Order_details orderDetails, long productAttributeId)
     {
@@ -637,6 +661,12 @@
         {
             orderToUpdate.User_id = selectedCustomer.Id;
             await orderService.Update(orderToUpdate, orderToUpdate.Id);
+            var updatedOrder = await orderService.GetByIdOrders(selectedOrderId);
+            if (updatedOrder != null)
+            {
+                customerName = updatedOrder.Users?.Name ?? "Khách lẻ";
+                isCustomerAdded = updatedOrder.User_id != 1;
+            }
         }
         isAddCustomerModalVisible = false;
         customerName = selectedCustomer.Name;
@@ -671,10 +701,6 @@
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate != null)
         {
-            if(orderToUpdate.User_id==null)
-            {
-                orderToUpdate.User_id = 1;
-            }
             orderToUpdate.TotalAmount = totalAmount;
             orderToUpdate.Status = "Đã thanh toán";  // Cập nhật trạng thái          
             await orderService.Update(orderToUpdate, orderToUpdate.Id);
@@ -706,6 +732,11 @@
         await LoadOrders();
         await LoadProducts();
         await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
+    }
+
+    private async void ShowAddress(long userId)
+    {
+        lst_Address = await addressService.GetAddressByUserId(userId);
     }
 
 }
