@@ -286,7 +286,6 @@
     {
         try
         {
-            // Tạo SignUpModel với thông tin đăng ký
             var signUpModel = new SignUpModel
                 {
                     FirstName = registerModel.Username,
@@ -298,10 +297,10 @@
                 };
             var signUpSuccess = await LoginServices.SignUp(signUpModel);
 
-            // Kiểm tra xem đăng ký có thành công không
+            // Kiểm tra thành công không
             if (signUpSuccess.Contains("thành công"))
             {
-                // Đăng nhập tự động sau khi đăng ký thành công
+                // Đăng nhập tự động
                 var signInModel = new SignInModel
                     {
                         Email = registerModel.Email,
@@ -314,7 +313,6 @@
                 {
                     registerMessage = "Đăng ký và đăng nhập thành công! Vui Lòng đợi một chút!";
 
-                    // Lưu token vào SessionStorage
                     await SessionStorage.SetItemAsStringAsync("token", token);
 
                     var newUser = new Users
@@ -327,19 +325,19 @@
                             Address = "Nothing",
                             RememberToken = "Nothing",
                         };
-                    // var createdUser = await UserService.Create(newUser);
+                    var createdUser = await UserService.Create(newUser);
 
-                    // if (createdUser != null && createdUser.Id > 0)
-                    // {
-                    //     StateHasChanged();
-                    //     await Task.Delay(2000);
-                    //     // Chuyển hướng đến trang chi tiết người dùng
-                    //     Navigation.NavigateTo($"/admin/UserDetails/{createdUser.Id}");
-                    // }
-                    // else
-                    // {
-                    //     registerMessage = "Không thể tạo người dùng.";
-                    // }
+                    if (createdUser != null && createdUser.Id > 0)
+                    {
+                        StateHasChanged();
+                        await Task.Delay(2000);
+                        // Chuyển hướng đến trang chi tiết người dùng (Sửa Nốt thông tin)
+                        Navigation.NavigateTo($"/admin/UserDetails/{createdUser.Id}");
+                    }
+                    else
+                    {
+                        registerMessage = "Không thể tạo người dùng.";
+                    }
                 }
                 else
                 {

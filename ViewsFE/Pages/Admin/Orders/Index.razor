@@ -1,8 +1,7 @@
 ﻿@page "/admin/orders"
 @inject NavigationManager nav
-@inject OrderIServices orderService 
+@inject OrderIServices orderService
 @inject OrderDetailsIServices orderDetailsService
-
 
 <div class="page-wrapper">
     <!-- Page header -->
@@ -10,11 +9,9 @@
         <div class="container-xl">
             <div class="row g-2 align-items-center">
                 <div class="col">
-                    <h2 class="page-title">
-                        DANH SÁCH ĐƠN HÀNG
-                    </h2>
+                    <h2 class="page-title">DANH SÁCH ĐƠN HÀNG</h2>
                 </div>
-                <div class="col-auto ms-auto d-print-none">
+                <div class="col-auto ms-auto d-print-none ms-4">
                     <div class="btn-list">
                         <button class="btn btn-primary d-none d-sm-inline-block" @onclick="NavigateToSell">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -26,70 +23,161 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </div>           
         </div>
     </div>
 
-        <!-- Page body -->
+    <!-- Page body -->
     <div class="page-body">
         <div class="container-xl">
-            <div class="row row-deck row-cards">
-                <div class="col-12">
-                    <div class="card">
+            <div class="row row-deck row-cards">           
+               <div class="col-12">
+                    <div class="card">                    
                         <div class="table-responsive">
+                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                <div></div>
+                                <!-- Input tìm kiếm -->
+                                <div class="form-group d-flex gap-2">
+                                    <input type="text" id="searchInput" class="form-control" @bind="searchText" placeholder="Nhập ID, tên khách hàng hoặc số điện thoại" />
+                                    <button type="button" class="btn btn-outline-primary" @onclick="SearchOrders">Tìm kiếm</button>
+                                </div>
+                            </div>
                             <table class="table card-table table-vcenter text-nowrap datatable">
                                 <thead>
-                                    <tr>                       
+                                    <tr>
                                         <th>Id</th>
                                         <th>Người tạo</th>
                                         <th>Tên khách hàng</th>
                                         <th>Số điện thoại</th>
                                         <th>Loại hóa đơn</th>
-                                        <th>tổng tiền</th>
+                                        <th>Tổng tiền</th>
                                         <th>Ngày tạo</th>
-                                        <th>trạng thái</th>                      
+                                        <th>Trạng thái</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var item in lst_Orders)
+                                    @if (pagedOrders != null && pagedOrders.Any())
+                                    {
+                                        int index = 0;
+                                        @foreach (var item in pagedOrders)
+                                        {
+                                            <tr>
+                                                <td>@(++index + (currentPage - 1) * pageSize)</td>
+                                                <td>@($"{item.Admin?.LastName ?? "N/A"} {item.Admin?.FirstName ?? "N/A"}")</td>
+                                                <td>@(item.Users?.Name ?? "N/A")</td>
+                                                <td>@(item.Users?.Phone ?? "N/A")</td>
+                                                <td>@(item.Note ?? "N/A")</td>
+                                                <td>@($"{item.TotalAmount ?? 0} VNĐ")</td>
+                                                <td>@(item.Created_at?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                                <td>@(item.Status ?? "N/A")</td>
+                                                <td>Hành động</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
                                     {
                                         <tr>
-                                            <td>@item.Id</td>
-                                            <td> đây là ngươi tạo @* @(item.Admin.LastName + " " + item.Admin.FirstName) *@</td>
-                                            <td>@item.Users.Name</td>
-                                            <td>@item.Users.Phone</td>
-                                            <td>@item.Note</td>
-                                            <td>@item.TotalAmount VNĐ</td>
-                                            <td>@item.Created_at</td>
-                                            <td>@item.Status</td>
-                                            <td>hành động</td>                                            
+                                            <td colspan="9" class="text-center">Không có dữ liệu để hiển thị.</td>
                                         </tr>
                                     }
                                 </tbody>
                             </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Orders" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="lst_Orders.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
+
 @code {
     private List<Orders> lst_Orders = new List<Orders>();
+    private List<Orders> pagedOrders = new List<Orders>();
     private List<Order_details> lst_OrderDetails = new List<Order_details>();
+    private string searchText = string.Empty;
+    private int currentPage = 1;
+    private int pageSize = 5;
+    private int totalPages = 1;
+
+    private void LoadPagedOrders()
+    {
+        totalPages = (int)Math.Ceiling((double)lst_Orders.Count / pageSize);
+        pagedOrders = lst_Orders.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        currentPage = page;
+        LoadPagedOrders();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        pageSize = newPageSize;
+        currentPage = 1;
+        LoadPagedOrders();
+    }
 
     private void NavigateToSell()
     {
         nav.NavigateTo("/admin/sell");
     }
+
     protected override async Task OnInitializedAsync()
     {
         await ListOrder();
+        LoadPagedOrders();
     }
+
     public async Task ListOrder()
     {
-        lst_Orders = await orderService.GetAll();
+        lst_Orders = await orderService.GetAll() ?? new List<Orders>();
+
+        // Sắp xếp dựa trên trạng thái và ngày tạo
+        lst_Orders = lst_Orders
+            .OrderByDescending(o => o.Status == "Hóa đơn treo") 
+            .ThenByDescending(o => o.Status == "Đã thanh toán") 
+            .ThenByDescending(o => o.Created_at) 
+            .ToList();
+
+        LoadPagedOrders();
+    }
+
+    private async Task SearchOrders()
+    {
+        lst_Orders = await orderService.GetAll() ?? new List<Orders>();
+
+        if (string.IsNullOrEmpty(searchText))
+        {
+            await ListOrder(); 
+        }
+        else if (searchText.Length == 10 && searchText.All(char.IsDigit))
+        {
+            //tìm trong cột Số điện thoại
+            lst_Orders = lst_Orders
+                .Where(o => o.Users?.Phone == searchText)
+                .ToList();
+        }
+        else if (int.TryParse(searchText, out int searchId))
+        {
+            //tìm trong cột ID
+            lst_Orders = lst_Orders
+                .Where(o => o.Id == searchId)
+                .ToList();
+        }
+        else
+        {
+            lst_Orders = lst_Orders
+                .Where(o => o.Users?.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                .ToList();
+        }
+
+        currentPage = 1;
+        LoadPagedOrders();
+        StateHasChanged();
     }
 }
