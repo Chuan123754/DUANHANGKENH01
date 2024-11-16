@@ -3,6 +3,43 @@
 @inject OrderIServices orderService
 @inject OrderDetailsIServices orderDetailsService
 
+<style>
+    .badge {
+        padding: 0.5em 1em;
+        border-radius: 50px;
+        color: white;
+        font-size: 14px;
+    }
+    .customer-badge {
+        display: inline-block;
+        padding: 0.5em 1em;
+        border-radius: 50px;
+        border: 1px solid gray;
+        background-color: #C0C0C0;
+        font-size: 14px;
+        color: #333;
+    }
+    .bg-taiquay {
+        background-color: #CCCC99;
+        color:black;
+    }
+
+    .bg-giaohang {
+        background-color: #FFCC99;
+        color: black;
+    }
+    .bg-danger {
+        background-color: red;
+    }
+
+    .bg-success {
+        background-color: green;
+    }
+
+    .bg-secondary {
+        background-color: gray;
+    }
+</style>
 <div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
@@ -78,7 +115,42 @@
                                     else
                                     {
                                         <tr>
-                                            <td colspan="9" class="text-center">Không có dữ liệu để hiển thị.</td>
+                                            <td>@item.Id</td>
+                                            <td> đây là ngươi tạo @* @(item.Admin.LastName + " " + item.Admin.FirstName) *@</td>
+                                            <td>
+                                                @if (item.Users==null)
+                                                {
+                                                    <span class="customer-badge">Khách lẻ</span>
+                                                }
+                                                else
+                                                {
+                                                    @item.Users.Name
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (item.Users == null)
+                                                {
+                                                    <span class="customer-badge">N/A</span>
+                                                }
+                                                else
+                                                {
+                                                    @item.Users.Name
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="@GetNoteClass(item.Note)">
+                                                    @item.Note
+                                                </span>
+                                            </td>
+                                            <td>@item.TotalAmount VNĐ</td>
+                                            <td>@item.Created_at</td>
+                                            <td>
+                                                <span class="@GetStatusClass(item.Status)">
+                                                    @item.Status
+                                                </span>
+                                            </td>
+                                            <td>hành động</td>                                            
+                                           <td colspan="9" class="text-center">Không có dữ liệu để hiển thị.</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -98,6 +170,17 @@
     private List<Orders> lst_Orders = new List<Orders>();
     private List<Orders> pagedOrders = new List<Orders>();
     private List<Order_details> lst_OrderDetails = new List<Order_details>();
+    private string GetNoteClass(string note)
+    {
+        if (note == "Tại quầy")
+        {
+            return "badge bg-taiquay";
+        }
+        else if (note == "Giao hàng")
+        {
+            return "badge bg-giaohang";
+        }
+        return "badge bg-secondary";
     private string searchText = string.Empty;
     private int currentPage = 1;
     private int pageSize = 5;
@@ -122,6 +205,18 @@
         LoadPagedOrders();
     }
 
+    private string GetStatusClass(string status) // giao diện cho status
+    {
+        if (status == "Hóa đơn treo")
+        {
+            return "badge bg-danger"; 
+        }
+        else if (status == "Đã thanh toán")
+        {
+            return "badge bg-success"; 
+        }
+        return "badge bg-secondary"; 
+    }
     private void NavigateToSell()
     {
         nav.NavigateTo("/admin/sell");
@@ -135,6 +230,11 @@
 
     public async Task ListOrder()
     {
+        var orders = await orderService.GetAll();
+        lst_Orders = orders
+       .OrderByDescending(o => o.Status == "Hóa đơn treo") // "Hóa đơn treo" xếp lên đầu
+       .ThenByDescending(o => o.Created_at) // Sắp xếp theo ngày tạo 
+       .ToList();
         lst_Orders = await orderService.GetAll() ?? new List<Orders>();
 
         // Sắp xếp dựa trên trạng thái và ngày tạo
