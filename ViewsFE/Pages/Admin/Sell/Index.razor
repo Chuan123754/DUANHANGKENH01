@@ -272,20 +272,22 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
+                                                        @{
+                                                            int index = 1; 
+                                                        }
                                                         @foreach (var item in lst_Customer)
                                                         {
                                                             <tr>
-                                                               
-                                                                <td>1</td>
+
+                                                                <td>@index</td>
                                                                 <td>@item.Name</td>
                                                                 <td>@item.Phone</td>
                                                                 <td>@item.Email</td>
                                                                 <td>
                                                                     <button class="btn btn-primary mt-2" @onclick="() => AddCustomer(item)">Chọn</button>
                                                                 </td>
-
-
                                                             </tr>
+                                                            index++;
                                                         }
                                                     </tbody>
                                                 </table>
