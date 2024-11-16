@@ -175,6 +175,18 @@
     private int pageSize = 10;
     private int totalPages = 1;
 
+    private string GetNoteClass(string note)
+    {
+        if (note == "Tại quầy")
+        {
+            return "badge bg-taiquay";
+        }
+        else if (note == "Giao hàng")
+        {
+            return "badge bg-giaohang";
+        }
+        return "badge bg-secondary";
+    }
     private void LoadPagedOrders()
     {
         totalPages = (int)Math.Ceiling((double)lst_Orders.Count / pageSize);
