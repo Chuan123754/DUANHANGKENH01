@@ -48,12 +48,16 @@ namespace appAPI.Controllers
         [HttpPost("CreateAddress")]
         public async Task<IActionResult> Create(Address address)
         {
-            var result = _repo.CreateAddress(address);
-            if (result != null)
+            try
             {
-                return Ok(result);
+                await _repo.CreateAddress(address);
+                return Ok();
             }
-            return BadRequest();
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
         [HttpPut("UpdateAddress")]
         public async Task<IActionResult> Update(long id, Address address)
