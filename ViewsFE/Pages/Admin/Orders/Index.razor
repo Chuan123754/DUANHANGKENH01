@@ -100,58 +100,47 @@
                                         @foreach (var item in pagedOrders)
                                         {
                                             <tr>
-                                                <td>@(++index + (currentPage - 1) * pageSize)</td>
-                                                <td>@($"{item.Admin?.LastName ?? "N/A"} {item.Admin?.FirstName ?? "N/A"}")</td>
-                                                <td>@(item.Users?.Name ?? "N/A")</td>
-                                                <td>@(item.Users?.Phone ?? "N/A")</td>
-                                                <td>@(item.Note ?? "N/A")</td>
-                                                <td>@($"{item.TotalAmount ?? 0} VNĐ")</td>
-                                                <td>@(item.Created_at?.ToString("dd/MM/yyyy") ?? "N/A")</td>
-                                                <td>@(item.Status ?? "N/A")</td>
-                                                <td>Hành động</td>
+                                                <td>@item.Id</td>
+                                                <td> đây là ngươi tạo @* @(item.Admin.LastName + " " + item.Admin.FirstName) *@</td>
+                                                <td>
+                                                    @if (item.Users == null)
+                                                    {
+                                                        <span class="customer-badge">Khách lẻ</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @item.Users.Name
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (item.Users == null)
+                                                    {
+                                                        <span class="customer-badge">N/A</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @item.Users.Name
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <span class="@GetNoteClass(item.Note)">
+                                                        @item.Note
+                                                    </span>
+                                                </td>
+                                                <td>@item.TotalAmount VNĐ</td>
+                                                <td>@item.Created_at</td>
+                                                <td>
+                                                    <span class="@GetStatusClass(item.Status)">
+                                                        @item.Status
+                                                    </span>
+                                                </td>
+                                                <td>hành động</td>
                                             </tr>
                                         }
                                     }
                                     else
                                     {
-                                        <tr>
-                                            <td>@item.Id</td>
-                                            <td> đây là ngươi tạo @* @(item.Admin.LastName + " " + item.Admin.FirstName) *@</td>
-                                            <td>
-                                                @if (item.Users==null)
-                                                {
-                                                    <span class="customer-badge">Khách lẻ</span>
-                                                }
-                                                else
-                                                {
-                                                    @item.Users.Name
-                                                }
-                                            </td>
-                                            <td>
-                                                @if (item.Users == null)
-                                                {
-                                                    <span class="customer-badge">N/A</span>
-                                                }
-                                                else
-                                                {
-                                                    @item.Users.Name
-                                                }
-                                            </td>
-                                            <td>
-                                                <span class="@GetNoteClass(item.Note)">
-                                                    @item.Note
-                                                </span>
-                                            </td>
-                                            <td>@item.TotalAmount VNĐ</td>
-                                            <td>@item.Created_at</td>
-                                            <td>
-                                                <span class="@GetStatusClass(item.Status)">
-                                                    @item.Status
-                                                </span>
-                                            </td>
-                                            <td>hành động</td>                                            
-                                           <td colspan="9" class="text-center">Không có dữ liệu để hiển thị.</td>
-                                        </tr>
+                                    <td colspan="9" class="text-center">Không có dữ liệu để hiển thị.</td>
                                     }
                                 </tbody>
                             </table>
@@ -170,6 +159,11 @@
     private List<Orders> lst_Orders = new List<Orders>();
     private List<Orders> pagedOrders = new List<Orders>();
     private List<Order_details> lst_OrderDetails = new List<Order_details>();
+    private string searchText = string.Empty;
+    private int currentPage = 1;
+    private int pageSize = 5;
+    private int totalPages = 1;
+
     private string GetNoteClass(string note)
     {
         if (note == "Tại quầy")
@@ -181,11 +175,7 @@
             return "badge bg-giaohang";
         }
         return "badge bg-secondary";
-    private string searchText = string.Empty;
-    private int currentPage = 1;
-    private int pageSize = 5;
-    private int totalPages = 1;
-
+    }
     private void LoadPagedOrders()
     {
         totalPages = (int)Math.Ceiling((double)lst_Orders.Count / pageSize);
