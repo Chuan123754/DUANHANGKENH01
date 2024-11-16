@@ -21,13 +21,13 @@ namespace appAPI.Models
 
         [StringLength(255)]
         [Unicode(false)]
-        public string? Slug { get; set; }
+        public string Slug { get; set; }
 
         [StringLength(20)]
-        public string? Status { get; set; }
+        public string Status { get; set; }
 
         public long? AuthorId { get; set; }
-        public bool? Deleted { get; set; }
+        public bool Deleted { get; set; }
 
         [StringLength(255)]
         public string? Type { get; set; }

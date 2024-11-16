@@ -1,5 +1,6 @@
 ﻿using appAPI.IRepository;
 using appAPI.Models;
+using appAPI.Models.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -19,9 +20,10 @@ namespace appAPI.Controllers
          
         }
         [HttpGet("Get-All")]
-        public async Task<List<Product_Posts>> GetAll()
+        public async Task<List<ModelPostTag>> GetAll()
         {
             return await _postRepository.GetAll();
+               
         }
         [HttpGet("Get-all-type")]
         public async Task<IActionResult> GetAllType(string type)
@@ -69,8 +71,8 @@ namespace appAPI.Controllers
         public async Task<IActionResult> GetByIdProduct(long id, string type)
         {
             var post = await _postRepository.GetByIdAndType(id, type);
-
-            return Ok(new { lstTags = post.lstTags, objPost = post.objPost });
+                     
+            return Ok(new { lstCate = post.lstCategories, lstTags = post.lstTags, objPost = post.objPost });
         }
 
         [HttpPost("Create-product")]

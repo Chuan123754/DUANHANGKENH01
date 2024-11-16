@@ -6,7 +6,7 @@ namespace appAPI.IRepository
     public interface IPostReponsetory
     {
         // Lấy tất cả bài viết theo type
-        Task<List<Product_Posts>> GetAll();
+        Task<List<ModelPostTag>> GetAll();
         Task<List<Product_Posts>> GetAllByType(string type);
 
         // Lấy bài viết theo id và type

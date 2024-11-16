@@ -3,78 +3,160 @@
 @inject IQaService QaService
 @inject IJSRuntime JS
 
-
-<p>
-    <button class="btn btn-primary" @onclick="CreateQa">Tạo câu hỏi mới</button>
-</p>
-
-<div id="qa-list">
-    @if (qaList != null)
-    {
-        @foreach (var qa in qaList)
-        {
-            <div class="qa-item">
-                <div class="qa-question" @onclick="() => ToggleAnswer(qa.Id)">
-                    <h3>@qa.Question</h3>
-                </div>
-                <div class="qa-answer" id="answer-@qa.Id" style="display: @(qa.IsAnswerVisible ? "block" : "none")">
-                    <p>@qa.Answer</p>
-                </div>
-                <div>
-                    <button @onclick="() => EditQa(qa.Id)">Chỉnh sửa</button>
-                    <button @onclick="() => DeleteQa(qa.Id)">Xóa</button>
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">
+                        Danh sách Q&A
+                    </h2>
+                    <a href="/admin/qa/create" class="btn btn-sm btn-outline-primary">
+                        Thêm Q&A
+                    </a>
                 </div>
             </div>
-        }
-    }
-    else
-    {
-        <p>Loading...</p>
-    }
+        </div>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Search Box -->
+                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                        <div class="ms-auto">
+                            <div class="form-group d-flex gap-2">
+                                <input type="text" id="searchInput" class="form-control" @bind="searchText" placeholder="Nhập Câu hỏi..." />
+                                <button type="button" class="btn btn-outline-primary" @onclick="SearchQa">Tìm kiếm</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Câu Hỏi</th>
+                                <th>Câu Trả Lời</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (pagedQaList != null && pagedQaList.Any())
+                            {
+                                int index = 0;
+                                @foreach (var qa in pagedQaList)
+                                {
+                                    <tr class="post-row">
+                                        <td>@(++index + (currentPage - 1) * pageSize)</td>
+                                        <td class ="sort-title">
+                                            @qa.Question
+                                            <br />
+                                            <div class="cell-action">
+                                                <a class="cell-action-edit text-primary" @onclick="() => EditQa(qa.Id)">Chỉnh sửa</a>
+                                                <a class="cell-action-delete text-danger" @onclick="() => ConfirmDelete(qa.Id)">Thùng rác</a>
+                                            </div>
+                                            </td>
+                                        <td>@qa.Answer</td>                                      
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="4" class="text-center">Không có dữ liệu để hiển thị.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <!-- Pagination Controls -->
+                    <div class="mt-4">
+                        <Pagination TItem="Q_A" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="qaList.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @code {
-    private List<Q_A> qaList;
+    private List<Q_A> qaList = new List<Q_A>();
+    private List<Q_A> pagedQaList = new List<Q_A>();
+    private string searchText = string.Empty;
+
+    private int currentPage = 1;
+    private int pageSize = 5;
+    private int totalPages = 1;
 
     protected override async Task OnInitializedAsync()
     {
+        // Lấy danh sách gốc từ dịch vụ
         await LoadQaList();
+        LoadPagedQaList();
     }
 
     private async Task LoadQaList()
     {
+        // Luôn tải lại danh sách đầy đủ từ dịch vụ
         qaList = await QaService.GetAll();
+        totalPages = (int)Math.Ceiling((double)qaList.Count / pageSize);
     }
 
-    private void CreateQa()
+    private void LoadPagedQaList()
     {
-        Navigation.NavigateTo("/qa/create");
+        pagedQaList = qaList.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        currentPage = page;
+        LoadPagedQaList();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        pageSize = newPageSize;
+        currentPage = 1;
+        LoadPagedQaList();
+    }
+
+    private async Task SearchQa()
+    {
+        // Làm mới danh sách bằng cách lấy lại từ dịch vụ để tránh tìm trên kết quả tìm trước đó
+        await LoadQaList();
+
+        if (!string.IsNullOrEmpty(searchText))
+        {
+            // Lọc danh sách theo từ khóa tìm kiếm
+            qaList = qaList.Where(q => q.Question.Contains(searchText, StringComparison.OrdinalIgnoreCase)).ToList();
+        }
+
+        // Đặt lại trang về 1 sau khi tìm kiếm và tải danh sách được phân trang
+        currentPage = 1;
+        LoadPagedQaList();
     }
 
     private void EditQa(long id)
     {
-        Navigation.NavigateTo($"/qa/edit/{id}");
+        Navigation.NavigateTo($"/admin/qa/edit/{id}");
     }
 
-    private async Task DeleteQa(long id)
+    private async Task ConfirmDelete(long id)
     {
-        var confirm = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa câu hỏi này?");
-        if (confirm)
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa câu hỏi này?");
+        if (confirmed)
         {
             await QaService.Delete(id);
             await LoadQaList();
-        }
-    }
-
-    private void ToggleAnswer(long id)
-    {
-        var qa = qaList.FirstOrDefault(q => q.Id == id);
-        if (qa != null)
-        {
-            qa.IsAnswerVisible = !qa.IsAnswerVisible;
+            LoadPagedQaList();
         }
     }
 }
+}
+
 
 <style>
     .qa-item {

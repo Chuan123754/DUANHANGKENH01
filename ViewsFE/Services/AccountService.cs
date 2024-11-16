@@ -19,6 +19,13 @@ namespace ViewsFE.Services
             _client = client;
             _sessionStorage= sessionStorage;
         }
+        public async Task<List<Account>> GetAll() {
+            string requestURL = "https://localhost:7011/api/Account/GetAll";
+            var request =  await _client.GetStringAsync(requestURL);
+            var item = JsonConvert.DeserializeObject<List<Account>>(request);
+            return item;
+        }
+
         public async Task<string> SignInAsync(SignInModel model)
         {
             string requestURL = "https://localhost:7011/api/Account/Login";
@@ -63,12 +70,14 @@ namespace ViewsFE.Services
 
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<IdentityResult>();
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<IdentityResult>(responseContent);
             }
             else
             {
                 throw new Exception("Unable to update account.");
             }
+
         }
         public async Task<IdentityResult> DeleteAccountAsync(string idAccount)
         {

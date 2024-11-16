@@ -9,41 +9,6 @@
 <EditForm Model="PostTags" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
-
-    <div class="mb-3">
-        <label for="shortDescription" class="form-label">Mô tả ngắn</label>
-        <InputTextArea id="shortDescription" class="form-control" rows="3" @bind-Value="Posts.Short_description" />
-    </div>
-
-    <div class="mb-3">
-        <label for="tinymce-textarea" class="form-label">Mô tả</label>
-        <textarea id="tinymce-textarea" @bind="Posts.Description" class="form-control" rows="7"></textarea>
-    </div>
-
-    <div class="accordion bg-white mb-3">
-        <div class="accordion-item">
-            <h2 class="accordion-header">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
-                    Từ khóa
-                </button>
-            </h2>
-            <div id="tag" class="accordion-collapse collapse show">
-                <div class="accordion-body pt-0">
-                    <select id="tags-selects" @bind="Posts.TagName" multiple class="form-control" placeholder="Nhập từ khoá">
-                        @foreach (var tag in TagsList)
-                        {
-                            <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
-                        }
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-    </EditForm>
-
-<EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
     <div class="page-wrapper">
         <div class="page-header d-print-none">
             <div class="container-xl">
@@ -64,23 +29,23 @@
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label for="title" class="form-label">Tên trang</label>
-                                    <InputText id="title" class="form-control" @bind-Value="Posts.Title" placeholder="Tên trang" required />
+                                    <InputText id="title" class="form-control" @bind-Value="PostTags.objPost.Title" placeholder="Tên trang" required />
                                     <div id="title_error" class="validate-error"></div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="seoSlug" class="form-label">Đường dẫn</label>
-                                    <InputText id="seoSlug" class="form-control" @bind-Value="Posts.Slug" />
+                                    <InputText id="seoSlug" class="form-control" @bind-Value="PostTags.objPost.slug" />
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="shortDescription" class="form-label">Mô tả ngắn</label>
-                                    <InputTextArea id="shortDescription" class="form-control" rows="3" @bind-Value="Posts.Short_description" />
+                                    <InputTextArea id="shortDescription" class="form-control" rows="3" @bind-Value="PostTags.objPost.Short_description" />
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="tinymce-textarea" class="form-label">Mô tả</label>
-                                    <textarea id="tinymce-textarea" @bind="Posts.Description" class="form-control" rows="7"></textarea>
+                                    <textarea id="tinymce-textarea" @bind="PostTags.objPost.Description" class="form-control" rows="7"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -146,7 +111,7 @@
                                         <div class="accordion-body pt-0">
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Trạng thái</label>
-                                                <select @bind="Posts.Status" class="form-control">
+                                                <select @bind="PostTags.objPost.status" class="form-control">
 
                                                     @foreach (var status in statuses)
                                                     {
@@ -158,7 +123,7 @@
                                             </div>                                        
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Tác giả</label>
-                                                <InputSelect @bind-Value="Posts.AuthorId" class="form-control" multiple>
+                                                <InputSelect @bind-Value="PostTags.objPost.AuthorId" class="form-control" multiple>
                                                     @foreach (var desi in designersList)
                                                     {
                                                         <option value="@desi.id_Designer">@desi.Name</option>
@@ -185,9 +150,9 @@
                                         <div class="accordion-body pt-0">
                                             <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
                                                  data-multiple="false" data-refer-id="#feature_image" onclick="openMediaModal()">
-                                                @if (!string.IsNullOrEmpty(Posts.Feature_image))
+                                                @if (!string.IsNullOrEmpty(PostTags.objPost.Feature_image))
                                                 {
-                                                    <img src="@Posts.Feature_image" class="w-100 h-100 object-cover" />
+                                                    <img src="@PostTags.objPost.Feature_image" class="w-100 h-100 object-cover" />
                                                 }
                                                 else
                                                 {
@@ -220,7 +185,7 @@
                                         <div class="accordion-body pt-0">
                                             <div class="form-group">
 
-                                                <select id="categories" class="form-control" placeholder="Chọn danh mục" multiple>
+                                                <select id="categories" @bind="PostTags.lstCategories" class="form-control" placeholder="Chọn danh mục" multiple>
                                                     @foreach (var cate in CategoriesList)
                                                     {
                                                         <option value="@cate.Id" selected="@SelectedCategories.Contains(cate.Id)">@cate.Title</option>
@@ -285,7 +250,7 @@
                                     </h2>
                                     <div id="tag" class="accordion-collapse collapse show">
                                         <div class="accordion-body pt-0">
-                                            <select id="tags-selects" @bind="Posts.TagName" multiple class="form-control" placeholder="Nhập từ khoá">
+                                            <select id="tags-selects" @bind="PostTags.lstTags" multiple class="form-control" placeholder="Nhập từ khoá">
                                                 @foreach (var tag in TagsList)
                                                 {
                                                     <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
@@ -310,7 +275,6 @@
     public long Id { get; set; }
     private Product_Posts Posts = new Product_Posts();
     private ModelPostTag PostTags = new ModelPostTag();
-
     private List<Post_categories> lsstPostCate = new List<Post_categories>();
     private List<Categories> CategoriesList = new List<Categories>();
     private List<Tags> TagsList = new List<Tags>();
@@ -372,7 +336,7 @@
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         if (!string.IsNullOrEmpty(tags))
         {
-            SelectedTags = tags.Split(',')
+            SelectedTags = tags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(id => long.TryParse(id, out long result) ? result : 0)
                 .Where(id => id > 0)
                 .ToList();
@@ -381,12 +345,14 @@
         var categories = await JS.InvokeAsync<string>("getSelectedValues", "#categories");
         if (!string.IsNullOrEmpty(categories))
         {
-            SelectedCategories = categories.Split(',')
+            SelectedCategories = categories.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                 .Select(id => long.TryParse(id, out long result) ? result : 0)
                 .Where(id => id > 0)
                 .ToList();
         }
-     //   await sev.CreatePost(Posts, SelectedTags, SelectedCategories);
+
+        // Gọi phương thức Updatetagcate để gửi yêu cầu đến API
+        await sev.Updatetagcate(Posts, SelectedTags, SelectedCategories);
         nav.NavigateTo("/admin/post");
     }
 }

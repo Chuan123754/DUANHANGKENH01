@@ -3,8 +3,15 @@
 
     public class ModelPostTag
     {
+        public ModelPostTag()
+        {
+            objPost = new ProductModel(); 
+            lstTags = new List<TagDTO>();
+            lstCategories = new List<CategoryDTO>();
+        }
         public ProductModel objPost { get; set; }
-        public List<long> lstTags { get; set; }
+        public List<TagDTO> lstTags { get; set; }
+        public List<CategoryDTO> lstCategories { get; set; }
     }
 
     public class ProductModel
@@ -21,6 +28,17 @@
         public string Description { get; set; }
         public string? Image_library { get; set; }
         public string Feature_image { get; set; }
+       
+    }
+    public class CategoryDTO
+    {
+        public long Id { get; set; }
+        public string Name { get; set; }
     }
 
+    public class TagDTO
+    {
+        public long Id { get; set; }
+        public string Name { get; set; }
+    }
 }
