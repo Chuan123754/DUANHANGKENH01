@@ -36,6 +36,13 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Services.AddServerSideBlazor()
+    .AddHubOptions(options =>
+    {
+        options.ClientTimeoutInterval = TimeSpan.FromMinutes(2); // Tăng thời gian timeout
+        options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+    });
+
 
 // Thêm CORS nếu cần
 builder.Services.AddCors(options =>

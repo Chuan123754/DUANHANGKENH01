@@ -9,6 +9,7 @@
 @inject IJSRuntime JS
  
 <style>
+
     .custom-modal-size {
         max-width: 200%; 
     }
@@ -138,16 +139,19 @@
                                     <div class="invoice-item position-relative p-3 text-center border rounded"
                                          style="background-color: @(order.Id == selectedOrderId ? "#5985f7" : "#edf0f5")"
                                          @onclick="async () => await SelectOrder(order.Id)">
-                                        <button type="button" class="btn-close position-absolute top-0 end-0" style="width: 0.8rem; height: 0.8rem; margin: 0.25rem;"
+
+                                        <button type="button" class="btn-close position-absolute top-0 end-0"
+                                                style="width: 0.8rem; height: 0.8rem; margin: 0.25rem;"
                                                 title="Xóa hóa đơn"
+                                                 @onclick:stopPropagation 
                                                 @onclick="() => DeleteOrder(order.Id)">
                                         </button>
                                         Hóa đơn @order.Id  <i class="bi bi-cart-check-fill"></i>
                                     </div>
                                 }
+
                             </div>
-                        </div>
-   
+                        </div>  
                         <div class="table-responsive">
                             <table class="table card-table table-vcenter text-nowrap datatable">
                                 <thead>
@@ -197,7 +201,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6">
+                <div class="col-md-12 col-lg-8">
                     <div class="card">
                         <div class="card-header d-flex align-items-center justify-content-between">
                             <h3 class="card-title">Thông tin khách hàng</h3>
@@ -208,7 +212,7 @@
                                 </div>
                             </div>
 
-                            <button class="btn btn-primary" @onclick="OpenModalAddCustomer">
+                            <button class="btn btn-primary" @onclick="ShowListCustomerModal">
                                 Chọn khách hàng
                             </button>
                             @if (isAddCustomerModalVisible)
@@ -224,7 +228,7 @@
                                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                                     <div class="d-flex align-items-center">
                                                         <label for="searchCustomer" class="me-2">Tìm kiếm:</label>
-                                                        <input type="text" id="searchCustomer" class="form-control" style="width: 250px;" placeholder="Nhập SĐT hoặc tên">
+                                                        <input type="text" id="searchCustomer" class="form-control" style="width: 250px;" placeholder="Nhập SĐT hoặc Email khách hàng">
                                                     </div>
                                                     <button class="btn btn-success" @onclick="OpenModalCreateCustomer">Thêm mới khách hàng</button>
                                                 </div>
@@ -306,53 +310,319 @@
                                 <div class="container px-4 text-center">
                                     <div class="row gx-2 justify-content-center">
                                         <h1> Thông tin địa chỉ</h1>
-                                        <button class="btn btn-success" @onclick="OpenModalCreateCustomer">Chọn địa chỉ</button>
-                                        <div class="col-auto">
-                                            <div class="border rounded p-2" style="width: 200px;">Custom column padding</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <div class="border rounded p-2" style="width: 200px;">Custom column padding</div>
-                                        </div>
-                                              <div class="col-auto">
-                                            <div class="border rounded p-2" style="width: 200px;">Custom column padding</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <div class="border rounded p-2" style="width: 200px;">Custom column padding</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <div class="border rounded p-2" style="width: 200px;">Custom column padding</div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <div class="border rounded p-2" style="width: 200px;">Custom column padding</div>
-                                        </div>
+                                        <button class="btn btn-success" @onclick="ShowAddress">Chọn địa chỉ</button>
+                                        <!-- table  address -->
+                                        @if (isChooseAddress)
+                                        {
+                                            <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                                                <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 75%; width: auto;">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Danh sách địa chỉ của Khách Hàng</h5>
+                                                            <button type="button" class="btn-close" @onclick="CloseAddressModal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <button class="btn btn-success" @onclick="OpenCreateAddressModal">Thêm mới địa chỉ</button>
+                                                            </div>
+                                                            <!-- model create address -->
+                                                            @if (isCreateAddress)
+                                                            {
+                                                                <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                                                                    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 40%; width: auto;">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h5 class="modal-title">Thêm mới địa chỉ</h5>
+                                                                            </div>
+                                                                                <form class="p-4 bg-light rounded shadow">
+                                                                                    <div class="row mb-3">
+                                                                                        <div class="col-md-6">
+                                                                                            <label for="name" class="form-label">Tên địa chỉ</label>
+                                                                                        <input type="text" @bind="address.Name" class="form-control" placeholder="Nhập tên địa chỉ">
+                                                                                        </div>
+                                                                                        
+                                                                                    </div>
+                                                                                    <div class="row mb-3">
+                                                                                        <div class="col-md-4">
+                                                                                            <label for="city" class="form-label">Tỉnh/Thành phố</label>
+                                                                                            <select id="city" @onchange="OnProvinceChange" class="form-select">
+                                                                                                <option value="">Chọn Tỉnh</option>
+                                                                                                @if (provinces != null && provinces.Count > 0)
+                                                                                                {
+                                                                                                    @foreach (var province in provinces)
+                                                                                                    {
+                                                                                                        <option value="@province.Id">@province.Name</option>
+                                                                                                    }
+                                                                                                }
+                                                                                            </select>
+                                                                                        </div>
+                                                                                        <div class="col-md-4">
+                                                                                            <label for="district" class="form-label">Quận/Huyện</label>
+                                                                                            <select id="district" @onchange="OnDistrictChange" class="form-select" disabled="@(!hasDistricts)">
+                                                                                                <option value="">Chọn Huyện</option>
+                                                                                                @if (districts != null && districts.Count > 0)
+                                                                                                {
+                                                                                                    @foreach (var district in districts)
+                                                                                                    {
+                                                                                                        <option value="@district.Id">@district.Name</option>
+                                                                                                    }
+                                                                                                }
+                                                                                            </select>
+                                                                                        </div>
+                                                                                        <div class="col-md-4">
+                                                                                            <label for="ward" class="form-label">Xã/Phường/Thị trấn</label>
+                                                                                            <select id="ward" @onchange="OnWardChange" class="form-select" disabled="@(!hasWards)">
+                                                                                                <option value="">Chọn Xã</option>
+                                                                                                @if (wards != null && wards.Count > 0)
+                                                                                                {
+                                                                                                    @foreach (var ward in wards)
+                                                                                                    {
+                                                                                                        <option value="@ward.Id">@ward.Name</option>
+                                                                                                    }
+                                                                                                }
+                                                                                            </select>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="row mb-3">
+                                                                                        <div class="col-md-8">
+                                                                                            <label for="address" class="form-label">Địa chỉ cụ thể</label>
+                                                                                        <input type="text" @bind="address.Street" class="form-control" placeholder="Nhập địa chỉ cụ thể">
+                                                                                        </div>
+                                                                                        <div class="col-md-4">
+                                                                                            <label for="note" class="form-label">Ghi chú</label>
+                                                                                            <input type="text" id="note" class="form-control" placeholder="Nhập ghi chú">
+                                                                                        </div>
+                                                                                    </div>
+                                                                      
+                                                                                    <div class="modal-footer d-flex justify-content-between">
+                                                                                        <button type="button" class="btn btn-primary" @onclick="CreateAddress">Xác nhận</button>
+                                                                                        <button type="button" class="btn btn-secondary" @onclick="CloseCreateAddress">Hủy</button>
+                                                                                    </div>
+                                                                                </form>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                            @if (lst_Address != null && lst_Address.Any())
+                                                            {
+                                                                <table class="table table-bordered">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>STT</th>
+                                                                            <th>Tên người nhận</th>
+                                                                            <th>Số điện thoại</th>
+                                                                            <th>Địa chỉ</th>
+                                                                            <th>Thao tác</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @{
+                                                                            int index = 1;
+                                                                        }
+                                                                        @foreach (var item in lst_Address)
+                                                                        {
+                                                                            <tr>
+                                                                                <td>@index</td>
+                                                                                <td>@item.User?.Name</td>
+                                                                                <td>@item.User?.Phone</td>
+                                                                                <td>@($"{item.Street}, {item.Ward_commune}, {item.District}, {item.Province_city}")</td>
+                                                                                <td>
+                                                                                    <button class="btn btn-primary mt-2" @onclick="() => SelectAddress(item)">Chọn</button>
+                                                                                </td>
+                                                                            </tr>
+                                                                            index++;
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            }
+                                                            else
+                                                            {
+                                                                <h1>Khách hàng chưa có thông tin về địa chỉ</h1>
+                                                            }
+
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="modal-backdrop fade show"></div>
+                                        }
+                                        <form class="space-y-2">
+                                            <div class="d-flex" style="gap: 0.5rem; margin: 0.25rem; padding: 0.25rem;">
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Tên địa chỉ</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null && selectedAddress.User != null)
+                                                                {
+                                                                    @selectedAddress?.User?.Name
+                                                                }
+                                                                else if (selectedAddress == null)
+                                                                {
+                                                                    <span>Chưa chọn địa chỉ</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Khách lẻ</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Số điện thoại</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null && selectedAddress.User != null)
+                                                                {
+                                                                    @selectedAddress?.User?.Phone
+                                                                }
+                                                                else if (selectedAddress == null)
+                                                                {
+                                                                    <span>Không có thông tin</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Khách lẻ</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex" style="gap: 0.5rem; margin: 0.25rem; padding: 0.25rem;">
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Tỉnh/Thành Phố</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null)
+                                                                {
+                                                                    @city
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Chưa chọn địa chỉ</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Quận/Huyện</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null)
+                                                                {
+                                                                    @district
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Chưa chọn địa chỉ</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Phường/Xã/Thị Trấn</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null)
+                                                                {
+                                                                    @ward
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Chưa chọn địa chỉ</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex" style="gap: 0.5rem; margin: 0.25rem; padding: 0.25rem;">
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Địa chỉ cụ thể</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null)
+                                                                {
+                                                                    @street
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Chưa chọn địa chỉ</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Ghi chú</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null)
+                                                                {
+                                                                    @selectedAddress.Status
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Chưa có ghi chú</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <span><strong>Thời gian nhận hàng dự kiến:</strong> 23-12-2023</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span><strong>Phí giao hàng:</strong> 34,000 đ</span>
+                                                </div>
+                                            </div>
+                                        </form>
+
+
                                     </div>
                                 </div>
                             </div>
                         }
                     </div>
                 </div>
-                <div class="col-lg-6">
+                <div class="col-md-6 col-lg-4">
                     <div class="card">
                         <div class="card-header d-flex align-items-center justify-content-between">
                             <h3 class="card-title">Thông tin đơn hàng</h3>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" @bind="IsDeliveryVisible" >
-                                <label class="form-check-label" for="flexSwitchCheckChecked">Giao hàng</label>                       
-                            </div>
+                            @if(selectedOrderId!=0)
+                            {
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" @bind="IsDeliveryVisible">
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Giao hàng</label>
+                                </div>
+                            }                   
                         </div>  
                         <div class="table-responsive">
                             <div class="container px-4 text-center">
                                 <div class="row gx-2 justify-content-between">
                                     <div class="col-auto" readonly>
-                                        <fieldset class="border p-2" style="width: 200px; padding-top: 0.5rem;">
+                                        <fieldset class="border p-2" style="width: 150px; padding-top: 0.5rem;">
                                             <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Tiêu đề</legend>
-                                            <div style="margin-top: -0.5rem;">Mã giảm giá</div>
+                                            <div style="margin-top: -0.5rem;"><strong>Mã giảm giá</strong></div>
                                         </fieldset>
                                     </div>
                                     <div class="col-auto" readonly>
-                                        <fieldset class="border p-2" style="width: 200px; padding-top: 0.5rem;">
+                                        <fieldset class="border p-2" style="width: 150px; padding-top: 0.5rem;">
                                             <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">.</legend>
-                                            <div style="margin-top: -0.5rem;">code</div>
+                                            <div style="margin-top: -0.5rem;"><strong>Code</strong></div>
                                         </fieldset>
                                     </div>
                                 </div>
@@ -363,7 +633,7 @@
                                         <tr>
                                             <td class="td-truncate">
                                                 <div class="text-truncate">
-                                                    Tiền hàng :
+                                                    <strong>Tiền hàng :</strong>
                                                 </div>
                                             </td>
                                             <td class="text-nowrap text-secondary"> @totalAmount VND</td>                                          
@@ -372,7 +642,7 @@
                                         <tr>
                                             <td class="td-truncate">
                                                 <div class="text-truncate">
-                                                    Phí vận chuyển
+                                                    <strong>Phí vận chuyển :</strong>
                                                 </div>
                                             </td>
                                             <td class="text-nowrap text-secondary"> 0 VND</td>
@@ -381,7 +651,7 @@
                                          <tr>
                                             <td class="td-truncate">
                                                 <div class="text-truncate">
-                                                    Tiền giảm giá
+                                                    <strong>Số tiền giảm :</strong>
                                                 </div>
                                             </td>
                                             <td class="text-nowrap text-secondary"> 0 VND</td>
@@ -390,7 +660,7 @@
                                         <tr>
                                             <td class="td-truncate">
                                                 <div class="text-truncate">
-                                                    Tổng tiền :
+                                                    <strong>Tổng tiền :</strong>
                                                 </div>
                                             </td>
                                             <td class="text-nowrap text-secondary"> @totalAmount VND</td>
@@ -419,14 +689,15 @@
     private Order_details order_Details = new Order_details();
     private Users Customer = new Users();
     private List<Users> lst_Customer = new List<Users>();
-    private Address Address = new Address();
     private List<Address> lst_Address = new List<Address>();
     private List<Order_details> lst_OrderDetail = new List<Order_details>();
     private List<Orders> lst_Orders = new List<Orders>();
     private List<Product_Attributes> lst_ProductAttributes = new List<Product_Attributes>();
-    private bool isAddProductModalVisible = false; // kiểm tra modal sản phẩm được mở chưa
-    private bool isAddCustomerModalVisible = false; // modal khách hàng
-    private bool isCreateCustomerModalVisible = false;
+    private bool isAddProductModalVisible = false; // kiểm tra modal danh sách sản phẩm được mở chưa
+    private bool isAddCustomerModalVisible = false; // modal danh sách khách hàng
+    private bool isCreateCustomerModalVisible = false; // model tạo khách hàng
+    private bool isChooseAddress = false; // model danh sách địa chỉ của khách hàng
+    private bool isCreateAddress = false; // model tạo mới địa chỉ
     private bool isDeliveryVisible = false;
     private Dictionary<long, int> productQuantities = new Dictionary<long, int>();
     private decimal totalAmount = 0;
@@ -438,19 +709,25 @@
         lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
         totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
+        if (orderToUpdate == null)
+        {
+            selectedOrderId = 0;
+            return;
+        }
         if (orderToUpdate?.User_id != null)
         {
-            ShowAddress(orderToUpdate.User_id.Value); // gọi tới hàm chọn đại chỉ ng dung
             IsDeliveryVisible = orderToUpdate.Note == "Giao hàng";
             var customer = await userService.GetById(orderToUpdate.Users.Id);
             customerName = customer?.Name;
             isCustomerAdded = customer != null;
+            ClearInfoAddress();
         }
         else
         {
             customerName = "Khách lẻ";
             isCustomerAdded = false;
             IsDeliveryVisible = orderToUpdate?.Note == "Giao hàng";
+            ClearInfoAddress();
         }
         await LoadOrderDetails();
     }
@@ -511,6 +788,8 @@
         await LoadOrders();
         var totalAmount = lst_OrderDetail.Sum(item => item.Quantity * item.ProductAttributes.Regular_price);
         lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
+        lst_Customer = await userService.GetAll();
+        provinces = await address_Service.GetProvincesAsync();
     } // LOAD
     private async Task LoadOrders() // lấy ra các hóa đơn treo ( chưa thanh toán )
     {
@@ -521,6 +800,7 @@
     private async Task DeleteOrder(long id)
     {
         await orderService.Delete(id);
+        selectedOrderId = 0;
         await LoadOrders();
     }// xóa order
     private async Task DeleteOrderDetail(long id) // xóa orderdetail
@@ -637,7 +917,7 @@
         productQuantities[productAttributeId] = 0;
         totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 1);
     }
-    private async void OpenModalAddCustomer()
+    private async void ShowListCustomerModal()
     {
         if (selectedOrderId == 0)
         {
@@ -646,11 +926,10 @@
         }
         else
         {
-            lst_Customer = await userService.GetAll();
             isAddCustomerModalVisible = true;
-
+            lst_Customer = await userService.GetAll();
         }
-    }
+    } // mở modal khách hàng
     private async void CloseModalAddCustomer()
     {
         isAddCustomerModalVisible = false;
@@ -673,6 +952,7 @@
         isAddCustomerModalVisible = false;
         customerName = selectedCustomer.Name;
         isCustomerAdded = true;
+        ClearInfoAddress();
 
         // Cập nhật lại thông tin đơn hàng
         lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
@@ -682,12 +962,24 @@
     }
     private async void CreateCustomer()
     {
+        if (string.IsNullOrEmpty(Customer.Phone) || await userService.IsPhoneExists(Customer.Phone))
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Số điện thoại đã tồn tại hoặc không hợp lệ.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(Customer.Phone))
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Số điện thoại không được bỏ trống.");
+            return;
+        }
         var createdCustomer = await userService.Create(Customer);
         lst_Customer = await userService.GetAll();
         isCustomerAdded = true;
         isCreateCustomerModalVisible = false;
         isAddCustomerModalVisible = false;
         customerName = createdCustomer.Name;
+        await JS.InvokeVoidAsync("toastr.success", "Thêm khách hàng thành công");
     }
     private async void OpenModalCreateCustomer()
     {
@@ -735,10 +1027,150 @@
         await LoadProducts();
         await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
     }
-
-    private async void ShowAddress(long userId)
+    private async Task ShowAddress()
     {
-        lst_Address = await addressService.GetAddressByUserId(userId);
+        if (selectedOrderId == null)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn hóa đơn trước");
+            return;  
+        }
+        var order = await orderService.GetByIdOrders(selectedOrderId);
+        if (order?.User_id.HasValue == true)
+        {
+            isChooseAddress = true;
+            lst_Address = await addressService.GetAddressByUserId(order.User_id.Value);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng thêm thông tin khách hàng trước");
+            return;
+        }
+    }
+    private void CloseAddressModal()
+    {
+        isChooseAddress = false;
+    }
+    private void OpenCreateAddressModal()
+    {
+        isCreateAddress = true;
+    }
+    private async Task CreateAddress()
+    {
+        if (string.IsNullOrEmpty(address.Ward_commune) || string.IsNullOrEmpty(address.Street))
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng nhập đầy đủ thông tin địa chỉ.");
+            return;
+        }
+
+        var order = await orderService.GetByIdOrders(selectedOrderId);
+        if (order?.User_id.HasValue == true)
+        {
+            address.User_Id = order.User_id.Value; // Gắn User_Id từ Order
+            if (address.Type == null) address.Type = ""; 
+            if (address.Status == null) address.Status = "";
+            var province = provinces.FirstOrDefault(p => p.Id == address.Province_city);
+            var district = districts.FirstOrDefault(d => d.Id == address.District);
+            var ward = wards.FirstOrDefault(w => w.Id == address.Ward_commune);
+            address.Province_city = province.Name;
+            address.District = district?.Name;
+            address.Ward_commune = ward?.Name;
+            var result = await addressService.CreateAddress(address);
+
+            if (result)
+            {
+
+                await JS.InvokeVoidAsync("toastr.success", "Địa chỉ đã được tạo thành công.");
+                isCreateAddress = false;
+                lst_Address = await addressService.GetAddressByUserId(order.User_id.Value);
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Tạo địa chỉ thất bại.");
+            }
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Không tìm thấy người dùng liên kết với đơn hàng.");
+        }
+
+    }
+    private void CloseCreateAddress()
+    {
+        isCreateAddress = false;
+    }
+
+    // tách được đoạn code này ra chỗ khác thì càng tốt 
+    private List<Province> provinces = new List<Province>();
+    private List<Districted> districts = new List<Districted>();
+    private List<Ward> wards = new List<Ward>();
+    private Address address = new Address(); // Khởi tạo Address
+    private bool hasDistricts = false;
+    private bool hasWards = false;
+    [Inject] private AddressService address_Service { get; set; }
+
+    private async Task OnProvinceChange(ChangeEventArgs e)
+    {
+        var selectedProvinceId = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedProvinceId))
+        {
+            // Thiết lập tỉnh hiện tại và xóa các quận huyện, xã
+            address.Province_city = selectedProvinceId;
+            districts = await address_Service.GetDistrictsAsync(int.Parse(selectedProvinceId));
+            hasDistricts = districts.Count > 0;
+            wards.Clear();
+            hasWards = false; // Đặt trạng thái xã về false khi tỉnh thay đổi
+        }
+    }
+    private async Task OnDistrictChange(ChangeEventArgs e)
+    {
+        var selectedDistrictId = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedDistrictId))
+        {
+            // Thiết lập huyện hiện tại và xóa các xã
+            address.District = selectedDistrictId;
+            wards = await address_Service.GetWardsAsync(int.Parse(selectedDistrictId));
+            hasWards = wards.Count > 0;
+        }
+    }
+    private async Task OnWardChange(ChangeEventArgs e)
+    {
+        var selectedWardId = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedWardId))
+        {
+            address.Ward_commune = selectedWardId;
+        }
+    }
+
+    // Các biến để bind vào form
+    private string city;
+    private string district;
+    private string ward;
+    private string street;
+    private string phone;
+    private Address selectedAddress;
+    private void SelectAddress(Address address)
+    {
+        ClearInfoAddress();
+        if (address != null)
+        {
+            selectedAddress = address; 
+            city = address.Province_city;
+            district = address.District;
+            ward = address.Ward_commune;
+            street = address.Street;
+            phone = address.User?.Phone;
+        }
+
+        isChooseAddress = false;
+    }
+    private void ClearInfoAddress()
+    {
+        selectedAddress = null;
+        city = string.Empty;
+        district = string.Empty;
+        ward = string.Empty;
+        street = string.Empty;
+        phone = string.Empty;        
     }
 
 }

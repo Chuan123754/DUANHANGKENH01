@@ -33,19 +33,10 @@ namespace appAPI.Repository
             {
                 var lst_Address = await _context.Address
                          .Where(x => x.User_Id == user.Id)
-                         .Select(x => new Address
-                         {
-                             Id = x.Id,
-                             User_Id = x.User_Id,
-                             Name = x.Name,
-                             Street = x.Street,
-                             Ward_commune = x.Ward_commune,
-                             District = x.District,
-                             Province_city = x.Province_city,
-                             Type = x.Type,
-                             Set_as_default = x.Set_as_default,
-                             Status = x.Status,
-                         }).ToListAsync();
+                         .Include(x=>x.User)
+                         .ToListAsync();
+                       
+                         
                 return lst_Address;
             }
             return new List<Address>(); // Trả về danh sách rỗng nếu không tìm thấy người dùng
