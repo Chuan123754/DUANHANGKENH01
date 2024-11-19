@@ -24,9 +24,14 @@ namespace appAPI.Controllers
         }
 
         [HttpGet("OrdersDetails")]
-        public async Task<Orders> DetailsOrders(long id)
+        public async Task<IActionResult> DetailsOrders(long id)
         {
-            return await _repo.GetByIdOrders(id);
+            var order = await _repo.GetByIdOrders(id);
+            if (order == null)
+            {
+                return NotFound(new { message = "Order not found" });
+            }
+            return Ok(order);
         }
         [HttpGet("GetOrderByIdAdmin")]
         public async Task<IActionResult> GetOrderByIdAdmin(string idAdmin)

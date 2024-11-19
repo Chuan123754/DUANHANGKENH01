@@ -45,7 +45,7 @@ namespace appAPI.Repository
             return await _context.Orders
                 .Include(o => o.Admin)
                 .Include(o => o.Users)
-                .FirstAsync(o => o.Id == id);
+                .FirstAsync(o=>o.Id==id);
         }
 
         public async Task Update(Orders orders, long id)
