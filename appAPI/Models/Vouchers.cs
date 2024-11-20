@@ -42,10 +42,6 @@ namespace appAPI.Models
 
         [Required(ErrorMessage = "Trạng thái là bắt buộc.")]
         public string? Status { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<Order_Vouchers> OrderVouchers { get; set; } = new List<Order_Vouchers>();
-        [JsonIgnore]
-        public virtual ICollection<UserVouchers> UserVouchers { get; set; } = new List<UserVouchers>();
 
     }
 

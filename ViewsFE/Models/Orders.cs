@@ -14,7 +14,6 @@ namespace ViewsFE.Models
 
     public partial class Orders
     {
-
         [Key]
         public long Id { get; set; }
         public string? CreatedByAdminId { get; set; }

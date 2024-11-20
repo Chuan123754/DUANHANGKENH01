@@ -45,7 +45,7 @@ namespace appAPI.Repository
         {
             return await _context.Color
                  .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm) && p.Deleted == false))
-                 .OrderBy(p => p.Title)
+                 .OrderBy(p => p.Id)
                  .Skip((pageNumber - 1) * pageSize)
                  .Take(pageSize)
                  .ToListAsync();

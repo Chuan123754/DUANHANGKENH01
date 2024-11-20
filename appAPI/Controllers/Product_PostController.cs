@@ -14,67 +14,31 @@ namespace appAPI.Controllers
     public class Product_PostController : ControllerBase
     {
         private readonly IPostReponsetory _postRepository;
-        public Product_PostController(IPostReponsetory postRepository)
+        private readonly IBannerRepository _bannerRepository;
+        public Product_PostController(IPostReponsetory postRepository, IBannerRepository bannerRepository)
         {
             _postRepository = postRepository;
-         
+            _bannerRepository = bannerRepository;
         }
         [HttpGet("Get-All")]
-        public async Task<List<ModelPostTag>> GetAll()
+        public async Task<List<Product_Posts>> GetAll()
         {
             return await _postRepository.GetAll();
-               
         }
         [HttpGet("Get-all-type")]
         public async Task<IActionResult> GetAllType(string type)
-        {
-            // Các hàm để lấy tên danh mục và tên thẻ
-            string GetCategoryName(List<Post_categories> lst)
-            {
-                if (lst == null || lst.Count == 0)
-                    return string.Empty;
-
-                return string.Join(",", lst.Select(item => item?.Categories?.Title).Where(title => !string.IsNullOrEmpty(title)));
-            }
-
-            string GetTagName(List<Post_tags> lst)
-            {
-                if (lst == null || lst.Count == 0)
-                    return string.Empty;
-
-                return string.Join(",", lst.Select(item => item?.Tag?.Title).Where(title => !string.IsNullOrEmpty(title)));
-            }
-
-            // Gọi hàm từ repository để lấy danh sách theo loại
+        {     
             var list = await _postRepository.GetAllByType(type);
-
-            // Duyệt qua danh sách và tạo đối tượng với các thông tin cần thiết
-            var result = list.Select(p => new
-            {
-                p.Id,
-                p.Title,
-                p.AuthorId,
-                CategoryName = GetCategoryName(p.Post_categories.ToList()),
-                TagName = GetTagName(p.Post_tags.ToList()),
-                p.Status,
-                p.Created_at,
-                p.Deleted,
-                p.Deleted_at
-            }).ToList();
-
-            // Trả về danh sách đã xử lý
-            return Ok(result);
+            return Ok(list);
         }
 
-        // Lấy sản phẩm theo ID
-        [HttpGet("GetGyIdType")]
+        // Lấy sản phẩm theo ID và loại
+        [HttpGet("GetByIdAndType")]
         public async Task<IActionResult> GetByIdProduct(long id, string type)
         {
             var post = await _postRepository.GetByIdAndType(id, type);
-                     
-            return Ok(new { lstCate = post.lstCategories, lstTags = post.lstTags, objPost = post.objPost });
+            return Ok(post);
         }
-
         [HttpPost("Create-product")]
         public async Task<IActionResult> CreateProduct([FromBody] Product_Posts post, [FromQuery] List<long> tagIds, [FromQuery] List<long> cate)
         {
@@ -97,10 +61,10 @@ namespace appAPI.Controllers
             var createdPost = await _postRepository.CreatePost(post, tagIds, cate);
             return Ok(new { message = "Thêm bài viết thành công", Post_Id = createdPost.Id });
         }
+        // Tạo trang
         [HttpPost("Create-page")]
         public async Task<IActionResult> CreatePage([FromBody] Product_Posts post, [FromQuery] List<long> tagIds)
         {
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -110,6 +74,7 @@ namespace appAPI.Controllers
             return Ok(new { message = "Thêm trang thành công", Post_Id = createdPage.Id });
         }
 
+        // Tạo dự án
         [HttpPost("Create-project")]
         public async Task<IActionResult> CreateProject([FromBody] Product_Posts post, [FromQuery] List<long> tagIds, [FromQuery] List<long> cate)
         {
@@ -120,6 +85,7 @@ namespace appAPI.Controllers
             var createdProject = await _postRepository.CreateProject(post, tagIds, cate);
             return Ok(new { message = "Thêm dự án thành công", Post_Id = createdProject.Id });
         }
+        // Chỉnh sửa bài viết
         [HttpPut("Edit-post")]
         public async Task<IActionResult> EditPost([FromBody] Product_Posts post, [FromQuery] List<long> tagIds)
         {
@@ -131,6 +97,8 @@ namespace appAPI.Controllers
             await _postRepository.Update(post, tagIds);
             return Ok("Post and tags updated successfully.");
         }
+
+        // Chỉnh sửa bài viết và các tags, categories
         [HttpPut("Edit-posttagscate")]
         public async Task<IActionResult> EditPostTagsCate([FromBody] Product_Posts post, [FromQuery] List<long> tagIds, [FromQuery] List<long> categoryIds)
         {
@@ -143,12 +111,14 @@ namespace appAPI.Controllers
             return Ok("Post, tags, and categories updated successfully.");
         }
 
+        // Xoá bài viết
         [HttpDelete("Delete-post")]
         public async Task<IActionResult> Delete(long id)
         {
             await _postRepository.Delete(id);
             return Ok(new { message = "Xoá thành công" });
         }
+
         [HttpGet("get-by-type")]
         public async Task<IActionResult> GetByType([FromQuery] string type, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
         {
@@ -157,38 +127,8 @@ namespace appAPI.Controllers
                 return BadRequest("Page number and page size must be greater than 0.");
             }
 
-            string GetCategoryName(List<Post_categories> lst)
-            {
-                if (lst == null || lst.Count == 0)
-                    return string.Empty;
-
-                return string.Join(",", lst.Select(item => item?.Categories?.Title).Where(title => !string.IsNullOrEmpty(title)));
-            }
-
-
-            string GetTagName(List<Post_tags> lst)
-            {
-                if (lst == null || lst.Count == 0)
-                    return string.Empty;
-
-                return string.Join(",", lst.Select(item => item?.Tag?.Title).Where(title => !string.IsNullOrEmpty(title)));
-            };
-
-            var list = await _postRepository.GetByTypeAsync(type, pageNumber, pageSize, searchTerm);
-
-            var result = list.Select(p => new
-            {
-                p.Id,
-                p.Title,
-                p.AuthorId,
-                CategoryName = GetCategoryName(p.Post_categories.ToList()),
-                TagName = GetTagName(p.Post_tags.ToList()),
-                p.Status,
-                p.Created_at,
-                p.Deleted,
-                p.Deleted_at
-            }).ToList();
-            return Ok(result);
+            var list = await _postRepository.GetByTypeAsync(type, pageNumber, pageSize, searchTerm);        
+            return Ok(list);
         }
         [HttpGet("Get-Total-Count")]
         public async Task<IActionResult> GetTotalCount([FromQuery] string type, [FromQuery] string? searchTerm = null)

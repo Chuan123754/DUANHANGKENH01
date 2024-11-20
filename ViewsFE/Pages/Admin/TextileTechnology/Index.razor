@@ -112,7 +112,7 @@
     private async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        listTechnology = await sev.GetAll();
+        listTechnology = await sev.GetByTypeAsync(page_number, page_size, searchTerm);
         totalItems = await sev.GetTotalCountAsync(searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();

@@ -24,10 +24,6 @@ namespace ViewsFE.Models
         public DateTime Start_time { get; set; }
         public DateTime End_time { get; set; }
         public string? Status { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<Order_Vouchers> OrderVouchers { get; set; } = new List<Order_Vouchers>();
-        [JsonIgnore]
-        public virtual ICollection<UserVouchers> UserVouchers { get; set; }
 
     }
 }

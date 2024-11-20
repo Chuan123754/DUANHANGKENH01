@@ -23,7 +23,7 @@ namespace appAPI.Repository
         public async Task Delete(long id)
         {
             var deleteItem = await _context.Product_Attributes.FindAsync(id);
-            _context.Product_Attributes.Remove(deleteItem);  
+            _context.Product_Attributes.Remove(deleteItem);
             await _context.SaveChangesAsync();
 
 
@@ -53,10 +53,10 @@ namespace appAPI.Repository
 
         public async Task<Product_Attributes> GetProductAttributesById(long id)
         {
-            var productAttribute = await _context.Product_Attributes.Where(p=>p.Id==id)
-                                                                    .Include(p=>p.Color)
-                                                                    .Include(p=>p.Size)
-                                                                    .Include(p=>p.Product_Variant)
+            var productAttribute = await _context.Product_Attributes.Where(p => p.Id == id)
+                                                                    .Include(p => p.Color)
+                                                                    .Include(p => p.Size)
+                                                                    .Include(p => p.Product_Variant)
                                                                     .FirstOrDefaultAsync();
             if (productAttribute != null)
             {
@@ -72,16 +72,16 @@ namespace appAPI.Repository
         public async Task<List<Product_Attributes>> GetProductAttributesByProductVarianId(long id)
         {
             return await _context.Product_Attributes
-                                .Where(p=>p.Product_Variant_Id==id)
-                                .Include(p=>p.Color)
-                                .Include(p=>p.Size)
-                                .Include (p=>p.Product_Variant)
+                                .Where(p => p.Product_Variant_Id == id)
+                                .Include(p => p.Color)
+                                .Include(p => p.Size)
+                                .Include(p => p.Product_Variant)
                                 .ToListAsync();
         }
 
         public async Task<List<Product_Attributes_DTO>> GetVariantByProductVariantId(List<long> variantIds)
         {
-            if(variantIds == null || !variantIds.Any())
+            if (variantIds == null || !variantIds.Any())
             {
                 return new List<Product_Attributes_DTO>();
             }
@@ -102,23 +102,23 @@ namespace appAPI.Repository
             return productAttributes;
         }
 
-        public async Task Update(Product_Attributes productAttribute , long id)
+        public async Task Update(Product_Attributes productAttribute, long id)
         {
             var updateItem = await _context.Product_Attributes.FindAsync(id);
-            if(updateItem != null)
+            if (updateItem != null)
             {
                 updateItem.SKU = productAttribute.SKU;
-                updateItem.Image=productAttribute.Image;
+                updateItem.Image = productAttribute.Image;
                 updateItem.Regular_price = productAttribute.Regular_price;
                 updateItem.Sale_price = productAttribute.Sale_price;
-                updateItem.Stock = productAttribute.Stock;  
+                updateItem.Stock = productAttribute.Stock;
                 updateItem.Status = productAttribute.Status;
                 updateItem.Color_Id = productAttribute.Color_Id;
                 updateItem.Size_Id = productAttribute.Size_Id;
 
                 _context.Product_Attributes.Update(updateItem);
                 await _context.SaveChangesAsync();
-            }    
+            }
         }
         public async Task<List<ProductDTO>> GetProductDTOsAsync()
         {
@@ -166,11 +166,33 @@ namespace appAPI.Repository
                  })
              .ToListAsync();
 
-                    return productDTOs;
-                }
+            return productDTOs;
+        }
+
+        public async Task<List<Product_Attributes>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)
+        {
+            // Giả sử `Product_Attributes` có `ProductPostId` để liên kết với `Product_Post`.
+            return await _context.Product_Attributes
+                .Where(p => p.Product_Variant.Posts.Deleted == false &&
+                       (string.IsNullOrEmpty(searchTerm) || p.Product_Variant.Material.Title.Contains(searchTerm)
+                       || p.Product_Variant.Textile_Technology.Title.Contains(searchTerm) ||
+                       _context.Posts.Any(post => post.Id == p.Product_Variant.Post_Id && post.Title.Contains(searchTerm)
+                       || p.Size.Title.Contains(searchTerm) || p.Color.Title.Contains(searchTerm))))
+                .OrderBy(p => p.Product_Variant.Posts.Title)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+        }
 
 
-
-        
+        public async Task<int> GetTotalCountAsync(string searchTerm)
+        {
+            return await _context.Product_Attributes
+               .CountAsync(p => p.Product_Variant.Posts.Deleted == false &&
+                             (string.IsNullOrEmpty(searchTerm) || p.Product_Variant.Material.Title.Contains(searchTerm)
+                       || p.Product_Variant.Textile_Technology.Title.Contains(searchTerm) ||
+                       _context.Posts.Any(post => post.Id == p.Product_Variant.Post_Id && post.Title.Contains(searchTerm)
+                       || p.Size.Title.Contains(searchTerm) || p.Color.Title.Contains(searchTerm))));
+        }
     }
 }

@@ -41,7 +41,7 @@ namespace appAPI.Repository
             // Lấy danh sách sản phẩm theo loại, phân trang và tìm kiếm
             return await _context.Designer
                 .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)))
-                .OrderBy(p => p.Name) // Thay đổi theo tiêu chí sắp xếp bạn muốn
+                .OrderBy(p => p.id_Designer) // Thay đổi theo tiêu chí sắp xếp bạn muốn
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();

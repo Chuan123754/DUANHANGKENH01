@@ -7,7 +7,6 @@ namespace ViewsFE.IServices
     {
         Task<List<Product_Posts>> GetAllType(string type);
         Task<Product_Posts> GetByIdType(long id, string type);
-        Task<ModelPostTag> GetByIdType_New(long id, string type);
 
         Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm);
         Task<int> GetTotalCountAsync(string type, string searchTerm);

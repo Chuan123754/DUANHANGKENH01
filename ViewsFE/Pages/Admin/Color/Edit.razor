@@ -1,6 +1,7 @@
 ﻿@page "/admin/color/edit/{id:long}"
 @inject NavigationManager nav
 @inject IColorServices sev
+@inject IJSRuntime JS
 
 <EditForm Model="color" OnValidSubmit="SubmitForm" FormName="coloredit">
     <DataAnnotationsValidator></DataAnnotationsValidator>
@@ -49,11 +50,13 @@
         try
         {
             await sev.Update(color); // Gọi API để tạo thuộc tính
+            await JS.InvokeVoidAsync("toastr.success", "Màu sắc đã được sửa thành công"); // Hiển thị thông báo thành công
             nav.NavigateTo("/admin/color"); // Điều hướng sau khi thành công
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể sửa màu sắc. Vui lòng thử lại."); // Hiển thị thông báo lỗi
         }
     }
 }

@@ -29,7 +29,7 @@ namespace ViewsFE.Services
         }
         public async Task Delete(long id)
         {
-            await _client.DeleteAsync($"{_baseUrl}/api/Category/delete-category?id={id}");
+            await _client.DeleteAsync($"{_baseUrl}/api/Category/delete-category/{id}");
         }
 
         public async Task<Categories> Details(long id)

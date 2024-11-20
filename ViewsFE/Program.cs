@@ -92,6 +92,7 @@ builder.Services.AddScoped<IProductAttributeServices, ProductAttributeServices>(
 builder.Services.AddScoped<IProductVariantServices, ProductVariantServices>();
 builder.Services.AddScoped<OrderDetailsIServices, OrderDetailsServices>();
 builder.Services.AddScoped<OrderIServices,OrderServices>(); 
+builder.Services.AddScoped<IBannerServices, BannerServices>();
 builder.Services.AddScoped<IUserService,UserService>(); 
 
 var app = builder.Build();

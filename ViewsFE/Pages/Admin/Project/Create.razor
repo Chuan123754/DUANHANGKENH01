@@ -4,6 +4,7 @@
 @inject ITagsServices stag
 @inject ICategoriesServices cate
 @inject IDesignerServices des
+@inject IBannerServices bnser
 @inject IJSRuntime JS
 
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
@@ -64,39 +65,38 @@
                                     <div class="card-body pb-4 px-4" style="height: 300px">
                                         <div class="mb-3">
                                             <label for="title" class="form-label">Tiêu đề</label>
-                                            <input type="text" class="form-control" name="meta_data[banner_title]"
-                                                   placeholder="Tiêu đề" value="#">
+                                            <input type="text" class="form-control" @bind-value="banner.Name"
+                                                   placeholder="Tiêu đề">
                                         </div>
                                         <div>
 
                                             <div id="banner_image"
                                                  class="image-post-box d-flex align-items-center justify-content-center open-media-modal"
                                                  data-multiple="false"
-                                                 data-refer-id="#banner_image"
-                                                 data-input-name="meta_data[banner_image]"
-                                                 data-image-ids="{{ $bannerId }}">
-
-                                                <input type="hidden" name="meta_data[banner_image][0][id]" value="{{ $bannerId }}">
-                                                <input type="hidden" name="meta_data[banner_image][0][image]" value="{{ $bannerImage }}">
-                                                <img src=""
-                                                     class="w-100 h-100 object-cover">
-
-
-                                                <div class="icon d-flex align-items-center justify-content-center {{ $bannerId ? 'd-none' : '' }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1"
-                                                         stroke="currentColor" fill="none" stroke-linecap="round"
-                                                         stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M12 5l0 14" />
-                                                        <path d="M5 12l14 0" />
-                                                    </svg>
-                                                </div>
+                                                 data-refer-id="#banner_image" onclick="openMediaBannerModal()">
+                                                @if (!string.IsNullOrEmpty(banner.Meta_data))
+                                                {
+                                                    <img src="@banner.Meta_data" class="object-cover" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="icon d-flex align-items-center justify-content-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1"
+                                                             stroke="currentColor" fill="none" stroke-linecap="round"
+                                                             stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M12 5l0 14" />
+                                                            <path d="M5 12l14 0" />
+                                                        </svg>
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        @*    End banner *@
                     </div>
 
                     <!-- Sidebar bên phải -->
@@ -271,17 +271,21 @@
     </div>
 </EditForm>
 
-<Media_modal OnImageSelected="HandleImageSelected"></Media_modal>
+<Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
+<Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 @code {
     private Product_Posts Posts = new Product_Posts();
-    private List<Categories> CategoriesList = new();
+    private Banner banner = new Banner();
+    private List<Categories> CategoriesList = new List<Categories>();
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
     private List<Designer> designersList = new List<Designer>();
     private List<Tags> TagsList = new();
     private List<long> SelectedCategories = new List<long>();
     private List<long> SelectedTags = new List<long>();
     private bool tinyMCEInitialized = false;
-
+    private Media_modal mediaModalRef;
+    private Media_manager media_ManagerRef;
+    private long postId;
 
     private async Task HandleImageSelected(string imagePath)
     {
@@ -290,7 +294,13 @@
         StateHasChanged();
         await JS.InvokeVoidAsync("closeMediaModal");
     }
-
+    private async Task HandleImageSelectedBanner(string imagePath)
+    {
+        // Nếu imagePath là null, xóa ảnh banner
+        banner.Meta_data = imagePath ?? string.Empty;
+        StateHasChanged();
+        await JS.InvokeVoidAsync("closeMediaBannerModal");
+    }
     protected override async Task OnInitializedAsync()
     {
         statuses = Product_Posts.STATUSES.ToDictionary(k => k.Key, v => v.Value);
@@ -369,7 +379,6 @@
     private async Task HandleValidSubmit()
     {
         Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
-        // Lấy dữ liệu từ Tom Select
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         if (!string.IsNullOrEmpty(tags))
         {
@@ -387,9 +396,19 @@
                 .Where(id => id > 0)
                 .ToList();
         }
-
-        await sev.CreateProject(Posts, SelectedTags, SelectedCategories);
-        nav.NavigateTo("/admin/project");
+        try
+        {
+            await sev.CreateProject(Posts, SelectedTags, SelectedCategories);
+            postId = Posts.Id;
+            await bnser.AddBannerToPost(postId, banner);
+            await JS.InvokeVoidAsync("toastr.success", "Thêm dự án thành công");
+            nav.NavigateTo("/admin/project");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm dự án. Vui lòng thử lại.");
+        }
     }
 }
 

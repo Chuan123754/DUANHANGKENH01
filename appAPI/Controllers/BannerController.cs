@@ -35,15 +35,17 @@ namespace appAPI.Controllers
             }
             return NotFound();
         }
+
+
         [HttpPost("CreateBanner")]
-        public async Task<IActionResult> Create(Banner banner)
+        public async Task Create(Banner banner)
         {
-            var result = _repo.Create(banner);
-            if(result != null)
-            {
-                 return Ok(result);
-            }
-            return BadRequest();              
+            await _repo.Create(banner);             
+        }
+        [HttpPost("CreateBannerPost")]
+        public async Task CreateBannerPosst(long postId, Banner banner)
+        {
+            await _repo.AddBannerToPost(postId ,banner);      
         }
         [HttpPut("UpdateBanner")]
         public async Task<IActionResult> Update(Banner banner, long id)

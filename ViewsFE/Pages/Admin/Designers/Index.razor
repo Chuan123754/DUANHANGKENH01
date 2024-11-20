@@ -71,13 +71,6 @@
                                                 @if (!string.IsNullOrEmpty(item.image))
                                                 {
                                                     <img src="@item.image" width="80" height="80" alt="Designer Image" />
-                                                    @*   var imageUrl = JsonSerializer.Deserialize<List<string>>(item.image)?.FirstOrDefault();
-                                        if (!string.IsNullOrEmpty(imageUrl))
-                                        {
-                                        <a href="@imageUrl" target="_blank">
-                                        <img src="@imageUrl" width="80" height="80" alt="Designer Image" />
-                                        </a>
-                                        } *@
                                                 }
                                             </td>
                                             <td class="sort-title">
@@ -155,28 +148,14 @@
     }
     private async Task NavDeleteCtgr(long id)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Bạn muốn xóa bản ghi này?");
-        if (confirmed)
-        {
-            try
-            {
-                await sev.Delete(id);
-                await JSRuntime.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
-            }
-            catch (Exception ex)
-            {
-                await JSRuntime.InvokeVoidAsync("ShowToastr", "error", "Có lỗi xảy ra khi xóa bản ghi.");
-            }
-        }
+
+        await sev.Delete(id);
+        await JSRuntime.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
         await LoadPosts();
+        StateHasChanged();
     }
     private async Task NavEditCtgr(long id)
     {
         await JSRuntime.InvokeVoidAsync("navigateTo", $"/admin/designer/edit/{id}");
     }
 }
-<script>
-    function navigateTo(url) {
-        window.location.href = url;
-    }
-</script>

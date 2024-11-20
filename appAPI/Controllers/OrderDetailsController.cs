@@ -89,5 +89,24 @@ namespace appAPI.Controllers
         {
             await _repo.Delete(id);
         }
+        [HttpGet("get-by-type")]
+        public async Task<IActionResult> GetByType([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Page number and page size must be greater than 0.");
+            }
+
+            var list = await _repo.GetByTypeAsync(pageNumber, pageSize);
+
+
+            return Ok(list);
+        }
+        [HttpGet("Get-Total-Count")]
+        public async Task<IActionResult> GetTotalCount()
+        {
+            var totalCount = await _repo.GetTotalCountAsync();
+            return Ok(totalCount);
+        }
     }
 }

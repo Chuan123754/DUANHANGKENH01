@@ -11,5 +11,7 @@ namespace ViewsFE.IServices
         Task Create(Order_details orderdetails);
         Task Update(Order_details orderdetails , long id);
         Task Delete(long id);
+        Task<List<Order_details>> GetByTypeAsync(int pageNumber, int pageSize);
+        Task<int> GetTotalCountAsync();
     }
 }

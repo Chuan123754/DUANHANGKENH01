@@ -17,43 +17,55 @@ namespace ViewsFE.Services
         }
         public async Task Create(Product_Attributes productAttribute)
         {
-            await _client.PostAsJsonAsync("https://localhost:7011/api/ProductAttributes/CreateProductAttrubute", productAttribute);
+            await _client.PostAsJsonAsync($"{_baseUrl}/api/ProductAttributes/CreateProductAttrubute", productAttribute);
         }
 
         public async Task Delete(long id)
         {
-            await _client.DeleteAsync($"https://localhost:7011/api/ProductAttributes/DeleteProductAttribute?id={id}");
+            await _client.DeleteAsync($"{_baseUrl}/api/ProductAttributes/DeleteProductAttribute?id={id}");
         }
 
         public async Task<List<Product_Attributes>> GetAllProductAttributes()
         {
-            string requestURL = "https://localhost:7011/api/ProductAttributes/GetAllProductAttributes";
+            string requestURL = $"{_baseUrl}/api/ProductAttributes/GetAllProductAttributes";
             var response = await _client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Product_Attributes>>(response);
         }
 
+        public async Task<List<Product_Attributes>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)
+        {
+            string requestURL = $"{_baseUrl}/api/ProductAttributes/get-by-type?pageNumber={pageNumber}&pageSize={pageSize}&searchTerm={Uri.EscapeDataString(searchTerm)}";
+            var response = await _client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<List<Product_Attributes>>(response);
+
+        }
+
         public async Task<Product_Attributes> GetProductAttributesById(long id)
         {
-            string requestURL = $"https://localhost:7011/api/ProductAttributes/GetProductAttributeById?id={id}";
+            string requestURL = $"{_baseUrl}/api/ProductAttributes/GetProductAttributeById?id={id}";
             var response = await _client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<Product_Attributes>(response);
         }
 
         public async Task<List<Product_Attributes>> GetProductAttributesByProductVarianId(long id)
         {
-            string requestURL = $"https://localhost:7011/api/ProductAttributes/GetProductAttributesByProductVariantId?id={id}";
+            string requestURL = $"{_baseUrl}/api/ProductAttributes/GetProductAttributesByProductVariantId?id={id}";
             var response = await _client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Product_Attributes>>(response);
         }
-        public async Task<int> GetTotalCountAsync(string type, string searchTerm)
+
+        public async Task<int> GetTotalCountAsync(string searchTerm)
         {
-            var url = $"{_baseUrl}/api/Product_Post/Get-Total-Count?type={type}&searchTerm={Uri.EscapeDataString(searchTerm)}";
+            var url = $"{_baseUrl}/api/ProductAttributes/Get-Total-Count?searchTerm={Uri.EscapeDataString(searchTerm)}";
+
+            // Gọi API và nhận tổng số lượng bài viết
             var response = await _client.GetAsync(url);
-            response.EnsureSuccessStatusCode();
+            response.EnsureSuccessStatusCode(); // Kiểm tra xem phản hồi có thành công hay không
 
             var count = await response.Content.ReadFromJsonAsync<int>();
-            return count;
+            return count; 
         }
+
         public Task<List<Product_Attributes_DTO>> GetVariantByProductVariantId(List<long> variantIds)
         {
             throw new NotImplementedException();
@@ -61,7 +73,7 @@ namespace ViewsFE.Services
 
         public async Task Update(Product_Attributes productAttribute, long id)
         {
-            await _client.PutAsJsonAsync($"https://localhost:7011/api/ProductAttributes/UpdateProductAttrubutes?id={id}", productAttribute);
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/ProductAttributes/UpdateProductAttrubutes?id={id}", productAttribute);
         }
         
 

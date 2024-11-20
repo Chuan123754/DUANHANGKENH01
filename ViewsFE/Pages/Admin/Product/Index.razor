@@ -1,6 +1,7 @@
 ﻿@page "/admin/product"
 @inject NavigationManager Navigation
 @inject IPostSer ProductService
+@inject IJSRuntime JS
 
 <div class="page-wrapper">
     <!-- Page header -->
@@ -75,12 +76,30 @@
                                                     <a class="cell-action-delete text-danger" @onclick="() => ConfirmDelete(post.Id)">Xóa</a>
                                                 </div>
                                             </td>
-                                            <td>@post.AuthorId</td>
+                                            <td>@post.Designer?.Name</td>
                                             <td class="sort-type">
-                                                @post.CategoryName
+                                                @if (post.Post_categories != null && post.Post_categories.Any())
+                                                {
+                                                    <span>
+                                                        @string.Join(", ", post.Post_categories.Select(category => category.Categories.Title))
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Không có danh mục</span>
+                                                }
                                             </td>
                                             <td class="sort-tags">
-                                                @post.TagName
+                                                @if (post.Post_tags != null && post.Post_tags.Any())
+                                                {
+                                                    <span>
+                                                        @string.Join(", ", post.Post_tags.Select(tag => tag.Tag.Title))
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Không có thẻ tags</span>
+                                                }
                                             </td>
                                             <td class="sort-status">
                                                 <span class="@post.StatusClass">@post.StatusLabel</span>
@@ -141,7 +160,7 @@
     private async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        product_posts_list = await ProductService.GetAllType("product");
+        product_posts_list = await ProductService.GetByTypeAsync("product", page_number, page_size, searchTerm);
         totalItems = await ProductService.GetTotalCountAsync("product", searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
@@ -163,6 +182,8 @@
     private async Task ConfirmDelete(long id)
     {
         await ProductService.Delete(id);
+        await JS.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
         await LoadPosts();
+        StateHasChanged();
     }
 }

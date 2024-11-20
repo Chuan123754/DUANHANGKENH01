@@ -84,7 +84,25 @@ namespace appAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpGet("get-by-type")]
+        public async Task<IActionResult> GetByType([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        {
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Page number and page size must be greater than 0.");
+            }
 
-        
+            var list = await _repo.GetByTypeAsync(pageNumber, pageSize, searchTerm);
+
+
+            return Ok(list);
+        }
+        [HttpGet("Get-Total-Count")]
+        public async Task<IActionResult> GetTotalCount([FromQuery] string? searchTerm = null)
+        {
+            var totalCount = await _repo.GetTotalCountAsync(searchTerm);
+            return Ok(totalCount);
+        }
+
     }
 }

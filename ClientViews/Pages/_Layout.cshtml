@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1, maximum-scale=1" />
     <base href="~/" />
-    <!-- SEO Meta Tags -->
+  @*   <!-- SEO Meta Tags -->
     <meta name="description" content="HangKenh">
     <meta name="keywords" content="HangKenh">
 
@@ -27,7 +27,7 @@
     <meta name="twitter:image" content="@ViewData["Image"]">
 
     <link rel="icon" type="image/x-icon" href="@ViewData["Favicon"]" />
-    <link rel="canonical" href="@ViewData["CanonicalUrl"]" />
+    <link rel="canonical" href="@ViewData["CanonicalUrl"]" /> *@
 
     <link rel="stylesheet" href="main/assets/libs/swiperjs/swiper-bundle.min.css">
     <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
@@ -37,10 +37,9 @@
     <script src="assets/libs/wowjs/wow.min.js"></script>
     <link href="main/assets/css/slick.css" rel="stylesheet" type="text/css">
     <link href="main/assets/css/slick-theme.css" rel="stylesheet" type="text/css">
-    
+    <link href="main/assets/libs/swiperjs/swiper-bundle.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-   
     <link href="/css/main.css" rel="stylesheet" />
     <!-- Component for Blazor Head Rendering -->
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
@@ -50,6 +49,39 @@
         }
     </style>
     @RenderSection("Styles", required: false)
+    <script>
+        function topFunction() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+        function showSidebar(id) {
+            const element = document.querySelector('#' + id);
+            // const header = document.querySelector("header");
+            // const footer = document.querySelector("footer");
+            // const content = document.querySelector(".content");
+
+            if (element.classList.contains('active')) {
+                // document.body.classList.remove("bg-body-cover");
+                // header.classList.remove('bg-body-cover');
+                // footer.classList.remove('bg-body-cover');
+                // content.classList.remove('bg-body-cover');
+                element.classList.remove('active');
+            } else {
+                // document.body.classList.add("bg-body-cover");
+                // document.body.style.opacity = "0.6";
+                // header.classList.add('bg-body-cover');
+                // footer.classList.add('bg-body-cover');
+                // content.classList.add('bg-body-cover');
+                element.classList.add('active');
+            }
+        }
+    </script>
+    <script defer>
+        window.wow = new WOW({
+            live: false
+        })
+        window.wow.init();
+    </script>
 </head>
 <body>
    
@@ -58,6 +90,35 @@
             integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
             crossorigin="anonymous">
     </script>
+    <script src="main/assets/libs/swiperjs/swiper-bundle.min.js"></script>
+   
+    <script>
+        // Add event listener to each banner item
+        document.querySelectorAll('.banner-item').forEach(item => {
+            item.addEventListener('mouseover', () => {
+                // Hide all banner boxes
+                document.querySelectorAll('.banner-box').forEach(box => {
+                    box.style.display = 'none';
+                    box.parentElement.classList.remove('active'); // Remove active class
+                    box.parentElement.style.width = '300px'; // Set width to default
+                });
+                // Show the current banner box and set it to active
+                item.querySelector('.banner-box').style.display = 'block';
+                item.classList.add('active'); // Add active class to current item
+                item.style.width = '702px'; // Set width to active
+            });
+
+            item.addEventListener('mouseout', () => {
+                // Hide the current banner box if it's not the default one
+                if (!item.classList.contains('default')) {
+                    item.querySelector('.banner-box').style.display = 'none';
+                    item.classList.remove('active'); // Remove active class
+                    item.style.width = '300px'; // Set width back to default
+                }
+            });
+        });
+    </script>
+    <script src="main/assets/js/Youtube.min.js"></script>
     <script src="main/assets/js/slick.min.js" crossorigin="anonymous"></script>
     <script src="_framework/blazor.server.js"></script>
 

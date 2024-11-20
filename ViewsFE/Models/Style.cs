@@ -17,7 +17,6 @@ namespace ViewsFE.Models
         public DateTime Update_at { get; set; }
         public DateTime Delete_at { get; set; }
 
-        [JsonIgnore]
         public virtual ICollection<Product_variants> Product_Variants { get; set; } = new List<Product_variants>();
     }
 }
