@@ -78,12 +78,12 @@
                                         </div>
                                         <div class="search-box d-flex align-items-center justify-content-between mb-3">
                                             <div></div>
-                                            <EditForm Model="product_Attributes" OnValidSubmit="@OnSearch">
+                                 @*            <EditForm Model="product_Attributes" OnValidSubmit="@OnSearch">
                                                 <div class="form-group d-flex gap-2">
                                                     <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
                                                     <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
                                                 </div>
-                                            </EditForm>
+                                            </EditForm> *@
                                         </div>
 
                                         <div class="modal-body">
@@ -132,9 +132,9 @@
                                                     }
                                                 </tbody>
                                             </table>
-                                            <div class="mt-4">
+                                      @*       <div class="mt-4">
                                                 <PaginationMediaModal TItem="Product_Attributes" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
-                                            </div>
+                                            </div> *@
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" @onclick="CloseAddProductModal">Đóng</button>
@@ -715,37 +715,37 @@
     private bool isDeliveryVisible = false;
     private Dictionary<long, int> productQuantities = new Dictionary<long, int>();
     private decimal totalAmount = 0;
-    private string search_query = string.Empty;
-    private int page_number = 1;
-    private int total_pages = 1;
-    private int page_size = 10;
-    private int totalItems;
+    // private string search_query = string.Empty;
+    // private int page_number = 1;
+    // private int total_pages = 1;
+    // private int page_size = 10;
+    // private int totalItems;
 
-    private async Task OnSearch()
-    {
-        // Ngăn ngừa load lại trang
-        lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, search_query);
-    }
-    private async Task LoadPosts()
-    {
+    // private async Task OnSearch()
+    // {
+    //     // Ngăn ngừa load lại trang
+    //     lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, search_query);
+    // }
+    // private async Task LoadPosts()
+    // {
 
-        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, searchTerm);
-        totalItems = await productAttributeService.GetTotalCountAsync(searchTerm);
-        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
-        StateHasChanged();
-    }
-    private async Task GoToPage(int page)
-    {
-        page_number = page;
-        await LoadPosts();
-    }
-    private async Task OnPageSizeChanged(int newPageSize)
-    {
-        page_size = newPageSize;
-        page_number = 1;
-        await LoadPosts();
-    }
+    //     string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+    //     lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, searchTerm);
+    //     totalItems = await productAttributeService.GetTotalCountAsync(searchTerm);
+    //     total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+    //     StateHasChanged();
+    // }
+    // private async Task GoToPage(int page)
+    // {
+    //     page_number = page;
+    //     await LoadPosts();
+    // }
+    // private async Task OnPageSizeChanged(int newPageSize)
+    // {
+    //     page_size = newPageSize;
+    //     page_number = 1;
+    //     await LoadPosts();
+    // }
 
     private async Task SelectOrder(long orderId) // chọn hóa đơn
     {
@@ -812,7 +812,7 @@
         else
         {
             isAddProductModalVisible = true;
-            lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, search_query);
+            lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
         }
 
     }// danh sách sản phẩm trong modal
@@ -822,7 +822,7 @@
     }
     private async Task LoadProducts()
     {
-        lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, search_query);
+        lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
     }
     private async Task LoadOrderDetails() // danh sách đơn hàng chi tiết của đơn hàng được chọn
     {
@@ -832,7 +832,7 @@
     }
     protected override async Task OnInitializedAsync()
     {
-        await LoadPosts();
+        // await LoadPosts();
         await LoadOrders();
         var totalAmount = lst_OrderDetail.Sum(item => item.Quantity * item.ProductAttributes.Regular_price);
         lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
@@ -1085,7 +1085,7 @@
         ClearInfoAddress();
         await LoadOrderDetails();
         await LoadOrders();
-        await LoadPosts();
+        // await LoadPosts();
         await LoadProducts();
         await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
     }
