@@ -6,6 +6,7 @@ namespace ViewsFE.IServices
 {
     public interface IAccountService
     {
+        public Task<List<Account>> GetAll();
         public Task<IdentityResult> SignUpAsync(SignUpModel model);
         public Task<string> SignInAsync(SignInModel model);
         public Task SignOutAsync();

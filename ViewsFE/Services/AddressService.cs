@@ -24,6 +24,7 @@ namespace ViewsFE.Services
         }
         public async Task<List<Address>> GetAddressByUserId(long userId)
         {
+
             string requestURL = $"https://localhost:7011/api/Address/GetAddressByUserId?userId={userId}";
             var response = await _httpClient.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Address>>(response);
@@ -34,9 +35,29 @@ namespace ViewsFE.Services
             var response = await _httpClient.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<Address>(response);
         }
-        public async Task CreateAddress(Address address)
+        public async Task<bool> CreateAddress(Address address)
         {
-            await _httpClient.PostAsJsonAsync("https://localhost:7011/api/Address/CreateAddress", address);
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("https://localhost:7011/api/Address/CreateAddress", address);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return true; 
+                }
+                else
+                {
+                    var errorMessage = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Error: {errorMessage}"); 
+                    return false;  
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+                return false; 
+            }
+
         }
         public async Task UpdateAddress( Address address, long id)
         {

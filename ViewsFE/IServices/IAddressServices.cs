@@ -7,7 +7,7 @@ namespace ViewsFE.IServices
         public Task<List<Address>> GetAll();
         public Task<List<Address>> GetAddressByUserId(long userId);
         public Task<Address> GetAddressById(long id);
-        public Task CreateAddress(Address address);
+        public Task<bool> CreateAddress(Address address);
         public Task UpdateAddress(Address address, long id);
         public Task DeleteAddress(long id);
         public Task SetAsDefault(long id, Address address);

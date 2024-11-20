@@ -28,6 +28,11 @@ namespace appAPI.Repository
             this.context = context;
         }
 
+        public async Task<List<Account>> GetAllAsync()
+        {
+            return await userManager.Users.ToListAsync();
+        }
+
         public async Task<string> SignInAsync(SignInModel model)
         {
             var user = await userManager.FindByEmailAsync(model.Email);

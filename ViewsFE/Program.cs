@@ -36,6 +36,13 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Services.AddServerSideBlazor()
+    .AddHubOptions(options =>
+    {
+        options.ClientTimeoutInterval = TimeSpan.FromMinutes(2); // Tăng thời gian timeout
+        options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+    });
+
 
 // Thêm CORS nếu cần
 builder.Services.AddCors(options =>
@@ -86,6 +93,7 @@ builder.Services.AddScoped<IProductVariantServices, ProductVariantServices>();
 builder.Services.AddScoped<OrderDetailsIServices, OrderDetailsServices>();
 builder.Services.AddScoped<OrderIServices,OrderServices>(); 
 builder.Services.AddScoped<IBannerServices, BannerServices>();
+builder.Services.AddScoped<IUserService,UserService>(); 
 
 var app = builder.Build();
 

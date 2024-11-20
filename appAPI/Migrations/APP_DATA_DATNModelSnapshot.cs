@@ -807,6 +807,9 @@ namespace appAPI.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<decimal?>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime?>("Update_at")
                         .HasColumnType("datetime2");
 

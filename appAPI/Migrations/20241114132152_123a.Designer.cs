@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241107081601_app")]
-    partial class app
+    [Migration("20241114132152_123a")]
+    partial class _123a
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -809,6 +809,9 @@ namespace appAPI.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<decimal?>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime?>("Update_at")
                         .HasColumnType("datetime2");
 
@@ -1267,9 +1270,6 @@ namespace appAPI.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime?>("Updated_at")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
 
                     b.ToTable("tags");
@@ -1496,6 +1496,29 @@ namespace appAPI.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "ADMIN_ROLE_ID",
+                            ConcurrencyStamp = "fb608a40-c5cb-4608-94d4-df0ed0c4d40e",
+                            Name = "Admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "EMPLOYEE_ROLE_ID",
+                            ConcurrencyStamp = "23599741-e174-441c-8cd5-810aeed9a957",
+                            Name = "Employee",
+                            NormalizedName = "EMPLOYEE"
+                        },
+                        new
+                        {
+                            Id = "DESIGNER_ROLE_ID",
+                            ConcurrencyStamp = "f373181e-a420-43bf-b217-8a97924f5721",
+                            Name = "Designer",
+                            NormalizedName = "DESIGNER"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

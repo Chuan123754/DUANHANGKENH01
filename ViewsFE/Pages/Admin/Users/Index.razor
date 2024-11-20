@@ -1,0 +1,169 @@
+﻿@page "/admin/users"
+@inject NavigationManager nav
+@inject IUserService userService
+@inject IAccountService accountService
+@inject IJSRuntime JSRuntime
+@inject IJSRuntime JS
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">
+                        Danh sách người dùng
+                    </h2>
+                    <a href="/admin/user/create" class="btn btn-sm btn-outline-primary">
+                        Thêm người dùng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="card-body">
+                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                        <div></div>
+                        <EditForm Model="user" OnValidSubmit="@OnSearch">
+                            <div class="form-group d-flex gap-2">
+                                <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                            </div>
+                        </EditForm>
+                    </div>
+
+                    <div id="table-default" class="table-responsive">
+                        @if (userList != null && userList.Any())
+                        {
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên người dùng</th>
+                                        <th>Số điện thoại</th>
+                                        <th>Email</th>
+                                        <th>Địa chỉ</th>
+                                        <th>Ngày tạo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in userList)
+                                    {
+                                        <tr class="post-row">
+                                            <td>@user.Id</td>                                        
+                                            <td>@user.Name
+                                                <br />
+                                                <div class="cell-action">
+                                                    <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(user.Id)">Chỉnh sửa</a>
+                                                    <a class="cell-action-delete text-danger" @onclick="() => ConfirmDelete(user.Id)">Xóa</a>
+                                                </div>                                          
+                                            </td>
+                                            <td>@user.Phone</td>
+                                            <td>@user.Email</td>
+                                            <td>@user.Address</td>
+                                            <td>@user.Created_at</td>                                          
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Users" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center">Không có dữ liệu</td>
+                            </tr>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Users> userList = new List<Users>();
+    private Users user = new Users();
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private int totalItems;
+
+    private async Task OnSearch()
+    {
+        // userList = await userService.GetByTypeAsync("user", page_number, page_size, search_query);
+    }
+    private async Task LoadUsers()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        userList = await userService.GetAll();
+        // totalItems = await userService.GetTotalCountAsync("user", searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadUsers();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadUsers();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+    protected async Task NavEditUser(long id)
+    {
+        nav.NavigateTo($"/admin/user/edit/{id}");
+    }
+    protected async Task NavDeleteUser(long id)
+    {
+        await userService.Delete(id);
+        await LoadUsers();
+    }
+    private async Task NavEditCtgr(long id)
+    {
+        // Navigation.NavigateTo($"/admin/product/edit/{id}");
+    }
+
+    private async Task ConfirmDelete(long id)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa User này? \n Lưu Ý: Xóa tài khoản User là không thể khôi phục!!");
+        if (confirmed)
+        {
+            // Tìm người dùng theo ID
+            var user = userList.FirstOrDefault(u => u.Id == id);
+            if (user != null && !string.IsNullOrEmpty(user.Phone))
+            {
+                // Lấy danh sách tất cả các tài khoản
+                var allAccounts = await accountService.GetAll();
+
+                // Tìm accountId tương ứng với số điện thoại
+                var account = allAccounts.FirstOrDefault(a => a.PhoneNumber == user.Phone);
+                if (account != null)
+                {
+                    // Xóa tài khoản dựa trên accountId
+                    await accountService.DeleteAccountAsync(account.Id);
+                }
+            }
+
+            // Xóa user từ userService
+            await userService.Delete(id);
+            await LoadUsers();
+        }
+    }
+
+}

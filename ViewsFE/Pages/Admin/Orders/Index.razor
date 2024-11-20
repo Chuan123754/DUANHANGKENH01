@@ -1,0 +1,298 @@
+﻿@page "/admin/orders"
+@inject NavigationManager nav
+@inject OrderIServices orderService
+@inject OrderDetailsIServices orderDetailsService
+
+<style>
+    .badge {
+        padding: 0.5em 1em;
+        border-radius: 50px;
+        color: white;
+        font-size: 14px;
+    }
+    .customer-badge {
+        display: inline-block;
+        padding: 0.5em 1em;
+        border-radius: 50px;
+        border: 1px solid gray;
+        background-color: #C0C0C0;
+        font-size: 14px;
+        color: #333;
+    }
+    .bg-taiquay {
+        background-color: #CCCC99;
+        color:black;
+    }
+
+    .bg-giaohang {
+        background-color: #FFCC99;
+        color: black;
+    }
+    .bg-danger {
+        background-color: red;
+    }
+
+    .bg-success {
+        background-color: green;
+    }
+
+    .bg-secondary {
+        background-color: gray;
+    }
+</style>
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">DANH SÁCH ĐƠN HÀNG</h2>
+                </div>
+                <div class="col-auto ms-auto d-print-none ms-4">
+                    <div class="btn-list">
+                        <button class="btn btn-primary d-none d-sm-inline-block" @onclick="NavigateToSell">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                            Tạo đơn hàng mới
+                        </button>
+                    </div>
+                </div>
+            </div>           
+        </div>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                
+                <!-- Input tìm kiếm -->
+                <div class="form-group d-flex justify-content-end">
+                    <div class="d-flex gap-2" style="width: 30%;">
+                        <input type="text" id="searchInput"
+                               class="form-control flex-grow-1"
+                               @bind="searchText"
+                               @oninput="SearchOrders"
+                               placeholder="Nhập tên khách hàng hoặc số điện thoại" />
+                        <button type="button" class="btn btn-outline-primary">
+                            Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+               <div class="col-12">
+                    <div class="card">                    
+                        <div class="table-responsive">
+                            <div class="search-box d-flex align-items-center justify-content-between mb-3">                    
+                            </div>
+                            <table class="table card-table table-vcenter text-nowrap datatable">
+                                <thead>
+                                    <tr>
+                                        <th>Id đơn hàng</th>
+                                        <th>Người tạo</th>
+                                        <th>Tên khách hàng</th>
+                                        <th>Số điện thoại</th>
+                                        <th>Loại hóa đơn</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Trạng thái</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (pagedOrders != null && pagedOrders.Any())
+                                    {
+                                        int index = 0;
+                                        @foreach (var item in pagedOrders)
+                                        {
+                                            <tr>
+                                                <td>@item.Id</td>
+                                                <td> đây là ngươi tạo @* @(item.Admin.LastName + " " + item.Admin.FirstName) *@</td>
+                                                <td>
+                                                    @if (item.Users == null)
+                                                    {
+                                                        <span class="customer-badge">Khách lẻ</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @item.Users.Name
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (item.Users == null)
+                                                    {
+                                                        <span class="customer-badge">N/A</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @item.Users.Phone
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <span class="@GetNoteClass(item.Note)">
+                                                        @item.Note
+                                                    </span>
+                                                </td>
+                                                <td>@item.TotalAmount VNĐ</td>
+                                                <td>@item.Created_at</td>
+                                                <td>
+                                                    <span class="@GetStatusClass(item.Status)">
+                                                        @item.Status
+                                                    </span>
+                                                </td>
+                                                <td>hành động</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                                                                      
+                                           <td colspan="9" class="text-center">Không có dữ liệu để hiển thị.</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Orders" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="lst_Orders.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Orders> lst_Orders = new List<Orders>();
+    private List<Orders> pagedOrders = new List<Orders>();
+    private List<Order_details> lst_OrderDetails = new List<Order_details>();
+    private string searchText = string.Empty;
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalPages = 1;
+
+    private string GetNoteClass(string note)
+    {
+        if (note == "Tại quầy")
+        {
+            return "badge bg-taiquay";
+        }
+        else if (note == "Giao hàng")
+        {
+            return "badge bg-giaohang";
+        }
+        return "badge bg-secondary";
+    }
+    private void LoadPagedOrders()
+    {
+        totalPages = (int)Math.Ceiling((double)lst_Orders.Count / pageSize);
+        pagedOrders = lst_Orders.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        currentPage = page;
+        LoadPagedOrders();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        pageSize = newPageSize;
+        currentPage = 1;
+        LoadPagedOrders();
+    }
+    private string GetNoteClass(string note)
+    {
+        if (note == "Tại quầy")
+        {
+            return "badge bg-taiquay";
+        }
+        else if (note == "Giao hàng")
+        {
+            return "badge bg-giaohang";
+        }
+        return "badge bg-secondary";
+    }
+
+    private string GetStatusClass(string status) // giao diện cho status
+    {
+        if (status == "Hóa đơn treo")
+        {
+            return "badge bg-danger"; 
+        }
+        else if (status == "Đã thanh toán")
+        {
+            return "badge bg-success"; 
+        }
+        return "badge bg-secondary"; 
+    }
+    private void NavigateToSell()
+    {
+        nav.NavigateTo("/admin/sell");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ListOrder();
+        LoadPagedOrders();
+    }
+
+    public async Task ListOrder()
+    {
+        var orders = await orderService.GetAll();
+        lst_Orders = orders
+       .OrderByDescending(o => o.Status == "Hóa đơn treo") // "Hóa đơn treo" xếp lên đầu
+       .ThenByDescending(o => o.Created_at) // Sắp xếp theo ngày tạo 
+       .ToList();
+        lst_Orders = await orderService.GetAll() ?? new List<Orders>();
+
+        // Sắp xếp dựa trên trạng thái và ngày tạo
+        lst_Orders = lst_Orders
+            .OrderByDescending(o => o.Status == "Hóa đơn treo") 
+            .ThenByDescending(o => o.Status == "Đã thanh toán") 
+            .ThenByDescending(o => o.Created_at) 
+            .ToList();
+
+        LoadPagedOrders();
+    }
+
+    private async Task SearchOrders(ChangeEventArgs e)
+    {
+        searchText = e.Value?.ToString() ?? string.Empty;
+
+        lst_Orders = await orderService.GetAll() ?? new List<Orders>();
+
+        if (string.IsNullOrEmpty(searchText))
+        {
+            await ListOrder();
+        }
+        else if (searchText.Length == 10 && searchText.All(char.IsDigit))
+        {
+            // Tìm trong cột Số điện thoại
+            lst_Orders = lst_Orders
+                .Where(o => o.Users?.Phone == searchText)
+                .ToList();
+        }
+        else if (int.TryParse(searchText, out int searchId))
+        {
+            lst_Orders = lst_Orders
+                .Where(o => o.Id == searchId)
+                .ToList();
+        }
+        else
+        {
+            lst_Orders = lst_Orders
+                .Where(o => o.Users?.Name?.Contains(searchText, StringComparison.OrdinalIgnoreCase) ?? false)
+                .ToList();
+        }
+
+        currentPage = 1;
+        LoadPagedOrders();
+        StateHasChanged();
+    }
+
+}
