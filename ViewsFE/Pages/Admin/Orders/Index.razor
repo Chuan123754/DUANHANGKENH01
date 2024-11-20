@@ -205,18 +205,6 @@
         currentPage = 1;
         LoadPagedOrders();
     }
-    private string GetNoteClass(string note)
-    {
-        if (note == "Tại quầy")
-        {
-            return "badge bg-taiquay";
-        }
-        else if (note == "Giao hàng")
-        {
-            return "badge bg-giaohang";
-        }
-        return "badge bg-secondary";
-    }
 
     private string GetStatusClass(string status) // giao diện cho status
     {

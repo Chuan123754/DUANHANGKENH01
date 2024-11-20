@@ -174,20 +174,11 @@
 
     protected async Task NavDeleteCtgr(long id)
     {
-        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Bạn muốn xóa bản ghi này?");
-        if (confirmed)
-        {
-            try
-            {
-                await sev.Delete(id);
-                await JSRuntime.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
-            }
-            catch (Exception ex)
-            {
-                await JSRuntime.InvokeVoidAsync("ShowToastr", "error", "Có lỗi xảy ra khi xóa bản ghi.");
-            }
-        }
+
+        await sev.Delete(id);
+        await JSRuntime.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
         await LoadPosts();
+        StateHasChanged();
     }
 }
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
