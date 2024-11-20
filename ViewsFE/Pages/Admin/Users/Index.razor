@@ -144,23 +144,18 @@
         bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa User này? \n Lưu Ý: Xóa tài khoản User là không thể khôi phục!!");
         if (confirmed)
         {
-            // Tìm người dùng theo ID
             var user = userList.FirstOrDefault(u => u.Id == id);
             if (user != null && !string.IsNullOrEmpty(user.Phone))
             {
-                // Lấy danh sách tất cả các tài khoản
                 var allAccounts = await accountService.GetAll();
 
                 // Tìm accountId tương ứng với số điện thoại
                 var account = allAccounts.FirstOrDefault(a => a.PhoneNumber == user.Phone);
                 if (account != null)
                 {
-                    // Xóa tài khoản dựa trên accountId
                     await accountService.DeleteAccountAsync(account.Id);
                 }
             }
-
-            // Xóa user từ userService
             await userService.Delete(id);
             await LoadUsers();
         }

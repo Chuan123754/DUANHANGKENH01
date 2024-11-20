@@ -2,7 +2,7 @@
 @inject NavigationManager nav
 @inject IUserService userService
 @inject IAddressServices addressService
-@inject OrderIServices orderService
+@inject IOrderIServices orderService
 @inject OrderDetailsIServices orderDetailService
 @inject IProductAttributeServices productAttributeService
 @inject IProductVariantServices productVariantService
@@ -29,6 +29,7 @@
         border-color: #007bff;
     }
 </style>
+
 <div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
@@ -681,11 +682,28 @@
 
                                     </tbody>
                                 </table>
+                                @if (!string.IsNullOrEmpty(momoError))
+                                {
+                                    <div class="alert alert-danger">
+                                        <strong>Lỗi thanh toán:</strong> @momoError
+                                    </div>
+                                }
+                                else if (!string.IsNullOrEmpty(payUrl) && !string.IsNullOrEmpty(qrCodeBase64))
+                                {
+                                    <div class="alert alert-success text-center">
+                                        <h5>Quét mã QR để thanh toán:</h5>
+                                        <img src="@qrCodeBase64" alt="QR Code" style="width: 250px; height: 250px;" />
+                                        <p>Hoặc nhấn <a href="@payUrl" target="_blank">tại đây</a> để thanh toán.</p>
+                                    </div>
+                                }
+
+
                             </div>
                             <div class="d-flex justify-content-center my-3">
                                 <button type="button" class="btn btn-primary" @onclick="CheckOut">Xác nhận thanh toán</button>
                             </div>
                         </div>
+                        
 
                     </div>
                 </div>
@@ -1036,6 +1054,7 @@
     {
         isCreateCustomerModalVisible = false;
     }
+
     private async void CheckOut()
     {
         await LoadOrderDetails();
@@ -1045,6 +1064,7 @@
             return;
         }
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
+
         if (orderToUpdate != null)
         {
             orderToUpdate.TotalAmount = totalAmount;
@@ -1057,6 +1077,8 @@
             {
                 orderToUpdate.Status = "Đã thanh toán";
             }
+            orderToUpdate.TotalAmount = totalAmount;
+            orderToUpdate.Status = "Đã thanh toán";  // Cập nhật trạng thái          
             await orderService.Update(orderToUpdate, orderToUpdate.Id);
             foreach (var item in lst_OrderDetail)
             {

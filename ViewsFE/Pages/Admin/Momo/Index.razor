@@ -1,0 +1,89 @@
+﻿@page "/admin/Momo"
+@inject NavigationManager NavigationManager
+@inject MomoService MomoService
+
+<h3>Thanh toán MOMO</h3>
+
+<script>
+        form {
+        max - width: 400px;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border - radius: 5px;
+        background - color: #f9f9f9;
+    }
+
+    label {
+        display: block;
+        margin - bottom: 5px;
+        font - weight: bold;
+    }
+
+    input {
+        width: 100 %;
+        padding: 10px;
+        margin - bottom: 15px;
+        border: 1px solid #ccc;
+        border - radius: 5px;
+    }
+
+    button {
+        width: 100 %;
+        padding: 10px;
+        background - color: #007bff;
+        color: white;
+        border: none;
+        border - radius: 5px;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background - color: #0056b3;
+    }
+
+</script>
+<div>
+    <form>
+        <div>
+            <label for="fullName">Họ và Tên:</label>
+            <input type="text" id="fullName" @bind="FullName" />
+        </div>
+        <div>
+            <label for="amount">Số tiền (VND):</label>
+            <input type="number" id="amount" @bind="Amount" />
+        </div>
+        <div>
+            <label for="orderInfo">Nội dung thanh toán:</label>
+            <input type="text" id="orderInfo" @bind="OrderInfo" />
+        </div>
+        <br />
+        <button @onclick="PayWithMomo" class="btn btn-primary">Thanh toán với MOMO</button>
+    </form>
+
+    <p style="color: red;">@ErrorMessage</p>
+</div>
+
+@code {
+    private string FullName { get; set; } = "Nguyễn Văn A";
+    private decimal Amount { get; set; } = 50000; // Giá trị mặc định
+    private string OrderInfo { get; set; } = "Thanh toán đơn hàng #123";
+    private string ErrorMessage { get; set; }
+
+    private async Task PayWithMomo()
+    {
+        try
+        {
+            ErrorMessage = string.Empty; // Xóa lỗi cũ (nếu có)
+            var payUrl = await MomoService.CreatePaymentUrlAsync(FullName, Amount, OrderInfo);
+
+            // Điều hướng đến URL thanh toán MOMO
+            NavigationManager.NavigateTo(payUrl);
+        }
+        catch (Exception ex)
+        {
+            // Hiển thị lỗi nếu xảy ra
+            ErrorMessage = $"Lỗi: {ex.Message}";
+        }
+    }
+}

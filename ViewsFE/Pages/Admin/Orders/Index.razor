@@ -1,7 +1,8 @@
 ﻿@page "/admin/orders"
 @inject NavigationManager nav
-@inject OrderIServices orderService
+@inject IOrderIServices orderService
 @inject OrderDetailsIServices orderDetailsService
+@inject IJSRuntime JS
 
 <style>
     .text-bold {
@@ -447,3 +448,23 @@
     }
 
 }
+    }    
+
+    private async Task DownloadInvoice(long orderId)
+    {
+        try
+        {
+            var fileBytes = await orderService.ExportInvoice(orderId);
+            var fileName = $"hoa_don_{orderId}.pdf";
+
+            // Sử dụng JavaScript để tải về file PDF
+            using var streamRef = new DotNetStreamReference(stream: new MemoryStream(fileBytes));
+            await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi xuất hóa đơn: {ex.Message}");
+        }
+    }
+}
+

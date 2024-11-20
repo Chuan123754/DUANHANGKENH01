@@ -81,6 +81,9 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IProductAttributesRepository, ProductAttributesRepository>();
 builder.Services.AddScoped<IProductVariantsRepository, ProductVariantsRepository>();
 
+builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+builder.Services.AddScoped<IMomoRepository, MomoRepository>();
+
 // Đăng ký CORS
 builder.Services.AddCors(options =>
 {
