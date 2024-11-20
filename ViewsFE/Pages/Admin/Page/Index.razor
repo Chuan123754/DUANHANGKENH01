@@ -46,7 +46,7 @@
                                             <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-city">Tác giả</button>
+                                            <button class="table-sort" data-sort="sort-city">Đường dẫn</button>
                                         </th>
                                         <th>
                                             <button class="table-sort" data-sort="sort-score">Thẻ</button>
@@ -74,8 +74,19 @@
                                                     <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(post.Id)">Thùng rác</a>
                                                 </div>
                                             </td>
-                                            <td class="sort-city">@post.AuthorId</td>
-                                            <td class="sort-score">@post.TagName</td>
+                                            <td class="sort-city">@post.Slug</td>
+                                            <td class="sort-score">
+                                                @if (post.Post_tags != null && post.Post_tags.Any())
+                                                {
+                                                    <span>
+                                                        @string.Join(", ", post.Post_tags.Select(tag => tag.Tag.Title))
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Không có thẻ tags</span>
+                                                }
+                                            </td>
                                             <td class="sort-status">
                                                 <span class="@post.StatusClass">@post.StatusLabel</span>
                                             </td>
@@ -118,7 +129,7 @@
     private async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        product_posts_list = await sev.GetAllType("page");
+        product_posts_list = await sev.GetByTypeAsync("page", page_number, page_size, searchTerm);
         totalItems = await sev.GetTotalCountAsync("page", searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
@@ -141,7 +152,7 @@
     }
     protected async Task NavEditCtgr(long id)
     {
-        nav.NavigateTo($"/admin/page/edit/{id}");
+        nav.NavigateTo($"/admin/page/edit/{id}", forceLoad: true);
     }
     protected async Task NavDeleteCtgr(long id)
     {

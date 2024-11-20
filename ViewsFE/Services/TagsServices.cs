@@ -1,4 +1,5 @@
-﻿using ViewsFE.IServices;
+﻿using Newtonsoft.Json;
+using ViewsFE.IServices;
 using ViewsFE.Models;
 
 namespace ViewsFE.Services
@@ -9,6 +10,12 @@ namespace ViewsFE.Services
         public TagsServices()
         {
             client = new HttpClient();
+        }
+        public async Task<List<Post_tags>> GetTagByPostId(long postId)
+        {
+            string requestURL = $"https://localhost:7011/api/Tags/GetTagByPostId?postId={postId}";
+            var response = await client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<List<Post_tags>>(response);
         }
         public async Task Create(Tags tag)
         {

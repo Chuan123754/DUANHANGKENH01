@@ -77,12 +77,30 @@
                                                     <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(post.Id)">Thùng rác</a>
                                                 </div>
                                             </td>
-                                            <td class="sort-city">@post.AuthorId</td>
+                                            <td class="sort-city">@post.Designer?.Name</td>
                                             <td class="sort-type">
-                                                @post.CategoryName
+                                                @if (post.Post_categories != null && post.Post_categories.Any())
+                                                {
+                                                    <span>
+                                                        @string.Join(", ", post.Post_categories.Select(category => category.Categories.Title))
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Không có danh mục</span>
+                                                }
                                             </td>
                                             <td class="sort-score">
-                                                @post.TagName
+                                                @if (post.Post_tags != null && post.Post_tags.Any())
+                                                {
+                                                    <span>
+                                                        @string.Join(", ", post.Post_tags.Select(tag => tag.Tag.Title))
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Không có thẻ tags</span>
+                                                }
                                             </td>
                                             <td class="sort-status">
                                                 <span class="@post.StatusClass">@post.StatusLabel</span>
@@ -125,7 +143,7 @@
     private async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        product_posts_list = await sev.GetAllType("project");
+        product_posts_list = await sev.GetByTypeAsync("project", page_number, page_size, searchTerm);
         totalItems = await sev.GetTotalCountAsync("project", searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         // Kiểm tra dữ liệu

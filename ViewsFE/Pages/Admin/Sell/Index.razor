@@ -7,14 +7,14 @@
 @inject IProductAttributeServices productAttributeService
 @inject IProductVariantServices productVariantService
 @inject IJSRuntime JS
- 
+
 <style>
     .custom-modal-size {
-        max-width: 200%; 
+        max-width: 200%;
     }
 
     .modal-dialog-scrollable {
-        max-height: 80vh; 
+        max-height: 80vh;
         overflow-y: auto;
     }
 
@@ -75,12 +75,22 @@
                                             <h5 class="modal-title">Thêm Sản Phẩm</h5>
                                             <button type="button" class="btn-close" @onclick="CloseAddProductModal" aria-label="Close"></button>
                                         </div>
+                                        <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                            <div></div>
+                                            <EditForm Model="product_Attributes" OnValidSubmit="@OnSearch">
+                                                <div class="form-group d-flex gap-2">
+                                                    <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                                    <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                                </div>
+                                            </EditForm>
+                                        </div>
+
                                         <div class="modal-body">
                                             <table class="table table-bordered">
                                                 <thead>
                                                     <tr>
                                                         <th>Hình Ảnh</th>
-                                                        <th>Tên Sản Phẩm</th>                                                  
+                                                        <th>Tên Sản Phẩm</th>
                                                         <th>Mô Tả</th>
                                                         <th>Công Nghệ Dệt</th>
                                                         <th>Phong Cách</th>
@@ -96,15 +106,15 @@
                                                     @foreach (var product in lst_ProductAttributes)
                                                     {
                                                         <tr>
-                                                            <td><img src="@product.Image" alt="Hình ảnh" style="width: 130px; height: auto;" /></td> 
-                                                            <td>@product.Product_Variant.Posts.Title</td>                                                            
+                                                            <td><img src="@product.Image" alt="Hình ảnh" style="width: 130px; height: auto;" /></td>
+                                                            <td>@product.Product_Variant.Posts.Title</td>
                                                             <td>@product.Product_Variant?.Description</td>
                                                             <td>@product.Product_Variant?.Textile_Technology?.Title</td>
-                                                            <td>@product.Product_Variant?.Style?.Title</td> 
-                                                            <td>@product.Product_Variant?.Material?.Title</td> 
-                                                            <td>@product.Size?.Title</td> 
-                                                            <td>@product.Color?.Title</td> 
-                                                            <td>@product.Stock Tấm</td> 
+                                                            <td>@product.Product_Variant?.Style?.Title</td>
+                                                            <td>@product.Product_Variant?.Material?.Title</td>
+                                                            <td>@product.Size?.Title</td>
+                                                            <td>@product.Color?.Title</td>
+                                                            <td>@product.Stock Tấm</td>
                                                             <td>@product.Regular_price VNĐ</td>
                                                             <td>
                                                                 <div class="input-group">
@@ -121,6 +131,9 @@
                                                     }
                                                 </tbody>
                                             </table>
+                                            <div class="mt-4">
+                                                <PaginationMediaModal TItem="Product_Attributes" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" @onclick="CloseAddProductModal">Đóng</button>
@@ -147,7 +160,7 @@
                                 }
                             </div>
                         </div>
-   
+
                         <div class="table-responsive">
                             <table class="table card-table table-vcenter text-nowrap datatable">
                                 <thead>
@@ -172,7 +185,7 @@
                                             <td>
                                                 <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select item">
                                             </td>
-                                            <td><img src="@item.ProductAttributes.Image" alt="Hình ảnh" style="width: 80px; height: auto;" /></td> 
+                                            <td><img src="@item.ProductAttributes.Image" alt="Hình ảnh" style="width: 80px; height: auto;" /></td>
                                             <td>@item.ProductAttributes.Product_Variant.Posts.Title </td>
                                             <td>@item.ProductAttributes.Product_Variant.Material.Title </td>
                                             <td>@item.ProductAttributes.Product_Variant.Textile_Technology.Title </td>
@@ -180,13 +193,13 @@
                                             <td>@item.ProductAttributes.Color.Title</td>
                                             <td>@item.ProductAttributes.Size.Title</td>
                                             <td>@item.Quantity </td>
-                                            <td>@(item.Quantity*item.ProductAttributes.Regular_price) VNĐ</td>
+                                            <td>@(item.Quantity * item.ProductAttributes.Regular_price) VNĐ</td>
                                             <td>
-                                                
+
                                                 <button class="btn btn-danger" @onclick="() => DeleteOrderDetail(item.Id)">
                                                     <i class="bi bi-trash3"></i>
                                                 </button>
-                                            </td>                                                                                     
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>
@@ -228,7 +241,7 @@
                                                     </div>
                                                     <button class="btn btn-success" @onclick="OpenModalCreateCustomer">Thêm mới khách hàng</button>
                                                 </div>
-                                                @if(isCreateCustomerModalVisible)
+                                                @if (isCreateCustomerModalVisible)
                                                 {
                                                     <div class="modal fade show d-block" tabindex="-1" role="dialog">
                                                         <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 40%; width: auto;">
@@ -250,7 +263,7 @@
                                                                             <label for="exampleInputEmail1" class="form-label">Email</label>
                                                                             <input type="email" class="form-control" id="exampleInputEmail1" @bind="@Customer.Email" aria-describedby="emailHelp">
                                                                         </div>
-                                                                        <div class="modal-footer d-flex justify-content-between">                                                        
+                                                                        <div class="modal-footer d-flex justify-content-between">
                                                                             <button type="button" class="btn btn-primary" @onclick="CreateCustomer">Xác nhận</button>
                                                                             <button type="button" class="btn btn-secondary" @onclick="CloseModalCreateCustomer">Hủy</button>
                                                                         </div>
@@ -268,14 +281,14 @@
                                                             <th>Họ và tên </th>
                                                             <th>Số điện thoại</th>
                                                             <th>Email</th>
-                                                            <th>Thao tác</th>                                                           
+                                                            <th>Thao tác</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         @foreach (var item in lst_Customer)
                                                         {
                                                             <tr>
-                                                               
+
                                                                 <td>1</td>
                                                                 <td>@item.Name</td>
                                                                 <td>@item.Phone</td>
@@ -290,11 +303,11 @@
                                                     </tbody>
                                                 </table>
                                             </div>
-                                         </div>
+                                        </div>
 
                                     </div>
-                                </div>                           
-                             <div class="modal-backdrop fade show"></div>
+                                </div>
+                                <div class="modal-backdrop fade show"></div>
 
                             }
                         </div>
@@ -310,7 +323,7 @@
                                         <div class="col-auto">
                                             <div class="border rounded p-2" style="width: 200px;">Custom column padding</div>
                                         </div>
-                                              <div class="col-auto">
+                                        <div class="col-auto">
                                             <div class="border rounded p-2" style="width: 200px;">Custom column padding</div>
                                         </div>
                                         <div class="col-auto">
@@ -333,10 +346,10 @@
                         <div class="card-header d-flex align-items-center justify-content-between">
                             <h3 class="card-title">Thông tin đơn hàng</h3>
                             <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" @bind="isDeliveryVisible" >
-                                <label class="form-check-label" for="flexSwitchCheckChecked">Giao hàng</label>                       
+                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" @bind="isDeliveryVisible">
+                                <label class="form-check-label" for="flexSwitchCheckChecked">Giao hàng</label>
                             </div>
-                        </div>  
+                        </div>
                         <div class="table-responsive">
                             <div class="container px-4 text-center">
                                 <div class="row gx-2 justify-content-between">
@@ -363,8 +376,8 @@
                                                     Tiền hàng :
                                                 </div>
                                             </td>
-                                            <td class="text-nowrap text-secondary"> @totalAmount VND</td>                                          
-                                           
+                                            <td class="text-nowrap text-secondary"> @totalAmount VND</td>
+
                                         </tr>
                                         <tr>
                                             <td class="td-truncate">
@@ -375,7 +388,7 @@
                                             <td class="text-nowrap text-secondary"> 0 VND</td>
 
                                         </tr>
-                                         <tr>
+                                        <tr>
                                             <td class="td-truncate">
                                                 <div class="text-truncate">
                                                     Tiền giảm giá
@@ -410,9 +423,10 @@
 
 @code {
     private long selectedOrderId;
-    private string customerName = ""; 
+    private string customerName = "";
     private bool isCustomerAdded = false; // Kiểm tra xem khách hàng đã được thêm chưa
     private Orders orders = new Orders();
+    private Product_Attributes product_Attributes = new Product_Attributes();
     private Order_details order_Details = new Order_details();
     private Users Customer = new Users();
     private List<Users> lst_Customer = new List<Users>();
@@ -427,9 +441,39 @@
     private bool isDeliveryVisible = false;
     private Dictionary<long, int> productQuantities = new Dictionary<long, int>();
     private decimal totalAmount = 0;
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private int totalItems;
 
+    private async Task OnSearch()
+    {
+        // Ngăn ngừa load lại trang
+        lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, search_query);
+    }
+    private async Task LoadPosts()
+    {
 
-    private async Task SelectOrder(long orderId) // chọn hóa đơn 
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, searchTerm);
+        totalItems = await productAttributeService.GetTotalCountAsync(searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
+
+    private async Task SelectOrder(long orderId) // chọn hóa đơn
     {
         selectedOrderId = orderId;
         lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
@@ -475,7 +519,7 @@
     } // mở modal sản phẩm
     private async void ShowAddProductModal()
     {
-        if(selectedOrderId == 0)
+        if (selectedOrderId == 0)
         {
             isAddProductModalVisible = false;
             await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn hóa đơn trước");
@@ -483,7 +527,7 @@
         else
         {
             isAddProductModalVisible = true;
-            lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
+            lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, search_query);
         }
 
     }// danh sách sản phẩm trong modal
@@ -493,7 +537,7 @@
     }
     private async Task LoadProducts()
     {
-        lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
+        lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, search_query);
     }
     private async Task LoadOrderDetails() // danh sách đơn hàng chi tiết của đơn hàng được chọn
     {
@@ -503,9 +547,11 @@
     }
     protected override async Task OnInitializedAsync()
     {
+        await LoadPosts();
         await LoadOrders();
         var totalAmount = lst_OrderDetail.Sum(item => item.Quantity * item.ProductAttributes.Regular_price);
-        lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
+       // lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
+    
     } // LOAD
     private async Task LoadOrders() // lấy ra các hóa đơn treo ( chưa thanh toán )
     {
@@ -526,7 +572,7 @@
     }
     private async Task CreateOrder()
     {
-        orders.Status = "Hóa đơn treo";        
+        orders.Status = "Hóa đơn treo";
         await orderService.Create(orders);
         lst_Orders = await orderService.GetAll();
         await LoadOrders();
@@ -539,13 +585,13 @@
             if (isDeliveryVisible != value)
             {
                 isDeliveryVisible = value;
-                UpdateOrderNote(); 
+                UpdateOrderNote();
             }
         }
     }
     private async Task UpdateOrderNote()
     {
-        if(isDeliveryVisible==false)
+        if (isDeliveryVisible == false)
         {
             orders.Note = "Tại quầy";
         }
@@ -564,7 +610,7 @@
         if (quantity <= 0)
         {
             await JS.InvokeVoidAsync("toastr.error", "Số lượng phải lớn hơn 0.");
-            return; 
+            return;
         }
 
         var productAttribute = await productAttributeService.GetProductAttributesById(productAttributeId);
@@ -578,7 +624,7 @@
         if (quantity > productAttribute.Stock)
         {
             await JS.InvokeVoidAsync("toastr.error", "Sản phẩm trong kho không đủ.");
-            return;  
+            return;
         }
 
         var existingOrderDetail = await orderDetailService.GetByOrderIdAndProductAttributeId(selectedOrderId, productAttributeId);
@@ -587,7 +633,7 @@
             if (existingOrderDetail.Quantity + quantity > productAttribute.Stock)
             {
                 await JS.InvokeVoidAsync("toastr.error", "Số lượng trong kho không đủ.");
-                return;  
+                return;
             }
             // Cộng dồn số lượng nếu sản phẩm đã tồn tại
             existingOrderDetail.Quantity += quantity;
@@ -605,7 +651,7 @@
             await orderDetailService.Create(orderDetails);
         }
 
-        await LoadOrderDetails(); 
+        await LoadOrderDetails();
         productQuantities[productAttributeId] = 0;
         totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
     }
@@ -627,7 +673,7 @@
     {
         isAddCustomerModalVisible = false;
     }
-    private async Task AddCustomer(Users selectedCustomer )
+    private async Task AddCustomer(Users selectedCustomer)
     {
 
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
@@ -643,7 +689,6 @@
         // Cập nhật lại thông tin đơn hàng
         lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
         totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
-
         await LoadOrders();
     }
     private async void CreateCustomer()
@@ -668,16 +713,16 @@
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate != null)
         {
-            if(orderToUpdate.User_id==null)
+            if (orderToUpdate.User_id == null)
             {
                 orderToUpdate.User_id = 1;
             }
-            orderToUpdate.Status = "Đã thanh toán";  // Cập nhật trạng thái          
+            orderToUpdate.Status = "Đã thanh toán";  // Cập nhật trạng thái
             await orderService.Update(orderToUpdate, orderToUpdate.Id);
-            foreach(var item in lst_OrderDetail)
+            foreach (var item in lst_OrderDetail)
             {
                 var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
-                if(product != null)
+                if (product != null)
                 {
                     if (item.Quantity > product.Stock)
                     {
@@ -689,17 +734,18 @@
                 }
             }
         }
-        selectedOrderId = 0;  
-        customerName = "";  
-        isCustomerAdded = false;  
-        lst_OrderDetail.Clear();  
-        totalAmount = 0;  
-        productQuantities.Clear();  
-        isAddProductModalVisible = false;  
-        isAddCustomerModalVisible = false;  
+        selectedOrderId = 0;
+        customerName = "";
+        isCustomerAdded = false;
+        lst_OrderDetail.Clear();
+        totalAmount = 0;
+        productQuantities.Clear();
+        isAddProductModalVisible = false;
+        isAddCustomerModalVisible = false;
         isCreateCustomerModalVisible = false;
         await LoadOrderDetails();
         await LoadOrders();
+        await LoadPosts();
         await LoadProducts();
         await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
     }

@@ -39,7 +39,6 @@
                                             {
                                                 @foreach (var file in listFiles)
                                                 {
-                                                    Console.WriteLine($"Rendering image: {file.Path}"); // Debugging
                                                     <div class="image-item" data-name="@file.Name" data-id="@file.Id" style="position: relative;" key="@file.Id">
                                                         <button type="button" class="btn btn-default p-0 m-0 btn-choose-image"
                                                                 @onclick="() => ToggleSelectImage(file.Path)"
@@ -103,15 +102,14 @@
     }
 
     private async Task ToggleSelectImage(string imagePath)
-{
-    selectedImagePath = imagePath == selectedImagePath ? null : imagePath;
-    Console.WriteLine($"Selected Image Path: {selectedImagePath}"); // Debugging
-    StateHasChanged();
-}
+    {
+        selectedImagePath = imagePath == selectedImagePath ? null : imagePath;
+        StateHasChanged();
+    }
 
     private async Task ConfirmSelection()
     {
-        await OnImageSelected.InvokeAsync(selectedImagePath);     
+        await OnImageSelected.InvokeAsync(selectedImagePath);
         StateHasChanged();
     }
 
@@ -135,7 +133,7 @@
         page_number = 1;
         await LoadPosts();
     }
-    
+
     private async Task OnSearch()
     {
         await LoadPosts();

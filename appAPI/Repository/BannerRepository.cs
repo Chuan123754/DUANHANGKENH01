@@ -18,6 +18,31 @@ namespace appAPI.Repository
             _context.Banner.Add(banner);
             await _context.SaveChangesAsync();
         }
+        // Thêm banner vào bài viết sau khi tạo bài viết
+        public async Task AddBannerToPost(long postId, Banner banner)
+        {
+            if (banner.Id > 0)
+            {
+                // Lấy banner từ bảng Banner
+                var bannerItem = await _context.Banner.FindAsync(banner.Id);
+
+                // Kiểm tra nếu không tìm thấy bannerItem
+                if (bannerItem == null)
+                {
+                    // Trả về lỗi hoặc xử lý nếu không tìm thấy banner
+                    throw new Exception("Banner not found.");
+                }
+
+                // Cập nhật ProductPostId trong Banner để liên kết với bài viết
+                bannerItem.ProductPostId = postId;
+                bannerItem.Created_at = DateTime.Now;
+
+                // Thực hiện lưu thay đổi
+                _context.Banner.Add(bannerItem);  // Thay _context.Banner.Add() bằng Update()
+                await _context.SaveChangesAsync();
+            }
+        }
+
 
         public async Task Delete(long id)
         {
@@ -47,12 +72,8 @@ namespace appAPI.Repository
             if (updateItem != null)
             {
                 updateItem.Name = banner.Name;
-                updateItem.Type = banner.Type;
-                updateItem.Status = banner.Status;
                 updateItem.Meta_data = banner.Meta_data;
-                updateItem.Created_by = banner.Created_by;
                 updateItem.Updated_by = banner.Updated_by;
-                updateItem.Created_at= banner.Created_at;
                 updateItem.Updated_at=DateTime.Now;
 
                 _context.Banner.Update(updateItem);

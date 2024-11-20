@@ -14,7 +14,7 @@ namespace appAPI.Repository
         }
         public async Task<List<Post_tags>> GetTagByPostId(long postId)
         {
-            return await context.Post_Tags.Where(p => p.Post_Id == postId).ToListAsync();
+            return await context.Post_Tags.Where(p => p.Post_Id == postId).Include(p=>p.Tag).ToListAsync();
         }
         public async Task Create(Tags tag)
         {

@@ -17,8 +17,5 @@ namespace appAPI.Models
         public long Updated_by { get; set; }
         public DateTime Create_at { get; set; }
         public DateTime Update_at { get; set;}
-        [JsonIgnore]
-        public virtual ICollection<P_attribute_discount> ProductAttributesDiscounts { get; set; } = new List<P_attribute_discount>();
-
     }
 }

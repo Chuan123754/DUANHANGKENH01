@@ -1,7 +1,7 @@
 ﻿@page "/admin/style/create"
 @inject NavigationManager nav
 @inject IStyleServices sev
-
+@inject IJSRuntime JS
 
 <EditForm Model="style" OnValidSubmit="SubmitForm" FormName="styleadd">
     <DataAnnotationsValidator></DataAnnotationsValidator>
@@ -36,11 +36,20 @@
 
 @code {
     private Style style = new Style();
-   
+
     private async Task SubmitForm()
     {
         style.Create_at = DateTime.Now;
-        await sev.Create(style); // Gọi API để tạo thuộc tính
-        nav.NavigateTo("/admin/style"); // Điều hướng sau khi thành công
+        try
+        {
+            await sev.Create(style); // Gọi API để tạo thuộc tính
+            await JS.InvokeVoidAsync("toastr.success", "Phong cách đã được thêm thành công"); // Hiển thị thông báo thành công
+            nav.NavigateTo("/admin/style"); // Điều hướng sau khi thành công
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm phong cách. Vui lòng thử lại."); // Hiển thị thông báo lỗi
+        }
     }
 }

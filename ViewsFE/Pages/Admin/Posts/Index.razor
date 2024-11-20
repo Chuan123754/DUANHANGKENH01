@@ -77,9 +77,34 @@
                                                     <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(post.Id)">Thùng rác</a>
                                                 </div>
                                             </td>
-                                            <td class="sort-city">@post.AuthorId</td>
-                                            <td class="sort-type">@post.CategoryName</td>
-                                            <td class="sort-score">@post.TagName</td>
+                                            <td class="sort-city">
+                                                @post.Designer?.Name
+                                            </td>
+
+                                            <td class="sort-type">
+                                                @if (post.Post_categories != null && post.Post_categories.Any())
+                                                {
+                                                    <span>
+                                                        @string.Join(", ", post.Post_categories.Select(category => category.Categories.Title))
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Không có danh mục</span>
+                                                }
+                                            </td>
+                                            <td class="sort-score">
+                                                @if (post.Post_tags != null && post.Post_tags.Any())
+                                                {
+                                                    <span>
+                                                        @string.Join(", ", post.Post_tags.Select(tag => tag.Tag.Title))
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Không có thẻ tags</span>
+                                                }
+                                            </td>
                                             <td class="sort-status">
                                                 <span class="@post.StatusClass">@post.StatusLabel</span>
                                             </td>
@@ -121,7 +146,7 @@
     private async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        product_posts_list = await sev.GetAllType("post");
+        product_posts_list = await sev.GetByTypeAsync("post", page_number, page_size, searchTerm);
         totalItems = await sev.GetTotalCountAsync("post", searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
@@ -144,11 +169,24 @@
     }
     protected async Task NavEditCtgr(long id)
     {
-        nav.NavigateTo($"/admin/post/edit/{id}");
+        nav.NavigateTo($"/admin/post/edit/{id}", forceLoad: true);
     }
+
     protected async Task NavDeleteCtgr(long id)
     {
-        await sev.Delete(id);
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Bạn muốn xóa bản ghi này?");
+        if (confirmed)
+        {
+            try
+            {
+                await sev.Delete(id);
+                await JSRuntime.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
+            }
+            catch (Exception ex)
+            {
+                await JSRuntime.InvokeVoidAsync("ShowToastr", "error", "Có lỗi xảy ra khi xóa bản ghi.");
+            }
+        }
         await LoadPosts();
     }
 }

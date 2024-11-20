@@ -3,6 +3,7 @@ using appAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace appAPI.Controllers
 {
@@ -11,26 +12,41 @@ namespace appAPI.Controllers
     public class PostTagsController : ControllerBase
     {
         private readonly IRepository<Post_tags> _postTagRepository;
-
-        public PostTagsController(IRepository<Post_tags> postTagRepository)
+        APP_DATA_DATN _context;
+        public PostTagsController(IRepository<Post_tags> postTagRepository, APP_DATA_DATN contex)
         {
+
             _postTagRepository = postTagRepository;
+            _context = contex;
         }
 
         [HttpGet("posttags-get")]
-        public IActionResult Get()
+        public async Task<IActionResult> Get()
         {
-            return Ok(_postTagRepository.GetAll());
+            var postTags = await  _context.Post_Tags
+            .Include(pt => pt.Tag)  // Bao gồm thông tin của Tag
+            .ToListAsync();
+
+            if (postTags == null)
+            {
+                return NotFound("No post tags found");
+            }
+
+            return Ok(postTags);
         }
 
         [HttpGet("posttags-get-id")]
-        public IActionResult Get(long id)
+        public async Task<IActionResult> Get(long id)
         {
-            var postTag = _postTagRepository.GetById(id);
+            var postTag = await _context.Post_Tags
+            .Include(pt => pt.Tag)  // Bao gồm thông tin của Tag
+            .FirstOrDefaultAsync(pt => pt.Id == id);
+
             if (postTag == null)
             {
                 return NotFound("Post tag not found");
             }
+
             return Ok(postTag);
         }
 

@@ -12,10 +12,9 @@ namespace ViewsFE.Models
         public long Id { get; set; }
         public long Post_Id { get; set; }
         public long Tag_Id { get; set; }
-
+        [JsonIgnore]
         [ForeignKey("Post_Id")]
         public virtual Product_Posts? Posts { get; set; }
-
         [ForeignKey("Tag_Id")]
         public virtual Tags? Tag { get; set; }
     }

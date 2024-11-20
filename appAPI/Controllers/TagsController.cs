@@ -3,6 +3,7 @@ using appAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
+using appAPI.IRepository;
 
 namespace appAPI.Controllers
 {
@@ -10,21 +11,41 @@ namespace appAPI.Controllers
     [ApiController]
     public class TagsController : ControllerBase
     {
-        private readonly IRepository<Tags> _tagsRepository;
+        private readonly ITagsRepository _tagsRepository;
 
-        public TagsController(IRepository<Tags> tagsRepository)
+        public TagsController(ITagsRepository tagsRepository)
         {
             _tagsRepository = tagsRepository;
         }
-
-        // GET: api/<TagsController>
-        [HttpGet("show")]
-        public IActionResult Show()
+        [HttpGet("GetTagByPostId")]
+        public async Task<IActionResult> GetTagByPostId(long postId)
         {
             try
             {
-                var data = _tagsRepository.GetAll();
-                return Ok(data);
+                var lstTag = await _tagsRepository.GetTagByPostId(postId);
+                if (lstTag != null)
+                {
+                    return Ok(lstTag);
+                }
+                return BadRequest();
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+        // GET: api/<TagsController>
+        [HttpGet("show")]
+        public async Task<IActionResult> Show()
+        {
+            try
+            {
+                var data = await _tagsRepository.GetAll();
+                if (data != null)
+                {
+                    return Ok(data);
+                }
+                return BadRequest();
             }
             catch (Exception e)
             {
@@ -36,7 +57,7 @@ namespace appAPI.Controllers
         [HttpGet("details")]
         public IActionResult Details(long id)
         {
-            var data = _tagsRepository.GetById(id);
+            var data = _tagsRepository.Details(id);
             if (data == null)
             {
                 return NotFound(new { message = "No tag found with id " + id });
@@ -46,23 +67,10 @@ namespace appAPI.Controllers
         // POST api/<TagsController>
         [HttpPost("add")]
         public IActionResult Add([FromBody] Tags t)
-        {
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
-                return BadRequest(new { message = "Dữ liệu không hợp lệ", errors = errors });
-            }
-
+        {           
             try
             {
-                var check = _tagsRepository.Find(p => p.Title == t.Title).FirstOrDefault();
-                if (check != null)
-                {
-                    return BadRequest(new { message = "Tag already exists. Try another title." });
-                }
-
-                t.Created_at = DateTime.UtcNow;
-                _tagsRepository.Add(t);
+                _tagsRepository.Create(t);
                 return Ok(new { message = "Tag added successfully" });
             }
             catch (Exception e)
@@ -75,20 +83,10 @@ namespace appAPI.Controllers
         [HttpPut("edit")]
         public IActionResult Edit([FromBody] Tags t)
         {
-            var data = _tagsRepository.GetById(t.Id);
-            if (data == null)
-            {
-                return NotFound(new { message = "Tag not found" });
-            }
-
+       
             try
             {
-                data.Title = t.Title;
-                data.Slug = t.Slug;
-                data.Type = t.Type;
-                data.Description = t.Description;
-
-                _tagsRepository.Update(data);
+                _tagsRepository.Update(t);
                 return Ok(new { message = "Tag updated successfully" });
             }
             catch (Exception e)
@@ -101,7 +99,7 @@ namespace appAPI.Controllers
         [HttpDelete("delete")]
         public IActionResult Delete(long id)
         {
-            var data = _tagsRepository.GetById(id);
+            var data = _tagsRepository.Delete(id);
             if (data == null)
             {
                 return NotFound(new { message = "Tag not found" });
@@ -109,7 +107,7 @@ namespace appAPI.Controllers
 
             try
             {
-                _tagsRepository.Remove(data);
+                _tagsRepository.Delete(id);
                 return Ok(new { message = "Tag deleted successfully" });
             }
             catch (Exception e)

@@ -34,7 +34,5 @@ namespace appAPI.Models
         public DateTime Created_at { get; set; }
         public DateTime? Updated_at { get;set; }
         public DateTime? Deleted_at { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<Post_categories> Post_categories { get; set; } = new List<Post_categories>();
     }
 }

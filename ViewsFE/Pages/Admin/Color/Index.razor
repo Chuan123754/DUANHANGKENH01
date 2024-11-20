@@ -104,20 +104,9 @@
     private int total_pages = 1;
     private int page_size = 10;
     private int totalItems;
-
-
-    private async Task OnSearch()
+    protected override async Task OnInitializedAsync()
     {
-        // Tìm kiếm và lọc danh sách chưa bị xóa
-        listColor = await sev.GetByTypeAsync(page_number, page_size, search_query);
-    }
-    private async Task LoadPosts()
-    {
-        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        listColor = await sev.GetAll();
-        totalItems = await sev.GetTotalCountAsync(searchTerm);
-        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
-        StateHasChanged();
+        await LoadPosts();
     }
     private async Task GoToPage(int page)
     {
@@ -130,10 +119,20 @@
         page_number = 1;
         await LoadPosts();
     }
-    protected override async Task OnInitializedAsync()
+    private async Task LoadPosts()
     {
-        await LoadPosts();
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        listColor = await sev.GetByTypeAsync(page_number, page_size, searchTerm);
+        totalItems = await sev.GetTotalCountAsync(searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
     }
+    private async Task OnSearch()
+    {
+        // Tìm kiếm và lọc danh sách chưa bị xóa
+        listColor = await sev.GetByTypeAsync(page_number, page_size, search_query);
+    }
+ 
 
     private void NavEditCtgr(long id)
     {

@@ -4,9 +4,10 @@
 @inject ITagsServices stag
 @inject ICategoriesServices cate
 @inject IDesignerServices des
+@inject IBannerServices bnser
 @inject IJSRuntime JS
 
-<EditForm Model="Posts" OnValidSubmit="HandleValidSubmit" >
+<EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="page-wrapper">
@@ -51,6 +52,52 @@
                                 </div>
                             </div>
                         </div>
+
+                        @*  Banner *@
+                        <div class="accordion bg-white mt-3">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#banner_block" aria-expanded="true">
+                                        Cấu hình banner
+                                    </button>
+                                </h2>
+                                <div id="banner_block" class="accordion-collapse collapse show">
+                                    <div class="card-body pb-4 px-4" style="height: 300px">
+                                        <div class="mb-3">
+                                            <label for="title" class="form-label">Tiêu đề</label>
+                                            <input type="text" class="form-control" @bind-value="banner.Name"
+                                                   placeholder="Tiêu đề">
+                                        </div>
+                                        <div>
+
+                                            <div id="banner_image"
+                                                 class="image-post-box d-flex align-items-center justify-content-center open-media-modal"
+                                                 data-multiple="false"
+                                                 data-refer-id="#banner_image" onclick="openMediaBannerModal()">
+                                                @if (!string.IsNullOrEmpty(banner.Meta_data))
+                                                {
+                                                    <img src="@banner.Meta_data" class="object-cover" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="icon d-flex align-items-center justify-content-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1"
+                                                             stroke="currentColor" fill="none" stroke-linecap="round"
+                                                             stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M12 5l0 14" />
+                                                            <path d="M5 12l14 0" />
+                                                        </svg>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @*    End banner *@
                     </div>
 
                     <!-- Sidebar bên phải -->
@@ -225,11 +272,13 @@
     </div>
 </EditForm>
 
-<Media_modal OnImageSelected="HandleImageSelected"></Media_modal>
+<Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
+<Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 @code {
     [Parameter]
     public long Id { get; set; }
     private Product_Posts Posts = new Product_Posts();
+    private Banner banner = new Banner();
     private List<Categories> CategoriesList = new();
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
     private List<Designer> designersList = new List<Designer>();
@@ -237,21 +286,36 @@
     private List<long> SelectedCategories = new List<long>();
     private List<long> SelectedTags = new List<long>();
     private bool tinyMCEInitialized = false;
-
+    private Media_modal mediaModalRef;
+    private Media_manager media_ManagerRef;
     private async Task HandleImageSelected(string imagePath)
     {
         Posts.Feature_image = imagePath;
         StateHasChanged(); // Cập nhật giao diện
         await JS.InvokeVoidAsync("closeMediaModal"); // Gọi hàm JavaScript để đóng modal
     }
+    private async Task HandleImageSelectedBanner(string imagePath)
+    {
+        // Nếu imagePath là null, xóa ảnh banner
+        banner.Meta_data = imagePath ?? string.Empty;
+        StateHasChanged();
+        await JS.InvokeVoidAsync("closeMediaBannerModal");
+    }
     protected override async Task OnInitializedAsync()
     {
         Posts = await sev.GetByIdType(Id, "project");
-        // Tải danh sách tags và categories
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAll();
         designersList = await des.GetAll();
-        Posts.Status = Product_Posts.STATUS_DRAFT;
+        SelectedCategories = (await cate.GetCategoryByPosstId(Id))
+                          .Where(pc => pc.Post_Id == Id)
+                          .Select(pc => pc.Category_Id)
+                          .ToList();
+
+        SelectedTags = (await stag.GetTagByPostId(Id))
+                        .Where(pt => pt.Post_Id == Id)
+                        .Select(pt => pt.Tag_Id)
+                        .ToList();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -319,26 +383,27 @@
 
     private async Task HandleValidSubmit()
     {
-        // Lấy dữ liệu từ Tom Select
+        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
+
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
-        if (!string.IsNullOrEmpty(tags))
-        {
-            SelectedTags = tags.Split(',')
-                .Select(id => long.TryParse(id, out long result) ? result : 0)
-                .Where(id => id > 0)
-                .ToList();
-        }
+        SelectedTags = string.IsNullOrEmpty(tags)
+            ? new List<long>() // Nếu tags rỗng, tạo danh sách trống
+            : tags.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
 
         var categories = await JS.InvokeAsync<string>("getSelectedValues", "#categories");
-        if (!string.IsNullOrEmpty(categories))
+        SelectedCategories = string.IsNullOrEmpty(categories)
+            ? new List<long>() // Nếu categories rỗng, tạo danh sách trống
+            : categories.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
+        try
         {
-            SelectedCategories = categories.Split(',')
-                .Select(id => long.TryParse(id, out long result) ? result : 0)
-                .Where(id => id > 0)
-                .ToList();
+            await sev.Updatetagcate(Posts, SelectedTags, SelectedCategories);
+            await JS.InvokeVoidAsync("toastr.success", "Sửa dự án thành công");
+            nav.NavigateTo("/admin/project");
         }
-
-      //  await sev.Update(Posts);
-        nav.NavigateTo("/admin/project");
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể sửa dự án. Vui lòng thử lại.");
+        }
     }
 }

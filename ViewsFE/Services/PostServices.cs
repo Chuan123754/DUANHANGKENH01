@@ -1,4 +1,8 @@
-﻿using ViewsFE.IServices;
+﻿using appAPI.Migrations;
+using Newtonsoft.Json;
+using System.Net.Http;
+using System.Text.Json;
+using ViewsFE.IServices;
 using ViewsFE.Models;
 using ViewsFE.Models.DTO;
 
@@ -33,16 +37,12 @@ namespace ViewsFE.Services
 
             // Gửi yêu cầu POST với các tham số cần thiết
             var response = await _client.PostAsJsonAsync($"{_baseUrl}/api/Product_Post/Create-post?{tagIdsString}&{categoriesString}", post);
-
-            /// https://localhost:7011/api/Product_Post/Create-post?tagIds=1&tagIds=2&cate=1
-
             // Kiểm tra phản hồi
             response.EnsureSuccessStatusCode();
 
             // Đọc và trả về sản phẩm vừa tạo
              await response.Content.ReadFromJsonAsync<Product_Posts>();
         }
-
         public async Task CreateProduct(Product_Posts post, List<long> tagIds, List<long> category)
         {
             // Chuyển đổi danh sách tagIds và category thành chuỗi query string
@@ -60,7 +60,7 @@ namespace ViewsFE.Services
         {
             var tagIdsString = string.Join("&", tagIds.Select(id => $"tagIds={id}"));
             var categoriesString = string.Join("&", category.Select(c => $"cate={c}"));
-            var url = $"{_baseUrl}/api/Product_Post/Create-project?tagIds={tagIdsString}&cate={categoriesString}";
+            var url = $"{_baseUrl}/api/Product_Post/Create-project?{tagIdsString}&{categoriesString}";
             var response = await _client.PostAsJsonAsync(url, post);
             response.EnsureSuccessStatusCode();
         }
@@ -77,30 +77,11 @@ namespace ViewsFE.Services
         public async Task<Product_Posts> GetByIdType(long id, string type)
         {
             // Gọi API và lấy dữ liệu
-            var post = await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/GetGyIdType?id={id}&type={type}");
-           
-            return post;
-        }
-
-        public async Task<ModelPostTag> GetByIdType_New(long id, string type)
-        {
-            // Gọi API và lấy dữ liệu
-            var post = await _client.GetFromJsonAsync<ModelPostTag>($"{_baseUrl}/api/Product_Post/GetGyIdType?id={id}&type={type}");
-            if (post.objPost == null)
-                post.objPost = new ProductModel();
-
-            if (post.lstTags == null)
-                post.lstTags = new List<TagDTO>();
-
-            if (post.lstCategories == null)
-                post.lstCategories = new List<CategoryDTO>();
-
-            return post;
+          return await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/GetByIdAndType?id={id}&type={type}");          
         }
 
         public async Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm)
         {
-
             var uri = $"{_baseUrl}/api/Product_Post/get-by-type?type={type}&pageNumber={pageNumber}&pageSize={pageSize}&searchTerm={Uri.EscapeDataString(searchTerm)}";
             return await _client.GetFromJsonAsync<List<Product_Posts>>(uri);
         }
@@ -116,15 +97,15 @@ namespace ViewsFE.Services
         }     
         public async Task Update(Product_Posts post, List<long> tagIds)
         {
-            var tagIdsQuery = string.Join("&tagIds=", tagIds);
-            await _client.PutAsJsonAsync($"{_baseUrl}/api/Product_Post/Edit-post?tagIds={tagIdsQuery}", post);
+            var tagIdsString = string.Join("&", tagIds.Select(id => $"tagIds={id}"));
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/Product_Post/Edit-post?{tagIdsString}", post);
         }
 
         public async Task Updatetagcate(Product_Posts post, List<long> tagIds, List<long> categoryIds)
         {
             var tagIdsString = string.Join("&", tagIds.Select(id => $"tagIds={id}"));
-            var categoriesString = string.Join("&", categoryIds.Select(c => $"cate={c}"));
-            await _client.PutAsJsonAsync($"{_baseUrl}/api/Product_Post/Edit-posttagscate?tagIds={tagIdsString}&categoryIds={categoriesString}", post);
+            var categoriesString = string.Join("&", categoryIds.Select(c => $"categoryIds={c}"));
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/Product_Post/Edit-posttagscate?{tagIdsString}&{categoriesString}", post);
         }
     }
 }

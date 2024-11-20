@@ -78,8 +78,7 @@
     public EventCallback<string> OnImageSelected { get; set; }
     private List<Files> listFiles = new();
     private Files files = new Files();
-    private string selectedImagePath; // Lưu 1 ảnh (Feature_image)
-
+    private string selectedImagePath; // Lưu 1 ảnh banner
     private string search_query = string.Empty;
     private int page_number = 1;
     private int total_pages = 1;
@@ -101,21 +100,12 @@
     }
     private async Task ToggleSelectImage(string imagePath)
     {
-        // Chọn 1 ảnh (Feature_image)
         selectedImagePath = imagePath == selectedImagePath ? null : imagePath;
         StateHasChanged(); // Cập nhật giao diện
     }
     private async Task ConfirmSelection()
     {
-        if (!string.IsNullOrEmpty(selectedImagePath))
-        {
-            await OnImageSelected.InvokeAsync(selectedImagePath);
-        }
-        else
-        {
-            Console.WriteLine("No image selected");
-        }
-        await JS.InvokeVoidAsync("closeMediaBannerModal");
+        await OnImageSelected.InvokeAsync(selectedImagePath);
         StateHasChanged();
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -144,45 +134,3 @@
         await LoadPosts();
     }
 }
-<script>
-    window.initializeDropzoneBanner = () => {
-        if (typeof Dropzone !== 'undefined') {
-            if (Dropzone.instances.length > 0) {
-                Dropzone.instances.forEach(dz => dz.destroy());
-            }
-
-            var dropzone = new Dropzone("#dropzone-default-banner", {
-                url: "https://localhost:7011/api/Files/upload",  // URL của API
-                method: "post",
-                autoProcessQueue: true,
-                addRemoveLinks: true,
-                parallelUploads: 20,
-                maxFilesize: 1, // Kích thước tối đa là 1 MB
-                dictRemoveFile: "Xóa",
-                init: function () {
-                    this.on("success", function (file, response) {
-                        toastr.success('Thêm thành công.');
-                        // Xóa tệp khỏi Dropzone sau khi upload thành công
-                        this.removeFile(file);
-
-                        setTimeout(() => {
-                            location.reload(); // Reload the page after 2 seconds
-                        }, 2000);
-                    });
-                    this.on("error", function (file, errorMessage) {
-                        toastr.error('Thêm thất bại: ' + errorMessage);
-                        this.removeFile(file); // Xóa tệp khỏi Dropzone nếu có lỗi
-                    });
-
-                    // Thông báo lỗi nếu kích thước tệp vượt quá mức tối đa
-                    this.on("maxfilesexceeded", function (file) {
-                        toastr.error('Tệp vượt quá kích thước tối đa cho phép (1 MB).');
-                        this.removeFile(file); // Xóa tệp khỏi Dropzone nếu vượt kích thước
-                    });
-                }
-            });
-        } else {
-            console.error("Dropzone is not defined. Make sure the script is included.");
-        }
-    };
-</script>

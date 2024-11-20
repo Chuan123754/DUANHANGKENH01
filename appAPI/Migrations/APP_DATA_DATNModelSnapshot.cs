@@ -967,7 +967,7 @@ namespace appAPI.Migrations
                     b.Property<long?>("Created_by")
                         .HasColumnType("bigint");
 
-                    b.Property<bool?>("Deleted")
+                    b.Property<bool>("Deleted")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("Deleted_at")
@@ -989,11 +989,13 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Slug")
+                        .IsRequired()
                         .HasMaxLength(255)
                         .IsUnicode(false)
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -1265,9 +1267,6 @@ namespace appAPI.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime?>("Updated_at")
-                        .HasColumnType("datetime2");
-
                     b.HasKey("Id");
 
                     b.ToTable("tags");
@@ -1499,21 +1498,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "a7bebbc7-faed-47f1-bf58-8b68ae00dcc5",
+                            ConcurrencyStamp = "1755471a-51b5-4675-ad20-02afa9b52bcc",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "13ff7248-0a38-4649-8667-fcecc5c8259e",
+                            ConcurrencyStamp = "880e8479-a82c-47e6-a39d-eb1588d01957",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "d1d94c9a-d79f-4aa4-ace2-cbbaddf091c8",
+                            ConcurrencyStamp = "65691ffc-ba41-4e70-8c2c-84ab2201e767",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -1755,7 +1754,7 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Vouchers", "Vouchers")
-                        .WithMany("OrderVouchers")
+                        .WithMany()
                         .HasForeignKey("VoucherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1783,7 +1782,7 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.P_attribute_discount", b =>
                 {
                     b.HasOne("appAPI.Models.Discount", "Discount")
-                        .WithMany("ProductAttributesDiscounts")
+                        .WithMany()
                         .HasForeignKey("Discount_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1802,7 +1801,7 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Post_categories", b =>
                 {
                     b.HasOne("appAPI.Models.Categories", "Categories")
-                        .WithMany("Post_categories")
+                        .WithMany()
                         .HasForeignKey("Category_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1827,7 +1826,7 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Tags", "Tag")
-                        .WithMany("Post_tags")
+                        .WithMany()
                         .HasForeignKey("Tag_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1911,7 +1910,7 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Wishlist", "Wishlist")
-                        .WithMany("Product_Variants_Wishlists")
+                        .WithMany()
                         .HasForeignKey("Wishlist_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1930,7 +1929,7 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Vouchers", "Vouchers")
-                        .WithMany("UserVouchers")
+                        .WithMany()
                         .HasForeignKey("VoucherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2016,11 +2015,6 @@ namespace appAPI.Migrations
                     b.Navigation("Cart_Details");
                 });
 
-            modelBuilder.Entity("appAPI.Models.Categories", b =>
-                {
-                    b.Navigation("Post_categories");
-                });
-
             modelBuilder.Entity("appAPI.Models.Color", b =>
                 {
                     b.Navigation("Product_Attributes");
@@ -2029,11 +2023,6 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Designer", b =>
                 {
                     b.Navigation("Product_Posts");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Discount", b =>
-                {
-                    b.Navigation("ProductAttributesDiscounts");
                 });
 
             modelBuilder.Entity("appAPI.Models.Material", b =>
@@ -2088,11 +2077,6 @@ namespace appAPI.Migrations
                     b.Navigation("Product_Variants");
                 });
 
-            modelBuilder.Entity("appAPI.Models.Tags", b =>
-                {
-                    b.Navigation("Post_tags");
-                });
-
             modelBuilder.Entity("appAPI.Models.Textile_technology", b =>
                 {
                     b.Navigation("Product_Variants");
@@ -2107,18 +2091,6 @@ namespace appAPI.Migrations
                     b.Navigation("UserVouchers");
 
                     b.Navigation("Wishlist");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Vouchers", b =>
-                {
-                    b.Navigation("OrderVouchers");
-
-                    b.Navigation("UserVouchers");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Wishlist", b =>
-                {
-                    b.Navigation("Product_Variants_Wishlists");
                 });
 #pragma warning restore 612, 618
         }

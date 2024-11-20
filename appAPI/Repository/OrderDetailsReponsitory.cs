@@ -66,5 +66,19 @@ namespace appAPI.Repository
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<Order_details>> GetByTypeAsync(int pageNumber, int pageSize)
+        {
+            return await _context.Order_Details            
+               .OrderBy(p => p.Id)
+               .Skip((pageNumber - 1) * pageSize)
+               .Take(pageSize)
+               .ToListAsync();
+        }
+
+        public async Task<int> GetTotalCountAsync()
+        {
+            return await _context.Order_Details.CountAsync();
+        }
     }
 }
