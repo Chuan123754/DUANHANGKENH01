@@ -1,6 +1,7 @@
 ﻿@page "/admin/material/create"
 @inject NavigationManager nav
 @inject IMaterialServices sev
+@inject IJSRuntime JS
 
 <EditForm Model="material" OnValidSubmit="SubmitForm" FormName="materialadd">
     <DataAnnotationsValidator></DataAnnotationsValidator>
@@ -35,11 +36,20 @@
 
 @code {
     private Material material = new Material();
-   
+
     private async Task SubmitForm()
     {
-        material.Create_at = DateTime.Now;
-        await sev.Create(material); // Gọi API để tạo thuộc tính
-        nav.NavigateTo("/admin/material"); // Điều hướng sau khi thành công
+        try
+        {
+            material.Create_at = DateTime.Now;
+            await sev.Create(material); // Gọi API để tạo thuộc tính
+            await JS.InvokeVoidAsync("toastr.success", "Chất liệu đã được thêm thành công"); // Hiển thị thông báo thành công
+            nav.NavigateTo("/admin/material"); // Điều hướng sau khi thành công
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm chất liệu. Vui lòng thử lại."); // Hiển thị thông báo lỗi
+        }
     }
 }

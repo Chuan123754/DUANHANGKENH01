@@ -33,7 +33,6 @@ namespace ViewsFE.Models
 
         public DateTime create_at { get; set; }
         public DateTime update_at { get; set; }
-
         [JsonIgnore]
         public virtual ICollection<Product_Posts>? Product_Posts { get; set; }
 

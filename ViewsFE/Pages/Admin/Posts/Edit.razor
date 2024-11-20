@@ -4,8 +4,8 @@
 @inject ITagsServices stag
 @inject ICategoriesServices cate
 @inject IDesignerServices des
+@inject IBannerServices bnser
 @inject IJSRuntime JS
-
 
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -50,7 +50,53 @@
                                 </div>
                             </div>
                         </div>
+                        @*  Banner *@
+                        <div class="accordion bg-white mt-3">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#banner_block" aria-expanded="true">
+                                        Cấu hình banner
+                                    </button>
+                                </h2>
+                                <div id="banner_block" class="accordion-collapse collapse show">
+                                    <div class="card-body pb-4 px-4" style="height: 300px">
+                                        <div class="mb-3">
+                                            <label for="title" class="form-label">Tiêu đề</label>
+                                            <input type="text" class="form-control" @bind-value="banner.Name"
+                                                   placeholder="Tiêu đề">
+                                        </div>
+                                        <div>
+
+                                            <div id="banner_image"
+                                                 class="image-post-box d-flex align-items-center justify-content-center open-media-modal"
+                                                 data-multiple="false"
+                                                 data-refer-id="#banner_image" onclick="openMediaBannerModal()">
+                                                @if (!string.IsNullOrEmpty(banner.Meta_data))
+                                                {
+                                                    <img src="@banner.Meta_data" class="object-cover" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="icon d-flex align-items-center justify-content-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1"
+                                                             stroke="currentColor" fill="none" stroke-linecap="round"
+                                                             stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M12 5l0 14" />
+                                                            <path d="M5 12l14 0" />
+                                                        </svg>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @*    End banner *@
                     </div>
+                    <!-- #region Form right -->
                     <div class="col-md-3 col-12">
                         <div class="sticky-top position-sticky">
                             <div class="accordion bg-white mb-3 mt-3 mt-md-0">
@@ -63,10 +109,11 @@
                                     </h2>
                                     <div class="accordion-collapse collapse show" id="action-1" data-bs-parent="#accordion-example">
                                         <div class="accordion-body pt-0">
+
+                                            <!-- #region trạng thái -->
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Trạng thái</label>
                                                 <select @bind="Posts.Status" class="form-control">
-
                                                     @foreach (var status in statuses)
                                                     {
                                                         <option value="@status.Key" selected="@(Posts.Status == status.Key)">
@@ -74,16 +121,19 @@
                                                         </option>
                                                     }
                                                 </select>
-                                            </div>                                        
+                                            </div>
+                                            <!-- #endregion -->
+                                            <!-- #region tác giả -->
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Tác giả</label>
-                                                <InputSelect @bind-Value="Posts.AuthorId" class="form-control" multiple>
+                                                <InputSelect @bind-Value="Posts.AuthorId" class="form-control">
                                                     @foreach (var desi in designersList)
                                                     {
                                                         <option value="@desi.id_Designer">@desi.Name</option>
                                                     }
                                                 </InputSelect>
                                             </div>
+                                            <!-- #endregion -->
                                             <!-- Nút gửi -->
                                             <button type="submit" class="btn btn-primary" style="float: right">
                                                 Đăng
@@ -93,10 +143,11 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- #region ảnh đại diện -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#category" aria-expanded="true">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#feature_image" aria-expanded="true">
                                             Ảnh đại diện
                                         </button>
                                     </h2>
@@ -119,10 +170,13 @@
                                                     </div>
                                                 }
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <!-- #endregion -->
+                            <!-- #region category -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
@@ -135,17 +189,12 @@
                                          data-bs-parent="#accordion-example">
                                         <div class="accordion-body pt-0">
                                             <div class="form-group">
-
-                                                <select id="categories" @bind="Posts.CategoryName" class="form-control" placeholder="Chọn danh mục" multiple>
-
-
+                                                <select id="categories" class="form-control" placeholder="Chọn danh mục" multiple>
                                                     @foreach (var cate in CategoriesList)
                                                     {
-
                                                         <option value="@cate.Id" selected="@SelectedCategories.Contains(cate.Id)">@cate.Title</option>
                                                     }
                                                 </select>
-
                                                 <div id="category_ids_error" class="validate-error">
                                                 </div>
                                                 <a href="javascript:void(0)" id="add_category"
@@ -188,7 +237,6 @@
                                                         </button>
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -204,7 +252,7 @@
                                     </h2>
                                     <div id="tag" class="accordion-collapse collapse show">
                                         <div class="accordion-body pt-0">
-                                            <select id="tags-selects" @bind="Posts.TagName" multiple class="form-control" placeholder="Nhập từ khoá">
+                                            <select id="tags-selects" multiple class="form-control" placeholder="Nhập từ khoá">
                                                 @foreach (var tag in TagsList)
                                                 {
                                                     <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
@@ -214,20 +262,24 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- #endregion  Từ khóa(tags) -->
 
                         </div>
                     </div>
+                    <!-- #endregion Form right-->
                 </div>
             </div>
         </div>
     </div>
 </EditForm>
-<Media_modal OnImageSelected="HandleImageSelected"></Media_modal>
+
+<Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
+<Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 @code {
     [Parameter]
     public long Id { get; set; }
     private Product_Posts Posts = new Product_Posts();
-    private List<Post_categories> lsstPostCate = new List<Post_categories>();
+    private Banner banner = new Banner();
     private List<Categories> CategoriesList = new List<Categories>();
     private List<Tags> TagsList = new List<Tags>();
     private List<long> SelectedCategories = new List<long>();
@@ -235,22 +287,38 @@
     private List<Designer> designersList = new List<Designer>();
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
     private bool tinyMCEInitialized = false;
+    private Media_modal mediaModalRef;
+    private Media_manager media_ManagerRef;
 
     private async Task HandleImageSelected(string imagePath)
     {
-        Posts.Feature_image = imagePath;
+        Posts.Feature_image = imagePath ?? string.Empty;
         StateHasChanged(); // Cập nhật giao diện
         await JS.InvokeVoidAsync("closeMediaModal"); // Gọi hàm JavaScript để đóng modal
     }
-
+    private async Task HandleImageSelectedBanner(string imagePath)
+    {
+        // Nếu imagePath là null, xóa ảnh banner
+        banner.Meta_data = imagePath ?? string.Empty;
+        StateHasChanged();
+        await JS.InvokeVoidAsync("closeMediaBannerModal");
+    }
     protected override async Task OnInitializedAsync()
     {
+
         Posts = await sev.GetByIdType(Id, "post");
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAll();
         designersList = await des.GetAll();
-        Posts.Status = Product_Posts.STATUS_DRAFT;
-        lsstPostCate = await cate.GetCategoryByPosstId(Id);
+        SelectedCategories = (await cate.GetCategoryByPosstId(Id))
+                          .Where(pc => pc.Post_Id == Id)
+                          .Select(pc => pc.Category_Id)
+                          .ToList();
+
+        SelectedTags = (await stag.GetTagByPostId(Id))
+                        .Where(pt => pt.Post_Id == Id)
+                        .Select(pt => pt.Tag_Id)
+                        .ToList();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -265,13 +333,14 @@
             await JS.InvokeVoidAsync("initializeTagsList", TagsList);
             await JS.InvokeVoidAsync("initializeTomSelect", "#tags-selects");
         }
-
         if (CategoriesList?.Count > 0)
         {
             await JS.InvokeVoidAsync("initializeCateList", CategoriesList);
             await JS.InvokeVoidAsync("initializeTomSelectForCategories", "#categories");
         }
     }
+
+
     public async ValueTask DisposeAsync()
     {
         if (tinyMCEInitialized)
@@ -279,158 +348,30 @@
             await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
         }
     }
+
     private async void HandleValidSubmit()
     {
-        // Lấy dữ liệu từ Tom Select
+        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
+
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
-        if (!string.IsNullOrEmpty(tags))
-        {
-            SelectedTags = tags.Split(',')
-                .Select(id => long.TryParse(id, out long result) ? result : 0)
-                .Where(id => id > 0)
-                .ToList();
-        }
+        SelectedTags = string.IsNullOrEmpty(tags)
+            ? new List<long>() // Nếu tags rỗng, tạo danh sách trống
+            : tags.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
 
         var categories = await JS.InvokeAsync<string>("getSelectedValues", "#categories");
-        if (!string.IsNullOrEmpty(categories))
+        SelectedCategories = string.IsNullOrEmpty(categories)
+            ? new List<long>() // Nếu categories rỗng, tạo danh sách trống
+            : categories.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
+        try
         {
-            SelectedCategories = categories.Split(',')
-                .Select(id => long.TryParse(id, out long result) ? result : 0)
-                .Where(id => id > 0)
-                .ToList();
+            await sev.Updatetagcate(Posts, SelectedTags, SelectedCategories);
+            await JS.InvokeVoidAsync("toastr.success", "Sửa bài viết thành công");
+            nav.NavigateTo("/admin/post");
         }
-     //   await sev.CreatePost(Posts, SelectedTags, SelectedCategories);
-        nav.NavigateTo("/admin/post");
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể sửa bài viết. Vui lòng thử lại.");
+        }
     }
 }
-
- <script>
-
-    function openMediaModal() {
-        var modalElement = document.getElementById('mediaModal');
-        if (modalElement) {
-            if (!modalElement._bsModalInstance) {
-                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
-            }
-            // Cập nhật selectedImagePath với Posts.Feature_image
-            window.selectedImagePath = '@Posts.Feature_image';
-            modalElement._bsModalInstance.show();
-        } else {
-            console.error("Không tìm thấy phần tử với id 'mediaModal'.");
-        }
-    }
-    function closeMediaModal() {
-        var modalElement = document.getElementById('mediaModal');
-        if (modalElement && modalElement._bsModalInstance) {
-            modalElement._bsModalInstance.hide();
-        }
-    }
-
-
-    window.TagsList = [];
-    window.CategoriesList = [];
-    function initializeTagsList(tags) {
-        if (tags && tags.length > 0) {
-            window.TagsList = tags;
-            console.log('TagsList initialized:', window.TagsList);
-        } else {
-            console.log('Failed to initialize TagsList. Empty or undefined.');
-        }
-    }
-    function initializeCateList(cate) {
-        if (cate && cate.length > 0) {
-            window.CategoriesList = cate;
-            console.log('cate initialized:', window.CategoriesList);
-        } else {
-            console.log('Failed to initialize TagsList. Empty or undefined.');
-        }
-    }
-
-    function resetTomSelect(selector) {
-        const element = document.querySelector(selector);
-        if (element && element.tomselect) {
-            element.tomselect.destroy(); // Hủy bỏ instance hiện tại
-        }
-    }
-
-    function initializeTomSelect(selector) {
-        resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới
-
-        const element = document.querySelector(selector);
-        if (element) {
-            new TomSelect(selector, {
-                create: true, // Cho phép thêm mới cho từ khóa
-                persist: false,
-                hideSelected: true,
-                closeAfterSelect: true,
-                delimiter: ',',
-                plugins: ['remove_button'],
-                sortField: {
-                    field: 'text',
-                    direction: 'asc'
-                },
-                searchField: ['text'],
-                maxOptions: null,
-                preload: false, // Đặt thành false để chỉ tải kết quả khi người dùng tìm kiếm
-                load: function (query, callback) {
-                    if (!window.TagsList || window.TagsList.length === 0) {
-                        console.log('TagsList is empty or undefined.');
-                        return callback();
-                    }
-
-                    // Chỉ hiển thị khi có nội dung được nhập
-                    if (query.length > 0) {
-                        const results = window.TagsList.filter(tag =>
-                            tag?.title?.toLowerCase().includes(query.toLowerCase())
-                        );
-
-                        callback(results.map(tag => ({ value: tag.id, text: tag.title })));
-                    } else {
-                        callback(); // Không trả về kết quả nếu không có query
-                    }
-                }
-            });
-        }
-    }
-
-    function initializeTomSelectForCategories(selector) {
-        resetTomSelect(selector); // Đảm bảo reset trước khi khởi tạo mới
-
-        const element = document.querySelector(selector);
-        if (element) {
-            new TomSelect(selector, {
-                create: false,
-                persist: false,
-                hideSelected: true,
-                closeAfterSelect: false,
-                delimiter: ',',
-                plugins: ['remove_button'],
-                sortField: {
-                    field: 'text',
-                    direction: 'asc'
-                },
-                searchField: ['text'],
-                maxOptions: null,
-                preload: true,
-                load: function (query, callback) {
-                    const results = query ?
-                        window.CategoriesList.filter(cate => cate?.title?.toLowerCase().includes(query.toLowerCase())) :
-                        window.CategoriesList;
-
-                    callback(results.map(cate => ({ value: cate.id, text: cate.title })));
-                }
-            });
-        }
-    }
-    function getSelectedValues(selector) {
-        const element = document.querySelector(selector);
-        if (element && element.tomselect) {
-            return element.tomselect.getValue().join(','); // Chuyển đổi mảng thành chuỗi
-        }
-        return '';
-    }
-</script>
-<script>
-    console.log('@Posts.Feature_image'); // Kiểm tra giá trị
-    window.selectedImagePath = '@Posts.Feature_image';
-</script>

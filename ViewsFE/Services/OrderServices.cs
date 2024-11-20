@@ -29,19 +29,30 @@ namespace ViewsFE.Services
             return JsonConvert.DeserializeObject<List<Orders>>(response);
         }
 
-        public Task<Orders> GetByIdOrders(long id)
+        public async Task<Orders> GetByIdOrders(long id)
         {
-            throw new NotImplementedException();
+            string requestURL = $"https://localhost:7011/api/Orders/OrdersDetails?id={id}";
+            var response = await _client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<Orders> (response);
         }
 
-        public Task<List<Orders>> Search(string code)
+        public async Task<List<Orders>> GetOrderByIdAdmin(string idAdmin)
         {
-            throw new NotImplementedException();
+            string requestURL = $"https://localhost:7011/api/Orders/GetOrderByIdAdmin?idAdmin={idAdmin}";
+            var response = await _client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<List<Orders>>(response);
         }
 
-        public Task Update(Orders orders)
+        public async Task<List<Orders>> GetOrderByIdUser(long idUser)
         {
-            throw new NotImplementedException();
+            string requestURL = $"https://localhost:7011/api/Orders/GetOrderByIdUser?idUser={idUser}";
+            var response = await _client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<List<Orders>>(response);
+        }
+
+        public async Task Update(Orders orders , long id)
+        {
+            await _client.PutAsJsonAsync($"https://localhost:7011/api/Orders/Update?id={id}", orders);
         }
     }
 }

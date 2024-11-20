@@ -13,6 +13,8 @@ using ViewsFE.Models;
 using appAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<APP_DATA_DATN>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAuthorizationCore();
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -34,6 +36,13 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Services.AddServerSideBlazor()
+    .AddHubOptions(options =>
+    {
+        options.ClientTimeoutInterval = TimeSpan.FromMinutes(2); // Tăng thời gian timeout
+        options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+    });
+
 
 // Thêm CORS nếu cần
 builder.Services.AddCors(options =>
@@ -76,8 +85,6 @@ builder.Services.AddScoped<ISizeServices, SizeServices>();
 builder.Services.AddScoped<IMaterialServices, MaterialServices>();
 builder.Services.AddScoped<IStyleServices, StyleServices>();
 builder.Services.AddScoped<ITextile_technologyServices, Textile_technologyServices>();
-
-//builder.Services.AddScoped<IVariantsDiscountServices, VariantsDiscountServices>();
 builder.Services.AddScoped<IloginServices, LoginServices>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<AddressService>();
@@ -85,6 +92,8 @@ builder.Services.AddScoped<IProductAttributeServices, ProductAttributeServices>(
 builder.Services.AddScoped<IProductVariantServices, ProductVariantServices>();
 builder.Services.AddScoped<OrderDetailsIServices, OrderDetailsServices>();
 builder.Services.AddScoped<OrderIServices,OrderServices>(); 
+builder.Services.AddScoped<IBannerServices, BannerServices>();
+builder.Services.AddScoped<IUserService,UserService>(); 
 
 var app = builder.Build();
 

@@ -1,5 +1,10 @@
-﻿using ViewsFE.IServices;
+﻿using appAPI.Migrations;
+using Newtonsoft.Json;
+using System.Net.Http;
+using System.Text.Json;
+using ViewsFE.IServices;
 using ViewsFE.Models;
+using ViewsFE.Models.DTO;
 
 namespace ViewsFE.Services
 {
@@ -32,16 +37,12 @@ namespace ViewsFE.Services
 
             // Gửi yêu cầu POST với các tham số cần thiết
             var response = await _client.PostAsJsonAsync($"{_baseUrl}/api/Product_Post/Create-post?{tagIdsString}&{categoriesString}", post);
-
-            /// https://localhost:7011/api/Product_Post/Create-post?tagIds=1&tagIds=2&cate=1
-
             // Kiểm tra phản hồi
             response.EnsureSuccessStatusCode();
 
             // Đọc và trả về sản phẩm vừa tạo
              await response.Content.ReadFromJsonAsync<Product_Posts>();
         }
-
         public async Task CreateProduct(Product_Posts post, List<long> tagIds, List<long> category)
         {
             // Chuyển đổi danh sách tagIds và category thành chuỗi query string
@@ -59,7 +60,7 @@ namespace ViewsFE.Services
         {
             var tagIdsString = string.Join("&", tagIds.Select(id => $"tagIds={id}"));
             var categoriesString = string.Join("&", category.Select(c => $"cate={c}"));
-            var url = $"{_baseUrl}/api/Product_Post/Create-project?tagIds={tagIdsString}&cate={categoriesString}";
+            var url = $"{_baseUrl}/api/Product_Post/Create-project?{tagIdsString}&{categoriesString}";
             var response = await _client.PostAsJsonAsync(url, post);
             response.EnsureSuccessStatusCode();
         }
@@ -72,15 +73,15 @@ namespace ViewsFE.Services
         {
             return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/Get-all-type?Type={type}");
         }
-        
+
         public async Task<Product_Posts> GetByIdType(long id, string type)
         {
-            return await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/BetGyIdType?id={id}&type={type}");
+            // Gọi API và lấy dữ liệu
+          return await _client.GetFromJsonAsync<Product_Posts>($"{_baseUrl}/api/Product_Post/GetByIdAndType?id={id}&type={type}");          
         }
 
         public async Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm)
         {
-
             var uri = $"{_baseUrl}/api/Product_Post/get-by-type?type={type}&pageNumber={pageNumber}&pageSize={pageSize}&searchTerm={Uri.EscapeDataString(searchTerm)}";
             return await _client.GetFromJsonAsync<List<Product_Posts>>(uri);
         }
@@ -93,10 +94,18 @@ namespace ViewsFE.Services
 
             var count = await response.Content.ReadFromJsonAsync<int>();
             return count;
-        }
-        public async Task Update(Product_Posts post)
+        }     
+        public async Task Update(Product_Posts post, List<long> tagIds)
         {
-            await _client.PutAsJsonAsync($"{_baseUrl}/api/Product_Post/Edit-post", post);
+            var tagIdsString = string.Join("&", tagIds.Select(id => $"tagIds={id}"));
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/Product_Post/Edit-post?{tagIdsString}", post);
+        }
+
+        public async Task Updatetagcate(Product_Posts post, List<long> tagIds, List<long> categoryIds)
+        {
+            var tagIdsString = string.Join("&", tagIds.Select(id => $"tagIds={id}"));
+            var categoriesString = string.Join("&", categoryIds.Select(c => $"categoryIds={c}"));
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/Product_Post/Edit-posttagscate?{tagIdsString}&{categoriesString}", post);
         }
     }
 }

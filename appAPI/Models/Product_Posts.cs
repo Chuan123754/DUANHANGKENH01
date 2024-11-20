@@ -15,7 +15,6 @@ namespace appAPI.Models
     {
         [Key]
         public long Id { get; set; }
-
         [StringLength(255)]
         public string? Title { get; set; }
 
@@ -33,9 +32,10 @@ namespace appAPI.Models
         public string? Type { get; set; }
         public string? product_video { get; set; }
         public string? Short_description { get; set; }
-        public string ? Description { get; set; }
+        public string? Description { get; set; }
         public string? Image_library { get; set; }
         public string? Feature_image { get; set; }
+
         public DateTime? Post_date { get; set; }
 
         public long? Created_by { get; set; }
@@ -49,11 +49,11 @@ namespace appAPI.Models
         public DateTime? Updated_at { get; set; }
         [JsonIgnore]
         public virtual ICollection<Product_variants> Product_Variants { get; set; } = new List<Product_variants>();
-        [JsonIgnore]
-        public virtual ICollection<Post_tags> Post_tags { get; set; } = new List<Post_tags>();
-        [JsonIgnore]
-        public virtual ICollection<Post_categories> Post_categories { get; set; } = new List<Post_categories>();
-        [JsonIgnore]
+
+        public virtual List<Post_tags> Post_tags { get; set; } = new List<Post_tags>();
+
+        public virtual List<Post_categories> Post_categories { get; set; } = new List<Post_categories>();
+      
         [ForeignKey("AuthorId")]
         public virtual Designer? Designer { get; set; }
         [JsonIgnore]

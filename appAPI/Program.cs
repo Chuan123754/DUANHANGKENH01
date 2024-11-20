@@ -10,6 +10,8 @@ using Microsoft.OpenApi.Models;
 using System.Security.Claims;
 using System.Text;
 using appAPI.Background_Service;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Đăng ký DbContext và cấu hình chuỗi kết nối từ appsettings.json
 builder.Services.AddDbContext<APP_DATA_DATN>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+//builder.Services.AddControllers()
+//    .AddJsonOptions(options =>
+//    {
+//        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+//    });
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -55,12 +63,8 @@ builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IPostReponsetory, PostReponsetory>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
-
-
 builder.Services.AddHostedService<VoucherExpiryChecker>();
 //builder.Services.AddHostedService<DiscountStatusChecker>();
-
-
 builder.Services.AddScoped<IColorReponsitory, ColorReponsitory>();
 builder.Services.AddScoped<IMaterialReponsitory, MaterialReponsitory>();    
 builder.Services.AddScoped<IStyleReponsitory, StyleReponsitory>();
@@ -88,6 +92,7 @@ builder.Services.AddCors(options =>
                          .AllowAnyMethod();
         });
 });
+
 
 // Cấu hình Identity cho Account và các role
 builder.Services.AddIdentity<Account, IdentityRole>()

@@ -28,11 +28,21 @@ namespace appAPI.Controllers
         [HttpGet("GetOrderDetailsByOrderId")]
         public async Task<IActionResult> GetOrderDetailsByOrderId(long idOrder)
         {
-            var lstOrderDetails = await _repo.GetAlldetail();
+            var lstOrderDetails = await _repo.GetOrderDetailsByOrderId(idOrder);
             if (lstOrderDetails != null)
             {
                 return Ok(lstOrderDetails);
             }
+            return NotFound();
+        }
+        [HttpGet("GetByOrderIdAndProductAttributeId")]
+        public async Task<IActionResult> GetByOrderIdAndProductAttributeId(long orderId, long productAttributeId)
+        {
+            var result = await _repo.GetByOrderIdAndProductAttributeId(orderId,productAttributeId);
+            if (result != null)
+            {
+                return Ok(result);
+            }    
             return NotFound();
         }
         [HttpGet("Details")]
@@ -78,6 +88,25 @@ namespace appAPI.Controllers
         public async Task Delete(long id)
         {
             await _repo.Delete(id);
+        }
+        [HttpGet("get-by-type")]
+        public async Task<IActionResult> GetByType([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Page number and page size must be greater than 0.");
+            }
+
+            var list = await _repo.GetByTypeAsync(pageNumber, pageSize);
+
+
+            return Ok(list);
+        }
+        [HttpGet("Get-Total-Count")]
+        public async Task<IActionResult> GetTotalCount()
+        {
+            var totalCount = await _repo.GetTotalCountAsync();
+            return Ok(totalCount);
         }
     }
 }

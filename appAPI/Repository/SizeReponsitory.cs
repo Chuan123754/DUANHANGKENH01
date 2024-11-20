@@ -47,7 +47,7 @@ namespace appAPI.Repository
         {
             return await _context.Sizes
                 .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm) && p.Deleted == false))
-                .OrderBy(p => p.Title)
+                .OrderBy(p => p.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -55,7 +55,6 @@ namespace appAPI.Repository
 
         public async Task<int> GetTotalCountAsync(string searchTerm)
         {
-            // Lấy tổng số sản phẩm theo loại và tìm kiếm với điều kiện Deleted = false
             return await _context.Sizes
                 .CountAsync(p => p.Deleted == false &&
                                 (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));

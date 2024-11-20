@@ -18,11 +18,7 @@ namespace appAPI.Models
         public DateTime? Create_at { get; set; }
         public DateTime? Updated_at { get; set; }
         public DateTime? Delete_at { get; set; }
-        public virtual ICollection<Product_variants_wishlist> Product_Variants_Wishlists { get; set; } = new List<Product_variants_wishlist>();
-
         [ForeignKey("User_id")]
-        [JsonIgnore]
         public virtual Users? Users { get; set; }
-
     }
 }

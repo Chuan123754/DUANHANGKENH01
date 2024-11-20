@@ -4,12 +4,10 @@ namespace ViewsFE.Models
 {
     public class APP_DATA_DATN : IdentityDbContext<Account>
     {
-        public APP_DATA_DATN()
+        private readonly IConfiguration _configuration;
+        public APP_DATA_DATN(IConfiguration configuration, DbContextOptions<APP_DATA_DATN> options) : base(options)
         {
-
-        }
-        public APP_DATA_DATN(DbContextOptions options) : base(options)
-        {
+            _configuration = configuration;
         }
         public DbSet<Activity_history> Activity_history { get; set; }
         public DbSet<Address> Address { get; set; }
@@ -28,7 +26,7 @@ namespace ViewsFE.Models
         public DbSet<order_trackings> Order_Trackings { get; set; }
         public DbSet<Order_details> Order_Details { get; set; }
         public DbSet<Order_Vouchers> OrderVouchers { get; set; }
-        public DbSet<P_variants_discount> p_Variants_Discounts { get; set; }
+        public DbSet<P_attribute_discount> p_Variants_Discounts { get; set; }
         public DbSet<Post_categories> Post_Categories { get; set; }
         public DbSet<Post_tags> Post_Tags { get; set; }
         public DbSet<Product_Posts> Posts { get; set; }
@@ -50,7 +48,8 @@ namespace ViewsFE.Models
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Data Source=ADMIN;Initial Catalog=DUANTOTNGHIEP04;Integrated Security=True;Trust Server Certificate=True");
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            optionsBuilder.UseSqlServer(connectionString);
 
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)

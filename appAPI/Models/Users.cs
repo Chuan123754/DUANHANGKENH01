@@ -19,7 +19,6 @@ namespace appAPI.Models
         public string? Name { get; set; }
         [StringLength(20)]
         [Unicode(false)]
-        [RegularExpression(@"^0\d{9}$", ErrorMessage = "Số điện thoại phải bắt đầu bằng số 0 và có đúng 10 số.")]
         public string? Phone { get; set; }
         [StringLength(255)]
         [Unicode(false)]

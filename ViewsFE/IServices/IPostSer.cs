@@ -1,4 +1,5 @@
 ﻿using ViewsFE.Models;
+using ViewsFE.Models.DTO;
 
 namespace ViewsFE.IServices
 {
@@ -15,6 +16,8 @@ namespace ViewsFE.IServices
         Task CreateProduct(Product_Posts post, List<long> tagIds, List<long> category);
         Task CreateProject(Product_Posts post, List<long> tagIds, List<long> category);
         Task Delete(long id);
-        Task Update(Product_Posts post);
+        Task Update(Product_Posts post, List<long> tagIds);
+        Task Updatetagcate(Product_Posts post, List<long> tagIds, List<long> categoryIds);
+
     }
 }

@@ -1,4 +1,4 @@
-﻿@page "/admin/productVariants/Create"
+﻿@page "/Admin/productVariant/Create"
 @using System.ComponentModel.DataAnnotations
 @using ViewsFE.DTO
 @using appAPI.DTO
@@ -100,6 +100,7 @@
                                         Ảnh nhà thiết kế
                                     </button>
                                 </h2>
+
                                 <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                     <div class="accordion-body pt-0">
                                         <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
@@ -207,8 +208,8 @@
                                     <th>Màu Sắc</th>
                                     <th>Kích Thước</th>
                                     <th>Hình Ảnh</th>
+                                    <th>Gía gốc</th>
                                     <th>Gía bán</th>
-                                    <th>Gía giảm</th>
                                     <th>Số lượng kho</th>
                                     <th>Hành Động</th>
                                 </tr>
@@ -360,69 +361,140 @@
     {
         try
         {
-            product.Post_Id = product.Post_Id;
-            product.Image = null;
+            // Kiểm tra trường rỗng
+            if (product.Post_Id == null ||
+                product.Textile_technology_id == null ||
+                product.Style_id == null ||
+                product.Material_id == null)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Vui lòng không để trống các trường bắt buộc");
+                return;
+            }
+
+            // Kiểm tra biến thể đã tồn tại
+            var existingVariant = await productVariant.FindVariant(
+                product.Post_Id,
+                (byte)product.Textile_technology_id,
+                (byte)product.Style_id,
+                (byte)product.Material_id);
+
+            if (existingVariant != null)
+            {
+                await JS.InvokeVoidAsync("toastr.warning", "Sản phẩm với các thuộc tính này đã tồn tại");
+                return;
+            }
+
+            // Tạo biến thể sản phẩm
             product.Status = "Hoạt động";
-            product.Textile_technology_id = product.Textile_technology_id;
-            product.Material_id = product.Material_id;
-            product.Style_id = product.Style_id;
-            product.Created_at = DateTime.Now;
-
-
             IdProductVariantCreated = await productVariant.Create(product);
             isProductVariantCreated = true;
-            Console.WriteLine(IdProductVariantCreated);
+
+            await JS.InvokeVoidAsync("toastr.success", "Tạo biến thể sản phẩm thành công!");
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
         }
     }
+
+
+
+
+
     private async Task CreateProductAttributes()
     {
-        var lstProductAttributes = new List<Product_Attributes>();
         var selectedColors = colorSelections.Where(c => c.Value).Select(c => c.Key).ToList();
         var selectedSizes = sizeSelections.Where(s => s.Value).Select(s => s.Key).ToList();
+
+        // Kiểm tra nếu không có màu hoặc kích thước được chọn
         if (!selectedColors.Any() || !selectedSizes.Any())
         {
-            // Hiển thị thông báo lỗi nếu không có màu hoặc kích thước nào được chọn
-            Console.WriteLine("Vui lòng chọn ít nhất một màu và một kích thước.");
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn ít nhất một màu và một kích thước.");
             return;
         }
         foreach (var colorId in selectedColors)
         {
             foreach (var sizeId in selectedSizes)
-            {
+            {              
                 var productAttribute = new Product_Attributes
                     {
                         Product_Variant_Id = IdProductVariantCreated,
                         Color_Id = colorId,
                         Size_Id = sizeId,
-                        Status = "Hoạt động",
-                        SKU = "1"  // Tạo SKU cho mỗi biến thể (nếu cần)
-                    };
-
-                lstProductAttributes.Add(productAttribute);
+                        Status = product_Attributes.Stock == 0 ? "Hết hàng" : "Còn hàng",
+                        SKU = "1", 
+                       
+                    };           
+                await productAttributes.Create(productAttribute);
+                await JS.InvokeVoidAsync("toastr.success", "Tạo thành công Oke!!");
+                isProductAttributesCreated = true;
             }
         }
 
-        foreach (var productAttribute in lstProductAttributes)
-        {
-            await productAttributes.Create(productAttribute);
-            isProductAttributesCreated = true;
-        }
         LST_ProductAttributes = await productAttributes.GetProductAttributesByProductVarianId(IdProductVariantCreated);
         IdProductVariantCreated = 0;
-       
     }
+
+
     private async Task UpdateProductAttributes()
     {
         foreach (var item in LST_ProductAttributes)
         {
+            if (string.IsNullOrEmpty(item.SKU))
+            {
+                await JS.InvokeVoidAsync("toastr.error", "SKU không được để trống.");
+                return;
+            }
+
+            if (item.Stock == null)
+            {
+                await JS.InvokeVoidAsync("toastr.error", $"Số lượng cho SKU {item.SKU} không được để trống.");
+                return;
+            }
+
+            if (item.Regular_price == null)
+            {
+                await JS.InvokeVoidAsync("toastr.error", $"Giá bán cho SKU {item.SKU} không được để trống.");
+                return;
+            }
+
+            if (item.Sale_price == null)
+            {
+                await JS.InvokeVoidAsync("toastr.error", $"Giá giảm cho SKU {item.SKU} không được để trống.");
+                return;
+            }
+
+            // Kiểm tra các điều kiện về Số lượng, Giá bán, và Giá giảm
+            if (item.Stock <= 0)
+            {
+                await JS.InvokeVoidAsync("toastr.error", $"Số lượng cho SKU {item.SKU} phải lớn hơn 0.");
+                return;
+            }
+
+            if (item.Regular_price <= 1000)
+            {
+                await JS.InvokeVoidAsync("toastr.error", $"Giá bán cho SKU {item.SKU} phải lớn hơn 1000.");
+                return;
+            }
+
+            if (item.Regular_price <= 0)
+            {
+                await JS.InvokeVoidAsync("toastr.error", $"Giá giảm cho SKU {item.SKU} phải lớn hơn 0");
+                return;
+            }
+            if (item.Sale_price > item.Regular_price)
+            {
+                await JS.InvokeVoidAsync("toastr.error", $"Giá giảm cho SKU {item.SKU} không được lớn hơn giá bán.");
+                return;
+            }
+
+            item.Status = item.Stock == 0 ? "Hết hàng" : "Còn hàng";
             await productAttributes.Update(item, item.Id);
         }
+
         nav.NavigateTo("/admin/product");
     }
+
     private async Task DeleteProductAttribute(long id)
     {
         try

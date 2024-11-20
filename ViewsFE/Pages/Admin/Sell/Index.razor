@@ -1,23 +1,32 @@
 ﻿@page "/admin/sell"
 @inject NavigationManager nav
-@inject OrderIServices order
-@inject OrderDetailsIServices orderService
-@inject IProductAttributeServices productAttribute
-@inject IProductVariantServices productVariant
- 
+@inject IUserService userService
+@inject IAddressServices addressService
+@inject OrderIServices orderService
+@inject OrderDetailsIServices orderDetailService
+@inject IProductAttributeServices productAttributeService
+@inject IProductVariantServices productVariantService
+@inject IJSRuntime JS
+
 <style>
+
     .custom-modal-size {
-        max-width: 200%; 
+        max-width: 200%;
     }
 
     .modal-dialog-scrollable {
-        max-height: 80vh; 
+        max-height: 80vh;
         overflow-y: auto;
     }
 
     .table {
         width: 100%;
         table-layout: auto;
+    }
+
+    .border {
+        border-width: 2px;
+        border-color: #007bff;
     }
 </style>
 <div class="page-wrapper">
@@ -52,7 +61,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header d-flex align-items-center justify-content-between">
-                            <h3 class="card-title">Invoices</h3>
+                            <h2 class="card-title">MÃ HÓA ĐƠN :  @selectedOrderId</h2>
                             <!-- Nút thêm sản phẩm -->
                             <button class="btn btn-secondary" @onclick="ShowAddProductModal">
                                 Thêm sản phẩm
@@ -62,49 +71,70 @@
                         {
                             <div class="modal fade show d-block" tabindex="-1" role="dialog">
                                 <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 75%; width: auto;">
-                                    <!-- Thêm modal-dialog-scrollable để có thể cuộn khi có quá nhiều dữ liệu -->
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title">Thêm Sản Phẩm</h5>
                                             <button type="button" class="btn-close" @onclick="CloseAddProductModal" aria-label="Close"></button>
                                         </div>
+                                        <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                            <div></div>
+                                            <EditForm Model="product_Attributes" OnValidSubmit="@OnSearch">
+                                                <div class="form-group d-flex gap-2">
+                                                    <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                                    <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                                </div>
+                                            </EditForm>
+                                        </div>
+
                                         <div class="modal-body">
-                                            <!-- Tạo bảng để hiển thị các thuộc tính của sản phẩm -->
                                             <table class="table table-bordered">
                                                 <thead>
                                                     <tr>
-                                                        <th>Tên Sản Phẩm</th>
                                                         <th>Hình Ảnh</th>
-                                                        <th>Trạng Thái</th>
+                                                        <th>Tên Sản Phẩm</th>
                                                         <th>Mô Tả</th>
                                                         <th>Công Nghệ Dệt</th>
                                                         <th>Phong Cách</th>
                                                         <th>Chất Liệu</th>
                                                         <th>Size</th>
                                                         <th>Màu</th>
-                                                        <th>Số Lượng</th>
+                                                        <th>Số Lượng trong kho</th>
                                                         <th>Giá Tiền</th>
+                                                        <th>Thao tác</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     @foreach (var product in lst_ProductAttributes)
                                                     {
                                                         <tr>
-                                                            <td>@product.SKU</td> 
-                                                            <td><img src="@product.Image" alt="Hình ảnh" style="width: 50px; height: auto;" /></td> <!-- Hình ảnh -->
-                                                            <td>@product.Status</td> 
+                                                            <td><img src="@product.Image" alt="Hình ảnh" style="width: 130px; height: auto;" /></td>
+                                                            <td>@product.Product_Variant.Posts.Title</td>
                                                             <td>@product.Product_Variant?.Description</td>
                                                             <td>@product.Product_Variant?.Textile_Technology?.Title</td>
-                                                            <td>@product.Product_Variant?.Style?.Title</td> 
-                                                            <td>@product.Product_Variant?.Material?.Title</td> 
-                                                            <td>@product.Size?.Title</td> 
-                                                            <td>@product.Color?.Title</td> 
-                                                            <td>@product.Stock</td> 
-                                                            <td>@product.Regular_price</td> 
+                                                            <td>@product.Product_Variant?.Style?.Title</td>
+                                                            <td>@product.Product_Variant?.Material?.Title</td>
+                                                            <td>@product.Size?.Title</td>
+                                                            <td>@product.Color?.Title</td>
+                                                            <td>@product.Stock Tấm</td>
+                                                            <td>@product.Regular_price VNĐ</td>
+                                                            <td>
+                                                                <div class="input-group">
+                                                                    <input type="number" class="form-control text-center" style="width: 100px;"
+                                                                           value="@(productQuantities.ContainsKey(product.Id) ? productQuantities[product.Id] : 1)"
+                                                                           @oninput="(e) => UpdateQuantity(product.Id, int.TryParse(e.Value?.ToString(), out var value) ? value : 1)"
+                                                                           min="1" />
+                                                                </div>
+                                                                <button class="btn btn-primary mt-2" @onclick="() => AddProduct(order_Details, product.Id)">Chọn</button>
+                                                            </td>
+
+
                                                         </tr>
                                                     }
                                                 </tbody>
                                             </table>
+                                            <div class="mt-4">
+                                                <PaginationMediaModal TItem="Product_Attributes" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                                            </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" @onclick="CloseAddProductModal">Đóng</button>
@@ -119,25 +149,28 @@
                             <div class="d-flex flex-wrap gap-3">
                                 @foreach (var order in lst_Orders)
                                 {
-                                    <div class="invoice-item position-relative p-3 text-center bg-light border rounded">
-                                        <button type="button" class="btn-close position-absolute top-0 end-0 me-2 mt-2"
+                                    <div class="invoice-item position-relative p-3 text-center border rounded"
+                                         style="background-color: @(order.Id == selectedOrderId ? "#5985f7" : "#edf0f5")"
+                                         @onclick="async () => await SelectOrder(order.Id)">
+
+                                        <button type="button" class="btn-close position-absolute top-0 end-0"
+                                                style="width: 0.8rem; height: 0.8rem; margin: 0.25rem;"
                                                 title="Xóa hóa đơn"
+                                                 @onclick:stopPropagation 
                                                 @onclick="() => DeleteOrder(order.Id)">
                                         </button>
-                                        Hóa đơn #@order.Id
+                                        Hóa đơn @order.Id  <i class="bi bi-cart-check-fill"></i>
                                     </div>
                                 }
+
                             </div>
-                        </div>
+                        </div>  
                         <div class="table-responsive">
                             <table class="table card-table table-vcenter text-nowrap datatable">
                                 <thead>
                                     <tr>
-                                        <th class="w-1"><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices"></th>
-                                        <th class="w-1">
-                                            No. <!-- Download SVG icon from http://tabler-icons.io/i/chevron-up -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm icon-thick" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6 15l6 -6l6 6" /></svg>
-                                        </th>
+                                        <th class="w-1"><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices">All</th>
+                                        <th>Hình Ảnh</th>
                                         <th>Tên sản phẩm</th>
                                         <th>Chất liệu</th>
                                         <th>Công nghệ dệt</th>
@@ -150,41 +183,510 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
-                                        <td><span class="text-secondary">001401</span></td>
-                                        <td><a href="invoice.html" class="text-reset" tabindex="-1">Design Works</a></td>
-                                        <td>
-                                            <span class="flag flag-xs flag-country-us me-2"></span>
-                                            Carlson Limited
-                                        </td>
-                                        <td>
-                                            87956621
-                                        </td>
-                                        <td>
-                                            15 Dec 2017
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-success me-1"></span> Paid
-                                        </td>
-                                        <td>$887</td>
-                                        <td class="text-end">
-                                            <span class="dropdown">
-                                                <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Actions</button>
-                                                <div class="dropdown-menu dropdown-menu-end">
-                                                    <a class="dropdown-item" href="#">
-                                                        Action
-                                                    </a>
-                                                    <a class="dropdown-item" href="#">
-                                                        Another action
-                                                    </a>
-                                                </div>
-                                            </span>
-                                        </td>
-                                    </tr>
+                                    @foreach (var item in lst_OrderDetail)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select item">
+                                            </td>
+                                            <td><img src="@item.ProductAttributes.Image" alt="Hình ảnh" style="width: 80px; height: auto;" /></td>
+                                            <td>@item.ProductAttributes.Product_Variant.Posts.Title </td>
+                                            <td>@item.ProductAttributes.Product_Variant.Material.Title </td>
+                                            <td>@item.ProductAttributes.Product_Variant.Textile_Technology.Title </td>
+                                            <td>@item.ProductAttributes.Product_Variant.Style.Title </td>
+                                            <td>@item.ProductAttributes.Color.Title</td>
+                                            <td>@item.ProductAttributes.Size.Title</td>
+                                            <td>@item.Quantity </td>
+                                            <td>@(item.Quantity * item.ProductAttributes.Regular_price) VNĐ</td>
+                                            <td>
+
+                                                <button class="btn btn-danger" @onclick="() => DeleteOrderDetail(item.Id)">
+                                                    <i class="bi bi-trash3"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
                                 </tbody>
                             </table>
                         </div>
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <h2 class="card-title">Tổng tiền: @totalAmount VNĐ</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-lg-8">
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <h3 class="card-title">Thông tin khách hàng</h3>
+                            <div class="col-auto">
+                                <div class="border rounded d-flex align-items-center justify-content-center p-2"
+                                     style="width: 200px; background-color: #ccdaff; border-radius: 30px; border-color:#7399fa;">
+                                    @(isCustomerAdded ? customerName : "Khách lẻ")
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" @onclick="ShowListCustomerModal">
+                                Chọn khách hàng
+                            </button>
+                            @if (isAddCustomerModalVisible)
+                            {
+                                <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 75%; width: auto;">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Danh sách khách hàng</h5>
+                                                <button type="button" class="btn-close" @onclick="CloseModalAddCustomer" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <div class="d-flex align-items-center">
+                                                        <label for="searchCustomer" class="me-2">Tìm kiếm:</label>
+                                                        <input type="text" id="searchCustomer" class="form-control" style="width: 250px;" placeholder="Nhập SĐT hoặc Email khách hàng">
+                                                    </div>
+                                                    <button class="btn btn-success" @onclick="OpenModalCreateCustomer">Thêm mới khách hàng</button>
+                                                </div>
+                                                @if (isCreateCustomerModalVisible)
+                                                {
+                                                    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                                                        <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 40%; width: auto;">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Thêm mới khách hàng</h5>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <form>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label">Tên khách hàng</label>
+                                                                            <input class="form-control" @bind="@Customer.Name">
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label">Số Điện thoại</label>
+                                                                            <input class="form-control" @bind="@Customer.Phone">
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label for="exampleInputEmail1" class="form-label">Email</label>
+                                                                            <input type="email" class="form-control" id="exampleInputEmail1" @bind="@Customer.Email" aria-describedby="emailHelp">
+                                                                        </div>
+                                                                        <div class="modal-footer d-flex justify-content-between">
+                                                                            <button type="button" class="btn btn-primary" @onclick="CreateCustomer">Xác nhận</button>
+                                                                            <button type="button" class="btn btn-secondary" @onclick="CloseModalCreateCustomer">Hủy</button>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                }
+                                                <table class="table table-bordered">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>STT</th>
+                                                            <th>Họ và tên </th>
+                                                            <th>Số điện thoại</th>
+                                                            <th>Email</th>
+                                                            <th>Thao tác</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        @{
+                                                            int index = 1; 
+                                                        }
+                                                        @foreach (var item in lst_Customer)
+                                                        {
+                                                            <tr>
+
+                                                                <td>@index</td>
+                                                                <td>@item.Name</td>
+                                                                <td>@item.Phone</td>
+                                                                <td>@item.Email</td>
+                                                                <td>
+                                                                    <button class="btn btn-primary mt-2" @onclick="() => AddCustomer(item)">Chọn</button>
+                                                                </td>
+                                                            </tr>
+                                                            index++;
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="modal-backdrop fade show"></div>
+
+                            }
+                        </div>
+                        @if (isDeliveryVisible)
+                        {
+                            <div class="table-responsive">
+                                <div class="container px-4 text-center">
+                                    <div class="row gx-2 justify-content-center">
+                                        <h1> Thông tin địa chỉ</h1>
+                                        <button class="btn btn-success" @onclick="ShowAddress">Chọn địa chỉ</button>
+                                        <!-- table  address -->
+                                        @if (isChooseAddress)
+                                        {
+                                            <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                                                <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 75%; width: auto;">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Danh sách địa chỉ của Khách Hàng</h5>
+                                                            <button type="button" class="btn-close" @onclick="CloseAddressModal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                                <button class="btn btn-success" @onclick="OpenCreateAddressModal">Thêm mới địa chỉ</button>
+                                                            </div>
+                                                            <!-- model create address -->
+                                                            @if (isCreateAddress)
+                                                            {
+                                                                <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                                                                    <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 40%; width: auto;">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h5 class="modal-title">Thêm mới địa chỉ</h5>
+                                                                            </div>
+                                                                                <form class="p-4 bg-light rounded shadow">
+                                                                                    <div class="row mb-3">
+                                                                                        <div class="col-md-6">
+                                                                                            <label for="name" class="form-label">Tên địa chỉ</label>
+                                                                                        <input type="text" @bind="address.Name" class="form-control" placeholder="Nhập tên địa chỉ">
+                                                                                        </div>
+                                                                                        
+                                                                                    </div>
+                                                                                    <div class="row mb-3">
+                                                                                        <div class="col-md-4">
+                                                                                            <label for="city" class="form-label">Tỉnh/Thành phố</label>
+                                                                                            <select id="city" @onchange="OnProvinceChange" class="form-select">
+                                                                                                <option value="">Chọn Tỉnh</option>
+                                                                                                @if (provinces != null && provinces.Count > 0)
+                                                                                                {
+                                                                                                    @foreach (var province in provinces)
+                                                                                                    {
+                                                                                                        <option value="@province.Id">@province.Name</option>
+                                                                                                    }
+                                                                                                }
+                                                                                            </select>
+                                                                                        </div>
+                                                                                        <div class="col-md-4">
+                                                                                            <label for="district" class="form-label">Quận/Huyện</label>
+                                                                                            <select id="district" @onchange="OnDistrictChange" class="form-select" disabled="@(!hasDistricts)">
+                                                                                                <option value="">Chọn Huyện</option>
+                                                                                                @if (districts != null && districts.Count > 0)
+                                                                                                {
+                                                                                                    @foreach (var district in districts)
+                                                                                                    {
+                                                                                                        <option value="@district.Id">@district.Name</option>
+                                                                                                    }
+                                                                                                }
+                                                                                            </select>
+                                                                                        </div>
+                                                                                        <div class="col-md-4">
+                                                                                            <label for="ward" class="form-label">Xã/Phường/Thị trấn</label>
+                                                                                            <select id="ward" @onchange="OnWardChange" class="form-select" disabled="@(!hasWards)">
+                                                                                                <option value="">Chọn Xã</option>
+                                                                                                @if (wards != null && wards.Count > 0)
+                                                                                                {
+                                                                                                    @foreach (var ward in wards)
+                                                                                                    {
+                                                                                                        <option value="@ward.Id">@ward.Name</option>
+                                                                                                    }
+                                                                                                }
+                                                                                            </select>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <div class="row mb-3">
+                                                                                        <div class="col-md-8">
+                                                                                            <label for="address" class="form-label">Địa chỉ cụ thể</label>
+                                                                                        <input type="text" @bind="address.Street" class="form-control" placeholder="Nhập địa chỉ cụ thể">
+                                                                                        </div>
+                                                                                        <div class="col-md-4">
+                                                                                            <label for="note" class="form-label">Ghi chú</label>
+                                                                                            <input type="text" id="note" class="form-control" placeholder="Nhập ghi chú">
+                                                                                        </div>
+                                                                                    </div>
+                                                                      
+                                                                                    <div class="modal-footer d-flex justify-content-between">
+                                                                                        <button type="button" class="btn btn-primary" @onclick="CreateAddress">Xác nhận</button>
+                                                                                        <button type="button" class="btn btn-secondary" @onclick="CloseCreateAddress">Hủy</button>
+                                                                                    </div>
+                                                                                </form>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            }
+                                                            @if (lst_Address != null && lst_Address.Any())
+                                                            {
+                                                                <table class="table table-bordered">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>STT</th>
+                                                                            <th>Tên người nhận</th>
+                                                                            <th>Số điện thoại</th>
+                                                                            <th>Địa chỉ</th>
+                                                                            <th>Thao tác</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @{
+                                                                            int index = 1;
+                                                                        }
+                                                                        @foreach (var item in lst_Address)
+                                                                        {
+                                                                            <tr>
+                                                                                <td>@index</td>
+                                                                                <td>@item.User?.Name</td>
+                                                                                <td>@item.User?.Phone</td>
+                                                                                <td>@($"{item.Street}, {item.Ward_commune}, {item.District}, {item.Province_city}")</td>
+                                                                                <td>
+                                                                                    <button class="btn btn-primary mt-2" @onclick="() => SelectAddress(item)">Chọn</button>
+                                                                                </td>
+                                                                            </tr>
+                                                                            index++;
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            }
+                                                            else
+                                                            {
+                                                                <h1>Khách hàng chưa có thông tin về địa chỉ</h1>
+                                                            }
+
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                            <div class="modal-backdrop fade show"></div>
+                                        }
+                                        <form class="space-y-2">
+                                            <div class="d-flex" style="gap: 0.5rem; margin: 0.25rem; padding: 0.25rem;">
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Tên địa chỉ</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null && selectedAddress.User != null)
+                                                                {
+                                                                    @selectedAddress?.User?.Name
+                                                                }
+                                                                else if (selectedAddress == null)
+                                                                {
+                                                                    <span>Chưa chọn địa chỉ</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Khách lẻ</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Số điện thoại</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null && selectedAddress.User != null)
+                                                                {
+                                                                    @selectedAddress?.User?.Phone
+                                                                }
+                                                                else if (selectedAddress == null)
+                                                                {
+                                                                    <span>Không có thông tin</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Khách lẻ</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex" style="gap: 0.5rem; margin: 0.25rem; padding: 0.25rem;">
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Tỉnh/Thành Phố</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null)
+                                                                {
+                                                                    @city
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Chưa chọn địa chỉ</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Quận/Huyện</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null)
+                                                                {
+                                                                    @district
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Chưa chọn địa chỉ</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Phường/Xã/Thị Trấn</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null)
+                                                                {
+                                                                    @ward
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Chưa chọn địa chỉ</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex" style="gap: 0.5rem; margin: 0.25rem; padding: 0.25rem;">
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Địa chỉ cụ thể</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null)
+                                                                {
+                                                                    @street
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Chưa chọn địa chỉ</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                                <div class="col-auto" readonly style="flex: 1;">
+                                                    <fieldset class="border p-2" style="padding-top: 0.25rem;">
+                                                        <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Ghi chú</legend>
+                                                        <div style="margin-top: -0.25rem;">
+                                                            <strong>
+                                                                @if (selectedAddress != null)
+                                                                {
+                                                                    @selectedAddress.Status
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span>Chưa có ghi chú</span>
+                                                                }
+                                                            </strong>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="d-flex justify-content-between">
+                                                    <span><strong>Thời gian nhận hàng dự kiến:</strong> 23-12-2023</span>
+                                                </div>
+                                                <div class="d-flex justify-content-between">
+                                                    <span><strong>Phí giao hàng:</strong> 34,000 đ</span>
+                                                </div>
+                                            </div>
+                                        </form>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between">
+                            <h3 class="card-title">Thông tin đơn hàng</h3>
+                            @if(selectedOrderId!=0)
+                            {
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" @bind="IsDeliveryVisible">
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">Giao hàng</label>
+                                </div>
+                            }                   
+                        </div>  
+                        <div class="table-responsive">
+                            <div class="container px-4 text-center">
+                                <div class="row gx-2 justify-content-between">
+                                    <div class="col-auto" readonly>
+                                        <fieldset class="border p-2" style="width: 150px; padding-top: 0.5rem;">
+                                            <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Tiêu đề</legend>
+                                            <div style="margin-top: -0.5rem;"><strong>Mã giảm giá</strong></div>
+                                        </fieldset>
+                                    </div>
+                                    <div class="col-auto" readonly>
+                                        <fieldset class="border p-2" style="width: 150px; padding-top: 0.5rem;">
+                                            <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">.</legend>
+                                            <div style="margin-top: -0.5rem;"><strong>Code</strong></div>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-table table-responsive">
+                                <table class="table table-vcenter table-borderless">
+                                    <tbody>
+                                        <tr>
+                                            <td class="td-truncate">
+                                                <div class="text-truncate">
+                                                    <strong>Tiền hàng :</strong>
+                                                </div>
+                                            </td>
+                                            <td class="text-nowrap text-secondary"> @totalAmount VND</td>
+
+                                        </tr>
+                                        <tr>
+                                            <td class="td-truncate">
+                                                <div class="text-truncate">
+                                                    <strong>Phí vận chuyển :</strong>
+                                                </div>
+                                            </td>
+                                            <td class="text-nowrap text-secondary"> 0 VND</td>
+
+                                        </tr>
+                                        <tr>
+                                            <td class="td-truncate">
+                                                <div class="text-truncate">
+                                                    <strong>Số tiền giảm :</strong>
+                                                </div>
+                                            </td>
+                                            <td class="text-nowrap text-secondary"> 0 VND</td>
+
+                                        </tr>
+                                        <tr>
+                                            <td class="td-truncate">
+                                                <div class="text-truncate">
+                                                    <strong>Tổng tiền :</strong>
+                                                </div>
+                                            </td>
+                                            <td class="text-nowrap text-secondary"> @totalAmount VND</td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="d-flex justify-content-center my-3">
+                                <button type="button" class="btn btn-primary" @onclick="CheckOut">Xác nhận thanh toán</button>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -193,48 +695,543 @@
 </div>
 
 @code {
+    private long selectedOrderId;
+    private string customerName = "";
+    private bool isCustomerAdded = false; // Kiểm tra xem khách hàng đã được thêm chưa
     private Orders orders = new Orders();
+    private Product_Attributes product_Attributes = new Product_Attributes();
     private Order_details order_Details = new Order_details();
-    private Users customer = new Users();
-    private Address address = new Address();
+    private Users Customer = new Users();
+    private List<Users> lst_Customer = new List<Users>();
+    private List<Address> lst_Address = new List<Address>();
+    private List<Order_details> lst_OrderDetail = new List<Order_details>();
     private List<Orders> lst_Orders = new List<Orders>();
     private List<Product_Attributes> lst_ProductAttributes = new List<Product_Attributes>();
-    private List<Users> lst_Customer = new List<Users>();
+    private bool isAddProductModalVisible = false; // kiểm tra modal danh sách sản phẩm được mở chưa
+    private bool isAddCustomerModalVisible = false; // modal danh sách khách hàng
+    private bool isCreateCustomerModalVisible = false; // model tạo khách hàng
+    private bool isChooseAddress = false; // model danh sách địa chỉ của khách hàng
+    private bool isCreateAddress = false; // model tạo mới địa chỉ
+    private bool isDeliveryVisible = false;
+    private Dictionary<long, int> productQuantities = new Dictionary<long, int>();
+    private decimal totalAmount = 0;
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private int totalItems;
 
-    private bool isAddProductModalVisible = false;
+    private async Task OnSearch()
+    {
+        // Ngăn ngừa load lại trang
+        lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, search_query);
+    }
+    private async Task LoadPosts()
+    {
 
-    private async void ShowAddProductModal()
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, searchTerm);
+        totalItems = await productAttributeService.GetTotalCountAsync(searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
+
+    private async Task SelectOrder(long orderId) // chọn hóa đơn
+    {
+        selectedOrderId = orderId;
+        lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
+        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
+        var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
+        if (orderToUpdate == null)
+        {
+            selectedOrderId = 0;
+            return;
+        }
+        if (orderToUpdate != null)
+        {
+            foreach (var item in lst_OrderDetail)
+            {
+                var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
+                if (product != null)
+                {
+                    if (item.Quantity > product.Stock)
+                    {
+                        await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.Product_Variant.Posts.Title} trong kho không đủ.");
+                        return;
+                    }
+
+                    product.Stock -= item.Quantity; // Trừ số lượng trong kho
+                    await productAttributeService.Update(product, product.Id);
+                }
+            }
+        }
+        await LoadOrderDetails();
+    }
+    private async Task UpdateQuantity(long productId, int quantity)
+    {
+        if (quantity <= 0)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Số lượng phải lớn hơn 0.");
+            return;
+        }
+        if (productQuantities.ContainsKey(productId))
+        {
+            productQuantities[productId] = quantity;
+        }
+        else
+        {
+            productQuantities.Add(productId, quantity);
+        }
+    } // thay đổi số lượng trong modal sản phẩm
+    private int GetQuantity(long productId)
+    {
+        return productQuantities.ContainsKey(productId) ? productQuantities[productId] : 1;
+    } // lấy số lượng
+    private void ShowAddProductDetailModal()
     {
         isAddProductModalVisible = true;
-        lst_ProductAttributes = await productAttribute.GetAllProductAttributes();
-    }
+    } // mở modal sản phẩm
+    private async void ShowAddProductModal()
+    {
+        if (selectedOrderId == 0)
+        {
+            isAddProductModalVisible = false;
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn hóa đơn trước");
+        }
+        else
+        {
+            isAddProductModalVisible = true;
+            lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, search_query);
+        }
+
+    }// danh sách sản phẩm trong modal
     private void CloseAddProductModal()
     {
         isAddProductModalVisible = false;
     }
+    private async Task LoadProducts()
+    {
+        lst_ProductAttributes = await productAttributeService.GetByTypeAsync(page_number, page_size, search_query);
+    }
+    private async Task LoadOrderDetails() // danh sách đơn hàng chi tiết của đơn hàng được chọn
+    {
+        lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
+        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
+        StateHasChanged();
+    }
     protected override async Task OnInitializedAsync()
     {
-         await LoadOrders();
-        lst_ProductAttributes = await productAttribute.GetAllProductAttributes();
-    }
-    private async Task LoadOrders()
+        await LoadPosts();
+        await LoadOrders();
+        var totalAmount = lst_OrderDetail.Sum(item => item.Quantity * item.ProductAttributes.Regular_price);
+        lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
+        lst_Customer = await userService.GetAll();
+        provinces = await address_Service.GetProvincesAsync();
+    } // LOAD
+    private async Task LoadOrders() // lấy ra các hóa đơn treo ( chưa thanh toán )
     {
-        lst_Orders = await order.GetAll();
-        StateHasChanged(); 
+        var allOrders = await orderService.GetAll();
+        lst_Orders = allOrders.Where(order => order.Status == "Hóa đơn treo").ToList();
+        StateHasChanged();
     }
     private async Task DeleteOrder(long id)
     {
-        await order.Delete(id);
+        await orderService.Delete(id);
+        selectedOrderId = 0;
         await LoadOrders();
+    }// xóa order
+    private async Task DeleteOrderDetail(long id) // xóa orderdetail
+    {
+        await orderDetailService.Delete(id);
+        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
+        await LoadOrderDetails();
     }
     private async Task CreateOrder()
     {
-        await order.Create(orders);
-        lst_Orders = await order.GetAll();
+        var pendingOrders = lst_Orders.Where(order => order.Status == "Hóa đơn treo").ToList();
+
+        if (pendingOrders.Count >= 7)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Chỉ có thể tạo tối đa 7 hóa đơn treo");
+            return;
+        }
+        var newOrder = new Orders
+        {
+            Note = "Tại quầy",
+            CreatedByAdminId = "5fee4a33-eb7d-45dd-87dc-0818607a1f3c",
+            Status = "Hóa đơn treo"
+        };
+        await orderService.Create(newOrder);
+        lst_Orders = await orderService.GetAll();
+        await LoadOrders();
+    }// tạo order
+    private bool IsDeliveryVisible
+    {
+        get => isDeliveryVisible;
+        set
+        {
+            if (isDeliveryVisible != value)
+            {
+                isDeliveryVisible = value;
+                orders.Note = isDeliveryVisible ? "Giao hàng" : "Tại quầy"; // Cập nhật ghi chú ngay lập tức
+                _ = UpdateOrderNote(); // Gọi hàm async không blocking
+                StateHasChanged(); // Thông báo thay đổi trạng thái
+            }
+        }
+    }
+    private async Task UpdateOrderNote()
+    {
+        orders = await orderService.GetByIdOrders(selectedOrderId);
+        if (orders == null)
+        {
+            Console.WriteLine("Orders object is null. Cannot update note.");
+            return;
+        }
+
+        try
+        {
+            // Cập nhật ghi chú
+            orders.Note = isDeliveryVisible ? "Giao hàng" : "Tại quầy";
+
+            // Gọi API cập nhật
+            await orderService.Update(orders, selectedOrderId);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error updating order note: {ex.Message}");
+        }
+    }
+    private async Task AddProduct(Order_details orderDetails, long productAttributeId)
+    {
+        int quantity = productQuantities.ContainsKey(productAttributeId) ? productQuantities[productAttributeId] : 1;
+
+        // Kiểm tra số lượng hợp lệ
+        if (quantity <= 0)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Số lượng phải lớn hơn 0.");
+            return;
+        }
+
+        var productAttribute = await productAttributeService.GetProductAttributesById(productAttributeId);
+        if (productAttribute == null)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Sản phẩm không tồn tại.");
+            return;
+        }
+
+        // Kiểm tra số lượng tồn kho
+        if (quantity > productAttribute.Stock)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Sản phẩm trong kho không đủ.");
+            return;
+        }
+
+        var existingOrderDetail = await orderDetailService.GetByOrderIdAndProductAttributeId(selectedOrderId, productAttributeId);
+        if (existingOrderDetail != null)
+        {
+            if (existingOrderDetail.Quantity + quantity > productAttribute.Stock)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Số lượng trong kho không đủ.");
+                return;
+            }
+            // Cộng dồn số lượng nếu sản phẩm đã tồn tại
+            existingOrderDetail.Quantity += quantity;
+            await orderDetailService.Update(existingOrderDetail, existingOrderDetail.Id);
+        }
+        else
+        {
+            orderDetails = new Order_details
+                {
+                    Quantity = quantity,
+                    OrderId = selectedOrderId,
+                    Product_Attribute_Id = productAttributeId
+                };
+
+            await orderDetailService.Create(orderDetails);
+        }
+
+        await LoadOrderDetails();
+        productQuantities[productAttributeId] = 0;
+        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 1);
+    }
+    private async void ShowListCustomerModal()
+    {
+        if (selectedOrderId == 0)
+        {
+            isAddCustomerModalVisible = false;
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn hóa đơn trước");
+        }
+        else
+        {
+            isAddCustomerModalVisible = true;
+            lst_Customer = await userService.GetAll();
+        }
+    } // mở modal khách hàng
+    private async void CloseModalAddCustomer()
+    {
+        isAddCustomerModalVisible = false;
+    }
+    private async Task AddCustomer(Users selectedCustomer)
+    {
+
+        var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
+        if (orderToUpdate != null)
+        {
+            orderToUpdate.User_id = selectedCustomer.Id;
+            await orderService.Update(orderToUpdate, orderToUpdate.Id);
+            var updatedOrder = await orderService.GetByIdOrders(selectedOrderId);
+            if (updatedOrder != null)
+            {
+                customerName = updatedOrder.Users?.Name ?? "Khách lẻ";
+                isCustomerAdded = updatedOrder.User_id != 1;
+            }
+        }
+        isAddCustomerModalVisible = false;
+        customerName = selectedCustomer.Name;
+        isCustomerAdded = true;
+        ClearInfoAddress();
+
+        // Cập nhật lại thông tin đơn hàng
+        lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
+        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
         await LoadOrders();
     }
-    private async Task AddProduct()
+    private async void CreateCustomer()
     {
-        
+        if (string.IsNullOrEmpty(Customer.Phone) || await userService.IsPhoneExists(Customer.Phone))
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Số điện thoại đã tồn tại hoặc không hợp lệ.");
+            return;
+        }
+
+        if (string.IsNullOrEmpty(Customer.Phone))
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Số điện thoại không được bỏ trống.");
+            return;
+        }
+        var createdCustomer = await userService.Create(Customer);
+        lst_Customer = await userService.GetAll();
+        isCustomerAdded = true;
+        isCreateCustomerModalVisible = false;
+        isAddCustomerModalVisible = false;
+        customerName = createdCustomer.Name;
+        await JS.InvokeVoidAsync("toastr.success", "Thêm khách hàng thành công");
     }
+    private async void OpenModalCreateCustomer()
+    {
+        isCreateCustomerModalVisible = true;
+    }
+    private async void CloseModalCreateCustomer()
+    {
+        isCreateCustomerModalVisible = false;
+    }
+    private async void CheckOut()
+    {
+        await LoadOrderDetails();
+        if (lst_OrderDetail == null || !lst_OrderDetail.Any())
+        {
+            await JS.InvokeVoidAsync("toastr.warning", "Đơn hàng chưa có sản phẩm nào.");
+            return;
+        }
+        var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
+        if (orderToUpdate != null)
+        {
+            orderToUpdate.TotalAmount = totalAmount;
+            orderToUpdate.TotalAmount = totalAmount;
+            if (isDeliveryVisible)
+            {
+                orderToUpdate.Status = "Đã xác nhận";
+            }
+            else
+            {
+                orderToUpdate.Status = "Đã thanh toán";
+            }
+            await orderService.Update(orderToUpdate, orderToUpdate.Id);
+            foreach (var item in lst_OrderDetail)
+            {
+                var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
+                if (product != null)
+                {
+                    if (item.Quantity > product.Stock)
+                    {
+                        await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.Product_Variant.Posts.Title} trong kho không đủ.");
+                        return;
+                    }
+                    product.Stock -= item.Quantity; // trừ số lượng trong kho
+                    await productAttributeService.Update(product, product.Id);
+                }
+            }
+        }
+        selectedOrderId = 0;  
+        customerName = "";
+        totalAmount = 0;
+        isCustomerAdded = false;  
+        lst_OrderDetail.Clear();    
+        productQuantities.Clear();  
+        isAddProductModalVisible = false;  
+        isAddCustomerModalVisible = false;  
+        isCreateCustomerModalVisible = false;
+        ClearInfoAddress();
+        await LoadOrderDetails();
+        await LoadOrders();
+        await LoadPosts();
+        await LoadProducts();
+        await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
+    }
+    private async Task ShowAddress()
+    {
+        if (selectedOrderId == null)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn hóa đơn trước");
+            return;  
+        }
+        var order = await orderService.GetByIdOrders(selectedOrderId);
+        if (order?.User_id.HasValue == true)
+        {
+            isChooseAddress = true;
+            lst_Address = await addressService.GetAddressByUserId(order.User_id.Value);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng thêm thông tin khách hàng trước");
+            return;
+        }
+    }
+    private void CloseAddressModal()
+    {
+        isChooseAddress = false;
+    }
+    private void OpenCreateAddressModal()
+    {
+        isCreateAddress = true;
+    }
+    private async Task CreateAddress()
+    {
+        if (string.IsNullOrEmpty(address.Ward_commune) || string.IsNullOrEmpty(address.Street))
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng nhập đầy đủ thông tin địa chỉ.");
+            return;
+        }
+
+        var order = await orderService.GetByIdOrders(selectedOrderId);
+        if (order?.User_id.HasValue == true)
+        {
+            address.User_Id = order.User_id.Value; // Gắn User_Id từ Order
+            if (address.Type == null) address.Type = ""; 
+            if (address.Status == null) address.Status = "";
+            var province = provinces.FirstOrDefault(p => p.Id == address.Province_city);
+            var district = districts.FirstOrDefault(d => d.Id == address.District);
+            var ward = wards.FirstOrDefault(w => w.Id == address.Ward_commune);
+            address.Province_city = province.Name;
+            address.District = district?.Name;
+            address.Ward_commune = ward?.Name;
+            var result = await addressService.CreateAddress(address);
+
+            if (result)
+            {
+
+                await JS.InvokeVoidAsync("toastr.success", "Địa chỉ đã được tạo thành công.");
+                isCreateAddress = false;
+                lst_Address = await addressService.GetAddressByUserId(order.User_id.Value);
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Tạo địa chỉ thất bại.");
+            }
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Không tìm thấy người dùng liên kết với đơn hàng.");
+        }
+
+    }
+    private void CloseCreateAddress()
+    {
+        isCreateAddress = false;
+    }
+
+    // tách được đoạn code này ra chỗ khác thì càng tốt 
+    private List<Province> provinces = new List<Province>();
+    private List<Districted> districts = new List<Districted>();
+    private List<Ward> wards = new List<Ward>();
+    private Address address = new Address(); 
+    private bool hasDistricts = false;
+    private bool hasWards = false;
+    [Inject] private AddressService address_Service { get; set; }
+
+    private async Task OnProvinceChange(ChangeEventArgs e)
+    {
+        var selectedProvinceId = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedProvinceId))
+        {
+            // Thiết lập tỉnh hiện tại và xóa các quận huyện, xã
+            address.Province_city = selectedProvinceId;
+            districts = await address_Service.GetDistrictsAsync(int.Parse(selectedProvinceId));
+            hasDistricts = districts.Count > 0;
+            wards.Clear();
+            hasWards = false; 
+        }
+    }
+    private async Task OnDistrictChange(ChangeEventArgs e)
+    {
+        var selectedDistrictId = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedDistrictId))
+        {
+            address.District = selectedDistrictId;
+            wards = await address_Service.GetWardsAsync(int.Parse(selectedDistrictId));
+            hasWards = wards.Count > 0;
+        }
+    }
+    private async Task OnWardChange(ChangeEventArgs e)
+    {
+        var selectedWardId = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedWardId))
+        {
+            address.Ward_commune = selectedWardId;
+        }
+    }
+
+    // Các biến để bind vào form
+    private string city;
+    private string district;
+    private string ward;
+    private string street;
+    private string phone;
+    private Address selectedAddress;
+    private void SelectAddress(Address address)
+    {
+        ClearInfoAddress();
+        if (address != null)
+        {
+            selectedAddress = address; 
+            city = address.Province_city;
+            district = address.District;
+            ward = address.Ward_commune;
+            street = address.Street;
+            phone = address.User?.Phone;
+        }
+
+        isChooseAddress = false;
+    }
+    private void ClearInfoAddress()
+    {
+        selectedAddress = null;
+        city = string.Empty;
+        district = string.Empty;
+        ward = string.Empty;
+        street = string.Empty;
+        phone = string.Empty;        
+    }
+
 }

@@ -34,22 +34,14 @@ namespace ViewsFE.Services
 
         public async Task<Users> Create(Users user)
         {
-            user.Id = 0;
             user.Created_at = DateTime.Now;
             user.Updated_at = DateTime.Now;
 
             // Kiểm tra trùng lặp email
-            if (await IsEmailExists(user.Email))
+            if (!string.IsNullOrWhiteSpace(user.Email) && await IsEmailExists(user.Email))
             {
                 throw new Exception("Email đã tồn tại.");
             }
-
-            //// Kiểm tra trùng lặp số điện thoại
-            //if (await IsPhoneExists(user.Phone))
-            //{
-            //    throw new Exception("Số điện thoại đã tồn tại.");
-            //}
-
             string userRequestURL = "https://localhost:7011/api/Users/Users-post";
             var userJsonContent = JsonConvert.SerializeObject(user);
             var userContent = new StringContent(userJsonContent, Encoding.UTF8, "application/json");
@@ -120,7 +112,6 @@ namespace ViewsFE.Services
             }
             catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                // Nếu mã trạng thái là 404, thì email chưa tồn tại
                 return false;
             }
         }

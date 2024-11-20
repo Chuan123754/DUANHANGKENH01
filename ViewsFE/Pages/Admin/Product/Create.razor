@@ -6,6 +6,7 @@
 @inject IDesignerServices des
 @inject IJSRuntime JS
 @inject IDesignerServices Desiner
+@inject IBannerServices bnser
 
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -59,7 +60,7 @@
                                 </div>
                             </div>
                         </div>
-                      @*  Banner *@
+                        @*  Banner *@
                         <div class="accordion bg-white mt-3">
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
@@ -72,41 +73,40 @@
                                     <div class="card-body pb-4 px-4" style="height: 300px">
                                         <div class="mb-3">
                                             <label for="title" class="form-label">Tiêu đề</label>
-                                            <input type="text" class="form-control" name="meta_data[banner_title]"
-                                                   placeholder="Tiêu đề" value="{{ dt_get_meta($post, 'banner_title') }}">
+                                            <input type="text" class="form-control" @bind-value="banner.Name"
+                                                   placeholder="Tiêu đề">
                                         </div>
                                         <div>
 
                                             <div id="banner_image"
                                                  class="image-post-box d-flex align-items-center justify-content-center open-media-modal"
                                                  data-multiple="false"
-                                                 data-refer-id="#banner_image"
-                                                 data-input-name="meta_data[banner_image]"
-                                                 data-image-ids="{{ $bannerId }}">
-
-                                                <input type="hidden" name="meta_data[banner_image][0][id]" value="{{ $bannerId }}">
-                                                <input type="hidden" name="meta_data[banner_image][0][image]" value="{{ $bannerImage }}">
-                                                <img src="{{ $bannerImage }}"
-                                                     class="w-100 h-100 object-cover">
-
-
-                                                <div class="icon d-flex align-items-center justify-content-center {{ $bannerId ? 'd-none' : '' }}">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1"
-                                                         stroke="currentColor" fill="none" stroke-linecap="round"
-                                                         stroke-linejoin="round">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M12 5l0 14" />
-                                                        <path d="M5 12l14 0" />
-                                                    </svg>
-                                                </div>
+                                                 data-refer-id="#banner_image" onclick="openMediaBannerModal()">
+                                                @if (!string.IsNullOrEmpty(banner.Meta_data))
+                                                {
+                                                    <img src="@banner.Meta_data" class="object-cover" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="icon d-flex align-items-center justify-content-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1"
+                                                             stroke="currentColor" fill="none" stroke-linecap="round"
+                                                             stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M12 5l0 14" />
+                                                            <path d="M5 12l14 0" />
+                                                        </svg>
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                        @*    End banner *@
                     </div>
-                  
+
                     <!-- Phần bên phải -->
                     <div class="col-md-3 col-12">
                         <div class="sticky-top position-sticky">
@@ -120,11 +120,10 @@
                                     </h2>
                                     <div id="action-1" class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                         <div class="accordion-body pt-0">
-                                            <!-- Trạng thái -->
+                                            <!-- #region trạng thái -->
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Trạng thái</label>
                                                 <select @bind="Posts.Status" class="form-control">
-
                                                     @foreach (var status in statuses)
                                                     {
                                                         <option value="@status.Key" selected="@(Posts.Status == status.Key)">
@@ -133,17 +132,18 @@
                                                     }
                                                 </select>
                                             </div>
-
-                                            <!-- Tác giả -->
+                                            <!-- #endregion -->
+                                            <!-- #region tác giả -->
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Tác giả</label>
-                                                <InputSelect @bind-Value="Posts.AuthorId" class="form-control" multiple>
+                                                <InputSelect @bind-Value="Posts.AuthorId" class="form-control">
                                                     @foreach (var desi in designersList)
                                                     {
                                                         <option value="@desi.id_Designer">@desi.Name</option>
                                                     }
                                                 </InputSelect>
                                             </div>
+                                            <!-- #endregion -->
                                             <button type="submit" class="btn btn-primary" style="float: right">Đăng</button>
                                             <div class="clearfix"></div>
                                         </div>
@@ -318,12 +318,13 @@
 
 </EditForm>
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
-<Media_manager OnImageSelected="HandleImageBannerSelected" @ref="media_Manager"></Media_manager>
+<Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 <Modal OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal>
 
 
 @code {
     private Product_Posts Posts = new Product_Posts();
+    private Banner banner = new Banner();
     private List<Categories> CategoriesList = new();
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
     private List<Tags> TagsList = new();
@@ -332,9 +333,9 @@
     private List<long> SelectedTags = new List<long>();
     private Media_modal mediaModalRef;
     private Modal mediaLibraryModal;
-    private Media_manager media_Manager;
+    private Media_manager media_ManagerRef;
     private bool tinyMCEInitialized = false;
-
+    private long postId;
 
     private async Task HandleImageSelectedN(List<string> imagePaths)
     {
@@ -343,14 +344,14 @@
         await JS.InvokeVoidAsync("openMediaModalN");
     }
 
-
-    private async Task HandleImageBannerSelected(string imagePath)
+    private async Task HandleImageSelectedBanner(string imagePath)
     {
-        Posts.Feature_image = imagePath;
+        // Nếu imagePath là null, xóa ảnh banner
+        banner.Meta_data = imagePath ?? string.Empty;
         StateHasChanged();
         await JS.InvokeVoidAsync("closeMediaBannerModal");
- 
     }
+
     private async Task HandleImageSelected(string imagePath)
     {
         // Nếu imagePath là null, xóa ảnh đại diện
@@ -364,10 +365,14 @@
     }
     protected override async Task OnInitializedAsync()
     {
+        statuses = Product_Posts.STATUSES.ToDictionary(k => k.Key, v => v.Value);
+        Posts = new Product_Posts
+            {
+                Status = Product_Posts.STATUS_PUBLISH // Thiết lập giá trị mặc định
+            };
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAll();
         designersList = await des.GetAll();
-        Posts.Status = Product_Posts.STATUS_DRAFT;
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -403,7 +408,6 @@
     private async void HandleValidSubmit()
     {
         Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
-        // Lấy dữ liệu từ Tom Select
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         if (!string.IsNullOrEmpty(tags))
         {
@@ -422,9 +426,19 @@
                 .ToList();
         }
 
-
-        await sev.CreateProduct(Posts, SelectedTags, SelectedCategories);
-        nav.NavigateTo("/admin/productVariants/Create");
+        try
+        {
+            await sev.CreateProduct(Posts, SelectedTags, SelectedCategories);
+            postId = Posts.Id;
+            await bnser.AddBannerToPost(postId, banner);
+            await JS.InvokeVoidAsync("toastr.success", "Thêm sản phẩm thành công");
+            nav.NavigateTo("/admin/productVariants/Create");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm sản phẩm. Vui lòng thử lại.");
+        }
     }
 }
 <script>

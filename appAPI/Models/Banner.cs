@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace appAPI.Models
@@ -20,13 +21,13 @@ namespace appAPI.Models
         [StringLength(20)]
         public string? Status { get; set; }
         public string? Meta_data { get; set; }
-        public long Created_by { get; set; }
-        public long Updated_by { get; set; }
+        public long? Created_by { get; set; }
+        public long? Updated_by { get; set; }
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get;set; }
         public long? ProductPostId { get; set; }
 
         [ForeignKey("ProductPostId")]
-        public virtual Product_Posts? Product_Post { get; set; }
+        public Product_Posts? Product_Post { get; set; }
     }
 }

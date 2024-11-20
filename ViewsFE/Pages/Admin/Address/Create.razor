@@ -229,7 +229,6 @@
             throw;
         }
     }
-
     private async Task OnProvinceChange(ChangeEventArgs e)
     {
         var selectedProvinceId = e.Value?.ToString();
@@ -243,7 +242,6 @@
             hasWards = false; // Đặt trạng thái xã về false khi tỉnh thay đổi
         }
     }
-
     private async Task OnDistrictChange(ChangeEventArgs e)
     {
         var selectedDistrictId = e.Value?.ToString();
@@ -255,7 +253,6 @@
             hasWards = wards.Count > 0;
         }
     }
-
     private async Task OnWardChange(ChangeEventArgs e)
     {
         var selectedWardId = e.Value?.ToString();
@@ -265,5 +262,4 @@
         }
     }
 }
-
 }
