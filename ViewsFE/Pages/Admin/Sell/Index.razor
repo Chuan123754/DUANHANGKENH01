@@ -739,6 +739,10 @@
     private int page_size = 10;
     private int totalItems;
 
+    private string momoError = null; // Lỗi từ phía MoMo
+    private string payUrl { get; set; } // URL thanh toán MoMo
+    private string qrCodeBase64 { get; set; } // Mã QR Base64 để hiển thị
+
     private async Task OnSearch()
     {
         // Ngăn ngừa load lại trang
@@ -1058,6 +1062,7 @@
     private async void CheckOut()
     {
         await LoadOrderDetails();
+
         if (lst_OrderDetail == null || !lst_OrderDetail.Any())
         {
             await JS.InvokeVoidAsync("toastr.warning", "Đơn hàng chưa có sản phẩm nào.");
@@ -1111,6 +1116,7 @@
         await LoadProducts();
         await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
     }
+
     private async Task ShowAddress()
     {
         if (selectedOrderId == null)

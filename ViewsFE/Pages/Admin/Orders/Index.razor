@@ -237,8 +237,10 @@
                                                     <span class="@GetStatusClass(item.Status)">
                                                         @item.Status
                                                     </span>
+                                                </td>                                               
+                                                <td>
+                                                    <button class="btn btn-outline-primary" @onclick="() => DownloadInvoice(item.Id)">Xuất hóa đơn</button>
                                                 </td>
-                                                <td>hành động</td>
                                             </tr>
                                         }
                                     }
@@ -447,9 +449,6 @@
         StateHasChanged();
     }
 
-}
-    }    
-
     private async Task DownloadInvoice(long orderId)
     {
         try
@@ -466,5 +465,6 @@
             Console.WriteLine($"Lỗi khi xuất hóa đơn: {ex.Message}");
         }
     }
-}
 
+}
+    
