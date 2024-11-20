@@ -758,20 +758,23 @@
             selectedOrderId = 0;
             return;
         }
-        if (orderToUpdate?.User_id != null)
+        if (orderToUpdate != null)
         {
-            IsDeliveryVisible = orderToUpdate.Note == "Giao hàng";
-            var customer = await userService.GetById(orderToUpdate.Users.Id);
-            customerName = customer?.Name;
-            isCustomerAdded = customer != null;
-            ClearInfoAddress();
-        }
-        else
-        {
-            customerName = "Khách lẻ";
-            isCustomerAdded = false;
-            IsDeliveryVisible = orderToUpdate?.Note == "Giao hàng";
-            ClearInfoAddress();
+            foreach (var item in lst_OrderDetail)
+            {
+                var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
+                if (product != null)
+                {
+                    if (item.Quantity > product.Stock)
+                    {
+                        await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.Product_Variant.Posts.Title} trong kho không đủ.");
+                        return;
+                    }
+
+                    product.Stock -= item.Quantity; // Trừ số lượng trong kho
+                    await productAttributeService.Update(product, product.Id);
+                }
+            }
         }
         await LoadOrderDetails();
     }
@@ -1036,11 +1039,24 @@
     private async void CheckOut()
     {
         await LoadOrderDetails();
+        if (lst_OrderDetail == null || !lst_OrderDetail.Any())
+        {
+            await JS.InvokeVoidAsync("toastr.warning", "Đơn hàng chưa có sản phẩm nào.");
+            return;
+        }
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate != null)
         {
             orderToUpdate.TotalAmount = totalAmount;
-            orderToUpdate.Status = "Đã thanh toán";  // Cập nhật trạng thái          
+            orderToUpdate.TotalAmount = totalAmount;
+            if (isDeliveryVisible)
+            {
+                orderToUpdate.Status = "Đã xác nhận";
+            }
+            else
+            {
+                orderToUpdate.Status = "Đã thanh toán";
+            }
             await orderService.Update(orderToUpdate, orderToUpdate.Id);
             foreach (var item in lst_OrderDetail)
             {
@@ -1066,6 +1082,7 @@
         isAddProductModalVisible = false;  
         isAddCustomerModalVisible = false;  
         isCreateCustomerModalVisible = false;
+        ClearInfoAddress();
         await LoadOrderDetails();
         await LoadOrders();
         await LoadPosts();
@@ -1148,7 +1165,7 @@
     private List<Province> provinces = new List<Province>();
     private List<Districted> districts = new List<Districted>();
     private List<Ward> wards = new List<Ward>();
-    private Address address = new Address(); // Khởi tạo Address
+    private Address address = new Address(); 
     private bool hasDistricts = false;
     private bool hasWards = false;
     [Inject] private AddressService address_Service { get; set; }
@@ -1163,7 +1180,7 @@
             districts = await address_Service.GetDistrictsAsync(int.Parse(selectedProvinceId));
             hasDistricts = districts.Count > 0;
             wards.Clear();
-            hasWards = false; // Đặt trạng thái xã về false khi tỉnh thay đổi
+            hasWards = false; 
         }
     }
     private async Task OnDistrictChange(ChangeEventArgs e)
@@ -1171,7 +1188,6 @@
         var selectedDistrictId = e.Value?.ToString();
         if (!string.IsNullOrEmpty(selectedDistrictId))
         {
-            // Thiết lập huyện hiện tại và xóa các xã
             address.District = selectedDistrictId;
             wards = await address_Service.GetWardsAsync(int.Parse(selectedDistrictId));
             hasWards = wards.Count > 0;
