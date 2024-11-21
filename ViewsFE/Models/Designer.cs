@@ -12,30 +12,23 @@ namespace ViewsFE.Models
     {
         [Key]
         public long id_Designer { get; set; }
-
         public string? Name { get; set; }
         public string? ShortName { get; set; }
         public string? slug { get; set; }
         public string? short_description { get; set; }
         public string? description { get; set; }
-
-        // Image stored as serialized JSON string
         public string? image { get; set; }
-
-        // Image Library stored as serialized JSON string
+        public bool? Deleted { get; set; }
         public string? image_library { get; set; }
-
-        // Status field
         public string? status { get; set; }
-
-        // Meta data stored as serialized JSON string
         public string? meta_data { get; set; }
-
         public DateTime create_at { get; set; }
         public DateTime update_at { get; set; }
         [JsonIgnore]
         public virtual ICollection<Product_Posts>? Product_Posts { get; set; }
-
+        [JsonIgnore]
+        public virtual Banner? Banner { get; set; }
+   
         // Define constant values for statuses
         public const string STATUS_UNACTIVE = "UNACTIVE";
         public const string STATUS_ACTIVE = "ACTIVE";

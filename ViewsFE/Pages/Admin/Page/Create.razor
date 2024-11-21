@@ -264,8 +264,8 @@
         }
         try
         {
-            await sev.CreatePage(Posts, SelectedTags);
-            postId = Posts.Id;
+            postId = await sev.CreatePage(Posts, SelectedTags);
+            banner.Type = "page";
             await bnser.AddBannerToPost(postId, banner);
             await JS.InvokeVoidAsync("toastr.success", "Thêm trang thành công");
             nav.NavigateTo("/admin/page");

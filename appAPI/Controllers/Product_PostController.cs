@@ -94,8 +94,8 @@ namespace appAPI.Controllers
                 return BadRequest("Invalid post data.");
             }
 
-            await _postRepository.Update(post, tagIds);
-            return Ok("Post and tags updated successfully.");
+            var updateProducpost = await _postRepository.Update(post, tagIds);
+            return Ok(new { message = "Sửa thành công", Post_Id = updateProducpost.Id });
         }
 
         // Chỉnh sửa bài viết và các tags, categories
@@ -107,8 +107,8 @@ namespace appAPI.Controllers
                 return BadRequest("Invalid post data.");
             }
 
-            await _postRepository.Updatetagcate(post, tagIds, categoryIds);
-            return Ok("Post, tags, and categories updated successfully.");
+           var updateProducpost = await _postRepository.Updatetagcate(post, tagIds, categoryIds);
+            return Ok(new { message = "Sửa thành công", Post_Id = updateProducpost.Id });
         }
 
         // Xoá bài viết

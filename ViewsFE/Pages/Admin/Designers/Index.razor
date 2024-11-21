@@ -163,6 +163,6 @@
     }
     private async Task NavEditCtgr(long id)
     {
-        await JS.InvokeVoidAsync("navigateTo", $"/admin/designer/edit/{id}");
+        nav.NavigateTo($"/admin/designer/edit/{id}");
     }
 }

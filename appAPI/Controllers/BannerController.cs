@@ -36,6 +36,16 @@ namespace appAPI.Controllers
             return NotFound();
         }
 
+        [HttpGet("GetBannerByProductPostId")]
+        public async Task<IActionResult> GetBannerByProductPostId(long PostId)
+        {
+            var result = await _repo.GetBannerByProductPostId(PostId);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return NotFound();
+        }
 
         [HttpPost("CreateBanner")]
         public async Task Create(Banner banner)
@@ -47,15 +57,13 @@ namespace appAPI.Controllers
         {
             await _repo.AddBannerToPost(postId ,banner);      
         }
+
+
         [HttpPut("UpdateBanner")]
-        public async Task<IActionResult> Update(Banner banner, long id)
+        public async Task Update(Banner banner, long postId)
         {
-            var result = _repo.Update(banner, id);
-            if (result != null)
-            {
-                return Ok(result);
-            }
-            return BadRequest();
+            await _repo.Update(banner, postId);
+          
         }
         [HttpDelete("DeleteBanner")]
         public async Task<IActionResult> Delete(long id)

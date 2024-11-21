@@ -30,17 +30,19 @@ namespace appAPI.Controllers
         }
         // POST: api/Designer
         [HttpPost]
-        public async Task Post(Designer d)
+        public async Task<IActionResult> Post(Designer d)
         {
-            await _repon.Create(d);
+           var createDS = await _repon.Create(d);
+            return Ok(new { message = "Thêm nhà thiết kế thành công", Post_Id = createDS.id_Designer });
         }
 
         // PUT: api/Designer/{id}
         [HttpPut("{id}")]
-        public async Task Put(long id, Designer d)
+        public async Task<IActionResult> Put(long id, Designer d)
         {
             //d.Id = id; // Đảm bảo đối tượng `d` có `id` cần cập nhật
-            await _repon.Update(d);
+            var edirDS = await _repon.Update(d);
+            return Ok(new { message = "Sửa nhà thiết kế thành công", Post_Id = edirDS.id_Designer });
         }
 
         // DELETE: api/Designer/{id}

@@ -177,11 +177,9 @@ namespace appAPI.Repository
         }
 
         // Cập nhật bài viết
-        public async Task Update(Product_Posts post, List<long> tagIds)
+        public async Task<Product_Posts> Update(Product_Posts post, List<long> tagIds)
         {
             var item = await _context.Posts.FindAsync(post.Id);
-            if (item == null) return;
-
             // Cập nhật thông tin bài viết
             item.Title = post.Title;
             item.Slug = post.Slug;
@@ -200,13 +198,14 @@ namespace appAPI.Repository
 
             // Cập nhật tags
             await AddTags(post.Id, tagIds ?? new List<long>()); // Xử lý null hoặc danh sách rỗng
+            return item;
         }
 
         // Cập nhật tag và category
-        public async Task Updatetagcate(Product_Posts post, List<long> tagIds, List<long> categoryIds)
+        public async Task<Product_Posts> Updatetagcate(Product_Posts post, List<long> tagIds, List<long> categoryIds)
         {
             var item = await _context.Posts.FindAsync(post.Id);
-            if (item == null) return;
+            if (item == null) return null;
 
             // Cập nhật thông tin bài viết
             item.Title = post.Title;
@@ -227,6 +226,7 @@ namespace appAPI.Repository
             // Xử lý tags và categories
             await AddTags(post.Id, tagIds ?? new List<long>()); // Xử lý null hoặc danh sách rỗng
             await AddCategories(post.Id, categoryIds ?? new List<long>()); // Xử lý null hoặc danh sách rỗng
+            return item;
         }
     }
 }

@@ -182,6 +182,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- #endregion  Từ khóa(tags) -->
                         </div>
                     </div>
                 </div>
@@ -202,6 +203,8 @@
     private bool tinyMCEInitialized = false;
     private Media_modal mediaModalRef;
     private Media_manager media_ManagerRef;
+    private long postId;
+
 
     private async Task HandleImageSelected(string imagePath)
     {
@@ -220,10 +223,11 @@
     {
         Posts = await sev.GetByIdType(Id, "page");
         TagsList = await stag.GetAll();
+        banner = await bnser.GetBannerByProductPostId(Id);
         SelectedTags = (await stag.GetTagByPostId(Id))
-                        .Where(pt => pt.Post_Id == Id)
-                        .Select(pt => pt.Tag_Id)
-                        .ToList();
+                         .Where(pt => pt.Post_Id == Id)
+                         .Select(pt => pt.Tag_Id)
+                         .ToList();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -257,10 +261,10 @@
         SelectedTags = string.IsNullOrEmpty(tags)
             ? new List<long>() // Nếu tags rỗng, tạo danh sách trống
             : tags.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
-
         try
         {
-            await sev.Update(Posts, SelectedTags);
+            postId = await sev.Update(Posts, SelectedTags);
+            await bnser.Update(banner, postId);
             await JS.InvokeVoidAsync("toastr.success", "Sửa trang thành công");
             nav.NavigateTo("/admin/page");
         }

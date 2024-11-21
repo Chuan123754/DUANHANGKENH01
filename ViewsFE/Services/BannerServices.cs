@@ -39,9 +39,14 @@ namespace ViewsFE.Services
             throw new NotImplementedException();
         }
 
-        public Task Update(Banner banner, long id)
+        public async Task<Banner> GetBannerByProductPostId(long PostId)
         {
-            throw new NotImplementedException();
+            return await _client.GetFromJsonAsync<Banner>($"{_baseUrl}/api/Banner/GetBannerByProductPostId?PostId={PostId}");
+        }
+
+        public async Task Update(Banner banner, long postId)
+        {
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/Banner/UpdateBanner?postId={postId}", banner);
         }
     }
 }
