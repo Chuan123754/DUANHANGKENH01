@@ -1,7 +1,7 @@
 ﻿@page "/admin/post"
 @inject NavigationManager nav
 @inject IPostSer sev
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime JS
 
 <div class="page-wrapper">
     <!-- Page header -->
@@ -74,7 +74,7 @@
                                                 <!-- Tạo các hành động sửa và xóa cho sản phẩm con -->
                                                 <div class="cell-action">
                                                     <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(post.Id)">Chỉnh sửa</a>
-                                                    <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(post.Id)">Thùng rác</a>
+                                                    <a class="cell-action-delete text-danger" @onclick=" async () => await NavDeleteCtgr(post.Id)">Thùng rác</a>
                                                 </div>
                                             </td>
                                             <td class="sort-city">
@@ -171,15 +171,23 @@
     {
         nav.NavigateTo($"/admin/post/edit/{id}", forceLoad: true);
     }
-
     protected async Task NavDeleteCtgr(long id)
     {
-
-        await sev.Delete(id);
-        await JSRuntime.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
-        await LoadPosts();
-        StateHasChanged();
+        try
+        {
+            await sev.Delete(id);
+            await JS.InvokeVoidAsync("toastr.success", "Xóa bản ghi thành công");
+            await LoadPosts();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể xoá bản ghi. Vui lòng thử lại.");
+        }
     }
+
+
 }
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="assets/libs/tabler/libs/list.js/dist/list.min.js" defer=""></script>

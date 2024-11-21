@@ -1,12 +1,13 @@
 ﻿@page "/admin/categorie/edit/{id:long}"
 @inject ICategoriesServices sev
 @inject NavigationManager nav
+@inject IJSRuntime JS
 
 <h3>Sửa chuyên mục </h3>
 
 @if (isDataLoaded)
 {
-<EditForm Model="categorie" OnValidSubmit="SubmitForm">
+    <EditForm Model="categorie" OnValidSubmit="SubmitForm">
         <DataAnnotationsValidator></DataAnnotationsValidator>
         <ValidationSummary></ValidationSummary>
         <div class="form-group mb-3">
@@ -96,8 +97,17 @@ else
 
     private async Task SubmitForm()
     {
-        await sev.Update(categorie);
-        categorie = new Categories(); // Reset lại form
-        nav.NavigateTo("/admin/categorie", forceLoad: true); // Điều hướng lại về danh sách
+        try
+        {
+            await sev.Update(categorie);
+            await JS.InvokeVoidAsync("toastr.success", "Sửa danh mục thành công");
+            categorie = new Categories(); // Reset lại form
+            nav.NavigateTo("/admin/categorie", forceLoad: true); // Điều hướng lại về danh sách
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể sửa danh mục. Vui lòng thử lại.");
+        }
     }
 }

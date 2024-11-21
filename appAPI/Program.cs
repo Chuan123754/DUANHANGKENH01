@@ -66,10 +66,10 @@ builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddHostedService<VoucherExpiryChecker>();
 //builder.Services.AddHostedService<DiscountStatusChecker>();
 builder.Services.AddScoped<IColorReponsitory, ColorReponsitory>();
-builder.Services.AddScoped<IMaterialReponsitory, MaterialReponsitory>();    
+builder.Services.AddScoped<IMaterialReponsitory, MaterialReponsitory>();
 builder.Services.AddScoped<IStyleReponsitory, StyleReponsitory>();
 builder.Services.AddScoped<ISizeReponsitory, SizeReponsitory>();
-builder.Services.AddScoped<ITextile_technologyReponsitory,  Textile_technologyReponsitory>();
+builder.Services.AddScoped<ITextile_technologyReponsitory, Textile_technologyReponsitory>();
 builder.Services.AddScoped<FilesIRepository, FilesReponsetory>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<SeoIReponsitory, SeoReponsitory>();
@@ -80,6 +80,9 @@ builder.Services.AddScoped<IDesignerRepon, DesignerRepon>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IProductAttributesRepository, ProductAttributesRepository>();
 builder.Services.AddScoped<IProductVariantsRepository, ProductVariantsRepository>();
+
+builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+builder.Services.AddScoped<IMomoRepository, MomoRepository>();
 
 // Đăng ký CORS
 builder.Services.AddCors(options =>
@@ -142,7 +145,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
+    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
     RequestPath = "/FileMedia"
 });
 

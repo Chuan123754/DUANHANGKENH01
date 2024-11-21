@@ -1,6 +1,8 @@
 ﻿@page "/admin/categorie"
 @inject NavigationManager nav
 @inject ICategoriesServices sev
+@inject IJSRuntime JS
+
 
 <div class="page-wrapper">
     <!-- Page header -->
@@ -159,23 +161,51 @@
     {
         if (isEditing)
         {
-            await sev.Update(categories);
-            isEditing = false; // Quay lại chế độ tạo mới sau khi cập nhật
+            try
+            {
+                await sev.Update(categories);
+                await JS.InvokeVoidAsync("toastr.success", "Sửa danh mục thành công");
+                isEditing = false; // Quay lại chế độ tạo mới sau khi cập nhật
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                await JS.InvokeVoidAsync("toastr.error", "Không thể sửa danh mục. Vui lòng thử lại.");
+            }
         }
         else
         {
-            await sev.Create(categories);
+            try
+            {
+                await sev.Create(categories);
+                await JS.InvokeVoidAsync("toastr.success", "Thêm danh mục thành công");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                await JS.InvokeVoidAsync("toastr.error", "Không thể thêm danh mục. Vui lòng thử lại.");
+            }
         }
-        categories = new Categories(); // Reset form sau khi hoàn thành
+        categories = new Categories(); 
         categoriesList = await sev.GetAll(); // Cập nhật danh sách thuộc tính
     }
     protected async Task NavDeleteCtgr(long id)
     {
-        await sev.Delete(id);
-        await LoadPosts(); // Cập nhật danh sách sau khi xóa
+        try
+        {
+            await sev.Delete(id);
+            await JS.InvokeVoidAsync("toastr.success", "Xóa bản ghi thành công");
+            await LoadPosts(); // Cập nhật danh sách sau khi xóa
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể xoá bản ghi. Vui lòng thử lại.");
+        }
     }
     protected async Task OnSearch()
     {
-        categoriesList = await sev.GetByTypeAsync("post", page_number, page_size, search_query); // Thực hiện tìm kiếm với từ khóa
+        categoriesList = await sev.GetByTypeAsync("post", page_number, page_size, search_query);
     }
 }

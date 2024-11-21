@@ -2,7 +2,7 @@
 @using System.Text.Json
 @inject NavigationManager nav
 @inject IDesignerServices sev
-@inject IJSRuntime JSRuntime
+@inject IJSRuntime JS
 
 <div class="page-wrapper">
     <!-- Page header -->
@@ -148,14 +148,21 @@
     }
     private async Task NavDeleteCtgr(long id)
     {
-
-        await sev.Delete(id);
-        await JSRuntime.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
-        await LoadPosts();
-        StateHasChanged();
+        try
+        {
+            await sev.Delete(id);
+            await JS.InvokeVoidAsync("toastr.success", "Xóa bản ghi thành công");
+            await LoadPosts();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể xoá bản ghi. Vui lòng thử lại.");
+        }
     }
     private async Task NavEditCtgr(long id)
     {
-        await JSRuntime.InvokeVoidAsync("navigateTo", $"/admin/designer/edit/{id}");
+        await JS.InvokeVoidAsync("navigateTo", $"/admin/designer/edit/{id}");
     }
 }

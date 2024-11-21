@@ -1,8 +1,9 @@
 ﻿using ViewsFE.Models;
+using ViewsFE.Models.DTO;
 
 namespace ViewsFE.IServices
 {
-    public interface OrderIServices
+    public interface IOrderIServices
     {
         Task<List<Orders>> GetAll();
         Task<List<Orders>> GetOrderByIdAdmin(string idAdmin);
@@ -11,5 +12,8 @@ namespace ViewsFE.IServices
         Task Create(Orders orders);
         Task Update(Orders orders , long id);
         Task Delete(long id);
+        Task<byte[]> ExportInvoice(long orderId);
+
+        Task<MomoPaymentResponse> CreateMomoPaymentUrl(string fullName, decimal amount, string orderInfo);
     }
 }
