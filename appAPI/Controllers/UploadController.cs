@@ -36,7 +36,7 @@ namespace appAPI.Controllers
 
                     using (var package = new ExcelPackage(stream))
                     {
-                        // Sheet1: Size
+                        // Sheet1: Sizes
                         var sizes = ReadSheet<Size>(package, "Sizes");
                         // Sheet2: Textile_Technologies
                         var textileTechnologies = ReadSheet<Textile_technology>(package, "Textile_Technologies");
