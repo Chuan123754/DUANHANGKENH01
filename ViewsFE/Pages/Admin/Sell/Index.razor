@@ -2,7 +2,7 @@
 @inject NavigationManager nav
 @inject IUserService userService
 @inject IAddressServices addressService
-@inject OrderIServices orderService
+@inject IOrderIServices orderService
 @inject OrderDetailsIServices orderDetailService
 @inject IProductAttributeServices productAttributeService
 @inject IProductVariantServices productVariantService
@@ -29,6 +29,7 @@
         border-color: #007bff;
     }
 </style>
+
 <div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
@@ -681,11 +682,28 @@
 
                                     </tbody>
                                 </table>
+                                @if (!string.IsNullOrEmpty(momoError))
+                                {
+                                    <div class="alert alert-danger">
+                                        <strong>Lỗi thanh toán:</strong> @momoError
+                                    </div>
+                                }
+                                else if (!string.IsNullOrEmpty(payUrl) && !string.IsNullOrEmpty(qrCodeBase64))
+                                {
+                                    <div class="alert alert-success text-center">
+                                        <h5>Quét mã QR để thanh toán:</h5>
+                                        <img src="@qrCodeBase64" alt="QR Code" style="width: 250px; height: 250px;" />
+                                        <p>Hoặc nhấn <a href="@payUrl" target="_blank">tại đây</a> để thanh toán.</p>
+                                    </div>
+                                }
+
+
                             </div>
                             <div class="d-flex justify-content-center my-3">
                                 <button type="button" class="btn btn-primary" @onclick="CheckOut">Xác nhận thanh toán</button>
                             </div>
                         </div>
+                        
 
                     </div>
                 </div>
@@ -722,6 +740,10 @@
     private int total_pages = 1;
     private int page_size = 10;
     private int totalItems;
+
+    private string momoError = null; // Lỗi từ phía MoMo
+    private string payUrl { get; set; } // URL thanh toán MoMo
+    private string qrCodeBase64 { get; set; } // Mã QR Base64 để hiển thị
 
     private async Task OnSearch()
     {
@@ -1037,15 +1059,18 @@
     {
         isCreateCustomerModalVisible = false;
     }
+
     private async void CheckOut()
     {
         await LoadOrderDetails();
+
         if (lst_OrderDetail == null || !lst_OrderDetail.Any())
         {
             await JS.InvokeVoidAsync("toastr.warning", "Đơn hàng chưa có sản phẩm nào.");
             return;
         }
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
+
         if (orderToUpdate != null)
         {
             orderToUpdate.TotalAmount = totalAmount;
@@ -1058,6 +1083,8 @@
             {
                 orderToUpdate.Status = "Đã thanh toán";
             }
+            orderToUpdate.TotalAmount = totalAmount;
+            orderToUpdate.Status = "Đã thanh toán";  // Cập nhật trạng thái          
             await orderService.Update(orderToUpdate, orderToUpdate.Id);
             foreach (var item in lst_OrderDetail)
             {
@@ -1090,6 +1117,7 @@
         await LoadProducts();
         await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
     }
+
     private async Task ShowAddress()
     {
         if (selectedOrderId == null)

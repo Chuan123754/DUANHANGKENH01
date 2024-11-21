@@ -13,7 +13,7 @@ namespace appAPI.Models
     [Table("users")]
     public partial class Users
     {
-        [Key]
+        [Key] 
         public long Id { get; set; }
         [StringLength(255)]
         public string? Name { get; set; }

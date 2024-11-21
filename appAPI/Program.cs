@@ -81,6 +81,9 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IProductAttributesRepository, ProductAttributesRepository>();
 builder.Services.AddScoped<IProductVariantsRepository, ProductVariantsRepository>();
 
+builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+builder.Services.AddScoped<IMomoRepository, MomoRepository>();
+
 // Đăng ký CORS
 builder.Services.AddCors(options =>
 {
@@ -142,7 +145,8 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
+
+    FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia");
     RequestPath = "/FileMedia"
 });
 
