@@ -364,7 +364,6 @@
         canceledOrders = lst_Orders.Count(o => o.Status == "Đã hủy");
         LoadPagedOrders();
     }
-
     private async Task GetPendingOrders()
     {
         var lstOrders = await orderService.GetAll();
@@ -426,7 +425,6 @@
         }
         else if (searchText.Length == 10 && searchText.All(char.IsDigit))
         {
-            // Tìm trong cột Số điện thoại
             lst_Orders = lst_Orders
                 .Where(o => o.Users?.Phone == searchText)
                 .ToList();

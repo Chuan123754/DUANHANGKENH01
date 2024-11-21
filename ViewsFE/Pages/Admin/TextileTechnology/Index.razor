@@ -1,7 +1,7 @@
 ﻿@page "/admin/textiletechnology"
 @inject NavigationManager nav
 @inject ITextile_technologyServices sev
-
+@inject IJSRuntime JS
 
 <div class="page-wrapper">
     <!-- Page header -->
@@ -140,7 +140,17 @@
 
     private async Task NavDeleteCtgr(long id)
     {
-        await sev.Delete(id);
-        await LoadPosts();
+        try
+        {
+            await sev.Delete(id);
+            await JS.InvokeVoidAsync("toastr.success", "Xóa bản ghi thành công!");
+            await LoadPosts();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể xoá bản ghi. Vui lòng thử lại.");
+        }
     }
 }

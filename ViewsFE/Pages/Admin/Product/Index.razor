@@ -181,9 +181,17 @@
 
     private async Task ConfirmDelete(long id)
     {
-        await ProductService.Delete(id);
-        await JS.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
-        await LoadPosts();
-        StateHasChanged();
+        try
+        {
+            await ProductService.Delete(id);
+            await JS.InvokeVoidAsync("toastr.success", "Xóa bản ghi thành công!");
+            await LoadPosts();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể xoá bản ghi. Vui lòng thử lại.");
+        }
     }
 }
