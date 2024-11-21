@@ -471,12 +471,6 @@
                 return;
             }
 
-            if (item.Regular_price <= 1000)
-            {
-                await JS.InvokeVoidAsync("toastr.error", $"Giá bán cho SKU {item.SKU} phải lớn hơn 1000.");
-                return;
-            }
-
             if (item.Regular_price <= 0)
             {
                 await JS.InvokeVoidAsync("toastr.error", $"Giá giảm cho SKU {item.SKU} phải lớn hơn 0");
@@ -484,7 +478,7 @@
             }
             if (item.Sale_price > item.Regular_price)
             {
-                await JS.InvokeVoidAsync("toastr.error", $"Giá giảm cho SKU {item.SKU} không được lớn hơn giá bán.");
+                await JS.InvokeVoidAsync("toastr.error", $"Giá bán cho SKU {item.SKU} không được lớn hơn giá bán.");
                 return;
             }
 

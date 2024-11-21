@@ -46,10 +46,10 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>
-                                            <button class="table-sort" @onclick='() => SortBy("Title")'>Post_Id</button>
+                                            <button class="table-sort" @onclick='() => SortBy("Title")'>Tên sản phẩm</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" @onclick='() => SortBy("Author")'>Description</button>
+                                            <button class="table-sort" @onclick='() => SortBy("Author")'>Mô tả</button>
                                         </th>
                                         <th>
                                             <button class="table-sort" @onclick='() => SortBy("Category")'>Textile_technology_id</button>
@@ -75,7 +75,7 @@
                                         <tr class="post-row">
                                             <td>@post.Id</td>
                                             <td>
-                                                @post.Post_Id
+                                                @post.Posts.Title
                                                 <br />
                                                 <div class="cell-action">
                                                     <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(post.Id)">Chỉnh sửa</a>
