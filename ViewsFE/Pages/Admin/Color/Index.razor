@@ -132,7 +132,7 @@
         // Tìm kiếm và lọc danh sách chưa bị xóa
         listColor = await sev.GetByTypeAsync(page_number, page_size, search_query);
     }
- 
+
 
     private void NavEditCtgr(long id)
     {
@@ -141,10 +141,18 @@
 
     private async Task NavDeleteCtgr(long id)
     {
-        await sev.Delete(id);
-        // Cập nhật danh sách sau khi xóa, chỉ lấy những màu chưa bị xóa
-        await JS.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
-        await LoadPosts();
-        StateHasChanged();
+        try
+        {
+            await sev.Delete(id);
+            // Cập nhật danh sách sau khi xóa, chỉ lấy những màu chưa bị xóa
+            await JS.InvokeVoidAsync("ShowToastr", "success", "Xóa bản ghi thành công!");
+            await LoadPosts();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể xoá bản ghi. Vui lòng thử lại.");
+        }
     }
 }

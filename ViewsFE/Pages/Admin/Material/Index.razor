@@ -1,7 +1,7 @@
 ﻿@page "/admin/material"
 @inject NavigationManager nav
 @inject IMaterialServices sev
-
+@inject IJSRuntime JS
 <div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
@@ -84,7 +84,7 @@
                             </div>
                         }
                         else
-                        {                       
+                        {
                             <tr>
                                 <td colspan="6" class="text-center">Không có dữ liệu</td>
                             </tr>
@@ -139,7 +139,17 @@
 
     private async Task NavDeleteCtgr(long id)
     {
-        await sev.Delete(id);
-        await LoadPosts();
+        try
+        {
+            await sev.Delete(id);
+            await LoadPosts();
+            await JS.InvokeVoidAsync("toastr.success", "Xóa bản ghi thành công");
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể xoá bản ghi. Vui lòng thử lại.");
+        }
     }
 }
