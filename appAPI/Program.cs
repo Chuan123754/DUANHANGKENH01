@@ -66,10 +66,10 @@ builder.Services.AddScoped<IAddressRepository, AddressRepository>();
 builder.Services.AddHostedService<VoucherExpiryChecker>();
 //builder.Services.AddHostedService<DiscountStatusChecker>();
 builder.Services.AddScoped<IColorReponsitory, ColorReponsitory>();
-builder.Services.AddScoped<IMaterialReponsitory, MaterialReponsitory>();    
+builder.Services.AddScoped<IMaterialReponsitory, MaterialReponsitory>();
 builder.Services.AddScoped<IStyleReponsitory, StyleReponsitory>();
 builder.Services.AddScoped<ISizeReponsitory, SizeReponsitory>();
-builder.Services.AddScoped<ITextile_technologyReponsitory,  Textile_technologyReponsitory>();
+builder.Services.AddScoped<ITextile_technologyReponsitory, Textile_technologyReponsitory>();
 builder.Services.AddScoped<FilesIRepository, FilesReponsetory>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<SeoIReponsitory, SeoReponsitory>();
@@ -145,8 +145,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-
-    FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia");
+    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
     RequestPath = "/FileMedia"
 });
 
