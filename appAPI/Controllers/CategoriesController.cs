@@ -9,13 +9,13 @@ namespace appAPI.Controllers
     [ApiController]
     public class CategoryController : ControllerBase
     {
-        private readonly APP_DATA_DATN _context;
+
         private readonly ICategoriesRepository _repo;
 
         public CategoryController(ICategoriesRepository repo, APP_DATA_DATN context)
         {
             _repo = repo;
-            _context = context;
+         
         }
 
         // GET: api/Category/show
@@ -65,26 +65,24 @@ namespace appAPI.Controllers
         }
         // POST: api/Category/add-category
         [HttpPost("add-category")]
-        public async Task<ActionResult> Add(Categories c)
+        public async Task Add(Categories c)
         {
-            try
-            {
-                var existingCategory = await _context.Categories
-                    .FirstOrDefaultAsync(p => p.Title == c.Title);
-
-                if (existingCategory != null)
-                {
-                    return BadRequest("Category already exists. Try another name.");
-                }
-                c.Created_at = DateTime.UtcNow;
-                await _repo.Create(c);
-
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, "Error: " + e.Message);
-            }
+           await _repo.Create(c);
+        }
+        [HttpPost("add-category-post")]
+        public async Task AddCTPost(Categories c)
+        { 
+             await _repo.CreateTypePost(c);
+        }
+        [HttpPost("add-category-project")]
+        public async Task AddCTProject(Categories c)
+        {
+           await _repo.CreateTypeProject(c);
+        }
+        [HttpPost("add-category-product")]
+        public async Task AddCTProduct(Categories c)
+        {
+          await _repo.CreateTypeProduct(c);
         }
 
         // PUT: api/Category/edit-category

@@ -13,12 +13,18 @@ namespace ClientViews.Services
             _httpClient = new HttpClient();
             _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
-        public async Task Create(Designer at)
+        public async Task<long> Create(Designer at)
         {
             string requestURL = $"{_baseUrl}/api/Designer";
-            await _httpClient.PostAsJsonAsync(requestURL, at);
+            var response = await _httpClient.PostAsJsonAsync(requestURL, at);
+            response.EnsureSuccessStatusCode();
+            var responseData = await response.Content.ReadFromJsonAsync<ResponseMessage>();
+            return responseData.Post_Id;
         }
-
+        public class ResponseMessage
+        {
+            public long Post_Id { get; set; }
+        }
         public async Task Delete(long id)
         {
             string requestURL = $"{_baseUrl}/api/Designer/{id}";
@@ -33,8 +39,7 @@ namespace ClientViews.Services
 
         public async Task<Designer> GetById(long id)
         {
-            string requestURL = $"{_baseUrl}/api/Designer/{id}";
-            return await _httpClient.GetFromJsonAsync<Designer>(requestURL);
+            return await _httpClient.GetFromJsonAsync<Designer>($"{_baseUrl}/api/Designer/{id}");
         }
 
         public async Task<List<Designer>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)
@@ -55,10 +60,13 @@ namespace ClientViews.Services
             return count;
         }
 
-        public async Task Update(Designer at)
+        public async Task<long> Update(Designer at)
         {
             string requestURL = $"{_baseUrl}/api/Designer/{at.id_Designer}";
-            await _httpClient.PutAsJsonAsync(requestURL, at);   
+            var response = await _httpClient.PutAsJsonAsync(requestURL, at);
+            response.EnsureSuccessStatusCode();
+            var responseData = await response.Content.ReadFromJsonAsync<ResponseMessage>();
+            return responseData.Post_Id;
         }
     }
 }

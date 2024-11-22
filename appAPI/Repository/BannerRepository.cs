@@ -34,7 +34,7 @@ namespace appAPI.Repository
         {
             var deleteItem = await _context.Banner.FindAsync(id);
             if (deleteItem != null)
-            {
+            {   
                 _context.Banner.Remove(deleteItem);
                 await _context.SaveChangesAsync();
             }

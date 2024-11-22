@@ -27,7 +27,6 @@ namespace ClientViews.Models
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set; }
 
-        [JsonIgnore]
         [InverseProperty("Menus")]
         public virtual ICollection<Menu_items> Menu_Items { get; set; } = new List<Menu_items>();
     }

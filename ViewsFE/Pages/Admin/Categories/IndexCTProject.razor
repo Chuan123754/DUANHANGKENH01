@@ -1,7 +1,7 @@
-﻿@page "/admin/color"
+﻿@page "/admin/project/categorie"
 @inject NavigationManager nav
-@inject IColorServices sev
-@inject IJSRuntime JS
+@inject ICategoriesServices sev
+@inject IJSRuntime JS 
 
 <div class="page-wrapper">
     <!-- Page header -->
@@ -10,10 +10,10 @@
             <div class="row g-2 align-items-center">
                 <div class="col d-flex gap-3">
                     <h2 class="page-title">
-                        Danh sách màu sắc
+                        Danh sách chuyên mục
                     </h2>
-                    <a href="/admin/color/create" class="btn btn-sm btn-outline-primary">
-                        Thêm màu sắc
+                    <a href="/admin/project/categorie/create" class="btn btn-sm btn-outline-primary">
+                        Thêm chuyên mục
                     </a>
                 </div>
             </div>
@@ -27,7 +27,7 @@
                 <div class="card-body">
                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
                         <div></div>
-                        <EditForm Model="color" OnValidSubmit="@OnSearch">
+                        <EditForm Model="categories" OnValidSubmit="@OnSearch">
                             <div class="form-group d-flex gap-2">
                                 <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
                                 <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
@@ -36,57 +36,55 @@
                     </div>
 
                     <div id="table-default" class="table-responsive">
-                        @if (listColor != null && listColor.Any())
+                        @if (categoriesList != null && categoriesList.Any())
                         {
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
+                                            <button class="table-sort" @* @onclick='() => SortBy("id")' *@>ID</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-slug">Đường dẫn</button>
+                                            <button class="table-sort" @* @onclick='() => SortBy("title")' *@>Tiêu đề</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-city">Mô tả</button>
+                                            <button class="table-sort" @* @onclick='() => SortBy("slug")' *@>Đường dẫn</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-date">Thời gian</button>
+                                            <button class="table-sort" @* @onclick='() => SortBy("create_at")' *@>Thời gian</button>
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
 
-                                    @foreach (var c in listColor)
+                                    @foreach (var ctgr in categoriesList.Where(ctgr => ctgr.Parent_id == 0))
                                     {
+                                        // Hiển thị sản phẩm cha
                                         <tr class="post-row">
-                                            <td>@c.Id</td>
+                                            <td>@ctgr.Id</td>
                                             <td>
-                                                <span> @c.Title</span>
+                                                <a href="@($"/admin/manager-attribute?parent_id={ctgr.Id}")">@ctgr.Title</a>
                                                 <br />
-                                                <!-- Tạo các hành động sửa và xóa cho sản phẩm con -->
+                                                <!-- Tạo các hành động sửa và xóa -->
                                                 <div class="cell-action">
-                                                    <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(c.Id)">Chỉnh sửa</a>
-                                                    <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(c.Id)">Thùng rác</a>
+                                                    <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(ctgr.Id)">Chỉnh sửa</a>
+                                                    <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(ctgr.Id)">Thùng rác</a>
                                                 </div>
                                             </td>
-                                            <td class="sort-slug">@c.Slug</td>
-                                            <td class="sort-city">@c.Description</td>
-                                            <td class="sort-date">@c.Create_at.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td>@ctgr.Slug</td>
+                                            <td>@ctgr.Created_at.ToString("dd/MM/yyyy")</td>
                                         </tr>
                                     }
-
                                 </tbody>
                             </table>
                             <div class="mt-4">
-                                <Pagination TItem="Color" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                                <Pagination TItem="Categories" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
                             </div>
                         }
                         else
                         {
                             <tr>
-                                <td colspan="6" class="text-center">Không có dữ liệu</td>
+                                <td colspan="4" class="text-center">Không có dữ liệu</td>
                             </tr>
                         }
                     </div>
@@ -95,55 +93,54 @@
         </div>
     </div>
 </div>
-
-@code {
-    private List<Color> listColor = new List<Color>();
-    private Color color = new Color();
+@code
+{
+    List<Categories> categoriesList;
+    private Categories categories = new Categories();
     private string search_query = string.Empty;
     private int page_number = 1;
     private int total_pages = 1;
     private int page_size = 10;
     private int totalItems;
-    protected override async Task OnInitializedAsync()
+    private async Task OnSearch()
     {
-        await LoadPosts();
+        categoriesList = await sev.GetByTypeAsync("project", page_number, page_size, search_query);
     }
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        categoriesList = await sev.GetByTypeAsync("project", page_number, page_size, searchTerm);
+        totalItems = await sev.GetTotalCountAsync("project", searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+
     private async Task GoToPage(int page)
     {
         page_number = page;
         await LoadPosts();
     }
+
     private async Task OnPageSizeChanged(int newPageSize)
     {
         page_size = newPageSize;
         page_number = 1;
         await LoadPosts();
     }
-    private async Task LoadPosts()
+    protected override async Task OnInitializedAsync()
     {
-        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        listColor = await sev.GetByTypeAsync(page_number, page_size, searchTerm);
-        totalItems = await sev.GetTotalCountAsync(searchTerm);
-        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
-        StateHasChanged();
+        await LoadPosts();
     }
-    private async Task OnSearch()
+    protected async Task NavEditCtgr(long id)
     {
-        // Tìm kiếm và lọc danh sách chưa bị xóa
-        listColor = await sev.GetByTypeAsync(page_number, page_size, search_query);
+        nav.NavigateTo($"/admin/categorie/edit/{id}");
     }
-
-
-    private void NavEditCtgr(long id)
-    {
-        nav.NavigateTo($"/admin/color/edit/{id}");
-    }
-
     private async Task NavDeleteCtgr(long id)
     {
         try
         {
             await sev.Delete(id);
+            // Cập nhật danh sách sau khi xóa, chỉ lấy những màu chưa bị xóa
             await JS.InvokeVoidAsync("toastr.success", "Xóa bản ghi thành công!");
             await LoadPosts();
             StateHasChanged();

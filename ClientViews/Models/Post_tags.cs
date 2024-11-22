@@ -12,13 +12,10 @@ namespace ClientViews.Models
         public long Id { get; set; }
         public long Post_Id { get; set; }
         public long Tag_Id { get; set; }
-
+        [JsonIgnore]
         [ForeignKey("Post_Id")]
-        [JsonIgnore]
         public virtual Product_Posts? Posts { get; set; }
-
         [ForeignKey("Tag_Id")]
-        [JsonIgnore]
         public virtual Tags? Tag { get; set; }
     }
 

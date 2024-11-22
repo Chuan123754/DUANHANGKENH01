@@ -149,8 +149,7 @@ namespace appAPI.Repository
                 .Include(p => p.Post_tags).ThenInclude(pt => pt.Tag)
                 .Include(p => p.Post_categories).ThenInclude(pc => pc.Categories)
                 .OrderByDescending(p => p.Id)
-                .FirstOrDefaultAsync();
-         
+                .FirstOrDefaultAsync();   
         }
 
         // Lấy bài viết theo loại với phân trang và tìm kiếm

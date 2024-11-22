@@ -16,7 +16,5 @@ namespace ClientViews.Models
         public long Updated_by { get; set; }
         public DateTime Create_at { get; set; }
         public DateTime Update_at { get; set;}
-        public virtual ICollection<P_variants_discount> ProductVariantsDiscounts { get; set; } = new List<P_variants_discount>();
-
     }
 }
