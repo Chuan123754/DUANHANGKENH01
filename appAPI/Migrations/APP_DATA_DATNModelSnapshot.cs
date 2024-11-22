@@ -1500,21 +1500,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "5dc15095-d762-4509-b70a-2186bb6f3480",
+                            ConcurrencyStamp = "c955dfc0-360f-4233-87fe-3d7aea023e8c",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "497daf85-f8f5-4fad-89c9-7c6f1109da68",
+                            ConcurrencyStamp = "9a2c65df-cc93-4716-8306-7e8fef92d7f1",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "fb74c56b-2308-4992-80eb-670868f49901",
+                            ConcurrencyStamp = "594961a7-1b30-409f-ba11-3e44fdad4a3f",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
