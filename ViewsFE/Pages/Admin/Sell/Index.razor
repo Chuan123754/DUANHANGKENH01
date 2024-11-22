@@ -99,7 +99,7 @@
                                                         <th>Chất Liệu</th>
                                                         <th>Size</th>
                                                         <th>Màu</th>
-                                                        <th>Số Lượng trong kho</th>
+                                                        <th>Tồn kho</th>
                                                         <th>Giá Tiền</th>
                                                         <th>Thao tác</th>
                                                     </tr>
@@ -117,7 +117,7 @@
                                                             <td>@product.Size?.Title</td>
                                                             <td>@product.Color?.Title</td>
                                                             <td>@product.Stock Tấm</td>
-                                                            <td>@product.Regular_price VNĐ</td>
+                                                            <td>@string.Format("{0:N0}", product.Regular_price).Replace(".", ",") VNĐ</td>
                                                             <td>
                                                                 <div class="input-group">
                                                                     <input type="number" class="form-control text-center" style="width: 100px;"
@@ -170,7 +170,6 @@
                             <table class="table card-table table-vcenter text-nowrap datatable">
                                 <thead>
                                     <tr>
-                                        <th class="w-1"><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices">All</th>
                                         <th>Hình Ảnh</th>
                                         <th>Tên sản phẩm</th>
                                         <th>Chất liệu</th>
@@ -187,9 +186,6 @@
                                     @foreach (var item in lst_OrderDetail)
                                     {
                                         <tr>
-                                            <td>
-                                                <input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select item">
-                                            </td>
                                             <td><img src="@item.ProductAttributes.Image" alt="Hình ảnh" style="width: 80px; height: auto;" /></td>
                                             <td>@item.ProductAttributes.Product_Variant.Posts.Title </td>
                                             <td>@item.ProductAttributes.Product_Variant.Material.Title </td>
@@ -198,7 +194,10 @@
                                             <td>@item.ProductAttributes.Color.Title</td>
                                             <td>@item.ProductAttributes.Size.Title</td>
                                             <td>@item.Quantity </td>
-                                            <td>@(item.Quantity * item.ProductAttributes.Regular_price).ToString("N0") VNĐ</td>
+                                            <td>
+                                                @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Regular_price)).Replace(".", ",") VNĐ
+                                            </td>
+
                                             <td>
 
                                                 <button class="btn btn-danger" @onclick="() => DeleteOrderDetail(item.Id)">
@@ -211,7 +210,7 @@
                             </table>
                         </div>
                         <div class="card-header d-flex align-items-center justify-content-between">
-                            <h2 class="card-title">Tổng tiền: @totalAmount.ToString("N0") VNĐ</h2>
+                            <h2 class="card-title">Tổng tiền: @totalAmount.ToString("N0").Replace(".", ",") VNĐ</h2>
                         </div>
                     </div>
                 </div>
@@ -650,7 +649,7 @@
                                                     <strong>Tiền hàng :</strong>
                                                 </div>
                                             </td>
-                                            <td class="text-nowrap text-secondary"> @totalAmount VND</td>
+                                            <td class="text-nowrap text-secondary"> @totalAmount.ToString("N0").Replace(".", ",") VND</td>
 
                                         </tr>
                                         <tr>
@@ -677,7 +676,7 @@
                                                     <strong>Tổng tiền :</strong>
                                                 </div>
                                             </td>
-                                            <td class="text-nowrap text-secondary"> @totalAmount VND</td>
+                                            <td class="text-nowrap text-secondary"> @totalAmount.ToString("N0").Replace(".", ",") VNĐ</td>
                                         </tr>
 
                                     </tbody>
@@ -776,11 +775,46 @@
         lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
         totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
+        if (orderToUpdate?.User_id != null)
+        {
+            ShowAddress(orderToUpdate.User_id.Value); // gọi tới hàm chọn đại chỉ ng dung
+            IsDeliveryVisible = orderToUpdate.Note == "Giao hàng";
+            var customer = await userService.GetById(orderToUpdate.Users.Id);
+            customerName = customer?.Name;
+            isCustomerAdded = customer != null;
+        }
+        else
+        {
+            customerName = "Khách lẻ";
+            isCustomerAdded = false;
+            IsDeliveryVisible = orderToUpdate?.Note == "Giao hàng";
+        }
         if (orderToUpdate == null)
         {
             selectedOrderId = 0;
             return;
         }
+        if (orderToUpdate.Note == "Giao hàng")
+        {
+            IsDeliveryVisible = true;  
+        }
+        else
+        {
+            IsDeliveryVisible = false;
+        }
+        if (long.TryParse(orderToUpdate.Users?.Address, out long addressId))
+        {
+            var address = await addressService.GetAddressById(addressId);
+            if (address != null)
+            {
+                SelectAddress(address); // Cập nhật thông tin địa chỉ
+            }
+            else
+            {
+                ClearInfoAddress(); // Xóa thông tin nếu không có địa chỉ
+            }
+        }
+
         if (orderToUpdate != null)
         {
             foreach (var item in lst_OrderDetail)
@@ -800,6 +834,7 @@
             }
         }
         await LoadOrderDetails();
+
     }
     private async Task UpdateQuantity(long productId, int quantity)
     {
@@ -907,9 +942,9 @@
             if (isDeliveryVisible != value)
             {
                 isDeliveryVisible = value;
-                orders.Note = isDeliveryVisible ? "Giao hàng" : "Tại quầy"; // Cập nhật ghi chú ngay lập tức
-                _ = UpdateOrderNote(); // Gọi hàm async không blocking
-                StateHasChanged(); // Thông báo thay đổi trạng thái
+                orders.Note = isDeliveryVisible ? "Giao hàng" : "Tại quầy";
+                _ = UpdateOrderNote(); 
+                StateHasChanged(); 
             }
         }
     }
@@ -924,10 +959,7 @@
 
         try
         {
-            // Cập nhật ghi chú
             orders.Note = isDeliveryVisible ? "Giao hàng" : "Tại quầy";
-
-            // Gọi API cập nhật
             await orderService.Update(orders, selectedOrderId);
         }
         catch (Exception ex)
@@ -1059,11 +1091,14 @@
     {
         isCreateCustomerModalVisible = false;
     }
-
     private async void CheckOut()
     {
         await LoadOrderDetails();
-
+        if(isDeliveryVisible && selectedAddress == null)
+        {
+            await JS.InvokeVoidAsync("toastr.warning", "Vui lòng chọn địa chỉ giao hàng!");
+            return;
+        }
         if (lst_OrderDetail == null || !lst_OrderDetail.Any())
         {
             await JS.InvokeVoidAsync("toastr.warning", "Đơn hàng chưa có sản phẩm nào.");
@@ -1083,8 +1118,7 @@
             {
                 orderToUpdate.Status = "Đã thanh toán";
             }
-            orderToUpdate.TotalAmount = totalAmount;
-            orderToUpdate.Status = "Đã thanh toán";  // Cập nhật trạng thái          
+            orderToUpdate.TotalAmount = totalAmount;         
             await orderService.Update(orderToUpdate, orderToUpdate.Id);
             foreach (var item in lst_OrderDetail)
             {
@@ -1115,9 +1149,16 @@
         await LoadOrders();
         await LoadPosts();
         await LoadProducts();
+        if (isDeliveryVisible)
+        {
+            await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được xác nhận!");
+        }
+        else
+        {
         await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
+        }
+  
     }
-
     private async Task ShowAddress()
     {
         if (selectedOrderId == null)
