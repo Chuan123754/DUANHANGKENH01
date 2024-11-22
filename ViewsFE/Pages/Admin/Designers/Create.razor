@@ -329,7 +329,7 @@
             designer.SetMetaData(metaData);
             postId = await sev.Create(designer);
             banner.Type = "designer";
-            await bnser.AddBannerToPost(postId, banner);
+            await bnser.AddBannerDesiner(postId, banner);
             await JS.InvokeVoidAsync("toastr.success", "Thêm nhà thiết kế thành công");
             nav.NavigateTo("/admin/designer");
         }

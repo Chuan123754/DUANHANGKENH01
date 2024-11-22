@@ -73,5 +73,36 @@ namespace appAPI.Repository
         {
             return await _context.Banner.Include(p => p.Product_Post).FirstOrDefaultAsync(p => p.ProductPostId == PostId);
         }
+
+        public async Task AddBannerDesiner(long postId, Banner banner)
+        {
+            banner.DesinerId = postId;
+            banner.Created_at = DateTime.Now;
+
+            _context.Banner.Add(banner);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateToDesiner(Banner banner, long postId)
+        {
+            var updateItem = await _context.Banner.FirstOrDefaultAsync(b => b.DesinerId == postId && b.Id == banner.Id);
+            if (updateItem == null)
+            {
+                throw new Exception("Banner không tồn tại hoặc không liên kết với bài viết.");
+            }
+
+            updateItem.Name = banner.Name;
+            updateItem.Meta_data = banner.Meta_data;
+            updateItem.Updated_by = banner.Updated_by;
+            updateItem.Updated_at = DateTime.Now;
+
+            _context.Banner.Update(updateItem);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Banner> GetBannerByDesignerId(long PostId)
+        {
+            return await _context.Banner.Include(p => p.designertable).FirstOrDefaultAsync(p => p.DesinerId == PostId);
+        }
     }
 }

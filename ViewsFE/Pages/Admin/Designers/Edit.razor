@@ -269,7 +269,7 @@
     protected override async Task OnInitializedAsync()
     {
         designer = await sev.GetById(Id);
-        banner = await bnser.GetBannerByProductPostId(Id);
+        banner = await bnser.GetBannerByDesignerId(Id);
         statuses = Designer.STATUSES.ToDictionary(k => k.Key, v => v.Value);
         metaData = designer.GetMetaData();
     }
@@ -323,7 +323,7 @@
         {
             designer.SetMetaData(metaData);
             postId = await sev.Update(designer);
-            await bnser.Update(banner, postId);
+            await bnser.UpdateToDesiner(banner, postId);
             nav.NavigateTo("/admin/designer");
             await JS.InvokeVoidAsync("toastr.success", "Sửa nhà thiết kế thành công");
         }

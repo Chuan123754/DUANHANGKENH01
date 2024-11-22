@@ -37,9 +37,7 @@ namespace ViewsFE.Services
 
         public async Task<Designer> GetById(long id)
         {
-      //  https://localhost:7011/api/Designer/2
-            string requestURL = $"{_baseUrl}/api/Designer/{id}";
-            return await _httpClient.GetFromJsonAsync<Designer>(requestURL);
+                return await _httpClient.GetFromJsonAsync<Designer>($"{_baseUrl}/api/Designer/{id}");
         }
 
         public async Task<List<Designer>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)

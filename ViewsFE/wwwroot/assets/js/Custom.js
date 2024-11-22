@@ -10,7 +10,7 @@
             autoProcessQueue: true,
             addRemoveLinks: true,
             parallelUploads: 20,
-            maxFilesize: 1, // Kích thước tối đa là 1 MB
+            maxFilesize: 2, // Kích thước tối đa là 1 MB
             dictRemoveFile: "Xóa",
             init: function () {
                 this.on("success", function (file, response) {
@@ -57,7 +57,7 @@ window.initializeDropzoneBanner = () => {
             autoProcessQueue: true,
             addRemoveLinks: true,
             parallelUploads: 20,
-            maxFilesize: 1, // Kích thước tối đa là 1 MB
+            maxFilesize: 2, // Kích thước tối đa là 1 MB
             dictRemoveFile: "Xóa",
             init: function () {
                 this.on("success", function (file, response) {

@@ -46,6 +46,16 @@ namespace appAPI.Controllers
             }
             return NotFound();
         }
+        [HttpGet("GetBannerByDesignerId")]
+        public async Task<IActionResult> GetBannerByDesignerId(long PostId)
+        {
+            var result = await _repo.GetBannerByDesignerId(PostId);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return NotFound();
+        }
 
         [HttpPost("CreateBanner")]
         public async Task Create(Banner banner)
@@ -57,13 +67,23 @@ namespace appAPI.Controllers
         {
             await _repo.AddBannerToPost(postId ,banner);      
         }
-
+        [HttpPost("AddBannerDesiner")]
+        public async Task AddBannerDesiner(long postId, Banner banner)
+        {
+            await _repo.AddBannerDesiner(postId, banner);
+        }
 
         [HttpPut("UpdateBanner")]
         public async Task Update(Banner banner, long postId)
         {
             await _repo.Update(banner, postId);
           
+        }
+        [HttpPut("UpdateToDesiner")]
+        public async Task UpdateToDesiner(Banner banner, long postId)
+        {
+            await _repo.UpdateToDesiner(banner, postId);
+
         }
         [HttpDelete("DeleteBanner")]
         public async Task<IActionResult> Delete(long id)
