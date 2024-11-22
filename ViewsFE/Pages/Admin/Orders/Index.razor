@@ -231,7 +231,10 @@
                                                         @item.Note
                                                     </span>
                                                 </td>
-                                                <td>@item.TotalAmount VNĐ</td>
+
+                                                <td>
+                                                    @string.Format("{0:N0}", (item.TotalAmount)).Replace(".", ",") VNĐ
+                                                </td>
                                                 <td>@item.Created_at</td>
                                                 <td>
                                                     <span class="@GetStatusClass(item.Status)">
