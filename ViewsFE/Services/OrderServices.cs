@@ -66,7 +66,7 @@ namespace ViewsFE.Services
             var response = await _client.GetAsync($"https://localhost:7011/api/PDF/generate?orderId={orderId}");
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadAsByteArrayAsync();
+                return await response.Content.ReadAsByteArrayAsync(); 
             }
             else
             {

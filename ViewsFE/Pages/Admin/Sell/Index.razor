@@ -772,12 +772,11 @@
     private async Task SelectOrder(long orderId) // chọn hóa đơn
     {
         selectedOrderId = orderId;
-        lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
+        lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId); 
         totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate?.User_id != null)
         {
-            ShowAddress(orderToUpdate.User_id.Value); // gọi tới hàm chọn đại chỉ ng dung
             IsDeliveryVisible = orderToUpdate.Note == "Giao hàng";
             var customer = await userService.GetById(orderToUpdate.Users.Id);
             customerName = customer?.Name;
@@ -802,17 +801,26 @@
         {
             IsDeliveryVisible = false;
         }
-        if (long.TryParse(orderToUpdate.Users?.Address, out long addressId))
+
+        var addressString = orderToUpdate.Users?.Address;
+
+        // Kiểm tra chuỗi đầu vào
+        if (!string.IsNullOrEmpty(addressString) && long.TryParse(addressString, out long addressId))
         {
             var address = await addressService.GetAddressById(addressId);
             if (address != null)
             {
-                SelectAddress(address); // Cập nhật thông tin địa chỉ
+                SelectAddress(address);
             }
             else
             {
-                ClearInfoAddress(); // Xóa thông tin nếu không có địa chỉ
+                ClearInfoAddress();
             }
+        }
+        else
+        {
+            // Xử lý khi Address không hợp lệ
+            ClearInfoAddress();
         }
 
         if (orderToUpdate != null)

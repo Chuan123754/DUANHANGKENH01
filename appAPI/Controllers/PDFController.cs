@@ -160,7 +160,7 @@ namespace appAPI.Controllers
                 itemTable.SetWidths(columnWidths);
 
                 itemTable.AddCell(new Phrase("STT (No.)", fontBold));
-                itemTable.AddCell(new Phrase("Tên hàng hóa, dịch vụ", fontBold));
+                itemTable.AddCell(new Phrase("Mã sản phẩm SKU", fontBold));
                 itemTable.AddCell(new Phrase("Đơn giá", fontBold));
                 itemTable.AddCell(new Phrase("Giá Giảm (Nếu có)", fontBold));
                 itemTable.AddCell(new Phrase("Giá cuối", fontBold));
