@@ -777,6 +777,8 @@
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate?.User_id != null)
         {
+            ShowAddress(orderToUpdate.User_id.Value); // gọi tới hàm chọn đại chỉ ng dung
+            IsDeliveryVisible = orderToUpdate.Note == "Giao hàng";
             var customer = await userService.GetById(orderToUpdate.Users.Id);
             customerName = customer?.Name;
             isCustomerAdded = customer != null;
@@ -785,6 +787,7 @@
         {
             customerName = "Khách lẻ";
             isCustomerAdded = false;
+            IsDeliveryVisible = orderToUpdate?.Note == "Giao hàng";
         }
         if (orderToUpdate == null)
         {
