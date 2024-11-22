@@ -1,6 +1,6 @@
 ﻿@page "/Admin/ordersCounter"
 @inject NavigationManager nav
-@inject OrderIServices orderService
+@inject IOrderIServices orderService
 @inject OrderDetailsIServices orderDetailsService
 
 <style>
@@ -47,6 +47,8 @@
         background-color: gray;
     }
 </style>
+
+
 <div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
@@ -335,5 +337,4 @@
         LoadPagedOrders();
         StateHasChanged();
     }
-
 }

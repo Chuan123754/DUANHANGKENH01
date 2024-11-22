@@ -28,5 +28,9 @@ namespace ViewsFE.Models
 
         [ForeignKey("ProductPostId")]
         public Product_Posts? Product_Post { get; set; }
+        public long? DesinerId { get; set; }
+
+        [ForeignKey("DesinerId")]
+        public Designer? designertable { get; set; }
     }
 }

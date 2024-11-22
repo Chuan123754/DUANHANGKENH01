@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241114132028_addToTalAmount")]
-    partial class addToTalAmount
+    [Migration("20241121183917_ducchuan")]
+    partial class ducchuan
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -138,36 +138,30 @@ namespace appAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<string>("District")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Province_city")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Set_as_default")
+                    b.Property<int?>("Set_as_default")
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Street")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("User_Id")
+                    b.Property<long?>("User_Id")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Ward_commune")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -188,7 +182,10 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Created_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("Created_by")
+                    b.Property<long?>("Created_by")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DesinerId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Meta_data")
@@ -212,10 +209,14 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Updated_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("Updated_by")
+                    b.Property<long?>("Updated_by")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DesinerId")
+                        .IsUnique()
+                        .HasFilter("[DesinerId] IS NOT NULL");
 
                     b.HasIndex("ProductPostId")
                         .IsUnique()
@@ -808,6 +809,9 @@ namespace appAPI.Migrations
                     b.Property<string>("Status")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<decimal?>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("Update_at")
                         .HasColumnType("datetime2");
@@ -1498,21 +1502,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "5f98f83e-514e-432d-ae6b-aab55872ed7e",
+                            ConcurrencyStamp = "5dc15095-d762-4509-b70a-2186bb6f3480",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "e602c080-e519-4afa-9e64-20e0a2f14b7f",
+                            ConcurrencyStamp = "497daf85-f8f5-4fad-89c9-7c6f1109da68",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "249d6cae-8743-447e-a42b-f939a16c6fc8",
+                            ConcurrencyStamp = "fb74c56b-2308-4992-80eb-670868f49901",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -1639,20 +1643,24 @@ namespace appAPI.Migrations
                 {
                     b.HasOne("appAPI.Models.Users", "User")
                         .WithMany("Addresses")
-                        .HasForeignKey("User_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("User_Id");
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("appAPI.Models.Banner", b =>
                 {
+                    b.HasOne("appAPI.Models.Designer", "designertable")
+                        .WithOne("Banner")
+                        .HasForeignKey("appAPI.Models.Banner", "DesinerId");
+
                     b.HasOne("appAPI.Models.Product_Posts", "Product_Post")
                         .WithOne("Banner")
                         .HasForeignKey("appAPI.Models.Banner", "ProductPostId");
 
                     b.Navigation("Product_Post");
+
+                    b.Navigation("designertable");
                 });
 
             modelBuilder.Entity("appAPI.Models.Cart_details", b =>
@@ -1754,7 +1762,7 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Vouchers", "Vouchers")
-                        .WithMany("OrderVouchers")
+                        .WithMany()
                         .HasForeignKey("VoucherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1782,7 +1790,7 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.P_attribute_discount", b =>
                 {
                     b.HasOne("appAPI.Models.Discount", "Discount")
-                        .WithMany("ProductAttributesDiscounts")
+                        .WithMany()
                         .HasForeignKey("Discount_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1801,7 +1809,7 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Post_categories", b =>
                 {
                     b.HasOne("appAPI.Models.Categories", "Categories")
-                        .WithMany("Post_categories")
+                        .WithMany()
                         .HasForeignKey("Category_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1826,7 +1834,7 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Tags", "Tag")
-                        .WithMany("Post_tags")
+                        .WithMany()
                         .HasForeignKey("Tag_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1910,7 +1918,7 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Wishlist", "Wishlist")
-                        .WithMany("Product_Variants_Wishlists")
+                        .WithMany()
                         .HasForeignKey("Wishlist_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1929,7 +1937,7 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Vouchers", "Vouchers")
-                        .WithMany("UserVouchers")
+                        .WithMany()
                         .HasForeignKey("VoucherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2015,11 +2023,6 @@ namespace appAPI.Migrations
                     b.Navigation("Cart_Details");
                 });
 
-            modelBuilder.Entity("appAPI.Models.Categories", b =>
-                {
-                    b.Navigation("Post_categories");
-                });
-
             modelBuilder.Entity("appAPI.Models.Color", b =>
                 {
                     b.Navigation("Product_Attributes");
@@ -2027,12 +2030,9 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Designer", b =>
                 {
-                    b.Navigation("Product_Posts");
-                });
+                    b.Navigation("Banner");
 
-            modelBuilder.Entity("appAPI.Models.Discount", b =>
-                {
-                    b.Navigation("ProductAttributesDiscounts");
+                    b.Navigation("Product_Posts");
                 });
 
             modelBuilder.Entity("appAPI.Models.Material", b =>
@@ -2087,11 +2087,6 @@ namespace appAPI.Migrations
                     b.Navigation("Product_Variants");
                 });
 
-            modelBuilder.Entity("appAPI.Models.Tags", b =>
-                {
-                    b.Navigation("Post_tags");
-                });
-
             modelBuilder.Entity("appAPI.Models.Textile_technology", b =>
                 {
                     b.Navigation("Product_Variants");
@@ -2106,18 +2101,6 @@ namespace appAPI.Migrations
                     b.Navigation("UserVouchers");
 
                     b.Navigation("Wishlist");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Vouchers", b =>
-                {
-                    b.Navigation("OrderVouchers");
-
-                    b.Navigation("UserVouchers");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Wishlist", b =>
-                {
-                    b.Navigation("Product_Variants_Wishlists");
                 });
 #pragma warning restore 612, 618
         }

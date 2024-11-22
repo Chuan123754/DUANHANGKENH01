@@ -244,6 +244,7 @@
                     </div>
                 </div>
             </EditForm>
+
             <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
             <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
             <Modal OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal>
@@ -263,11 +264,12 @@
     private Modal mediaLibraryModal;
     private Media_manager media_ManagerRef;
     private bool tinyMCEInitialized = false;
+    private long postId;
 
     protected override async Task OnInitializedAsync()
     {
         designer = await sev.GetById(Id);
-
+        banner = await bnser.GetBannerByDesignerId(Id);
         statuses = Designer.STATUSES.ToDictionary(k => k.Key, v => v.Value);
         metaData = designer.GetMetaData();
     }
@@ -279,13 +281,6 @@
         await JS.InvokeVoidAsync("openMediaModalN");
     }
 
-    private async Task HandleImageSelected(string imagePath)
-    {
-        // Nếu imagePath là null, xóa ảnh đại diện
-        designer.image = imagePath ?? string.Empty;
-        StateHasChanged();
-        await JS.InvokeVoidAsync("closeMediaModal");
-    }
     private async Task HandleImageSelectedBanner(string imagePath)
     {
         // Nếu imagePath là null, xóa ảnh banner
@@ -294,11 +289,16 @@
         await JS.InvokeVoidAsync("closeMediaBannerModal");
     }
 
+    private async Task HandleImageSelected(string imagePath)
+    {
+        designer.image = imagePath;
+        StateHasChanged();
+        await JS.InvokeVoidAsync("closeMediaModal");
+    }
     private async Task OpenMediaModalN(bool isMultiple, string referId)
     {
         await JS.InvokeVoidAsync("openMediaModalN", isMultiple, referId);
     }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !tinyMCEInitialized)
@@ -322,7 +322,8 @@
         try
         {
             designer.SetMetaData(metaData);
-            await sev.Update(designer);
+            postId = await sev.Update(designer);
+            await bnser.UpdateToDesiner(banner, postId);
             nav.NavigateTo("/admin/designer");
             await JS.InvokeVoidAsync("toastr.success", "Sửa nhà thiết kế thành công");
         }

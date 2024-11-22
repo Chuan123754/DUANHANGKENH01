@@ -281,6 +281,13 @@
         await JS.InvokeVoidAsync("openMediaModalN");
     }
 
+    private async Task HandleImageSelectedBanner(string imagePath)
+    {
+        // Nếu imagePath là null, xóa ảnh banner
+        banner.Meta_data = imagePath ?? string.Empty;
+        StateHasChanged();
+        await JS.InvokeVoidAsync("closeMediaBannerModal");
+    }
 
     private async Task HandleImageSelected(string imagePath)
     {
@@ -288,13 +295,6 @@
         designer.image = imagePath ?? string.Empty;
         StateHasChanged();
         await JS.InvokeVoidAsync("closeMediaModal");
-    }
-    private async Task HandleImageSelectedBanner(string imagePath)
-    {
-        // Nếu imagePath là null, xóa ảnh banner
-        banner.Meta_data = imagePath ?? string.Empty;
-        StateHasChanged();
-        await JS.InvokeVoidAsync("closeMediaBannerModal");
     }
     private async Task OpenMediaModalN(bool isMultiple, string referId)
     {
@@ -309,8 +309,7 @@
             {
                 await JS.InvokeVoidAsync("initTinyMCE");
                 tinyMCEInitialized = true;
-                await JS.InvokeVoidAsync("initializeDropzoneModal"); // Modal đầu tiên
-                await JS.InvokeVoidAsync("initializeDropzoneModalN"); // Modal thứ hai
+               
 
             }
         }
@@ -328,7 +327,9 @@
         try
         {
             designer.SetMetaData(metaData);
-            await sev.Create(designer);
+            postId = await sev.Create(designer);
+            banner.Type = "designer";
+            await bnser.AddBannerDesiner(postId, banner);
             await JS.InvokeVoidAsync("toastr.success", "Thêm nhà thiết kế thành công");
             nav.NavigateTo("/admin/designer");
         }

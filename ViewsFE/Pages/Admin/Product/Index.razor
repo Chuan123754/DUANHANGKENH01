@@ -176,7 +176,7 @@
     }
     private async Task NavEditCtgr(long id)
     {
-        Navigation.NavigateTo($"/admin/product/edit/{id}");
+        Navigation.NavigateTo($"/admin/product/edit/{id}", forceLoad: true);
     }
 
     private async Task ConfirmDelete(long id)

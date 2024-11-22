@@ -33,10 +33,10 @@ namespace appAPI.IRepository
         Task<Product_Posts> CreateProject(Product_Posts post, List<long> tagIds, List<long> categoryIds);
 
         // Cập nhật bài viết
-        Task Update(Product_Posts post, List<long> tagIds);
+        Task<Product_Posts> Update(Product_Posts post, List<long> tagIds);
 
         // Cập nhật tag và category cho bài viết
-        Task Updatetagcate(Product_Posts post, List<long> tagIds, List<long> categoryIds);
+        Task<Product_Posts> Updatetagcate(Product_Posts post, List<long> tagIds, List<long> categoryIds);
 
         // Xóa bài viết
         Task Delete(long id);

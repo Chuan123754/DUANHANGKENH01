@@ -4,6 +4,7 @@
 @inject ITagsServices stag
 @inject ICategoriesServices cate
 @inject IDesignerServices des
+@inject IBannerServices bnser
 @inject IJSRuntime JS
 
 
@@ -221,7 +222,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- Danh mục sản phẩm -->
+                            <!-- #region category -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
@@ -287,7 +288,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Từ khóa -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
@@ -308,6 +308,7 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- #endregion  Từ khóa(tags) -->
                         </div>
                     </div>
                 </div>
@@ -325,16 +326,18 @@
     public long Id { get; set; }
     private Product_Posts Posts = new Product_Posts();
     private Banner banner = new Banner();
-    private List<Categories> CategoriesList = new();
-    private Dictionary<string, string> statuses = Product_Posts.STATUSES;
-    private List<Tags> TagsList = new();
-    private List<Designer> designersList = new List<Designer>();
+    private List<Categories> CategoriesList = new List<Categories>();
+    private List<Tags> TagsList = new List<Tags>();
     private List<long> SelectedCategories = new List<long>();
     private List<long> SelectedTags = new List<long>();
+    private Dictionary<string, string> statuses = Product_Posts.STATUSES;
+    private List<Designer> designersList = new List<Designer>();
     private Media_modal mediaModalRef;
     private Modal mediaLibraryModal;
     private Media_manager media_ManagerRef;
     private bool tinyMCEInitialized = false;
+    private long postId;
+
 
     private async Task HandleImageSelectedN(List<string> imagePaths)
     {
@@ -368,10 +371,11 @@
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAll();
         designersList = await des.GetAll();
+        banner = await bnser.GetBannerByProductPostId(Id);
         SelectedCategories = (await cate.GetCategoryByPosstId(Id))
-                          .Where(pc => pc.Post_Id == Id)
-                          .Select(pc => pc.Category_Id)
-                          .ToList();
+                           .Where(pc => pc.Post_Id == Id)
+                           .Select(pc => pc.Category_Id)
+                           .ToList();
 
         SelectedTags = (await stag.GetTagByPostId(Id))
                         .Where(pt => pt.Post_Id == Id)
@@ -393,7 +397,6 @@
                 await JS.InvokeVoidAsync("initializeTagsList", TagsList);
                 await JS.InvokeVoidAsync("initializeTomSelect", "#tags-selects");
             }
-
             if (CategoriesList?.Count > 0)
             {
                 await JS.InvokeVoidAsync("initializeCateList", CategoriesList);
@@ -415,8 +418,8 @@
 
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         SelectedTags = string.IsNullOrEmpty(tags)
-            ? new List<long>() // Nếu tags rỗng, tạo danh sách trống
-            : tags.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
+             ? new List<long>() // Nếu tags rỗng, tạo danh sách trống
+             : tags.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
 
         var categories = await JS.InvokeAsync<string>("getSelectedValues", "#categories");
         SelectedCategories = string.IsNullOrEmpty(categories)
@@ -425,7 +428,8 @@
 
         try
         {
-            await sev.Updatetagcate(Posts, SelectedTags, SelectedCategories);
+            postId = await sev.Updatetagcate(Posts, SelectedTags, SelectedCategories);
+            await bnser.Update(banner, postId);
             await JS.InvokeVoidAsync("toastr.success", "Sửa sản phẩm thành công");
             nav.NavigateTo("/admin/product");
         }

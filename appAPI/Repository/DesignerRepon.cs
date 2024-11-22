@@ -11,11 +11,12 @@ namespace appAPI.Repository
         {
             _context = context;
         }
-        public async Task Create(Designer at)
+        public async Task<Designer> Create(Designer at)
         {
             at.create_at = DateTime.Now;
             _context.Designer.Add(at);
             await _context.SaveChangesAsync();
+            return at;
         }
 
         public async Task Delete(long id)
@@ -54,12 +55,12 @@ namespace appAPI.Repository
                 .CountAsync(p => (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)));
         }
 
-        public async Task Update(Designer at)
+        public async Task<Designer> Update(Designer at)
         {
             var item = _context.Designer.Find(at.id_Designer);
             if (item == null)
             {
-                return;
+                return null;
             }
             item.Name = at.Name;
             item.slug = at.slug;
@@ -73,6 +74,7 @@ namespace appAPI.Repository
             item.update_at = DateTime.Now;
             _context.Designer.Update(item);
             await _context.SaveChangesAsync();
+            return item;
         }
     }
 }

@@ -11,13 +11,13 @@ namespace ViewsFE.IServices
         Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm);
         Task<int> GetTotalCountAsync(string type, string searchTerm);
         // Tạo bài viết
-        Task CreatePost(Product_Posts post, List<long> tagIds, List<long> category);
-        Task CreatePage(Product_Posts post, List<long> tagIds);
-        Task CreateProduct(Product_Posts post, List<long> tagIds, List<long> category);
-        Task CreateProject(Product_Posts post, List<long> tagIds, List<long> category);
+        Task<long> CreatePost(Product_Posts post, List<long> tagIds, List<long> category);
+        Task<long> CreatePage(Product_Posts post, List<long> tagIds);
+        Task<long> CreateProduct(Product_Posts post, List<long> tagIds, List<long> category);
+        Task<long> CreateProject(Product_Posts post, List<long> tagIds, List<long> category);
         Task Delete(long id);
-        Task Update(Product_Posts post, List<long> tagIds);
-        Task Updatetagcate(Product_Posts post, List<long> tagIds, List<long> categoryIds);
+        Task<long> Update(Product_Posts post, List<long> tagIds);
+        Task<long> Updatetagcate(Product_Posts post, List<long> tagIds, List<long> categoryIds);
 
     }
 }

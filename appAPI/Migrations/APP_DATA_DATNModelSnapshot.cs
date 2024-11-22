@@ -136,36 +136,30 @@ namespace appAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<string>("District")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Province_city")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Set_as_default")
+                    b.Property<int?>("Set_as_default")
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Street")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("User_Id")
+                    b.Property<long?>("User_Id")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Ward_commune")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -186,7 +180,10 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Created_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("Created_by")
+                    b.Property<long?>("Created_by")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("DesinerId")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Meta_data")
@@ -210,10 +207,14 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Updated_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("Updated_by")
+                    b.Property<long?>("Updated_by")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DesinerId")
+                        .IsUnique()
+                        .HasFilter("[DesinerId] IS NOT NULL");
 
                     b.HasIndex("ProductPostId")
                         .IsUnique()
@@ -970,7 +971,7 @@ namespace appAPI.Migrations
                     b.Property<long?>("Created_by")
                         .HasColumnType("bigint");
 
-                    b.Property<bool>("Deleted")
+                    b.Property<bool?>("Deleted")
                         .HasColumnType("bit");
 
                     b.Property<DateTime?>("Deleted_at")
@@ -992,13 +993,11 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Slug")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .IsUnicode(false)
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -1501,21 +1500,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "1755471a-51b5-4675-ad20-02afa9b52bcc",
+                            ConcurrencyStamp = "5dc15095-d762-4509-b70a-2186bb6f3480",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "880e8479-a82c-47e6-a39d-eb1588d01957",
+                            ConcurrencyStamp = "497daf85-f8f5-4fad-89c9-7c6f1109da68",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "65691ffc-ba41-4e70-8c2c-84ab2201e767",
+                            ConcurrencyStamp = "fb74c56b-2308-4992-80eb-670868f49901",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -1642,20 +1641,24 @@ namespace appAPI.Migrations
                 {
                     b.HasOne("appAPI.Models.Users", "User")
                         .WithMany("Addresses")
-                        .HasForeignKey("User_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("User_Id");
 
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("appAPI.Models.Banner", b =>
                 {
+                    b.HasOne("appAPI.Models.Designer", "designertable")
+                        .WithOne("Banner")
+                        .HasForeignKey("appAPI.Models.Banner", "DesinerId");
+
                     b.HasOne("appAPI.Models.Product_Posts", "Product_Post")
                         .WithOne("Banner")
                         .HasForeignKey("appAPI.Models.Banner", "ProductPostId");
 
                     b.Navigation("Product_Post");
+
+                    b.Navigation("designertable");
                 });
 
             modelBuilder.Entity("appAPI.Models.Cart_details", b =>
@@ -2025,6 +2028,8 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Designer", b =>
                 {
+                    b.Navigation("Banner");
+
                     b.Navigation("Product_Posts");
                 });
 

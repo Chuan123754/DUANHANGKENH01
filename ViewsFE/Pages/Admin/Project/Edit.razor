@@ -288,6 +288,10 @@
     private bool tinyMCEInitialized = false;
     private Media_modal mediaModalRef;
     private Media_manager media_ManagerRef;
+    private long postId;
+
+
+
     private async Task HandleImageSelected(string imagePath)
     {
         Posts.Feature_image = imagePath;
@@ -307,6 +311,7 @@
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAll();
         designersList = await des.GetAll();
+        banner = await bnser.GetBannerByProductPostId(Id);
         SelectedCategories = (await cate.GetCategoryByPosstId(Id))
                           .Where(pc => pc.Post_Id == Id)
                           .Select(pc => pc.Category_Id)
@@ -396,7 +401,8 @@
             : categories.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
         try
         {
-            await sev.Updatetagcate(Posts, SelectedTags, SelectedCategories);
+            postId = await sev.Updatetagcate(Posts, SelectedTags, SelectedCategories);
+            await bnser.Update(banner, postId);
             await JS.InvokeVoidAsync("toastr.success", "Sửa dự án thành công");
             nav.NavigateTo("/admin/project");
         }

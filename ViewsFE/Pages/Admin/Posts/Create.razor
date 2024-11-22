@@ -368,8 +368,8 @@
 
         try
         {
-            await sev.CreatePost(Posts, SelectedTags, SelectedCategories);
-            postId = Posts.Id;
+            postId =  await sev.CreatePost(Posts, SelectedTags, SelectedCategories);
+            banner.Type = "post";
             await bnser.AddBannerToPost(postId, banner);
             await JS.InvokeVoidAsync("toastr.success", "Thêm bài viết thành công");
             nav.NavigateTo("/admin/post");

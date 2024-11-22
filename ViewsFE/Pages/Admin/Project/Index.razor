@@ -172,7 +172,7 @@
     }
     protected async Task NavEditCtgr(long id)
     {
-        nav.NavigateTo($"/admin/project/edit/{id}");
+        nav.NavigateTo($"/admin/project/edit/{id}", forceLoad: true);
     }
     protected async Task NavDeleteCtgr(long id)
     {

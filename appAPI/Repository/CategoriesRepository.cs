@@ -17,6 +17,33 @@ namespace appAPI.Repository
             await _context.SaveChangesAsync();
         }
 
+        public async Task CreateTypePost(Categories c)
+        {
+            c.Created_at = DateTime.Now;
+            c.Type = "post";
+            c.Deleted = false;
+            _context.Categories.Add(c);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task CreateTypeProduct(Categories c)
+        {
+            c.Created_at = DateTime.Now;
+            c.Type = "product";
+            c.Deleted = false;
+            _context.Categories.Add(c);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task CreateTypeProject(Categories c)
+        {
+            c.Created_at = DateTime.Now;
+            c.Type = "project";
+            c.Deleted = false;
+            _context.Categories.Add(c);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task Delete(long id)
         {
             var data = _context.Categories.Find(id);
@@ -38,7 +65,7 @@ namespace appAPI.Repository
         {
             return await _context.Categories
                 .Where(p => p.Type == type && (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm) && p.Deleted == false))
-                .OrderBy(p => p.Title)
+                .OrderBy(p => p.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -58,9 +85,17 @@ namespace appAPI.Repository
 
         public async Task Update(Categories c)
         {
+            var item = await _context.Categories.FindAsync(c.Id);
             if (_context.Categories.Any(c => c.Id == c.Id))
             {
                 _context.Entry(c).State = EntityState.Modified;
+                if (item == null) return;
+                item.Short_title = c.Short_title;
+                item.Description = c.Description;
+                item.Title = c.Title;
+                item.Slug = c.Slug;
+                item.Parent_id = c.Parent_id;
+                item.Updated_at = DateTime.Now;
                 await _context.SaveChangesAsync();
             }
         }
