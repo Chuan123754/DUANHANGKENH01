@@ -8,7 +8,7 @@ namespace appAPI.Background_Service
     public class VoucherExpiryChecker : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(30);
+        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(15);
         public VoucherExpiryChecker(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;

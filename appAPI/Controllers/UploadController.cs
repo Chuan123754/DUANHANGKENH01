@@ -18,12 +18,18 @@ namespace appAPI.Controllers
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        [HttpPost("upload")]
-        public async Task<IActionResult> UploadExcel(IFormFile file)
+        [HttpPost("upload/{tableName}")]
+        public async Task<IActionResult> UploadExcel(string tableName, IFormFile file)
         {
+            
+            // Kiểm tra xem file có được truyền hay không
             if (file == null || file.Length == 0)
             {
-                return BadRequest("File không hợp lệ.");
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "File không hợp lệ. Vui lòng kiểm tra lại file bạn đã chọn."
+                });
             }
 
             try
@@ -36,40 +42,76 @@ namespace appAPI.Controllers
 
                     using (var package = new ExcelPackage(stream))
                     {
-                        // Sheet1: Sizes
-                        var sizes = ReadSheet<Size>(package, "Sizes");
-                        // Sheet2: Textile_Technologies
-                        var textileTechnologies = ReadSheet<Textile_technology>(package, "Textile_Technologies");
-                        // Sheet3: Styles
-                        var styles = ReadSheet<Style>(package, "Styles");
-                        // Sheet4: Materials
-                        var materials = ReadSheet<Material>(package, "Materials");
-                        // Sheet5: Colors
-                        var colors = ReadSheet<Color>(package, "Colors");
+                        var data = ReadSheet(package, tableName);
 
-                        // Lưu vào database
+                        var successfulTitles = new List<string>();
+                        var failedTitles = new List<string>();
+
                         using (var connection = new SqlConnection(_connectionString))
                         {
                             connection.Open();
 
-                            await InsertIntoDatabase(connection, sizes, "Sizes");
-                            await InsertIntoDatabase(connection, textileTechnologies, "Textile_Technologies");
-                            await InsertIntoDatabase(connection, styles, "Styles");
-                            await InsertIntoDatabase(connection, materials, "Materials");
-                            await InsertIntoDatabase(connection, colors, "Color");
+                            foreach (var item in data)
+                            {
+                                var title = item.ContainsKey("Title") ? item["Title"]?.ToString() : null;
+                                if (string.IsNullOrEmpty(title))
+                                {
+                                    failedTitles.Add("(Không có tiêu đề)");
+                                    continue;
+                                }
+
+                                // Kiểm tra trùng lặp
+                                var checkQuery = $"SELECT COUNT(*) FROM {tableName} WHERE Title = @Title";
+                                using (var checkCommand = new SqlCommand(checkQuery, connection))
+                                {
+                                    checkCommand.Parameters.AddWithValue("@Title", title);
+                                    var count = (int)await checkCommand.ExecuteScalarAsync();
+
+                                    if (count > 0)
+                                    {
+                                        failedTitles.Add(title);
+                                        continue;
+                                    }
+                                }
+
+                                // Nếu không trùng lặp, thêm dữ liệu
+                                try
+                                {
+                                    await InsertIntoDatabase(connection, new List<Dictionary<string, object>> { item }, tableName);
+                                    successfulTitles.Add(title);
+                                }
+                                catch
+                                {
+                                    failedTitles.Add(title);
+                                }
+                            }
                         }
+
+                        return Ok(new
+                        {
+                            Success = true,
+                            Message = $"Nhập dữ liệu vào bảng {tableName} thành công!",
+                            SuccessfulTitles = successfulTitles,
+                            FailedTitles = failedTitles
+                        });
                     }
                 }
-
-                return Ok("Nhập dữ liệu thành công!");
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Lỗi khi xử lý file: {ex.Message}");
+                return StatusCode(500, new
+                {
+                    Success = false,
+                    Message = $"Lỗi khi xử lý file: {ex.Message}"
+                });
             }
         }
 
-        private List<T> ReadSheet<T>(ExcelPackage package, string sheetName) where T : new()
+
+
+
+
+        private List<Dictionary<string, object>> ReadSheet(ExcelPackage package, string sheetName)
         {
             var worksheet = package.Workbook.Worksheets[sheetName];
             if (worksheet == null)
@@ -77,68 +119,91 @@ namespace appAPI.Controllers
                 throw new Exception($"Sheet '{sheetName}' không tồn tại.");
             }
 
-            var list = new List<T>();
-            int rowCount = worksheet.Dimension.Rows;
+            var data = new List<Dictionary<string, object>>();
+            int rowCount = worksheet.Dimension.Rows; // Số dòng
+            int colCount = worksheet.Dimension.Columns; // Số cột
 
-            for (int row = 2; row <= rowCount; row++) // Bỏ qua header
+            // Đọc tiêu đề cột từ hàng đầu tiên
+            var headers = new List<string>();
+            for (int col = 1; col <= colCount; col++)
             {
-                var obj = new T();
-                var props = typeof(T).GetProperties()
-                    .Where(p => !p.PropertyType.Name.Contains("ICollection") && !p.GetCustomAttributes(typeof(JsonIgnoreAttribute), true).Any());
-
-                foreach (var prop in props)
-                {
-                    var column = worksheet.Cells[row, props.ToList().IndexOf(prop) + 1].Value;
-
-                    if (column != null)
-                    {
-                        try
-                        {
-                            if (prop.PropertyType == typeof(DateTime))
-                            {
-                                // Xử lý chuyển đổi ngày/tháng
-                                if (DateTime.TryParse(column.ToString(), out var dateValue))
-                                {
-                                    prop.SetValue(obj, dateValue);
-                                }
-                                else
-                                {
-                                    prop.SetValue(obj, DateTime.MinValue); 
-                                }
-                            }
-                            else if (prop.PropertyType == typeof(bool?))
-                            {
-                                prop.SetValue(obj, bool.TryParse(column.ToString(), out var boolValue) ? boolValue : (bool?)null);
-                            }
-                            else if (prop.PropertyType == typeof(long) || prop.PropertyType == typeof(int))
-                            {
-                                prop.SetValue(obj, Convert.ToInt64(column));
-                            }
-                            else
-                            {
-                                prop.SetValue(obj, column.ToString());
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            throw new Exception($"Lỗi khi chuyển đổi dữ liệu cột '{prop.Name}' tại dòng {row}: {ex.Message}");
-                        }
-                    }
-                }
-
-                list.Add(obj);
+                headers.Add(worksheet.Cells[1, col].Value?.ToString()?.Trim());
             }
 
-            return list;
+            // Đọc dữ liệu từ các dòng tiếp theo
+            for (int row = 2; row <= rowCount; row++) // Bỏ qua hàng đầu tiên (header)
+            {
+                var rowData = new Dictionary<string, object>();
+                for (int col = 1; col <= colCount; col++)
+                {
+                    var header = headers[col - 1]; // Lấy tiêu đề cột
+                    var value = worksheet.Cells[row, col].Value; // Lấy giá trị tại ô hiện tại
+                    rowData[header] = value ?? DBNull.Value; // Nếu giá trị null, gán DBNull.Value
+                }
+                data.Add(rowData);
+            }
+
+            return data;
         }
 
 
-
-        private async Task InsertIntoDatabase<T>(SqlConnection connection, List<T> data, string tableName)
+        private async Task InsertIntoDatabase(SqlConnection connection, List<Dictionary<string, object>> data, string tableName)
         {
             foreach (var item in data)
             {
-                var query = GenerateInsertQuery(item, tableName);
+                // Bỏ qua cột Id
+                var filteredItem = item.Where(kv => kv.Key.ToLower() != "id").ToDictionary(kv => kv.Key, kv => kv.Value);
+
+                // Lấy giá trị cột 'Title' để kiểm tra trùng lặp
+                if (!filteredItem.ContainsKey("Title"))
+                {
+                    throw new Exception("Dữ liệu không có cột 'Title', không thể kiểm tra trùng lặp.");
+                }
+
+                var title = filteredItem["Title"].ToString();
+
+                // Kiểm tra trùng lặp
+                var checkQuery = $"SELECT COUNT(*) FROM {tableName} WHERE Title = @Title";
+                using (var checkCommand = new SqlCommand(checkQuery, connection))
+                {
+                    checkCommand.Parameters.AddWithValue("@Title", title);
+
+                    var count = (int)await checkCommand.ExecuteScalarAsync();
+                    if (count > 0)
+                    {
+                        Console.WriteLine($"Bỏ qua bản ghi trùng lặp: {title}");
+                        continue; 
+                    }
+                }
+
+                // Nếu không trùng lặp, thêm dữ liệu vào bảng
+                var columns = string.Join(", ", filteredItem.Keys);
+                var values = string.Join(", ", filteredItem.Values.Select(value =>
+                {
+                    if (value is DateTime dateTime)
+                    {
+                        return dateTime == DateTime.MinValue
+                            ? "'0001-01-01 00:00:00.0000000'"
+                            : $"'{dateTime:yyyy-MM-dd HH:mm:ss.fffffff}'";
+                    }
+                    else if (value is string strValue)
+                    {
+                        return $"N'{strValue.Replace("'", "''")}'";
+                    }
+                    else if (value is bool boolValue)
+                    {
+                        return boolValue ? "1" : "0"; // Chuyển đổi bool thành 1/0
+                    }
+                    else if (value == null || value == DBNull.Value)
+                    {
+                        return "NULL";
+                    }
+                    return value.ToString();
+                }));
+
+                var query = $"INSERT INTO {tableName} ({columns}) VALUES ({values})";
+                Console.WriteLine($"Generated Query: {query}"); // Log query để debug
+
                 using (var command = new SqlCommand(query, connection))
                 {
                     await command.ExecuteNonQueryAsync();
@@ -146,31 +211,10 @@ namespace appAPI.Controllers
             }
         }
 
-        private string GenerateInsertQuery<T>(T item, string tableName)
-        {
-            var props = typeof(T).GetProperties()
-                .Where(p => p.Name != "Id" && !p.PropertyType.Name.Contains("ICollection") && !p.GetCustomAttributes(typeof(JsonIgnoreAttribute), true).Any());
 
-            var columns = string.Join(", ", props.Select(p => p.Name));
-            var values = string.Join(", ", props.Select(p =>
-            {
-                var value = p.GetValue(item);
-                if (value is DateTime dateTime)
-                {
-                    return $"'{dateTime:yyyy-MM-dd HH:mm:ss}'"; // Chuyển đổi DateTime sang định dạng SQL
-                }
-                else if (value is string strValue)
-                {
-                    return $"N'{strValue.Replace("'", "''")}'"; // Thêm N trước chuỗi Unicode
-                }
-                return $"'{value ?? DBNull.Value}'";
-            }));
 
-            return $"INSERT INTO {tableName} ({columns}) VALUES ({values})";
-        }
-
-        [HttpGet("export")]
-        public async Task<IActionResult> ExportExcel()
+        [HttpGet("export/{tableName}")]
+        public async Task<IActionResult> ExportExcel(string tableName)
         {
             try
             {
@@ -178,32 +222,15 @@ namespace appAPI.Controllers
 
                 using (var package = new ExcelPackage())
                 {
-                    // Sheet1: Sizes
-                    var sizes = await GetDataFromDatabase("Sizes");
-                    AddSheet(package, "Sizes", sizes);
-
-                    // Sheet2: Textile_Technologies
-                    var textileTechnologies = await GetDataFromDatabase("Textile_Technologies");
-                    AddSheet(package, "Textile_Technologies", textileTechnologies);
-
-                    // Sheet3: Styles
-                    var styles = await GetDataFromDatabase("Styles");
-                    AddSheet(package, "Styles", styles);
-
-                    // Sheet4: Materials
-                    var materials = await GetDataFromDatabase("Materials");
-                    AddSheet(package, "Materials", materials);
-
-                    // Sheet5: Colors
-                    var colors = await GetDataFromDatabase("Color");
-                    AddSheet(package, "Colors", colors);
+                    var data = await GetDataFromDatabase(tableName);
+                    AddSheet(package, tableName, data);
 
                     // Trả về file Excel
                     var stream = new MemoryStream();
                     package.SaveAs(stream);
                     stream.Position = 0;
 
-                    var fileName = $"ExportedData_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+                    var fileName = $"ExportedData_{tableName}_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
                     return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
                 }
             }
@@ -212,6 +239,7 @@ namespace appAPI.Controllers
                 return StatusCode(500, $"Lỗi khi xuất dữ liệu: {ex.Message}");
             }
         }
+
 
         private async Task<List<Dictionary<string, object>>> GetDataFromDatabase(string tableName)
         {

@@ -3,26 +3,83 @@
 @inject IStyleServices sev
 @inject IJSRuntime JS
 
+<div class="modal fade" id="fileModal" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fileModalLabel">Chọn tệp để nhập</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <InputFile OnChange="HandleFileSelected" accept=".xlsx" class="form-control" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> Hủy</button>
+                <button type="button" class="btn btn-primary" @onclick="OnImport" data-bs-dismiss="modal"> Nhập</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
         <div class="container-xl">
+           
             <div class="row g-2 align-items-center">
                 <div class="col d-flex gap-3">
                     <h2 class="page-title">
-                        Danh sách phong cách
+                        Danh sách Kiểu dáng
                     </h2>
-                    <a href="/admin/style/create" class="btn btn-sm btn-outline-primary">
-                        Thêm phong cách
+                    <a href="/admin/style/create" class="btn btn-primary">
+                        <i class="bi bi-plus-lg"></i> Thêm Kiểu dáng
                     </a>
+                    <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#fileModal">
+                        <i class="bi bi-upload"></i> Nhập
+                    </button>
+                    <button class="btn btn-warning" @onclick="OnExport">
+                        <i class="bi bi-download"></i> Xuất
+                    </button>
                 </div>
+
             </div>
         </div>
     </div>
 
+
     <!-- Page body -->
     <div class="page-body">
         <div class="container-xl">
+            @if (successfulTitles.Any() || failedTitles.Any())
+            {
+                <div class="mt-4">
+                    @if (successfulTitles.Any())
+                    {
+                        <div class="alert alert-success">
+                            <strong>Các tiêu đề đã thêm thành công:</strong>
+                            <ul>
+                                @foreach (var title in successfulTitles)
+                                {
+                                    <li>@title</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    @if (failedTitles.Any())
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Các tiêu đề bị trùng hoặc thêm thất bại:</strong>
+                            <ul>
+                                @foreach (var title in failedTitles)
+                                {
+                                    <li>@title</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            }
             <div class="card">
                 <div class="card-body">
                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
@@ -104,7 +161,18 @@
     private int page_size = 10;
     private int totalItems;
 
+    private List<string> successfulTitles = new();
+    private List<string> failedTitles = new();
 
+    [Inject]
+    private IUploadService UploadService { get; set; }
+
+    private IBrowserFile selectedFile;
+
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+    }
     private async Task OnSearch()
     {
         // Ngăn ngừa load lại trang
@@ -154,4 +222,75 @@
             await JS.InvokeVoidAsync("toastr.error", "Không thể xoá bản ghi. Vui lòng thử lại.");
         }
     }
+
+    private async Task OnImport()
+    {
+        try
+        {
+            if (selectedFile != null)
+            {
+                using var memoryStream = new MemoryStream();
+                await selectedFile.OpenReadStream().CopyToAsync(memoryStream);
+                memoryStream.Position = 0;
+
+                var formFile = new FormFile(memoryStream, 0, memoryStream.Length, selectedFile.Name, selectedFile.Name)
+                    {
+                        Headers = new HeaderDictionary(),
+                        ContentType = selectedFile.ContentType
+                    };
+
+                // Gửi file đến API
+                var response = await UploadService.UploadExcel("Styles", formFile);
+
+                // Xử lý phản hồi
+                if (response.Success)
+                {
+                    successfulTitles = response.SuccessfulTitles;
+                    failedTitles = response.FailedTitles;
+                }
+                else
+                {
+                    failedTitles.Add("Đã xảy ra lỗi khi xử lý tệp.");
+
+                }
+
+                await LoadPosts();
+            }
+            else
+            {
+                failedTitles.Add("Chưa chọn file để nhập.");
+            }
+        }
+        catch (Exception ex)
+        {
+            failedTitles.Add($"Lỗi khi nhập dữ liệu: {ex.Message}");
+        }
+    }
+
+    private async Task OnExport()
+    {
+        try
+        {
+            var fileContent = await UploadService.ExportExcel("Styles");
+            var fileName = $"Styles_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+            var base64 = Convert.ToBase64String(fileContent);
+
+            await JS.InvokeVoidAsync("downloadFile", fileName, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", base64);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi xuất dữ liệu: {ex.Message}");
+        }
+    }
 }
+<script>
+    function downloadFile(filename, contentType, base64) {
+        const link = document.createElement('a');
+        link.href = `data:${contentType};base64,${base64}`;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+</script>

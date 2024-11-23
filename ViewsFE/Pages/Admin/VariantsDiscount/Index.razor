@@ -1,0 +1,451 @@
+﻿@page "/admin/PVariantsDiscount"
+@inject IAttributesDiscountServices _VariantsDiscountServices
+@inject IJSRuntime JS
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">Quản Lý sản phẩm giảm giá</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row">
+                <!-- Create/Edit Form -->
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <EditForm Model="@pVariantsDiscount" OnValidSubmit="HandleSubmit" OnInvalidSubmit="HandleInvalidSubmit">
+                                <DataAnnotationsValidator />
+                                @if (!string.IsNullOrEmpty(errorMessage))
+                                {
+                                    <div class="alert @((errorMessage.Contains("thành công") ? "alert-success" : "alert-danger"))" role="alert">
+                                        @errorMessage
+                                    </div>
+                                }
+
+                                <!-- Dropdown cho P_attribute_Id -->
+                                <div class="form-group mb-1">
+                                    <label for="P_attribute_Id">Chọn Product Variant</label>
+                                    <select id="P_attribute_Id" @onchange="OnProductVariantChanged" class="form-control">
+                                        <option value="">-- Chọn Product Variant --</option>
+                                        @foreach (var variant in product_Attributes.Where(v => !pVariantsDiscounts.Any(p => p.P_attribute_Id == v.Id)))
+                                        {
+                                            <option value="@variant.Id">@variant.Id</option>
+                                        }
+                                    </select>
+
+                                    <ValidationMessage For="@(() => pVariantsDiscount.P_attribute_Id)" />
+                                </div>
+
+                                <!-- Dropdown cho Discount_Id -->
+                                <div class="form-group mb-1">
+                                    <label for="Discount_Id">Chọn Discount</label>
+                                    <select id="Discount_Id" @onchange="OnDiscountChanged" class="form-control">
+                                        <option value="">-- Chọn Discount --</option>
+                                        @foreach (var discount in discounts.Where(d => d.Status != "Không hoạt động"))
+                                        {
+                                            <option value="@discount.Id">@discount.Name</option>
+                                        }
+                                    </select>
+                                    <ValidationMessage For="@(() => pVariantsDiscount.Discount_Id)" />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="Old_price">Giá Cũ</label>
+                                    <input type="number" id="Old_price" @bind="pVariantsDiscount.Old_price" class="form-control" />
+                                    <ValidationMessage For="@(() => pVariantsDiscount.Old_price)" readonly />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="New_price">Giá Mới</label>
+                                    <input type="number" id="New_price" @bind="pVariantsDiscount.New_price" class="form-control" />
+                                    <ValidationMessage For="@(() => pVariantsDiscount.New_price)" readonly />
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="Status">Trạng Thái</label>
+                                    @if (isEditMode)
+                                    {
+                                        <select id="Status" @bind="pVariantsDiscount.Status" class="form-control">
+                                            <option value="Không hoạt động">Không hoạt động</option>
+                                            @if (isDiscountActive)
+                                            {
+                                                <option value="Hoạt động">Hoạt động</option>
+                                            }
+                                        </select>
+                                    }
+                                    else
+                                    {
+                                        <!-- Trạng thái mặc định khi tạo mới -->
+                                        <input type="text" id="Status" class="form-control" value="Hoạt động" readonly />
+                                    }
+                                    <ValidationMessage For="@(() => pVariantsDiscount.Status)" />
+                                </div>
+
+
+
+                                <div class="form-group">
+                                    @if (pVariantsDiscount.Id == 0)
+                                    {
+                                        <button type="submit" class="btn btn-primary">Tạo</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="btn btn-warning">Cập Nhật</button>
+                                    }
+                                </div>
+                            </EditForm>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Danh Sách P_variants_discount -->
+                <div class="col-md-9 col-12">
+                    <div class="card">
+                        <div class="card-body">
+                             <!-- Search Box -->
+                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                <div></div>
+                                <EditForm Model="pVariantsDiscount" OnValidSubmit="@Search">
+                                    <div class="form-group d-flex gap-2">
+                                        <InputText id="searchInput" class="form-control" @bind-Value="searchText" placeholder="Nhập từ khóa tìm kiếm" />
+                                        <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                    </div>
+                                </EditForm>
+                            </div>
+
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>P_attribute_Id</th>
+                                        <th>Discount_Id</th>
+                                        <th>Giá Cũ</th>
+                                        <th>Giá Mới</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (pagedPVariantsDiscount != null && pagedPVariantsDiscount.Any())
+                                    {
+                                        int index = 0;
+                                        @foreach (var discount in pagedPVariantsDiscount)
+                                        {
+                                            <tr>
+                                                <td>@(++index + (currentPage - 1) * PageSize)</td>
+                                                <td>@GetProductVariantName(discount.P_attribute_Id)</td>
+                                                <td>@GetDiscountName(discount.Discount_Id)</td>
+                                                <td>@discount.Old_price</td>
+                                                <td>@discount.New_price</td>
+                                                <td>@discount.Status</td>
+                                                <td>
+                                                    <button class="btn btn-primary" @onclick="() => ConfirmEdit(discount.Id)">Sửa</button>
+                                                    <button class="btn btn-danger" @onclick="() => ConfirmDelete(discount.Id)">Xóa</button>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="7" class="text-center">Không có dữ liệu để hiển thị.</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Users" PageNumber="currentPage" TotalPages="totalPages" PageSize="PageSize" TotalItems="pVariantsDiscounts.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private P_attribute_discount pVariantsDiscount = new P_attribute_discount();
+    private List<P_attribute_discount> pVariantsDiscounts = new List<P_attribute_discount>();
+    private List<Product_Attributes> product_Attributes = new List<Product_Attributes>();
+    private List<Discount> discounts = new List<Discount>();
+
+    private bool isDiscountActive = true; // Biến kiểm tra trạng thái Discount
+    private bool isEditMode = false; // Biến kiểm tra chế độ tạo mới hoặc chỉnh sửa
+
+    private List<P_attribute_discount> pagedPVariantsDiscount = new List<P_attribute_discount>();
+
+    private string errorMessage = string.Empty;
+
+    private string searchText = string.Empty;
+
+    private int currentPage = 1;
+    private int PageSize = 5;
+    private int totalPages = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        pVariantsDiscounts = await _VariantsDiscountServices.GetAll();
+        product_Attributes = await _VariantsDiscountServices.GetProductvariants();
+        discounts = await _VariantsDiscountServices.GetDiscount();
+        LoadPages();
+    }
+
+
+    private async Task OnProductVariantChanged(ChangeEventArgs e)
+    {
+        // Cập nhật P_attribute_Id từ dropdown
+        if (long.TryParse(e.Value.ToString(), out long selectedProductVariantId))
+        {
+            pVariantsDiscount.P_attribute_Id = selectedProductVariantId;
+
+            // Lấy giá của sản phẩm đã chọn
+            var selectedVariant = product_Attributes.FirstOrDefault(v => v.Id == selectedProductVariantId);
+            if (selectedVariant != null)
+            {
+                // Kiểm tra nếu Sale_price có giá trị
+                if (selectedVariant.Sale_price.HasValue)
+                {
+                    pVariantsDiscount.Old_price = selectedVariant.Sale_price.Value; // Chỉ gán giá trị nếu Sale_price có giá trị
+                }
+                else
+                {
+                    pVariantsDiscount.Old_price = 0; // Đặt giá trị mặc định nếu Sale_price là null
+                }
+                StateHasChanged();
+            }
+        }
+    }
+
+
+    private async Task OnDiscountChanged(ChangeEventArgs e)
+    {
+        // Cập nhật Discount_Id từ dropdown
+        if (long.TryParse(e.Value.ToString(), out long selectedDiscountId))
+        {
+            pVariantsDiscount.Discount_Id = selectedDiscountId;
+
+            // Lấy thông tin Discount đã chọn
+            var selectedDiscount = discounts.FirstOrDefault(d => d.Id == selectedDiscountId);
+
+            if (selectedDiscount != null)
+            {
+                // Kiểm tra nếu Type_of_promotion có chứa '%'
+                if (!string.IsNullOrEmpty(selectedDiscount.Type_of_promotion) && selectedDiscount.Type_of_promotion.Contains("%"))
+                {
+                    // Tính giảm giá theo %
+                    if (decimal.TryParse(selectedDiscount.Type_of_promotion.TrimEnd('%'), out decimal percentage) && percentage > 0)
+                    {
+                        pVariantsDiscount.New_price = pVariantsDiscount.Old_price * (1 - percentage / 100);
+                    }
+                }
+                else
+                {
+                    // Xử lý giảm giá theo số tiền trực tiếp (VND)
+                    if (decimal.TryParse(selectedDiscount.Type_of_promotion, out decimal discountAmount) && discountAmount > 0)
+                    {
+                        pVariantsDiscount.New_price = pVariantsDiscount.Old_price - discountAmount;
+                    }
+                }
+
+                // Đảm bảo giá mới không nhỏ hơn 0
+                if (pVariantsDiscount.New_price < 0)
+                {
+                    pVariantsDiscount.New_price = 0;
+                }
+            }
+            else
+            {
+                // Nếu không tìm thấy Discount, giữ nguyên giá cũ
+                pVariantsDiscount.New_price = pVariantsDiscount.Old_price;
+            }
+
+            StateHasChanged();
+        }
+    }
+
+
+
+
+
+    private string GetProductVariantName(long pVariantsId)
+    {
+        var productVariant = product_Attributes.FirstOrDefault(p => p.Id == pVariantsId);
+        return productVariant != null ? productVariant.SKU : "N/A";
+    }
+
+
+    private string GetDiscountName(long discountId)
+    {
+        var discount = discounts.FirstOrDefault(d => d.Id == discountId);
+        return discount != null ? discount.Name : "N/A";
+    }
+
+    public void LoadPages()
+    {
+        totalPages = (int)Math.Ceiling((double)pVariantsDiscounts.Count / PageSize);
+
+        pagedPVariantsDiscount = pVariantsDiscounts.Skip((currentPage - 1) * PageSize).Take(PageSize).ToList();
+    }
+
+    public void GoToPage(int page)
+    {
+        currentPage = page;
+        LoadPages();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        PageSize = newPageSize;
+        currentPage = 1;
+        await LoadPageSize();
+    }
+
+    private async Task LoadPageSize()
+    {
+        pVariantsDiscounts = await _VariantsDiscountServices.GetAll();
+        totalPages = (int)Math.Ceiling((double)pVariantsDiscounts.Count / PageSize);
+
+        LoadPages();
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < totalPages)
+        {
+            currentPage++;
+            LoadPages();
+        }
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            LoadPages();
+        }
+    }
+    private async Task HandleSubmit()
+    {
+        if (pVariantsDiscount.Id == 0)
+        {
+            pVariantsDiscount.Status = "Hoạt động"; // Đặt mặc định là "Hoạt động" khi tạo mới
+            await Create();
+        }
+        else
+        {
+            await ConfirmUpdate();
+        }
+    }
+
+    private async Task Create()
+    {
+        try
+        {
+            var VariantsDiscount = new P_attribute_discount
+                {
+                    P_attribute_Id = pVariantsDiscount.P_attribute_Id,
+                    Discount_Id = pVariantsDiscount.Discount_Id,
+                    Old_price = pVariantsDiscount.Old_price,
+                    New_price = pVariantsDiscount.New_price,
+                    Status = pVariantsDiscount.Status,
+                };
+
+            await _VariantsDiscountServices.Create(VariantsDiscount);
+            errorMessage = "Đã tạo mới VariantsDiscount thành công!";
+            pVariantsDiscount = new P_attribute_discount();
+            await LoadPageSize();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
+        }
+    }
+
+    private async Task ConfirmEdit(long id)
+    {
+        try
+        {
+            pVariantsDiscount = await _VariantsDiscountServices.Details(id);
+            isEditMode = true;
+
+            // Kiểm tra trạng thái Discount liên quan
+            var relatedDiscount = discounts.FirstOrDefault(d => d.Id == pVariantsDiscount.Discount_Id);
+            isDiscountActive = relatedDiscount?.Status == "Hoạt động"; // Nếu Discount là "Hoạt động", biến này sẽ là true
+        }
+        catch (Exception)
+        {
+            errorMessage = "Không thấy đối tượng";
+        }
+    }
+
+    private async Task ConfirmUpdate()
+    {
+        try
+        {
+            await _VariantsDiscountServices.Update(pVariantsDiscount);
+            errorMessage = "Cập nhật thành công";
+            await LoadPageSize();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            
+            errorMessage = $"lỗi cập nhật {ex.Message}";
+        }
+    }
+    
+
+    private async Task ConfirmDelete(long id)
+    {
+        bool Ok = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa bản ghi này không?");
+        if (Ok)
+        {
+            var item = _VariantsDiscountServices.Details(id);
+            if (item != null)
+            {
+                await _VariantsDiscountServices.Delete(id);
+                errorMessage = "Xóa thành công";
+                await LoadPageSize();
+                StateHasChanged();
+            }
+            else
+            {
+                errorMessage = "Không thấy đối tượng";
+            }
+        }
+    }
+
+    private void HandleInvalidSubmit()
+    {
+        Console.WriteLine("Form không hợp lệ. Hãy kiểm tra các trường nhập liệu!");
+    }
+
+
+    private async Task Search()
+    {
+        if (string.IsNullOrEmpty(searchText))
+        {
+            pVariantsDiscounts = await _VariantsDiscountServices.GetAll();
+        }
+        else
+        {
+            pVariantsDiscounts = pVariantsDiscounts
+                .Where(v => v.Status.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+        currentPage = 1;
+        LoadPages();
+    }
+}
