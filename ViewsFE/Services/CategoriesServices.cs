@@ -21,6 +21,20 @@ namespace ViewsFE.Services
         {
             await _client.PostAsJsonAsync($"{_baseUrl}/api/Category/add-category", c);
         }
+        public async Task CreateTypePost(Categories c)
+        {
+            await _client.PostAsJsonAsync($"{_baseUrl}/api/Category/add-category-post", c);
+        }
+
+        public async Task CreateTypeProject(Categories c)
+        {
+            await _client.PostAsJsonAsync($"{_baseUrl}/api/Category/add-category-project", c);
+        }
+
+        public async Task CreateTypeProduct(Categories c)
+        {
+            await _client.PostAsJsonAsync($"{_baseUrl}/api/Category/add-category-product", c);
+        }
         public async Task<List<Post_categories>> GetCategoryByPosstId(long postId)
         {
             string requetsURL = $"https://localhost:7011/api/Category/GetCategoryByPostId?postId={postId}";
@@ -65,6 +79,6 @@ namespace ViewsFE.Services
             await _client.PutAsJsonAsync($"{_baseUrl}/api/Category/edit-category", c);
         }
 
-
+      
     }
 }

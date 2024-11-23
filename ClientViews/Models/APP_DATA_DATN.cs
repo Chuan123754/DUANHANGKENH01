@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 namespace ClientViews.Models
 {
     public class APP_DATA_DATN : IdentityDbContext<Account>
@@ -12,7 +11,6 @@ namespace ClientViews.Models
         }
         public DbSet<Activity_history> Activity_history { get; set; }
         public DbSet<Address> Address { get; set; }
-   
         public DbSet<Banner> Banner { get; set; }
         public DbSet<Carts> Carts { get; set; }
         public DbSet<Cart_details> Cart_Details { get; set; }
@@ -20,7 +18,7 @@ namespace ClientViews.Models
         public DbSet<Comments> Comments { get; set; }
         public DbSet<Designer> Designer { get; set; }
         public DbSet<Discount> Discount { get; set; }
-        public DbSet<Files>  Files { get; set; }
+        public DbSet<Files> Files { get; set; }
         public DbSet<Menus> Menus { get; set; }
         public DbSet<Menu_items> Menu_items { get; set; }
         public DbSet<Options> Options { get; set; }
@@ -28,7 +26,7 @@ namespace ClientViews.Models
         public DbSet<order_trackings> Order_Trackings { get; set; }
         public DbSet<Order_details> Order_Details { get; set; }
         public DbSet<Order_Vouchers> OrderVouchers { get; set; }
-        public DbSet<P_variants_discount> p_Variants_Discounts { get; set; }
+        public DbSet<P_attribute_discount> p_Variants_Discounts { get; set; }
         public DbSet<Post_categories> Post_Categories { get; set; }
         public DbSet<Post_tags> Post_Tags { get; set; }
         public DbSet<Product_Posts> Posts { get; set; }
@@ -46,6 +44,7 @@ namespace ClientViews.Models
         public DbSet<Material> Materials { get; set; }
         public DbSet<Textile_technology> Textile_Technologies { get; set; }
 
+        public DbSet<UserVouchers> userVouchers { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

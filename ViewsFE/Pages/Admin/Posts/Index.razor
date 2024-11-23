@@ -151,6 +151,10 @@
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
     }
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPosts();
+    }
     private async Task GoToPage(int page)
     {
         page_number = page;
@@ -163,10 +167,7 @@
         page_number = 1;
         await LoadPosts();
     }
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadPosts();
-    }
+    
     protected async Task NavEditCtgr(long id)
     {
         nav.NavigateTo($"/admin/post/edit/{id}", forceLoad: true);

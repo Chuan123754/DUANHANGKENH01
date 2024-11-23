@@ -24,7 +24,7 @@ namespace ViewsFE.Models
         public string? meta_data { get; set; }
         public DateTime create_at { get; set; }
         public DateTime update_at { get; set; }
-        [JsonIgnore]
+        [JsonIgnore]    
         public virtual ICollection<Product_Posts>? Product_Posts { get; set; }
         [JsonIgnore]
         public virtual Banner? Banner { get; set; }
@@ -64,9 +64,6 @@ namespace ViewsFE.Models
             meta_data = JsonSerializer.Serialize(data);
         }
     }
-
-
-
     public class MetaData
     {
         public string? facebook { get; set; }

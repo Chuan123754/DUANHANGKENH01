@@ -13,6 +13,8 @@ namespace appAPI.Repository
         }
         public async Task Create(Categories c)
         {
+            c.Deleted = false;
+            c.Created_at = DateTime.Now;
             _context.Categories.Add(c);
             await _context.SaveChangesAsync();
         }
@@ -47,7 +49,9 @@ namespace appAPI.Repository
         public async Task Delete(long id)
         {
             var data = _context.Categories.Find(id);
-            _context.Categories.Remove(data);
+            data.Deleted = true;
+            data.Deleted_at = DateTime.Now;
+            _context.Categories.Update(data);
             await _context.SaveChangesAsync();
         }
 
@@ -60,20 +64,18 @@ namespace appAPI.Repository
         {
             return await _context.Categories.ToListAsync();
         }
-        
+        public async Task<List<Post_categories>> GetCategoryByPosstId(long postId)
+        {
+            return await _context.Post_Categories.Where(c => c.Post_Id == postId).Include(c => c.Categories).ToListAsync();
+        }
         public async Task<List<Categories>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm)
         {
             return await _context.Categories
-                .Where(p => p.Type == type && (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm) && p.Deleted == false))
+                .Where(p => p.Type == type && (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) && p.Deleted == false)
                 .OrderBy(p => p.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-        }
-
-        public async Task<List<Post_categories>> GetCategoryByPosstId(long postId)
-        {
-            return await _context.Post_Categories.Where(c=>c.Post_Id == postId).Include(c=>c.Categories).ToListAsync();
         }
 
         public async Task<int> GetTotalCountAsync(string type, string searchTerm)

@@ -90,7 +90,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigins",
         policyBuilder =>
         {
-            policyBuilder.WithOrigins("https://localhost:7277", "https://localhost:7241") // Đảm bảo đây là URL đúng
+            policyBuilder.WithOrigins("https://localhost:7277", "https://localhost:7032") // Đảm bảo đây là URL đúng
                          .AllowAnyHeader()
                          .AllowAnyMethod();
         });
@@ -145,7 +145,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
+    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
     RequestPath = "/FileMedia"
 });
 

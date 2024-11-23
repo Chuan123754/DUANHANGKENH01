@@ -18,7 +18,6 @@ namespace ClientViews.Models
         public DateTime Update_at { get; set; }
         public DateTime Delete_at { get; set; }
         [JsonIgnore]
-        public virtual ICollection<Product_Posts> Product_Posts { get; set; } = new List<Product_Posts>();
-
+        public virtual ICollection<Product_Attributes> Product_Attributes { get; set; } = new List<Product_Attributes>();
     }
 }

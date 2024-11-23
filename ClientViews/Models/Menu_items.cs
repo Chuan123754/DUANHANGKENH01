@@ -30,7 +30,6 @@ namespace ClientViews.Models
         public DateTime? Updated_at { get; set; }
 
         [ForeignKey("MenuId")]
-        [JsonIgnore]
         [InverseProperty("Menu_Items")]
         public virtual Menus? Menus { get; set; }
     }

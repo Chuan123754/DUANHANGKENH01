@@ -38,13 +38,13 @@ namespace appAPI.Repository
 
         public async Task<Color> GetByIdAndType(long id)
         {
-            return await _context.Color.FindAsync(id);
+            return await _context.Color.FirstOrDefaultAsync(p => p.Id == id && p.Deleted == false);
         }
 
         public async Task<List<Color>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)
         {
             return await _context.Color
-                 .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm) && p.Deleted == false))
+                 .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) && p.Deleted == false)
                  .OrderBy(p => p.Id)
                  .Skip((pageNumber - 1) * pageSize)
                  .Take(pageSize)

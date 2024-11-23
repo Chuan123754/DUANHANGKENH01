@@ -46,7 +46,7 @@ namespace appAPI.Repository
         public async Task<List<Style>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)
         {
             return await _context.Styles
-                .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm) && p.Deleted == false))
+                .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) && p.Deleted == false)
                 .OrderBy(p => p.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

@@ -7,27 +7,49 @@
     <DataAnnotationsValidator></DataAnnotationsValidator>
     <ValidationSummary></ValidationSummary>
     <div class="page-wrapper">
+        <div class="page-header d-print-none">
+            <div class="container-xl">
+                <div class="row g-2 align-items-center">
+                    <div class="col">
+                        <h2 class="page-title">
+                            Thêm chất liệu
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="page-body">
             <div class="container-xl">
-                <div class="form-group mb-3">
-                    <label for="material-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
-                    <InputText id="material-title" class="form-control" @bind-Value="material.Title" required />
-                    <ValidationMessage For="@(() => material.Title)" />
-                </div>
+                <div class="row">
+                    <div class="col-md-12 col-12">
+                        <div class="card">
+                            <div class="card-body">
 
-                <div class="form-group mb-3">
-                    <label for="attribute-slug" class="form-label">Đường dẫn</label>
-                    <InputText id="attribute-slug" class="form-control" @bind-Value="material.Slug" />
-                    <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
-                </div>
+                                <div class="form-group mb-3">
+                                    <label for="material-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
+                                    <InputText id="material-title" class="form-control" @bind-Value="material.Title" required />
+                                    <ValidationMessage For="@(() => material.Title)" />
+                                </div>
 
-                <div class="form-group mb-3">
-                    <label for="attribute-color" class="form-label">Mô tả</label>
-                    <InputText id="attribute-color" class="form-control" @bind-Value="material.Description" />
-                </div>
+                                <div class="form-group mb-3">
+                                    <label for="attribute-slug" class="form-label">Đường dẫn</label>
+                                    <InputText id="attribute-slug" class="form-control" @bind-Value="material.Slug" />
+                                    <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
+                                </div>
 
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">Thêm chất liệu</button>
+                                <div class="form-group mb-3">
+                                    <label for="attribute-color" class="form-label">Mô tả</label>
+                                    <InputText id="attribute-color" class="form-control" @bind-Value="material.Description" />
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary" style="float: right">
+                                        Thêm chất liệu
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
