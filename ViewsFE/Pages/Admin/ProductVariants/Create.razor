@@ -352,7 +352,6 @@
     {
         if (SelectedProductAttribute != null)
         {
-            // Gán ảnh đã chọn cho item hiện tại trong danh sách
             SelectedProductAttribute.Image = imagePath ?? string.Empty;
             StateHasChanged();
             await JS.InvokeVoidAsync("closeMediaModal");
@@ -360,7 +359,6 @@
     }
     private async Task SelectProductAttribute(Product_Attributes attribute)
     {
-        // Cập nhật đối tượng `SelectedProductAttribute` để chỉ vào item cần thay đổi
         SelectedProductAttribute = attribute;
         await JS.InvokeVoidAsync("openMediaModal");
     }

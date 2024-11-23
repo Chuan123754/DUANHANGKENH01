@@ -43,22 +43,25 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>
-                                            <button class="table-sort" @onclick='() => SortBy("Title")'>Tiêu đề</button>
+                                            <button class="table-sort">Tiêu đề</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" @onclick='() => SortBy("Author")'>Tác giả</button>
+                                            <button class="table-sort">Tác giả</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" @onclick='() => SortBy("Category")'>Chuyên mục</button>
+                                            <button class="table-sort">Chuyên mục</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" @onclick='() => SortBy("Tags")'>Thẻ</button>
+                                            <button class="table-sort">Thẻ</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" @onclick='() => SortBy("Status")'>Trạng thái</button>
+                                            <button class="table-sort">Trạng thái</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" @onclick='() => SortBy("Date")'>Ngày tạo</button>
+                                            <button class="table-sort">Ngày tạo</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Action</button>
                                         </th>
                                     </tr>
                                 </thead>
@@ -106,6 +109,9 @@
                                             </td>
                                             <td class="sort-date">
                                                 @post.Created_at
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary">DS Sản phẩm chi tiết</button>
                                             </td>
                                         </tr>
                                     }
@@ -169,10 +175,6 @@
     private async Task OnSearch()
     {
         product_posts_list = await ProductService.GetByTypeAsync("product", page_number, page_size, search_query);
-    }
-    private async Task SortBy(string column)
-    {
-
     }
     private async Task NavEditCtgr(long id)
     {

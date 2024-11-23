@@ -36,15 +36,25 @@
                                     <InputText id="color-slug" class="form-control" @bind-Value="color.Slug" />
                                     <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
                                 </div>
+                                
+                                <!-- Color Picker -->
+                                <div class="form-group mb-3">
+                                    <label for="color-picker" class="form-label">Bảng mã màu</label>
+                                    <input type="color" id="color-picker" class="form-control form-control-color" value="#000000" 
+                                           @onchange="OnColorChange" />
+                                </div>
+
                                 <!-- Color Code Field -->
                                 <div class="form-group mb-3">
                                     <label for="attribute-color_code" class="form-label">Mã màu</label>
                                     <InputText id="attribute-color_code" class="form-control" @bind-Value="color.Color_code" />
                                 </div>
+
                                 <div class="form-group mb-3">
                                     <label for="attribute-color" class="form-label">Mô tả</label>
                                     <InputText id="attribute-color" class="form-control" @bind-Value="color.Description" />
                                 </div>
+                                
                                 <div class="form-group">
                                     <button type="submit" class="btn btn-primary" style="float: right">
                                         Thêm màu sắc
@@ -75,5 +85,10 @@
             Console.WriteLine($"Error: {ex.Message}");
             await JS.InvokeVoidAsync("toastr.error", "Không thể thêm màu sắc. Vui lòng thử lại."); // Hiển thị thông báo lỗi
         }
+    }
+
+    private void OnColorChange(ChangeEventArgs e)
+    {
+        color.Color_code = e.Value?.ToString();
     }
 }

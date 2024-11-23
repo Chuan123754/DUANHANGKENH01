@@ -71,7 +71,7 @@
                         @if (isAddProductModalVisible)
                         {
                             <div class="modal fade show d-block" tabindex="-1" role="dialog">
-                                <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 75%; width: auto;">
+                                <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 85%; width: auto;">
                                     <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title">Thêm Sản Phẩm</h5>
@@ -88,8 +88,8 @@
                                         </div>
 
                                         <div class="modal-body">
-                                            <table class="table table-bordered">
-                                                <thead>
+                                            <table class="table table-bordered table-striped table-hover align-middle">
+                                                <thead class="table-light text-center">
                                                     <tr>
                                                         <th>Hình Ảnh</th>
                                                         <th>Tên Sản Phẩm</th>
@@ -108,36 +108,81 @@
                                                     @foreach (var product in lst_ProductAttributes)
                                                     {
                                                         <tr>
-                                                            <td><img src="@product.Image" alt="Hình ảnh" style="width: 130px; height: auto;" /></td>
-                                                            <td>@product.Product_Variant.Posts.Title</td>
-                                                            <td>@product.Product_Variant?.Description</td>
-                                                            <td>@product.Product_Variant?.Textile_Technology?.Title</td>
-                                                            <td>@product.Product_Variant?.Style?.Title</td>
-                                                            <td>@product.Product_Variant?.Material?.Title</td>
-                                                            <td>@product.Size?.Title</td>
-                                                            <td>@product.Color?.Title</td>
-                                                            <td>@product.Stock Tấm</td>
-                                                            <td>@string.Format("{0:N0}", product.Regular_price).Replace(".", ",") VNĐ</td>
+                                                            <td class="text-center">
+                                                                <img src="@product.Image" alt="Hình ảnh" style="width: 80px; height: auto; object-fit: cover; border-radius: 4px;" />
+                                                            </td>
+                                                            <td class="text-truncate" style="max-width: 150px;">
+                                                                @product.Product_Variant.Posts.Title
+                                                            </td>
+                                                            <td class="text-truncate" style="max-width: 200px;">
+                                                                @product.Product_Variant?.Description
+                                                            </td>
+                                                            <td class="text-truncate text-center">
+                                                                @product.Product_Variant?.Textile_Technology?.Title
+                                                            </td>
+                                                            <td class="text-truncate text-center">
+                                                                @product.Product_Variant?.Style?.Title
+                                                            </td>
+                                                            <td class="text-truncate text-center">
+                                                                @product.Product_Variant?.Material?.Title
+                                                            </td>
+                                                            <td class="text-center">@product.Size?.Title</td>
+                                                            <td class="text-center">
+                                                                <div class="d-flex align-items-center justify-content-center">
+                                                                    <span class="text-truncate">@product.Color?.Title</span>
+                                                                    <div class="color-preview"
+                                                                         style="width: 16px; height: 16px; background-color: @product.Color?.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td class="text-center">@product.Stock</td>
+                                                            <td class="text-end">
+                                                                @if (product.Sale_price != null && product.Sale_price > 0)
+                                                                {
+                                                                <div>
+                                                                    <span style="text-decoration: line-through; color: gray;">
+                                                                            @string.Format("{0:N0}", product.Regular_price).Replace(".", ",") VNĐ
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    <span style="font-weight: bold; color: red;">
+                                                                            @string.Format("{0:N0}", product.Sale_price).Replace(".", ",") VNĐ
+                                                                    </span>
+                                                                </div>
+                                                                }
+                                                                else
+                                                                {
+                                                                <div>
+                                                                    <span>
+                                                                            @string.Format("{0:N0}", product.Regular_price).Replace(".", ",") VNĐ
+                                                                    </span>
+                                                                </div>
+                                                                }
+                                                            </td>
                                                             <td>
-                                                                <div class="input-group d-inline-flex align-items-center">
-                                                                    <input type="number" class="form-control text-center" style="width: 60px;"
+                                                               @*  <div class="input-group d-flex align-items-center justify-content-center">
+                                                                    <input type="number"
+                                                                           class="form-control text-center"
+                                                                           style="width: 40px;"
                                                                            value="@(productQuantities.ContainsKey(product.Id) ? productQuantities[product.Id] : 1)"
                                                                            @oninput="(e) => UpdateQuantity(product.Id, int.TryParse(e.Value?.ToString(), out var value) ? value : 1)"
                                                                            min="1" />
-                                                                    <button class="btn btn-primary ms-2" @onclick="() => AddProduct(order_Details, product.Id)">Chọn</button>
-                                                                </div>
+                                                                </div> *@
+                                                                <button class="btn btn-sm btn-primary ms-2"
+                                                                        @onclick="() => AddProduct(order_Details, product.Id)">
+                                                                    Chọn
+                                                                </button>
                                                             </td>
-
-
-
                                                         </tr>
                                                     }
                                                 </tbody>
                                             </table>
-                                            <div class="mt-4">
+
+                                            <div class="mt-4 text-center">
                                                 <PaginationMediaModal TItem="Product_Attributes" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
                                             </div>
                                         </div>
+
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" @onclick="CloseAddProductModal">Đóng</button>
                                         </div>
@@ -192,13 +237,55 @@
                                             <td>@item.ProductAttributes.Product_Variant.Material.Title </td>
                                             <td>@item.ProductAttributes.Product_Variant.Textile_Technology.Title </td>
                                             <td>@item.ProductAttributes.Product_Variant.Style.Title </td>
-                                            <td>@item.ProductAttributes.Color.Title</td>
+                                            <td class="sort-city">
+                                                <div class="d-flex align-items-center">
+                                                    <span>@item.ProductAttributes.Color.Title</span>
+                                                    <div class="color-preview"
+                                                         style="width: 24px; height: 24px; background-color: @item.ProductAttributes.Color.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
+                                                    </div>
+                                                </div>
+                                            </td>
                                             <td>@item.ProductAttributes.Size.Title</td>
                                             <td>@item.Quantity </td>
-                                            <td>
-                                                @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Regular_price)).Replace(".", ",") VNĐ
+                                            <td class="text-end">
+                                                @if (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
+                                                {
+                                                    <div>
+                                                        <span style="text-decoration: line-through; color: gray;">
+                                                            @string.Format("{0:N0}", item.ProductAttributes.Regular_price).Replace(".", ",") VNĐ
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span style="font-weight: bold; color: red;">
+                                                            @string.Format("{0:N0}", item.ProductAttributes.Sale_price).Replace(".", ",") VNĐ
+                                                        </span>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div>
+                                                        <span>
+                                                            @string.Format("{0:N0}", item.ProductAttributes.Regular_price).Replace(".", ",") VNĐ
+                                                        </span>
+                                                    </div>
+                                                }
                                             </td>
-
+                                            <td class="text-end">
+                                                @if (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
+                                                {
+                                                    <span>
+                                                        @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Sale_price)).Replace(".", ",") VNĐ
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span>
+                                                        @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Regular_price)).Replace(".", ",") VNĐ
+                                                    </span>
+                                            
+                                              
+                                                 }
+                                            </td>
                                             <td>
 
                                                 <button class="btn btn-danger" @onclick="() => DeleteOrderDetail(item.Id)">
@@ -774,7 +861,13 @@
     {
         selectedOrderId = orderId;
         lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId); 
-        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
+        // tỉnh tổng tiền ( nếu giá giảm thì tính giá giảm , nếu giá gốc thì tính giá gốc)
+        totalAmount = lst_OrderDetail.Sum(item =>
+         item.Quantity *
+         ((item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
+             ? (decimal)item.ProductAttributes.Sale_price.Value
+             : (decimal)item.ProductAttributes.Regular_price)
+     );
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate?.User_id != null)
         {
@@ -804,8 +897,6 @@
         }
 
         var addressString = orderToUpdate.Users?.Address;
-
-        // Kiểm tra chuỗi đầu vào
         if (!string.IsNullOrEmpty(addressString) && long.TryParse(addressString, out long addressId))
         {
             var address = await addressService.GetAddressById(addressId);
@@ -820,27 +911,7 @@
         }
         else
         {
-            // Xử lý khi Address không hợp lệ
             ClearInfoAddress();
-        }
-
-        if (orderToUpdate != null)
-        {
-            foreach (var item in lst_OrderDetail)
-            {
-                var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
-                if (product != null)
-                {
-                    if (item.Quantity > product.Stock)
-                    {
-                        await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.Product_Variant.Posts.Title} trong kho không đủ.");
-                        return;
-                    }
-
-                    product.Stock -= item.Quantity; // Trừ số lượng trong kho
-                    await productAttributeService.Update(product, product.Id);
-                }
-            }
         }
         await LoadOrderDetails();
 
@@ -894,14 +965,28 @@
     private async Task LoadOrderDetails() // danh sách đơn hàng chi tiết của đơn hàng được chọn
     {
         lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
-        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
+        totalAmount = lst_OrderDetail.Sum(item =>
+           {
+           decimal price = (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
+               ? (decimal)item.ProductAttributes.Sale_price.Value 
+               : (decimal)(item.ProductAttributes.Regular_price ?? 0); 
+
+           return item.Quantity * price; 
+           });
         StateHasChanged();
     }
     protected override async Task OnInitializedAsync()
     {
         await LoadPosts();
         await LoadOrders();
-        var totalAmount = lst_OrderDetail.Sum(item => item.Quantity * item.ProductAttributes.Regular_price);
+        totalAmount = lst_OrderDetail.Sum(item =>
+             {
+                 decimal price = (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
+                     ? (decimal)item.ProductAttributes.Sale_price.Value // Giá giảm
+                     : (decimal)(item.ProductAttributes.Regular_price ?? 0); // Giá gốc hoặc 0 nếu null
+
+                 return item.Quantity * price; 
+             });
         lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
         lst_Customer = await userService.GetAll();
         provinces = await address_Service.GetProvincesAsync();
@@ -921,7 +1006,14 @@
     private async Task DeleteOrderDetail(long id) // xóa orderdetail
     {
         await orderDetailService.Delete(id);
-        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
+        totalAmount = lst_OrderDetail.Sum(item =>
+         {
+         decimal price = (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
+             ? (decimal)item.ProductAttributes.Sale_price.Value 
+             : (decimal)(item.ProductAttributes.Regular_price ?? 0); 
+
+         return item.Quantity * price; 
+         });
         await LoadOrderDetails();
     }
     private async Task CreateOrder()
@@ -1026,8 +1118,15 @@
         }
 
         await LoadOrderDetails();
-        productQuantities[productAttributeId] = 0;
-        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 1);
+        productQuantities[productAttributeId] = 1;
+        totalAmount = lst_OrderDetail.Sum(item =>
+        {
+            decimal price = (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
+                ? (decimal)item.ProductAttributes.Sale_price.Value 
+                : (decimal)(item.ProductAttributes.Regular_price ?? 0);
+
+            return item.Quantity * price; 
+        });
     }
     private async void ShowListCustomerModal()
     {
@@ -1068,7 +1167,14 @@
 
         // Cập nhật lại thông tin đơn hàng
         lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
-        totalAmount = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
+        totalAmount = lst_OrderDetail.Sum(item =>
+          {
+          decimal price = (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
+              ? (decimal)item.ProductAttributes.Sale_price.Value 
+              : (decimal)(item.ProductAttributes.Regular_price ?? 0); 
+
+          return item.Quantity * price; 
+          });
         await LoadOrders();
     }
     private async void CreateCustomer()
@@ -1128,13 +1234,12 @@
                 orderToUpdate.Status = "Đã thanh toán";
             }
             orderToUpdate.TotalAmount = totalAmount;         
-            await orderService.Update(orderToUpdate, orderToUpdate.Id);
             foreach (var item in lst_OrderDetail)
             {
                 var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
                 if (product != null)
                 {
-                    if (item.Quantity > product.Stock)
+                    if (item.Quantity > product.Stock || product.Stock==0)
                     {
                         await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.Product_Variant.Posts.Title} trong kho không đủ.");
                         return;
@@ -1143,6 +1248,7 @@
                     await productAttributeService.Update(product, product.Id);
                 }
             }
+            await orderService.Update(orderToUpdate, orderToUpdate.Id);
         }
         selectedOrderId = 0;  
         customerName = "";
