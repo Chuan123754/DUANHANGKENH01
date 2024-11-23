@@ -687,13 +687,8 @@
                                                 <div class="d-flex justify-content-between">
                                                     <span><strong>Thời gian nhận hàng dự kiến:</strong> 23-12-2023</span>
                                                 </div>
-                                                <div class="d-flex justify-content-between">
-                                                    <span><strong>Phí giao hàng:</strong> 34,000 đ</span>
-                                                </div>
                                             </div>
                                         </form>
-
-
                                     </div>
                                 </div>
                             </div>
@@ -738,17 +733,9 @@
                                                     <strong>Tiền hàng :</strong>
                                                 </div>
                                             </td>
-                                            <td class="text-nowrap text-secondary"> @totalAmount.ToString("N0").Replace(".", ",") VND</td>
-
-                                        </tr>
-                                        <tr>
-                                            <td class="td-truncate">
-                                                <div class="text-truncate">
-                                                    <strong>Phí vận chuyển :</strong>
-                                                </div>
+                                            <td class="text-nowrap text-secondary">
+                                                <strong>@totalPrincipal.ToString("N0").Replace(".", ",") VND</strong>
                                             </td>
-                                            <td class="text-nowrap text-secondary"> 0 VND</td>
-
                                         </tr>
                                         <tr>
                                             <td class="td-truncate">
@@ -756,16 +743,38 @@
                                                     <strong>Số tiền giảm :</strong>
                                                 </div>
                                             </td>
-                                            <td class="text-nowrap text-secondary"> 0 VND</td>
-
+                                            <td class="text-nowrap text-danger">
+                                                <strong>@discountAmount.ToString("N0").Replace(".", ",") VNĐ</strong>
+                                            </td>
                                         </tr>
+                                        <tr>
+                                            <td class="td-truncate">
+                                                <div class="text-truncate">
+                                                    <strong>Phí vận chuyển :</strong>
+                                                </div>
+                                            </td>
+                                            @if(isDeliveryVisible)
+                                            {
+                                                <td class="text-nowrap text-secondary"> <strong>@feeShipping.ToString("N0").Replace(".", ",") VND</strong></td>
+                                            }
+                                            else
+                                            {
+                                                <td class="text-nowrap text-secondary"> <strong>0 VNĐ</strong></td>                                                
+                                            }
+                                        </tr>
+                                
                                         <tr>
                                             <td class="td-truncate">
                                                 <div class="text-truncate">
                                                     <strong>Tổng tiền :</strong>
                                                 </div>
                                             </td>
-                                            <td class="text-nowrap text-secondary"> @totalAmount.ToString("N0").Replace(".", ",") VNĐ</td>
+                                            <td class="text-nowrap text-primary">
+                                                <strong style="font-weight: bold; font-size: 1.5em;">
+                                                    @totalMoney.ToString("N0").Replace(".", ",") VNĐ
+                                                </strong>
+                                            </td>
+
                                         </tr>
 
                                     </tbody>
@@ -820,7 +829,12 @@
     private bool isCreateAddress = false; // model tạo mới địa chỉ
     private bool isDeliveryVisible = false;
     private Dictionary<long, int> productQuantities = new Dictionary<long, int>();
-    private decimal totalAmount = 0;
+    private decimal totalAmount = 0; // tổng tiền hàng đã giảm
+    private decimal totalPrincipal = 0; // tổng tiền hàng chưa giảm
+    decimal discountAmount = 0 ; // tiền được giảm 
+    private int totalQuantity = 0;
+    private decimal feeShipping = 0;
+    private decimal totalMoney = 0;
     private IEnumerable<Product_Attributes> paged_Orders;
     private List<Product_Attributes> pageProductAttributes = new List<Product_Attributes>();
     private string search_query = string.Empty;
@@ -862,13 +876,6 @@
     {
         selectedOrderId = orderId;
         lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId); 
-        // tỉnh tổng tiền ( nếu giá giảm thì tính giá giảm , nếu giá gốc thì tính giá gốc)
-        totalAmount = lst_OrderDetail.Sum(item =>
-         item.Quantity *
-         ((item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
-             ? (decimal)item.ProductAttributes.Sale_price.Value
-             : (decimal)item.ProductAttributes.Regular_price)
-     );
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate?.User_id != null)
         {
@@ -891,12 +898,13 @@
         if (orderToUpdate.Note == "Giao hàng")
         {
             IsDeliveryVisible = true;  
+            totalMoney = feeShipping + totalAmount;
         }
         else
         {
             IsDeliveryVisible = false;
+            totalMoney = totalAmount;
         }
-
         var addressString = orderToUpdate.Users?.Address;
         if (!string.IsNullOrEmpty(addressString) && long.TryParse(addressString, out long addressId))
         {
@@ -915,7 +923,6 @@
             ClearInfoAddress();
         }
         await LoadOrderDetails();
-
     }
     private async Task UpdateQuantity(long productId, int quantity)
     {
@@ -966,28 +973,14 @@
     private async Task LoadOrderDetails() // danh sách đơn hàng chi tiết của đơn hàng được chọn
     {
         lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
-        totalAmount = lst_OrderDetail.Sum(item =>
-           {
-           decimal price = (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
-               ? (decimal)item.ProductAttributes.Sale_price.Value 
-               : (decimal)(item.ProductAttributes.Regular_price ?? 0); 
-
-           return item.Quantity * price; 
-           });
+        CalculateTotalMoney();
         StateHasChanged();
     }
     protected override async Task OnInitializedAsync()
     {
         await LoadPosts();
         await LoadOrders();
-        totalAmount = lst_OrderDetail.Sum(item =>
-             {
-                 decimal price = (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
-                     ? (decimal)item.ProductAttributes.Sale_price.Value // Giá giảm
-                     : (decimal)(item.ProductAttributes.Regular_price ?? 0); // Giá gốc hoặc 0 nếu null
-
-                 return item.Quantity * price; 
-             });
+        CalculateTotalMoney();
         lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
         lst_Customer = await userService.GetAll();
         provinces = await address_Service.GetProvincesAsync();
@@ -1007,14 +1000,7 @@
     private async Task DeleteOrderDetail(long id) // xóa orderdetail
     {
         await orderDetailService.Delete(id);
-        totalAmount = lst_OrderDetail.Sum(item =>
-         {
-         decimal price = (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
-             ? (decimal)item.ProductAttributes.Sale_price.Value 
-             : (decimal)(item.ProductAttributes.Regular_price ?? 0); 
-
-         return item.Quantity * price; 
-         });
+        CalculateTotalMoney();
         await LoadOrderDetails();
     }
     private async Task CreateOrder()
@@ -1046,6 +1032,14 @@
                 isDeliveryVisible = value;
                 orders.Note = isDeliveryVisible ? "Giao hàng" : "Tại quầy";
                 _ = UpdateOrderNote(); 
+                if (isDeliveryVisible)
+                {
+                    totalMoney = feeShipping + totalAmount;
+                }
+                else
+                {
+                    totalMoney = totalAmount;
+                }
                 StateHasChanged(); 
             }
         }
@@ -1120,14 +1114,7 @@
 
         await LoadOrderDetails();
         productQuantities[productAttributeId] = 1;
-        totalAmount = lst_OrderDetail.Sum(item =>
-        {
-            decimal price = (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
-                ? (decimal)item.ProductAttributes.Sale_price.Value 
-                : (decimal)(item.ProductAttributes.Regular_price ?? 0);
-
-            return item.Quantity * price; 
-        });
+        CalculateTotalMoney();
     }
     private async void ShowListCustomerModal()
     {
@@ -1168,15 +1155,34 @@
 
         // Cập nhật lại thông tin đơn hàng
         lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
-        totalAmount = lst_OrderDetail.Sum(item =>
-          {
-          decimal price = (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
-              ? (decimal)item.ProductAttributes.Sale_price.Value 
-              : (decimal)(item.ProductAttributes.Regular_price ?? 0); 
-
-          return item.Quantity * price; 
-          });
         await LoadOrders();
+        CalculateTotalMoney();
+    }
+    // tính tiền checkout
+    private async void CalculateTotalMoney()
+    {
+        totalAmount = lst_OrderDetail.Sum(item =>
+         {
+             decimal price = (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
+             ? (decimal)item.ProductAttributes.Sale_price.Value
+             : (decimal)(item.ProductAttributes.Regular_price ?? 0);
+
+             return item.Quantity * price;
+         });
+        totalQuantity = lst_OrderDetail.Sum(item => item.Quantity);
+        feeShipping = CalculateShippingFee();
+        // tiền hàng
+        totalPrincipal = lst_OrderDetail.Sum(item => (item.Quantity * item.ProductAttributes.Regular_price) ?? 0);
+        discountAmount = totalPrincipal - totalAmount;
+        if (isDeliveryVisible)
+        {
+            totalMoney = feeShipping + totalAmount;
+        }
+        else
+        {
+            totalMoney = totalAmount;
+
+        }
     }
     private async void CreateCustomer()
     {
@@ -1207,6 +1213,7 @@
     {
         isCreateCustomerModalVisible = false;
     }
+    // thanh toán
     private async void CheckOut()
     {
         await LoadOrderDetails();
@@ -1224,7 +1231,6 @@
 
         if (orderToUpdate != null)
         {
-            orderToUpdate.TotalAmount = totalAmount;
             orderToUpdate.TotalAmount = totalAmount;
             if (isDeliveryVisible)
             {
@@ -1254,6 +1260,11 @@
         selectedOrderId = 0;  
         customerName = "";
         totalAmount = 0;
+        totalQuantity = 0;
+        totalMoney = 0;
+        feeShipping = 0;
+        totalPrincipal = 0;
+        discountAmount = 0;
         isCustomerAdded = false;  
         lst_OrderDetail.Clear();    
         productQuantities.Clear();  
@@ -1274,6 +1285,34 @@
         await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
         }
   
+    }
+    // tính tiền vận chuyển
+    private decimal CalculateShippingFee()
+    {
+        const decimal baseShippingFee = 38000m; 
+        feeShipping = baseShippingFee;
+
+        if (totalQuantity > 10 && totalQuantity <= 20)
+        {
+            feeShipping += (totalQuantity - 10) * 5000m;
+        }
+        else if (totalQuantity > 20 && totalQuantity <= 30)
+        {
+            feeShipping += (totalQuantity - 10) * 5000m;
+            feeShipping -= feeShipping * 0.30m;
+        }
+        else if (totalQuantity > 30 && totalQuantity <= 50)
+        {
+            feeShipping += (totalQuantity - 10) * 5000m;
+            feeShipping -= feeShipping * 0.50m;
+        }
+        else if (totalQuantity > 50)
+        {
+            feeShipping += (totalQuantity - 10) * 5000m;
+            feeShipping -= feeShipping * 0.70m;
+        }
+
+        return feeShipping;
     }
     private async Task ShowAddress()
     {
@@ -1304,12 +1343,11 @@
     }
     private async Task CreateAddress()
     {
-        if (string.IsNullOrEmpty(address.Ward_commune) || string.IsNullOrEmpty(address.Street))
+        if (string.IsNullOrEmpty(address.Ward_commune) || string.IsNullOrEmpty(address.Province_city) || string.IsNullOrEmpty(address.District))
         {
             await JS.InvokeVoidAsync("toastr.error", "Vui lòng nhập đầy đủ thông tin địa chỉ.");
             return;
         }
-
         var order = await orderService.GetByIdOrders(selectedOrderId);
         if (order?.User_id.HasValue == true)
         {
@@ -1326,7 +1364,6 @@
 
             if (result)
             {
-
                 await JS.InvokeVoidAsync("toastr.success", "Địa chỉ đã được tạo thành công.");
                 isCreateAddress = false;
                 lst_Address = await addressService.GetAddressByUserId(order.User_id.Value);
@@ -1340,13 +1377,11 @@
         {
             await JS.InvokeVoidAsync("toastr.error", "Không tìm thấy người dùng liên kết với đơn hàng.");
         }
-
     }
     private void CloseCreateAddress()
     {
         isCreateAddress = false;
     }
-
     // tách được đoạn code này ra chỗ khác thì càng tốt 
     private List<Province> provinces = new List<Province>();
     private List<Districted> districts = new List<Districted>();
@@ -1355,7 +1390,6 @@
     private bool hasDistricts = false;
     private bool hasWards = false;
     [Inject] private AddressService address_Service { get; set; }
-
     private async Task OnProvinceChange(ChangeEventArgs e)
     {
         var selectedProvinceId = e.Value?.ToString();
@@ -1387,7 +1421,6 @@
             address.Ward_commune = selectedWardId;
         }
     }
-
     // Các biến để bind vào form
     private string city;
     private string district;
@@ -1407,7 +1440,6 @@
             street = address.Street;
             phone = address.User?.Phone;
         }
-
         isChooseAddress = false;
     }
     private void ClearInfoAddress()
