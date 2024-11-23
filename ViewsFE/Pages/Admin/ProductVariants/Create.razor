@@ -204,11 +204,9 @@
                             <thead>
                                 <tr>
                                     <th>SKU</th>
-                                    <th>Trạng Thái</th>
                                     <th>Màu Sắc</th>
                                     <th>Kích Thước</th>
                                     <th>Hình Ảnh</th>
-                                    <th>Gía gốc</th>
                                     <th>Gía bán</th>
                                     <th>Số lượng kho</th>
                                     <th>Hành Động</th>
@@ -220,9 +218,6 @@
                                     <tr>
                                         <td>
                                             <input type="text" @bind="@item.SKU" class="form-control" />
-                                        </td>
-                                        <td>
-                                            <input type="text" @bind="@item.Status" class="form-control" />
                                         </td>
                                         <td>@item.Color?.Title</td>
                                         <td>@item.Size?.Title</td>
@@ -250,10 +245,14 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <input type="text" @bind="@item.Regular_price" class="form-control" />
-                                        </td>
-                                        <td>
-                                            <input type="text" @bind="@item.Sale_price" class="form-control" />
+                                            <div class="input-group">
+                                                <input type="text"
+                                                       class="form-control"
+                                                       value="@string.Format("{0:N0}", item.Regular_price).Replace(".", ",")"
+                                                       @oninput="FormatCurrency"
+                                                       @onchange="UpdatePrice" />
+                                                <span class="input-group-text">VNĐ</span>
+                                            </div>
                                         </td>
                                         <td>
                                             <input type="text" @bind="@item.Stock" class="form-control" />
@@ -298,6 +297,33 @@
     private long IdProductVariantCreated; // biến lưu id sản phẩm vừa tạo được
     private bool isProductAttributesCreated = false;
 
+
+    private void FormatCurrency(ChangeEventArgs e)
+    {
+        foreach(var product in LST_ProductAttributes)
+        {
+            var input = e.Value?.ToString() ?? string.Empty;
+            input = new string(input.Where(char.IsDigit).ToArray());
+            if (long.TryParse(input, out var parsedValue))
+            {
+                product.Regular_price = parsedValue;
+            }
+        }
+
+    }
+
+    private void UpdatePrice(ChangeEventArgs e)
+    {
+        foreach(var product in LST_ProductAttributes)
+        {
+            var input = e.Value?.ToString().Replace(",", "").Replace(".", "");
+            if (decimal.TryParse(input, out var parsedPrice))
+            {
+                product.Regular_price = (long?)Convert.ToInt64(parsedPrice);
+            }
+        }
+
+    }
     protected override async Task OnInitializedAsync()
     {
         product_posts_list = await post.GetByTypeAsync("product", page_number, page_size, search_query);
@@ -458,13 +484,6 @@
                 return;
             }
 
-            if (item.Sale_price == null)
-            {
-                await JS.InvokeVoidAsync("toastr.error", $"Giá giảm cho SKU {item.SKU} không được để trống.");
-                return;
-            }
-
-            // Kiểm tra các điều kiện về Số lượng, Giá bán, và Giá giảm
             if (item.Stock <= 0)
             {
                 await JS.InvokeVoidAsync("toastr.error", $"Số lượng cho SKU {item.SKU} phải lớn hơn 0.");
@@ -474,11 +493,6 @@
             if (item.Regular_price <= 0)
             {
                 await JS.InvokeVoidAsync("toastr.error", $"Giá giảm cho SKU {item.SKU} phải lớn hơn 0");
-                return;
-            }
-            if (item.Sale_price > item.Regular_price)
-            {
-                await JS.InvokeVoidAsync("toastr.error", $"Giá bán cho SKU {item.SKU} không được lớn hơn giá bán.");
                 return;
             }
 
