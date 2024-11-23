@@ -46,7 +46,7 @@
                                 <div class="mb-3">
                                     @*Tên sản phẩm *@
                                     <label class="form-label">Chọn Sản Phẩm <span class="text-danger">*</span></label>
-                                    <select class="form-select" @bind="product.Post_Id" disabled="@isProductVariantCreated">
+                                    <select class="form-select" @onchange="OnProductChange" disabled="@isProductVariantCreated">
                                         <option value="">Chọn sản phẩm</option>
                                         @foreach (var item in product_posts_list)
                                         {
@@ -88,7 +88,7 @@
                                     <label for="description" class="form-label"> Mô tả</label>
                                     <InputText @bind-Value="product.Description" class="form-control" disabled="@isProductVariantCreated" />
                                 </div>
-                                <button class="btn btn-primary" @onclick="CreateProductVariant">Tạo Product Variant</button>
+                                <button class="btn btn-primary" @onclick="CreateProductVariant">Tạo sản phẩm</button>
                             </div>
                         </div>
                     </div>
@@ -97,7 +97,7 @@
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#designerImage" aria-expanded="true">
-                                        Ảnh nhà thiết kế
+                                        Ảnh sản phẩm
                                     </button>
                                 </h2>
 
@@ -105,12 +105,12 @@
                                     <div class="accordion-body pt-0">
                                         <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
                                              onclick="openMediaModal()">
-                                           @*  @if (!string.IsNullOrEmpty(product_Attributes.Image))
+                                            @if (product?.Posts?.Feature_image != null && !string.IsNullOrEmpty(product.Posts.Feature_image))
                                             {
-                                                <img src="@product_Attributes.Image" class="w-100 h-100 object-cover" />
+                                                <img src="@product.Posts.Feature_image" class="w-100 h-100 object-cover" />
                                             }
                                             else
-                                            { *@
+                                            {
                                                 <div class="icon d-flex align-items-center justify-content-center">
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
                                                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -118,83 +118,81 @@
                                                         <path d="M5 12h14" />
                                                     </svg>
                                                 </div>
-                                       @*      } *@
+                                            }
                                         </div>
-
                                     </div>
                                 </div>
+
+                                @if (isProductVariantCreated)   
+                                {
+                                    <div class="accordion bg-white mb-3">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header">
+                                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#category" aria-expanded="true">
+                                                    Biến thể sản phẩm
+                                                </button>
+                                            </h2>
+                                            <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                                <div class="accordion-body pt-0">
+                                                    <div class="form-group mb-3">
+                                                        <label class="form-label">Chọn Màu Sắc <span class="text-danger">*</span></label>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="colorDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                Chọn màu sắc
+                                                            </button>
+                                                            <ul class="dropdown-menu" aria-labelledby="colorDropdown">
+                                                                @foreach (var color in colorList)
+                                                                {
+                                                                    <li>
+                                                                        <div class="form-check d-flex justify-content-between align-items-center">
+                                                                            <!-- Thêm màu sắc -->
+                                                                            <label class="form-check-label d-flex align-items-center" for="color-@color.Id">
+                                                                                <span class="color-box" style="background-color:@color.Color_code; width: 20px; height: 20px; margin-right: 10px; border-radius: 50%;"></span>
+                                                                                @color.Title
+                                                                            </label>
+                                                                            <input type="checkbox"
+                                                                                   id="color-@color.Id"
+                                                                                   @onchange="(e) => OnColorSelectionChanged(color.Id, e.Value)" />
+                                                                        </div>
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group mb-3">
+                                                        <label class="form-label">Chọn Kích Thước <span class="text-danger">*</span></label>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="sizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                Chọn kích thước
+                                                            </button>
+                                                            <ul class="dropdown-menu" aria-labelledby="sizeDropdown">
+                                                                @foreach (var size in sizeList)
+                                                                {
+                                                                    <li>
+                                                                        <div class="form-check d-flex justify-content-between align-items-center">
+
+                                                                            <label class="form-check-label d-flex align-items-center" for="size-@size.Id">
+                                                                                @size.Title
+                                                                            </label>
+                                                                            <input type="checkbox"
+                                                                                   id="size-@size.Id"
+                                                                                   @onchange="(e) => OnSizeSelectionChanged(size.Id, e.Value)" />
+                                                                        </div>
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <button class="btn btn-primary" @onclick="CreateProductAttributes">Tạo biến thể</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
-
-                    @*               BIẾN THỂ *@
-                    @if (isProductVariantCreated)
-                    {
-                        <div class="accordion bg-white mb-3">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#category" aria-expanded="true">
-                                        Biến thể sản phẩm
-                                    </button>
-                                </h2>
-                                <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
-                                    <div class="accordion-body pt-0">
-                                        <div class="form-group mb-3">
-                                            <label class="form-label">Chọn Màu Sắc <span class="text-danger">*</span></label>
-                                            <div class="dropdown">
-                                                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="colorDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    Chọn màu sắc
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="colorDropdown">
-                                                    @foreach (var color in colorList)
-                                                    {
-                                                        <li>
-                                                            <div class="form-check d-flex justify-content-between align-items-center">
-                                                                <!-- Thêm màu sắc -->
-                                                                <label class="form-check-label d-flex align-items-center" for="color-@color.Id">
-                                                                    <span class="color-box" style="background-color:@color.Color_code; width: 20px; height: 20px; margin-right: 10px; border-radius: 50%;"></span>
-                                                                    @color.Title
-                                                                </label>
-                                                                <input type="checkbox"
-                                                                       id="color-@color.Id"
-                                                                       @onchange="(e) => OnColorSelectionChanged(color.Id, e.Value)" />
-                                                            </div>
-                                                        </li>
-                                                    }
-                                                </ul>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group mb-3">
-                                            <label class="form-label">Chọn Kích Thước <span class="text-danger">*</span></label>
-                                            <div class="dropdown">
-                                                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="sizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                    Chọn kích thước
-                                                </button>
-                                                <ul class="dropdown-menu" aria-labelledby="sizeDropdown">
-                                                    @foreach (var size in sizeList)
-                                                    {
-                                                        <li>
-                                                            <div class="form-check d-flex justify-content-between align-items-center">
-
-                                                                <label class="form-check-label d-flex align-items-center" for="size-@size.Id">
-                                                                    @size.Title
-                                                                </label>
-                                                                <input type="checkbox"
-                                                                       id="size-@size.Id"
-                                                                       @onchange="(e) => OnSizeSelectionChanged(size.Id, e.Value)" />
-                                                            </div>
-                                                        </li>
-                                                    }
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <button class="btn btn-primary" @onclick="CreateProductAttributes">Tạo biến thể</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
                 </div>
                 @if (isProductAttributesCreated)
                 {
@@ -225,21 +223,14 @@
                                             <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                                 <div class="accordion-body pt-0">
                                                     <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
-                                                         @onclick="() => SelectProductAttribute(item)">
-                                                        @if (!string.IsNullOrEmpty(item.Image))
-                                                        {
-                                                            <img src="@item.Image" class="w-20 h-20 object-cover" />
-                                                        }
-                                                        else
-                                                        {
-                                                            <div class="icon d-flex align-items-center justify-content-center">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
-                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                    <path d="M12 5v14" />
-                                                                    <path d="M5 12h14" />
-                                                                </svg>
-                                                            </div>
-                                                        }
+                                                         onclick="openMediaModal()">
+                                                        <div class="icon d-flex align-items-center justify-content-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M12 5v14" />
+                                                                <path d="M5 12h14" />
+                                                            </svg>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -309,7 +300,6 @@
                 product.Regular_price = parsedValue;
             }
         }
-
     }
 
     private void UpdatePrice(ChangeEventArgs e)
@@ -340,8 +330,23 @@
         {
             sizeSelections[size.Id] = false;
         }
+    }
+    private async Task OnProductChange(ChangeEventArgs e)
+    {
+        var selectedProductIdString = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedProductIdString) &&
+       long.TryParse(selectedProductIdString, out var selectedProductId))
+        {
+            var selectedProduct = product_posts_list.FirstOrDefault(p => p.Id == selectedProductId);
 
-
+            if (selectedProduct != null)
+            {
+                product.Post_Id = selectedProduct.Id;
+                product.Posts = selectedProduct;
+                product.Posts.Feature_image = selectedProduct.Feature_image;
+            }
+        }
+        StateHasChanged();
     }
     private async Task HandleImageSelected(string imagePath)
     {
