@@ -119,14 +119,15 @@
                                                             <td>@product.Stock Tấm</td>
                                                             <td>@string.Format("{0:N0}", product.Regular_price).Replace(".", ",") VNĐ</td>
                                                             <td>
-                                                                <div class="input-group">
-                                                                    <input type="number" class="form-control text-center" style="width: 100px;"
+                                                                <div class="input-group d-inline-flex align-items-center">
+                                                                    <input type="number" class="form-control text-center" style="width: 60px;"
                                                                            value="@(productQuantities.ContainsKey(product.Id) ? productQuantities[product.Id] : 1)"
                                                                            @oninput="(e) => UpdateQuantity(product.Id, int.TryParse(e.Value?.ToString(), out var value) ? value : 1)"
                                                                            min="1" />
+                                                                    <button class="btn btn-primary ms-2" @onclick="() => AddProduct(order_Details, product.Id)">Chọn</button>
                                                                 </div>
-                                                                <button class="btn btn-primary mt-2" @onclick="() => AddProduct(order_Details, product.Id)">Chọn</button>
                                                             </td>
+
 
 
                                                         </tr>
