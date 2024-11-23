@@ -52,7 +52,7 @@
                                             <button class="table-sort" data-sort="sort-city">Mô tả</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-date">Thời gian</button>
+                                            <button class="table-sort" data-sort="sort-date">Ngày tạo</button>
                                         </th>
                                     </tr>
                                 </thead>
@@ -65,14 +65,21 @@
                                             <td>
                                                 <span> @c.Title</span>
                                                 <br />
-                                                <!-- Tạo các hành động sửa và xóa cho sản phẩm con -->
                                                 <div class="cell-action">
                                                     <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(c.Id)">Chỉnh sửa</a>
                                                     <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(c.Id)">Thùng rác</a>
                                                 </div>
                                             </td>
                                             <td class="sort-slug">@c.Slug</td>
-                                            <td class="sort-city">@c.Description</td>
+                                            <td class="sort-city">
+                                                <div class="d-flex align-items-center">
+                                                    <span>@c.Description</span>
+                                                    <div class="color-preview"
+                                                         style="width: 24px; height: 24px; background-color: @c.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
+                                                    </div>
+                                                </div>
+                                            </td>
+
                                             <td class="sort-date">@c.Create_at.ToString("dd/MM/yyyy HH:mm")</td>
                                         </tr>
                                     }
