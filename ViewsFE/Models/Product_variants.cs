@@ -31,13 +31,10 @@ namespace ViewsFE.Models
         [JsonIgnore]
         public virtual Product_Posts? Posts { get; set; }
         [ForeignKey("Style_id")]
-        [JsonIgnore]
         public virtual Style? Style { get; set; }
         [ForeignKey("Material_id")]
-        [JsonIgnore]
         public virtual Material? Material { get; set; }
         [ForeignKey("Textile_technology_id")]
-        [JsonIgnore]
         public virtual Textile_technology? Textile_Technology { get; set; }
         [JsonIgnore]
         public virtual ICollection<P_attribute_discount> p_variants_discount { get; set; } = new List<P_attribute_discount>();

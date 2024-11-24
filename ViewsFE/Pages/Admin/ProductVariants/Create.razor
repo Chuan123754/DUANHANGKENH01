@@ -23,7 +23,7 @@
         margin-right: 3px;
     }
 </style>
-<EditForm Model="product" OnValidSubmit="HandleValidSubmit">
+<EditForm Model="product_Variant" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div class="page-wrapper">
@@ -56,7 +56,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Chọn Công Nghệ Dệt <span class="text-danger">*</span></label>
-                                    <select class="form-select" @bind="product.Textile_technology_id" disabled="@isProductVariantCreated">
+                                    <select class="form-select" @bind="product_Variant.Textile_technology_id" disabled="@isProductVariantCreated">
                                         <option value="">Chọn công nghệ dệt</option>
                                         @foreach (var tech in textileTechnologyList)
                                         {
@@ -66,7 +66,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Chọn Kiểu Dáng <span class="text-danger">*</span></label>
-                                    <select class="form-select" @bind="product.Style_id" disabled="@isProductVariantCreated">
+                                    <select class="form-select" @bind="product_Variant.Style_id" disabled="@isProductVariantCreated">
                                         <option value="">Chọn kiểu dáng</option>
                                         @foreach (var style in styleList)
                                         {
@@ -76,7 +76,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Chọn Chất Liệu <span class="text-danger">*</span></label>
-                                    <select class="form-select" @bind="product.Material_id" disabled="@isProductVariantCreated">
+                                    <select class="form-select" @bind="product_Variant.Material_id" disabled="@isProductVariantCreated">
                                         <option value="">Chọn chất liệu</option>
                                         @foreach (var material in materialList)
                                         {
@@ -86,7 +86,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="description" class="form-label"> Mô tả</label>
-                                    <InputText @bind-Value="product.Description" class="form-control" disabled="@isProductVariantCreated" />
+                                    <InputText @bind-Value="product_Variant.Description" class="form-control" disabled="@isProductVariantCreated" />
                                 </div>
                                 <button class="btn btn-primary" @onclick="CreateProductVariant">Tạo sản phẩm</button>
                             </div>
@@ -105,9 +105,9 @@
                                     <div class="accordion-body pt-0">
                                         <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
                                              onclick="openMediaModal()">
-                                            @if (product?.Posts?.Feature_image != null && !string.IsNullOrEmpty(product.Posts.Feature_image))
+                                            @if (product_Variant?.Posts?.Feature_image != null && !string.IsNullOrEmpty(product_Variant.Posts.Feature_image))
                                             {
-                                                <img src="@product.Posts.Feature_image" class="w-100 h-100 object-cover" />
+                                                <img src="@product_Variant.Posts.Feature_image" class="w-100 h-100 object-cover" />
                                             }
                                             else
                                             {
@@ -214,17 +214,23 @@
                                 @foreach (var item in LST_ProductAttributes)
                                 {
                                     <tr>
-                                        <td>
-                                            <input type="text" @bind="@item.SKU" class="form-control" />
+                                        <td>@item.SKU </td>
+                                        <td class="text-center">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <span class="text-truncate">@item.Color?.Title</span>
+                                                <div class="color-preview"
+                                                     style="width: 16px; height: 16px; background-color: @item.Color?.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
+                                                </div>
+                                            </div>
                                         </td>
-                                        <td>@item.Color?.Title</td>
                                         <td>@item.Size?.Title</td>
-                                        <td>                                         
+                                        <td>
                                             <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                                 <div class="accordion-body pt-0">
-                                                    <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
+                                                    <div id="feature_image"
+                                                         style="width: 80px; height: 80px; aspect-ratio: 1 / 1; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
                                                          onclick="openMediaModal()">
-                                                        <div class="icon d-flex align-items-center justify-content-center">
+                                                        <div class="icon" style="display: flex; align-items: center; justify-content: center;">
                                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                                                 <path d="M12 5v14" />
@@ -240,11 +246,12 @@
                                                 <input type="text"
                                                        class="form-control"
                                                        value="@string.Format("{0:N0}", item.Regular_price).Replace(".", ",")"
-                                                       @oninput="FormatCurrency"
-                                                       @onchange="UpdatePrice" />
+                                                       @oninput="@(e => FormatCurrency(e, item))"
+                                                       @onchange="@(e => UpdatePrice(e, item))" />
                                                 <span class="input-group-text">VNĐ</span>
                                             </div>
                                         </td>
+
                                         <td>
                                             <input type="text" @bind="@item.Stock" class="form-control" />
                                         </td>
@@ -272,7 +279,7 @@
     private int page_number = 1;
     private int total_pages = 1;
     private int page_size = 10;
-    private Product_variants product = new Product_variants();
+    private Product_variants product_Variant = new Product_variants();
     private List<Product_Posts> product_posts_list = new List<Product_Posts>();
     private Product_Attributes product_Attributes = new Product_Attributes();
     private Product_Attributes SelectedProductAttribute { get; set; } = null;
@@ -289,30 +296,24 @@
     private bool isProductAttributesCreated = false;
 
 
-    private void FormatCurrency(ChangeEventArgs e)
+    private void FormatCurrency(ChangeEventArgs e, Product_Attributes product)
     {
-        foreach(var product in LST_ProductAttributes)
+        var input = e.Value?.ToString() ?? string.Empty;
+
+        // Chỉ lấy các ký tự số
+        input = new string(input.Where(char.IsDigit).ToArray());
+        if (long.TryParse(input, out var parsedValue))
         {
-            var input = e.Value?.ToString() ?? string.Empty;
-            input = new string(input.Where(char.IsDigit).ToArray());
-            if (long.TryParse(input, out var parsedValue))
-            {
-                product.Regular_price = parsedValue;
-            }
+            product.Regular_price = parsedValue;
         }
     }
-
-    private void UpdatePrice(ChangeEventArgs e)
+    private void UpdatePrice(ChangeEventArgs e, Product_Attributes product)
     {
-        foreach(var product in LST_ProductAttributes)
+        var input = e.Value?.ToString().Replace(",", "").Replace(".", "");
+        if (decimal.TryParse(input, out var parsedPrice))
         {
-            var input = e.Value?.ToString().Replace(",", "").Replace(".", "");
-            if (decimal.TryParse(input, out var parsedPrice))
-            {
-                product.Regular_price = (long?)Convert.ToInt64(parsedPrice);
-            }
+            product.Regular_price = (long?)Convert.ToInt64(parsedPrice);
         }
-
     }
     protected override async Task OnInitializedAsync()
     {
@@ -341,9 +342,9 @@
 
             if (selectedProduct != null)
             {
-                product.Post_Id = selectedProduct.Id;
-                product.Posts = selectedProduct;
-                product.Posts.Feature_image = selectedProduct.Feature_image;
+                product_Variant.Post_Id = selectedProduct.Id;
+                product_Variant.Posts = selectedProduct;
+                product_Variant.Posts.Feature_image = selectedProduct.Feature_image;
             }
         }
         StateHasChanged();
@@ -391,10 +392,10 @@
         try
         {
             // Kiểm tra trường rỗng
-            if (product.Post_Id == null ||
-                product.Textile_technology_id == null ||
-                product.Style_id == null ||
-                product.Material_id == null)
+            if (product_Variant.Post_Id == null ||
+                product_Variant.Textile_technology_id == null ||
+                product_Variant.Style_id == null ||
+                product_Variant.Material_id == null)
             {
                 await JS.InvokeVoidAsync("toastr.error", "Vui lòng không để trống các trường bắt buộc");
                 return;
@@ -402,10 +403,10 @@
 
             // Kiểm tra biến thể đã tồn tại
             var existingVariant = await productVariant.FindVariant(
-                product.Post_Id,
-                (byte)product.Textile_technology_id,
-                (byte)product.Style_id,
-                (byte)product.Material_id);
+                product_Variant.Post_Id,
+                (byte)product_Variant.Textile_technology_id,
+                (byte)product_Variant.Style_id,
+                (byte)product_Variant.Material_id);
 
             if (existingVariant != null)
             {
@@ -414,22 +415,17 @@
             }
 
             // Tạo biến thể sản phẩm
-            product.Status = "Hoạt động";
-            IdProductVariantCreated = await productVariant.Create(product);
+            product_Variant.Status = "Hoạt động";
+            IdProductVariantCreated = await productVariant.Create(product_Variant);
             isProductVariantCreated = true;
 
-            await JS.InvokeVoidAsync("toastr.success", "Tạo biến thể sản phẩm thành công!");
+            await JS.InvokeVoidAsync("toastr.success", "Tạo sản phẩm thành công!");
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex.Message);
         }
     }
-
-
-
-
-
     private async Task CreateProductAttributes()
     {
         var selectedColors = colorSelections.Where(c => c.Value).Select(c => c.Key).ToList();
@@ -444,15 +440,34 @@
         foreach (var colorId in selectedColors)
         {
             foreach (var sizeId in selectedSizes)
-            {              
+            {
+                var productCreated = await productVariant.GetProductVariantsById(IdProductVariantCreated);
+                string productName = productCreated.Posts.Title; // Tên sản phẩm
+                string textileTechnology = productCreated.Textile_Technology.Slug; //  công nghệ dệt
+                string style = productCreated.Style.Slug; //  phong cách
+                string material = productCreated.Material.Slug; //  chất liệu
+
+                // Tạo tên viết tắt của sản phẩm
+                string productAbbreviation = string.Concat(productName
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(word => word[0].ToString().ToUpper()));
+
+                // Lấy 3 ký tự đầu của các tiêu đề
+                string textileAbbreviation = textileTechnology?.Length >= 3 ? textileTechnology.Substring(0, 3).ToUpper() : textileTechnology.ToUpper();
+                string styleAbbreviation = style?.Length >= 3 ? style.Substring(0, 3).ToUpper() : style.ToUpper();
+                string materialAbbreviation = material?.Length >= 3 ? material.Substring(0, 3).ToUpper() : material.ToUpper();
+
+                // Tạo mã SKU
+                string sku = $"{productAbbreviation}-{textileAbbreviation}-{styleAbbreviation}-{materialAbbreviation}";
+
                 var productAttribute = new Product_Attributes
                     {
                         Product_Variant_Id = IdProductVariantCreated,
                         Color_Id = colorId,
                         Size_Id = sizeId,
                         Status = product_Attributes.Stock == 0 ? "Hết hàng" : "Còn hàng",
-                        SKU = "1", 
-                       
+                        SKU = sku,
+
                     };           
                 await productAttributes.Create(productAttribute);
                 await JS.InvokeVoidAsync("toastr.success", "Tạo thành công Oke!!");
