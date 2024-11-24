@@ -163,7 +163,15 @@
                                                         @attributes.Stock
                                                     }
                                                 </td>
-                                                <td>@attributes.Color?.Title</td>
+
+                                                <td class="text-center">
+                                                    <div class="d-flex align-items-center justify-content-center">
+                                                        <span class="text-truncate">@attributes.Color?.Title</span>
+                                                        <div class="color-preview"
+                                                             style="width: 16px; height: 16px; background-color: @attributes.Color?.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
+                                                        </div>
+                                                    </div>
+                                                </td>
                                                 <td>@attributes.Size?.Title</td>                        
                                                 <td>
                                                     <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenUpdateProductAttributeModal(attributes.Id)">Sửa thông tin</button>

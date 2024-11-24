@@ -37,7 +37,12 @@ namespace appAPI.Repository
         }
         public async Task<Product_variants> GetProductVariantsById(long id)
         {
-            return await _context.product_variants.FindAsync(id);
+            return await _context.product_variants
+                .Include(p => p.Posts)
+                .Include(p => p.Textile_Technology)
+                .Include(p => p.Material)
+                .Include(p => p.Style)
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public async Task<int> GetTotalCountAsync(string status, string? searchTerm)
