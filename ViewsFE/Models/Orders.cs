@@ -18,6 +18,9 @@ namespace ViewsFE.Models
         public long Id { get; set; }
         public string? CreatedByAdminId { get; set; }
         public decimal? TotalAmount { get; set; }
+        public decimal? TotalPrincipal { get; set; } // tổng tiền hàng 
+        public decimal? FeeShipping { get; set; }
+        public decimal? Totalmoney { get; set; }
         public long? User_id { get; set; } // khách hàng ( hóa đơn treo có thể chưa thêm khách hàng )
         [StringLength(20)]
         public string? Status { get; set; }

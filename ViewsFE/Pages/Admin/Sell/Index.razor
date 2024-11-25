@@ -160,14 +160,6 @@
                                                                 }
                                                             </td>
                                                             <td>
-                                                               @*  <div class="input-group d-flex align-items-center justify-content-center">
-                                                                    <input type="number"
-                                                                           class="form-control text-center"
-                                                                           style="width: 40px;"
-                                                                           value="@(productQuantities.ContainsKey(product.Id) ? productQuantities[product.Id] : 1)"
-                                                                           @oninput="(e) => UpdateQuantity(product.Id, int.TryParse(e.Value?.ToString(), out var value) ? value : 1)"
-                                                                           min="1" />
-                                                                </div> *@
                                                                 <button class="btn btn-sm btn-primary ms-2"
                                                                         @onclick="() => AddProduct(order_Details, product.Id)">
                                                                     Chọn
@@ -218,9 +210,6 @@
                                     <tr>
                                         <th>Hình Ảnh</th>
                                         <th>Tên sản phẩm</th>
-                                        <th>Chất liệu</th>
-                                        <th>Công nghệ dệt</th>
-                                        <th>Phong cách</th>
                                         <th>Màu</th>
                                         <th>Kích thước</th>
                                         <th>Số lượng</th>
@@ -234,10 +223,7 @@
                                     {
                                         <tr>
                                             <td><img src="@item.ProductAttributes.Image" alt="Hình ảnh" style="width: 80px; height: auto;" /></td>
-                                            <td>@item.ProductAttributes.Product_Variant.Posts.Title </td>
-                                            <td>@item.ProductAttributes.Product_Variant.Material.Title </td>
-                                            <td>@item.ProductAttributes.Product_Variant.Textile_Technology.Title </td>
-                                            <td>@item.ProductAttributes.Product_Variant.Style.Title </td>
+                                            <td>@item.ProductAttributes.SKU </td>
                                             <td class="sort-city">
                                                 <div class="d-flex align-items-center">
                                                     <span>@item.ProductAttributes.Color.Title</span>
@@ -1232,6 +1218,9 @@
         if (orderToUpdate != null)
         {
             orderToUpdate.TotalAmount = totalAmount;
+            orderToUpdate.FeeShipping = feeShipping;
+            orderToUpdate.Totalmoney = totalMoney;
+            orderToUpdate.TotalPrincipal = totalPrincipal;
             if (isDeliveryVisible)
             {
                 orderToUpdate.Status = "Đã xác nhận";
@@ -1240,7 +1229,6 @@
             {
                 orderToUpdate.Status = "Đã thanh toán";
             }
-            orderToUpdate.TotalAmount = totalAmount;         
             foreach (var item in lst_OrderDetail)
             {
                 var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);

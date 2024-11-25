@@ -17,7 +17,10 @@ namespace appAPI.Models
         [Key]
         public long Id { get; set; }
         public string? CreatedByAdminId { get; set; }
-        public decimal? TotalAmount { get; set; }
+        public decimal? TotalAmount { get; set; } // tổng tiền hàng đã giảm
+        public decimal? TotalPrincipal { get; set; } // tổng tiền hàng 
+        public decimal? FeeShipping { get; set; } // phí ship
+        public decimal? Totalmoney { get; set; } // tổng tiền + phí ship 
         public long? User_id { get; set; } // khách hàng ( hóa đơn treo có thể chưa thêm khách hàng )
         [StringLength(20)]
         public string? Status { get; set; } 
