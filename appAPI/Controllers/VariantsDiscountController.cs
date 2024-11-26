@@ -1,4 +1,5 @@
-﻿using appAPI.Models;
+﻿using appAPI.IRepository;
+using appAPI.Models;
 using appAPI.Models.DTO;
 using appAPI.Repository;
 using Microsoft.AspNetCore.Http;
@@ -11,88 +12,84 @@ namespace appAPI.Controllers
     [ApiController]
     public class VariantsDiscountController : ControllerBase
     {
-        private readonly IRepository<P_attribute_discount> _pVariantsDiscountRepository;
-        private readonly IRepository<Product_Attributes> _Productvariants;
-        private readonly IRepository<Discount> _Discount;
+        private readonly IProductAttributeDiscountRepository _repo;
 
-        public VariantsDiscountController(
-            IRepository<P_attribute_discount> pVariantsDiscountRepository,
-            IRepository<Product_Attributes> productVariantsRepository,
-            IRepository<Discount> discountRepository)
+        public VariantsDiscountController(IProductAttributeDiscountRepository productAttributeDiscountRepository)
+            
         {
-            _pVariantsDiscountRepository = pVariantsDiscountRepository;
-            _Productvariants = productVariantsRepository;
-            _Discount = discountRepository;
+            _repo = productAttributeDiscountRepository;
         }
 
-
-        [HttpGet]
-        public IActionResult Get()
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
         {
-            return Ok(_pVariantsDiscountRepository.GetAll());
-        }
-
-        [HttpGet("GetProductvariants")]
-        public IActionResult GetProductvariants()
-        {
-            return Ok(_Productvariants.GetAll());
-        }
-
-        [HttpGet("GetDiscount")]
-        public IActionResult GetDiscount()
-        {
-            return Ok(_Discount.GetAll());
-        }
-
-        [HttpGet("{id}")]
-        public IActionResult Get(long id)
-        {
-            var pVariantDiscount = _pVariantsDiscountRepository.GetById(id);
-            if (pVariantDiscount == null) return NotFound("P_variant discount not found");
-            return Ok(pVariantDiscount);
-        }
-
-        [HttpPost]
-        public IActionResult Post(PattributesDiscountDTO dto)
-        {
-            var variantDiscount = new P_attribute_discount
+            var result = await _repo.GetAll();
+            if (result == null)
             {
-                P_attribute_Id = dto.P_attribute_Id,  // Chỉ thiết lập ID
-                Discount_Id = dto.Discount_Id,      // Chỉ thiết lập ID
-                Old_price = dto.Old_price,
-                New_price = dto.New_price,
-                Status = dto.Status
-            };
-
-            _pVariantsDiscountRepository.Add(variantDiscount);
-            return Ok(variantDiscount);
+                return NotFound();
+            }
+            return Ok(result);
         }
 
-
-
-        [HttpPut]
-        public IActionResult Put(PattributesDiscountDTO dto)
+        [HttpGet("GetById")]
+        public async Task<IActionResult> GetById(long id)
         {
-            var existing = _pVariantsDiscountRepository.GetById(dto.Id);
-            if (existing == null) return NotFound("P_variant discount not found");
-
-            existing.P_attribute_Id = dto.P_attribute_Id;
-            existing.Discount_Id = dto.Discount_Id;
-            existing.Old_price = dto.Old_price;
-            existing.New_price = dto.New_price;
-            existing.Status = dto.Status;
-
-            _pVariantsDiscountRepository.Update(existing);
-            return Ok("P_variant discount updated successfully");
+            var result = await _repo.GetByIdAndType(id);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(long id)
+        [HttpGet("GetByProductId")]
+        public async Task<IActionResult> Get(long productId)
         {
-            var pVariantDiscount = _pVariantsDiscountRepository.GetById(id);
-            if (pVariantDiscount == null) return NotFound("P_variant discount not found");
-            _pVariantsDiscountRepository.Remove(pVariantDiscount);
-            return Ok("P_variant discount deleted successfully");
+            var result = await _repo.GetByIdProduct(productId);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+
+        [HttpGet("GetByDiscountId")]
+        public async Task<IActionResult> GetProductvariants(long discountId)
+        {
+            var result = await _repo.GetByIdDiscount(discountId);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return Ok(result);
+        }
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> Post(P_attribute_discount attributeDiscount)
+        {
+            try
+            {
+                await _repo.Create(attributeDiscount);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> Delete(long id)
+        {
+            try
+            {
+                await _repo.Delete(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 

@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241123013732_app")]
-    partial class app
+    [Migration("20241126065446_upadteDiscount")]
+    partial class upadteDiscount
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -485,37 +485,39 @@ namespace appAPI.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
                     b.Property<string>("Code")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Create_at")
+                    b.Property<DateTime?>("Create_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("Created_by")
+                    b.Property<long?>("Created_by")
                         .HasColumnType("bigint");
+
+                    b.Property<decimal>("Discount_value")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("End_date")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool?>("IsGlobal")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Start_date")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type_of_promotion")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("Update_at")
+                    b.Property<DateTime?>("Update_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("Updated_by")
+                    b.Property<long?>("Updated_by")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
@@ -812,6 +814,9 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Deleted_at")
                         .HasColumnType("datetime2");
 
+                    b.Property<decimal?>("FeeShipping")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
@@ -820,6 +825,12 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<decimal?>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("TotalPrincipal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("Totalmoney")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("Update_at")
@@ -849,20 +860,16 @@ namespace appAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<long>("Discount_Id")
+                    b.Property<DateTime?>("AppliedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("Discount_Id")
                         .HasColumnType("bigint");
 
-                    b.Property<decimal>("New_price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("Old_price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<long>("P_attribute_Id")
+                    b.Property<long?>("P_attribute_Id")
                         .HasColumnType("bigint");
 
                     b.Property<string>("Status")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -1515,21 +1522,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "67dc0974-5404-4d4f-a2b5-b05503f51638",
+                            ConcurrencyStamp = "8fecc611-39c1-4616-a740-6a97fdf452d9",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "f634bd12-a85b-4da5-8e89-ba634a4aadd5",
+                            ConcurrencyStamp = "37377c00-8ba8-4b93-a5f0-1d08a7e2d9a1",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "ff91a841-cc3c-419a-bdd9-6cb573894114",
+                            ConcurrencyStamp = "85866c64-86dc-44aa-959b-846989dd9ba6",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -1809,16 +1816,12 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.P_attribute_discount", b =>
                 {
                     b.HasOne("appAPI.Models.Discount", "Discount")
-                        .WithMany()
-                        .HasForeignKey("Discount_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("PAttributeDiscounts")
+                        .HasForeignKey("Discount_Id");
 
                     b.HasOne("appAPI.Models.Product_Attributes", "ProductAttributes")
                         .WithMany("p_attribute_discount")
-                        .HasForeignKey("P_attribute_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("P_attribute_Id");
 
                     b.Navigation("Discount");
 
@@ -2057,6 +2060,11 @@ namespace appAPI.Migrations
                     b.Navigation("Banner");
 
                     b.Navigation("Product_Posts");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Discount", b =>
+                {
+                    b.Navigation("PAttributeDiscounts");
                 });
 
             modelBuilder.Entity("appAPI.Models.Material", b =>
