@@ -21,7 +21,6 @@ namespace appAPI.Models
         [Range(0, int.MaxValue, ErrorMessage = "Số lượng phải là một số dương.")]
         public string? Quantity { get; set; }
 
-        [Range(0, 100, ErrorMessage = "Phần trăm giảm giá phải nằm trong khoảng từ 0 đến 100.")]
         public string? Percent { get; set; }
 
         [Range(0, double.MaxValue, ErrorMessage = "Giá trị giảm tối đa phải là một số dương.")]

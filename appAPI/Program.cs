@@ -63,8 +63,10 @@ builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IPostReponsetory, PostReponsetory>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
+
 builder.Services.AddHostedService<VoucherExpiryChecker>();
-//builder.Services.AddHostedService<DiscountStatusChecker>();
+builder.Services.AddHostedService<DiscountStatusChecker>();
+
 builder.Services.AddScoped<IColorReponsitory, ColorReponsitory>();
 builder.Services.AddScoped<IMaterialReponsitory, MaterialReponsitory>();
 builder.Services.AddScoped<IStyleReponsitory, StyleReponsitory>();
@@ -145,7 +147,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
+    FileProvider = new PhysicalFileProvider(@"I:\VIs Stu fille\DATN\DATN-Blazon\appAPI\FileMedia\"),
     RequestPath = "/FileMedia"
 });
 

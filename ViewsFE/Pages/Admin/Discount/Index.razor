@@ -1,8 +1,41 @@
-﻿@page "/discounts"
+﻿@page "/admin/discounts"
+@using System.Text.RegularExpressions
 @using ViewsFE.Models
 @using ViewsFE.IServices
 @inject IDiscountServices DiscountService
 @inject IJSRuntime JS
+
+<style>
+    .info-icon {
+        position: relative;
+        cursor: pointer;
+        display: inline-block;
+        color: #6c757d; /* Màu xám nhạt */
+    }
+
+        .info-icon .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Đẩy tooltip lên phía trên */
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .info-icon:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+</style>
 
 <div class="page-wrapper">
     <!-- Page header -->
@@ -49,7 +82,12 @@
                                 </div>
 
                                 <div class="form-group mb-1">
-                                    <label for="typeOfPromotion">Loại Khuyến Mãi</label>
+                                    <label for="typeOfPromotion">Loại Khuyến Mãi
+                                        <span class="info-icon">
+                                            <i class="fas fa-info-circle fa-sm"></i>
+                                            <span class="tooltip-text">Giảm theo phần trăm phải có ký tự "%"</span>
+                                        </span>
+                                    </label>
                                     <input type="text" id="typeOfPromotion" @bind="discount.Type_of_promotion" class="form-control" placeholder="Loại khuyến mãi" />
                                     <ValidationMessage For="@(() => discount.Type_of_promotion)" />
                                 </div>
@@ -61,14 +99,25 @@
                                 </div>
 
                                 <div class="form-group mb-1">
-                                    <label for="endDate">Ngày Kết Thúc</label>
+                                    <label for="endDate">Ngày Kết Thúc
+                                        <span class="info-icon">
+                                            <i class="fas fa-info-circle fa-sm"></i>
+                                            <span class="tooltip-text">Lưu ý: Ngày kết thúc luôn lớn hơn ngày bắt đầu.</span>
+                                        </span>
+                                    </label>
                                     <InputDate id="endDate" @bind-Value="discount.End_date" class="form-control" />
                                     <ValidationMessage For="@(() => discount.End_date)" />
                                 </div>
 
-                                <div class="form-group mb-1">
-                                    <label for="status">Trạng Thái</label>
-                                    <input type="text" id="status" @bind="discount.Status" class="form-control" placeholder="Trạng thái" />
+                                 <div class="form-group mb-1">
+                                    <label>Trạng Thái</label><br />
+
+                                    <input type="radio" id="active" name="status" checked="@(discount.Status == "Hoạt động")" @onchange="SetStatusToActive" />
+                                    <label for="active">Hoạt động</label>
+
+                                    <input type="radio" id="inactive" name="status" checked="@(discount.Status == "Không hoạt động")" @onchange="SetStatusToInactive" />
+                                    <label for="inactive">Không hoạt động</label>
+
                                     <ValidationMessage For="@(() => discount.Status)" />
                                 </div>
 
@@ -168,12 +217,23 @@
     private int pageSize = 5;
     private int totalPages = 1;
 
+    private void SetStatusToActive(ChangeEventArgs e)
+    {
+        discount.Status = "Hoạt động";
+    }
+
+    private void SetStatusToInactive(ChangeEventArgs e)
+    {
+        discount.Status = "Không hoạt động";
+    }
+
     protected override async Task OnInitializedAsync()
     {
         discount.Create_at = DateTime.Now;
         discount.Update_at = DateTime.Now;
         discount.Start_date = DateTime.Now;
         discount.End_date = DateTime.Now.AddDays(1);
+        discount.Status = "Hoạt động";
 
         discounts = await DiscountService.GetAll();
         totalPages = (int)Math.Ceiling((double)discounts.Count / pageSize);
@@ -192,6 +252,7 @@
 
         discount.Start_date = DateTime.Now;
         discount.End_date = DateTime.Now.AddDays(1);
+        discount.Status = "Hoạt động";
         pagedDiscounts = discounts.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
     }
 
@@ -242,8 +303,37 @@
     {
         try
         {
+            // Kiểm tra nếu trùng "Code"
+            var isDuplicateCode = discounts.Any(d => d.Code.Equals(discount.Code, StringComparison.OrdinalIgnoreCase));
+            if (isDuplicateCode)
+            {
+                errorMessage = "Mã khuyến mãi đã tồn tại!";
+                return;
+            }
+
+            // Kiểm tra "Type_of_promotion" chỉ chứa số hoặc ký tự "%"
+            if (!Regex.IsMatch(discount.Type_of_promotion, @"^\d+%?$"))
+            {
+                errorMessage = "Loại khuyến mãi phải là số hoặc số kèm ký tự '%'!";
+                return;
+            }
+
+            if (discount.End_date <= discount.Start_date)
+            {
+                errorMessage = "Ngày kết thúc phải lớn hơn ngày bắt đầu!";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(discount.Code) ||
+                string.IsNullOrWhiteSpace(discount.Name) ||
+                string.IsNullOrWhiteSpace(discount.Type_of_promotion))
+            {
+                errorMessage = "Các trường không được để trống hoặc chỉ chứa khoảng trắng!";
+                return;
+            }
+
             await DiscountService.Create(discount);
-            await LoadDiscounts();            
+            await LoadDiscounts();
             discount = new Discount();
             LoadPagedDiscounts();
             errorMessage = "Đã tạo mới khuyến mãi thành công!";
@@ -254,12 +344,42 @@
         }
     }
 
+
     private async Task UpdateDiscount()
     {
         try
         {
+            // Kiểm tra nếu trùng "Code" (loại trừ chính mã đang được cập nhật)
+            var isDuplicateCode = discounts.Any(d => d.Code.Equals(discount.Code, StringComparison.OrdinalIgnoreCase) && d.Id != discount.Id);
+            if (isDuplicateCode)
+            {
+                errorMessage = "Mã khuyến mãi đã tồn tại!";
+                return;
+            }
+
+            // Kiểm tra "Type_of_promotion" chỉ chứa số hoặc ký tự "%"
+            if (!Regex.IsMatch(discount.Type_of_promotion, @"^\d+%?$"))
+            {
+                errorMessage = "Loại khuyến mãi phải là số hoặc số kèm ký tự '%'!";
+                return;
+            }
+
+            if (discount.End_date <= discount.Start_date)
+            {
+                errorMessage = "Ngày kết thúc phải lớn hơn ngày bắt đầu!";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(discount.Code) ||
+                string.IsNullOrWhiteSpace(discount.Name) ||
+                string.IsNullOrWhiteSpace(discount.Type_of_promotion))
+            {
+                errorMessage = "Các trường không được để trống hoặc chỉ chứa khoảng trắng!";
+                return;
+            }
+
             await DiscountService.Update(discount);
-            await LoadDiscounts();          
+            await LoadDiscounts();
             discount = new Discount();
             LoadPagedDiscounts();
             errorMessage = "Cập nhật khuyến mãi thành công!";
@@ -269,6 +389,7 @@
             errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
         }
     }
+
 
     private async Task EditDiscount(long id)
     {
