@@ -176,6 +176,43 @@
                                 </div>
                             </div>
                             <!-- #endregion -->
+                            <!--Thư viện ảnh sản phẩm-->
+                            <div class="accordion bg-white mb-3">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#imageLibrary" aria-expanded="true">
+                                            Thư viện ảnh sản phẩm
+                                        </button>
+                                    </h2>
+                                    <div id="imageLibrary" class="accordion-collapse collapse show">
+                                        <div class="accordion-body pt-0">
+                                            <div class="image-box-libs">
+                                                <div id="image_library" class="image-libs d-grid gap-2 align-items-center">
+                                                    @if (!string.IsNullOrEmpty(Posts.Image_library))
+                                                    {
+                                                        foreach (var img in Posts.Image_library.Split(','))
+                                                        {
+                                                            <div class="image-item">
+                                                                <img src="@img" class="w-100 h-100 object-cover" />
+                                                            </div>
+                                                        }
+                                                    }
+                                                    <div class="image-post-box d-flex align-items-center justify-content-center"
+                                                         @onclick='() => OpenMediaModalN(true, "image_library")'>
+                                                        <div class="icon d-flex align-items-center justify-content-center">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
+                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                <path d="M12 5v14" />
+                                                                <path d="M5 12h14" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <!-- #region category -->
                             <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
@@ -275,6 +312,7 @@
 
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
+<Modal OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal>
 @code {
     [Parameter]
     public long Id { get; set; }
@@ -288,8 +326,16 @@
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
     private bool tinyMCEInitialized = false;
     private Media_modal mediaModalRef;
+    private Modal mediaLibraryModal;
     private Media_manager media_ManagerRef;
     private long postId;
+
+    private async Task HandleImageSelectedN(List<string> imagePaths)
+    {
+        Posts.Image_library = string.Join(",", imagePaths);
+        StateHasChanged();
+        await JS.InvokeVoidAsync("openMediaModalN");
+    }
 
     private async Task HandleImageSelected(string imagePath)
     {
@@ -303,6 +349,10 @@
         banner.Meta_data = imagePath ?? string.Empty;
         StateHasChanged();
         await JS.InvokeVoidAsync("closeMediaBannerModal");
+    }
+    private async Task OpenMediaModalN(bool isMultiple, string referId)
+    {
+        await JS.InvokeVoidAsync("openMediaModalN", isMultiple, referId);
     }
     protected override async Task OnInitializedAsync()
     {
