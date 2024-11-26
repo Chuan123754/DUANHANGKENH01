@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
@@ -47,13 +48,17 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         var user = new ClaimsPrincipal(new ClaimsIdentity());
-        var token = _httpClient.DefaultRequestHeaders.Authorization?.ToString().Replace("Bearer ", "");
+        var token = _httpClient.DefaultRequestHeaders.Authorization?.Parameter;
 
         if (!string.IsNullOrEmpty(token))
         {
-            // Giải mã token để lấy thông tin người dùng (có thể sử dụng thư viện JWT để giải mã)
-            // Thêm các claims vào user nếu cần thiết
-            user = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "username_from_token") }, "jwt"));
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            if (jwtToken != null)
+            {
+                var claims = jwtToken.Claims;
+                user = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwt"));
+            }
         }
 
         return new AuthenticationState(user);

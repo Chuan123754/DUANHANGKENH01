@@ -147,7 +147,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"I:\VIs Stu fille\DATN\DATN-Blazon\appAPI\FileMedia\"),
+    FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
     RequestPath = "/FileMedia"
 });
 
