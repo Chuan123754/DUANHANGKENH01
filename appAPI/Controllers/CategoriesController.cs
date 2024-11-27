@@ -31,7 +31,18 @@ namespace appAPI.Controllers
                 return StatusCode(500, "Error: " + e.Message);
             }
         }
-
+        [HttpGet("GetAllType")]
+        public async Task<ActionResult<List<Categories>>> GetAllType(string type)
+        {
+            try
+            {
+                return Ok(await _repo.GetAllType(type));
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, "Error: " + e.Message);
+            }
+        }
         // GET: api/Category/details/5
         [HttpGet("details/{id}")]
         public async Task<ActionResult<Categories>> Details(long id)

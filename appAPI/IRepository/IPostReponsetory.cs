@@ -10,6 +10,7 @@ namespace appAPI.IRepository
 
         // Lấy tất cả bài viết theo type
         Task<List<Product_Posts>> GetAllByType(string type);
+        Task<List<Product_Posts>> GetCountByType(string type, long designerId);
 
         // Lấy bài viết theo id và type
         Task<Product_Posts> GetByIdAndType(long id, string type);
@@ -19,6 +20,11 @@ namespace appAPI.IRepository
 
         // Lấy tổng số bài viết theo type và tìm kiếm
         Task<int> GetTotalCountAsync(string type, string searchTerm);
+        //Phân trang theo type và id cate
+        Task<List<Product_Posts>> GetByTypeAsyncCate(string type, long categoryId, int pageNumber, int pageSize);
+
+        // Lấy tổng số bài viết theo type và id cate
+        Task<int> GetTotalCountAsyncCate(string type, long categoryId);
 
         // Tạo bài viết loại post
         Task<Product_Posts> CreatePost(Product_Posts post, List<long> tagIds, List<long> categoryIds);

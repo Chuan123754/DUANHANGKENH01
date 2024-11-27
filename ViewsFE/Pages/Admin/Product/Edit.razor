@@ -411,7 +411,6 @@
             await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
         }
     }
-
     private async void HandleValidSubmit()
     {
         Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");

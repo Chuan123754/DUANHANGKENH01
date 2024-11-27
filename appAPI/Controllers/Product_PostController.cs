@@ -31,7 +31,12 @@ namespace appAPI.Controllers
             var list = await _postRepository.GetAllByType(type);
             return Ok(list);
         }
-
+        [HttpGet("GetCountByType")]
+        public async Task<IActionResult> GetCountByType(string type, long designerId)
+        {
+            var list = await _postRepository.GetCountByType(type, designerId);
+            return Ok(list);
+        }
         // Lấy sản phẩm theo ID và loại
         [HttpGet("GetByIdAndType")]
         public async Task<IActionResult> GetByIdProduct(long id, string type)
@@ -139,6 +144,28 @@ namespace appAPI.Controllers
             }
 
             var totalCount = await _postRepository.GetTotalCountAsync(type, searchTerm);
+            return Ok(totalCount);
+        }
+        [HttpGet("get-by-type-cate")]
+        public async Task<IActionResult> GetByTypeCate([FromQuery] string type, [FromQuery] long categoryId, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Page number and page size must be greater than 0.");
+            }
+
+            var list = await _postRepository.GetByTypeAsyncCate(type, categoryId, pageNumber, pageSize);
+            return Ok(list);
+        }
+        [HttpGet("Get-Total-Count-Cate")]
+        public async Task<IActionResult> GetTotalCountCate([FromQuery] string type, [FromQuery] long categoryId)
+        {
+            if (string.IsNullOrEmpty(type))
+            {
+                return BadRequest("Type is required.");
+            }
+
+            var totalCount = await _postRepository.GetTotalCountAsyncCate(type, categoryId);
             return Ok(totalCount);
         }
     }

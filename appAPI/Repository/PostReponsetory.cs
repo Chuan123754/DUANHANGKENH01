@@ -21,7 +21,8 @@ namespace appAPI.Repository
             post.Type = type;
             post.Deleted = false;
             post.Created_at = DateTime.Now;
-            post.Deleted_at = DateTime.Now;
+            post.Post_date = DateTime.Now;
+
             _context.Posts.Add(post);
             await _context.SaveChangesAsync();
 
@@ -163,8 +164,7 @@ namespace appAPI.Repository
                 .OrderByDescending(p => p.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .ToListAsync();
-         
+                .ToListAsync();   
         }
 
         // Lấy tổng số bài viết theo loại và tìm kiếm
@@ -173,6 +173,25 @@ namespace appAPI.Repository
             return await _context.Posts
                 .CountAsync(p => p.Type == type && p.Deleted == false &&
                                 (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
+        }
+        public async Task<List<Product_Posts>> GetByTypeAsyncCate(string type, long categoryId, int pageNumber, int pageSize)
+        {
+            return await _context.Posts
+                .Where(post => post.Type == type && post.Deleted == false)
+                .Where(post => post.Post_categories.Any(pc => pc.Category_Id == categoryId))
+                .Include(p => p.Post_tags).ThenInclude(pt => pt.Tag)
+                .Include(p => p.Post_categories).ThenInclude(pc => pc.Categories)
+                .Include(p => p.Designer)
+                .OrderByDescending(post => post.Created_at) 
+                .Skip((pageNumber - 1) * pageSize) // Bỏ qua các bài viết của trang trước
+                .Take(pageSize) 
+                .ToListAsync();
+        }
+
+        public async Task<int> GetTotalCountAsyncCate(string type, long categoryId)
+        {
+            return await _context.Posts
+                 .CountAsync(p => p.Type == type && p.Deleted == false && p.Post_categories.Any(pc => pc.Category_Id == categoryId));
         }
 
         // Cập nhật bài viết
@@ -189,8 +208,7 @@ namespace appAPI.Repository
             item.Description = post.Description;
             item.Short_description = post.Short_description;
             item.Updated_by = post.Updated_by;
-            item.Updated_at = DateTime.Now;
-            item.Post_date = DateTime.Now;
+            item.Updated_at = DateTime.Now;         
 
             _context.Posts.Update(item);
             await _context.SaveChangesAsync();
@@ -227,5 +245,21 @@ namespace appAPI.Repository
             await AddCategories(post.Id, categoryIds ?? new List<long>()); // Xử lý null hoặc danh sách rỗng
             return item;
         }
+
+        public async Task<List<Product_Posts>> GetCountByType(string type, long designerId)
+        {
+            return await _context.Posts
+                  .Where(p => p.Type == type && p.Deleted == false && p.AuthorId == designerId)
+                  .Include(p => p.Post_tags)          // Lấy thông tin về Post_tags
+                      .ThenInclude(pt => pt.Tag)      // Lấy thông tin chi tiết của Tag liên quan
+                  .Include(p => p.Post_categories)    // Lấy thông tin về Post_categories
+                      .ThenInclude(pc => pc.Categories)
+                  .Include(p => p.Designer)           // Lấy thông tin Designer
+                  .OrderByDescending(p => p.Post_date)
+                  .Take(4)
+                  .ToListAsync();
+        }
+
+       
     }
 }

@@ -101,5 +101,10 @@ namespace appAPI.Repository
                 await _context.SaveChangesAsync();
             }
         }
+
+        public async Task<List<Categories>> GetAllType(string type)
+        {
+            return await _context.Categories.Where(p => p.Type == type && p.Deleted == false).ToListAsync();
+        }
     }
 }
