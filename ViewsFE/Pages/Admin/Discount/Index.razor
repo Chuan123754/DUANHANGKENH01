@@ -704,6 +704,8 @@
             initialProductIds.Clear();
             selectedProductCount = 0;
             errorMessage = string.Empty;
+            selectedType = "";
+            discountValue = 0;
             await JS.InvokeVoidAsync("toastr.success", "Cập nhật khuyến mãi thành công!");
         }
         catch (Exception ex)
