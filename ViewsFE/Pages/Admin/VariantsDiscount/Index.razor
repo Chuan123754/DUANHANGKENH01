@@ -58,7 +58,7 @@
                                     <ValidationMessage For="@(() => pVariantsDiscount.Discount_Id)" />
                                 </div>
 
-                                <div class="form-group mb-1">
+                     @*            <div class="form-group mb-1">
                                     <label for="Old_price">Giá Cũ</label>
                                     <input type="number" id="Old_price" @bind="pVariantsDiscount.Old_price" class="form-control" />
                                     <ValidationMessage For="@(() => pVariantsDiscount.Old_price)" readonly />
@@ -68,7 +68,7 @@
                                     <label for="New_price">Giá Mới</label>
                                     <input type="number" id="New_price" @bind="pVariantsDiscount.New_price" class="form-control" />
                                     <ValidationMessage For="@(() => pVariantsDiscount.New_price)" readonly />
-                                </div>
+                                </div> *@
 
                                 <div class="form-group mb-1">
                                     <label for="Status">Trạng Thái</label>
@@ -142,10 +142,10 @@
                                         {
                                             <tr>
                                                 <td>@(++index + (currentPage - 1) * PageSize)</td>
-                                                <td>@GetProductVariantName(discount.P_attribute_Id)</td>
+                          @*                       <td>@GetProductVariantName(discount.P_attribute_Id)</td>
                                                 <td>@GetDiscountName(discount.Discount_Id)</td>
                                                 <td>@discount.Old_price</td>
-                                                <td>@discount.New_price</td>
+                                                <td>@discount.New_price</td> *@
                                                 <td>@discount.Status</td>
                                                 <td>
                                                     <button class="btn btn-primary" @onclick="() => ConfirmEdit(discount.Id)">Sửa</button>
@@ -203,74 +203,73 @@
 
     private async Task OnProductVariantChanged(ChangeEventArgs e)
     {
-        // Cập nhật P_attribute_Id từ dropdown
-        if (long.TryParse(e.Value.ToString(), out long selectedProductVariantId))
-        {
-            pVariantsDiscount.P_attribute_Id = selectedProductVariantId;
+        // // Cập nhật P_attribute_Id từ dropdown
+        // if (long.TryParse(e.Value.ToString(), out long selectedProductVariantId))
+        // {
+        //     pVariantsDiscount.P_attribute_Id = selectedProductVariantId;
 
-            // Lấy giá của sản phẩm đã chọn
-            var selectedVariant = product_Attributes.FirstOrDefault(v => v.Id == selectedProductVariantId);
-            if (selectedVariant != null)
-            {
-                // Kiểm tra nếu Sale_price có giá trị
-                if (selectedVariant.Sale_price.HasValue)
-                {
-                    pVariantsDiscount.Old_price = selectedVariant.Sale_price.Value; // Chỉ gán giá trị nếu Sale_price có giá trị
-                }
-                else
-                {
-                    pVariantsDiscount.Old_price = 0; // Đặt giá trị mặc định nếu Sale_price là null
-                }
-                StateHasChanged();
-            }
-        }
+        //     // Lấy giá của sản phẩm đã chọn
+        //     var selectedVariant = product_Attributes.FirstOrDefault(v => v.Id == selectedProductVariantId);
+        //     if (selectedVariant != null)
+        //     {
+        //         // Kiểm tra nếu Sale_price có giá trị
+        //         if (selectedVariant.Sale_price.HasValue)
+        //         {
+        //             pVariantsDiscount.Old_price = selectedVariant.Sale_price.Value; // Chỉ gán giá trị nếu Sale_price có giá trị
+        //         }
+        //         else
+        //         {
+        //             pVariantsDiscount.Old_price = 0; // Đặt giá trị mặc định nếu Sale_price là null
+        //         }
+        //         StateHasChanged();
+        //     }
+        // }
     }
 
 
     private async Task OnDiscountChanged(ChangeEventArgs e)
     {
         // Cập nhật Discount_Id từ dropdown
-        if (long.TryParse(e.Value.ToString(), out long selectedDiscountId))
-        {
-            pVariantsDiscount.Discount_Id = selectedDiscountId;
+        // if (long.TryParse(e.Value.ToString(), out long selectedDiscountId))
+        // {
+        //     pVariantsDiscount.Discount_Id = selectedDiscountId;
 
-            // Lấy thông tin Discount đã chọn
-            var selectedDiscount = discounts.FirstOrDefault(d => d.Id == selectedDiscountId);
+        //     // Lấy thông tin Discount đã chọn
+        //     var selectedDiscount = discounts.FirstOrDefault(d => d.Id == selectedDiscountId);
 
-            if (selectedDiscount != null)
-            {
-                // Kiểm tra nếu Type_of_promotion có chứa '%'
-                if (!string.IsNullOrEmpty(selectedDiscount.Type_of_promotion) && selectedDiscount.Type_of_promotion.Contains("%"))
-                {
-                    // Tính giảm giá theo %
-                    if (decimal.TryParse(selectedDiscount.Type_of_promotion.TrimEnd('%'), out decimal percentage) && percentage > 0)
-                    {
-                        pVariantsDiscount.New_price = pVariantsDiscount.Old_price * (1 - percentage / 100);
-                    }
-                }
-                else
-                {
-                    // Xử lý giảm giá theo số tiền trực tiếp (VND)
-                    if (decimal.TryParse(selectedDiscount.Type_of_promotion, out decimal discountAmount) && discountAmount > 0)
-                    {
-                        pVariantsDiscount.New_price = pVariantsDiscount.Old_price - discountAmount;
-                    }
-                }
+        //     if (selectedDiscount != null)
+        //     {
+        //         // Kiểm tra nếu Type_of_promotion có chứa '%'
+        //         if (!string.IsNullOrEmpty(selectedDiscount.Type_of_promotion) && selectedDiscount.Type_of_promotion.Contains("%"))
+        //         {
+        //             // Tính giảm giá theo %
+        //             if (decimal.TryParse(selectedDiscount.Type_of_promotion.TrimEnd('%'), out decimal percentage) && percentage > 0)
+        //             {
+        //                 pVariantsDiscount.New_price = pVariantsDiscount.Old_price * (1 - percentage / 100);
+        //             }
+        //         }
+        //         else
+        //         {
+        //             // Xử lý giảm giá theo số tiền trực tiếp (VND)
+        //             if (decimal.TryParse(selectedDiscount.Type_of_promotion, out decimal discountAmount) && discountAmount > 0)
+        //             {
+        //                 pVariantsDiscount.New_price = pVariantsDiscount.Old_price - discountAmount;
+        //             }
+        //         }
 
-                // Đảm bảo giá mới không nhỏ hơn 0
-                if (pVariantsDiscount.New_price < 0)
-                {
-                    pVariantsDiscount.New_price = 0;
-                }
-            }
-            else
-            {
-                // Nếu không tìm thấy Discount, giữ nguyên giá cũ
-                pVariantsDiscount.New_price = pVariantsDiscount.Old_price;
-            }
+        //         // Đảm bảo giá mới không nhỏ hơn 0
+        //         if (pVariantsDiscount.New_price < 0)
+        //         {
+        //             pVariantsDiscount.New_price = 0;
+        //         }
+        //     }
+        //     else
+        //     {
+        //         // Nếu không tìm thấy Discount, giữ nguyên giá cũ
+        //     }
 
-            StateHasChanged();
-        }
+        //     StateHasChanged();
+        // }
     }
 
 
@@ -356,8 +355,6 @@
                 {
                     P_attribute_Id = pVariantsDiscount.P_attribute_Id,
                     Discount_Id = pVariantsDiscount.Discount_Id,
-                    Old_price = pVariantsDiscount.Old_price,
-                    New_price = pVariantsDiscount.New_price,
                     Status = pVariantsDiscount.Status,
                 };
 

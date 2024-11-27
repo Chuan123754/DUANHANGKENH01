@@ -63,10 +63,8 @@ builder.Services.AddScoped<ITagsRepository, TagsRepository>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IPostReponsetory, PostReponsetory>();
 builder.Services.AddScoped<IAddressRepository, AddressRepository>();
-
 builder.Services.AddHostedService<VoucherExpiryChecker>();
 builder.Services.AddHostedService<DiscountStatusChecker>();
-
 builder.Services.AddScoped<IColorReponsitory, ColorReponsitory>();
 builder.Services.AddScoped<IMaterialReponsitory, MaterialReponsitory>();
 builder.Services.AddScoped<IStyleReponsitory, StyleReponsitory>();
@@ -82,7 +80,7 @@ builder.Services.AddScoped<IDesignerRepon, DesignerRepon>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IProductAttributesRepository, ProductAttributesRepository>();
 builder.Services.AddScoped<IProductVariantsRepository, ProductVariantsRepository>();
-
+builder.Services.AddScoped<IProductAttributeDiscountRepository, ProductAttributeDiscount>();
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
 builder.Services.AddScoped<IMomoRepository, MomoRepository>();
 
@@ -147,7 +145,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"I:\VIs Stu fille\DATN\DATN-Blazon\appAPI\FileMedia\"),
+    FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
     RequestPath = "/FileMedia"
 });
 

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace ViewsFE.Models
 {
@@ -22,6 +23,7 @@ namespace ViewsFE.Models
         public virtual Color? Color { get; set; }
         [ForeignKey("Product_Variant_Id")]
         public virtual Product_variants? Product_Variant { get; set; }
+        [JsonIgnore]
         public virtual ICollection<P_attribute_discount> p_attribute_discount { get; set; } = new List<P_attribute_discount>();
 
     }

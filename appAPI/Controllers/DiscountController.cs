@@ -45,10 +45,12 @@ namespace appAPI.Controllers
             if (existing == null) return NotFound("Discount not found");
             existing.Code = discount.Code;
             existing.Name = discount.Name;
+            existing.Type_of_promotion = discount.Type_of_promotion;
+            existing.Discount_value = discount.Discount_value;
+            existing.IsGlobal = discount.IsGlobal;
             existing.Start_date = discount.Start_date;
             existing.End_date = discount.End_date;
             existing.Status = discount.Status;
-            // Update các thuộc tính khác...
             _discountRepository.Update(existing);
             return Ok("Discount updated successfully");
         }
