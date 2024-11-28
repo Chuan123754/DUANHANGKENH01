@@ -27,6 +27,12 @@ namespace appAPI.Models
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set; }
         public DateTime? Deleted_at { get; set; }
+        [NotMapped]
+        public long? MinPrice { get; set; }
+
+        [NotMapped]
+        public long? MaxPrice { get; set; }
+
         [ForeignKey("Post_Id")]
         public virtual Product_Posts? Posts { get; set; }
         [ForeignKey("Style_id")]
@@ -36,7 +42,6 @@ namespace appAPI.Models
         [ForeignKey("Textile_technology_id")]
         public virtual Textile_technology? Textile_Technology { get; set; }
         public virtual ICollection<Product_variants_wishlist> Product_Variants_Wishlists { get; set; } = new List<Product_variants_wishlist>();
-        [JsonIgnore]
         public virtual ICollection<Product_Attributes>? Product_Attributes { get; set; } = new List<Product_Attributes>();
     }
 }

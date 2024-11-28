@@ -25,6 +25,16 @@ namespace appAPI.Controllers
         {
             return await _postRepository.GetAll();
         }
+        [HttpGet("GetAllByClient")]
+        public async Task<List<Product_variants>> GetAllByClient()
+        {
+            return await _postRepository.GetAllByClient();
+        }
+        [HttpGet("GetAllProductDelete")]
+        public async Task<List<Product_Posts>> GetAllProductDelete()
+        {
+            return await _postRepository.GetAllProductDelete();
+        }
         [HttpGet("Get-all-type")]
         public async Task<IActionResult> GetAllType(string type)
         {     
@@ -124,6 +134,15 @@ namespace appAPI.Controllers
             return Ok(new { message = "Xoá thành công" });
         }
 
+
+        // Xoá bài viết
+        [HttpDelete("Restore-post")]
+        public async Task<IActionResult> Restore(long id)
+        {
+            await _postRepository.Restore(id);
+            return Ok(new { message = "Khôi phục thành công" });
+        }
+
         [HttpGet("get-by-type")]
         public async Task<IActionResult> GetByType([FromQuery] string type, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
         {
@@ -144,6 +163,50 @@ namespace appAPI.Controllers
             }
 
             var totalCount = await _postRepository.GetTotalCountAsync(type, searchTerm);
+            return Ok(totalCount);
+        }
+        [HttpGet("get-by-type-product")]
+        public async Task<IActionResult> GetByTypeProduct([FromQuery] string type, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        {
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Page number and page size must be greater than 0.");
+            }
+
+            var list = await _postRepository.GetByTypeAsyncProduct(type, pageNumber, pageSize, searchTerm);
+            return Ok(list);
+        }
+        [HttpGet("Get-Total-Count-Product")]
+        public async Task<IActionResult> GetTotalCountProduct([FromQuery] string type, [FromQuery] string? searchTerm = null)
+        {
+            if (string.IsNullOrEmpty(type))
+            {
+                return BadRequest("Type is required.");
+            }
+
+            var totalCount = await _postRepository.GetTotalCountAsyncProduct(type, searchTerm);
+            return Ok(totalCount);
+        }
+        [HttpGet("get-by-type-delete")]
+        public async Task<IActionResult> GetByTypeDelete([FromQuery] string type, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        {
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Page number and page size must be greater than 0.");
+            }
+
+            var list = await _postRepository.GetByTypeAsyncDelete(type, pageNumber, pageSize, searchTerm);
+            return Ok(list);
+        }
+        [HttpGet("Get-Total-Count-Delete")]
+        public async Task<IActionResult> GetTotalCountDelete([FromQuery] string type, [FromQuery] string? searchTerm = null)
+        {
+            if (string.IsNullOrEmpty(type))
+            {
+                return BadRequest("Type is required.");
+            }
+
+            var totalCount = await _postRepository.GetTotalCountAsyncDelete(type, searchTerm);
             return Ok(totalCount);
         }
         [HttpGet("get-by-type-cate")]
@@ -167,6 +230,11 @@ namespace appAPI.Controllers
 
             var totalCount = await _postRepository.GetTotalCountAsyncCate(type, categoryId);
             return Ok(totalCount);
+        }
+        [HttpGet("Get-Name-Designer")]
+        public async Task<string> GetNameDesigner(long id)
+        {
+            return await _postRepository.GetNameDesigner(id);
         }
     }
 }

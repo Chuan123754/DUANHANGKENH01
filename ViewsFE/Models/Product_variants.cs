@@ -27,6 +27,12 @@ namespace ViewsFE.Models
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set; }
         public DateTime? Deleted_at { get; set; }
+        [NotMapped]
+        public long? MinPrice { get; set; }
+
+        [NotMapped]
+        public long? MaxPrice { get; set; }
+
         [ForeignKey("Post_Id")]
         [JsonIgnore]
         public virtual Product_Posts? Posts { get; set; }

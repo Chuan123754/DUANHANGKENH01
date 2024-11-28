@@ -11,15 +11,22 @@ namespace appAPI.IRepository
         // Lấy tất cả bài viết theo type
         Task<List<Product_Posts>> GetAllByType(string type);
         Task<List<Product_Posts>> GetCountByType(string type, long designerId);
-
+        Task<List<Product_Posts>> GetAllProductDelete();
+        Task Restore(long id);
+        Task<string?> GetNameDesigner(long id);
         // Lấy bài viết theo id và type
         Task<Product_Posts> GetByIdAndType(long id, string type);
 
         // Lấy bài viết theo type với phân trang và tìm kiếm
         Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm);
-
         // Lấy tổng số bài viết theo type và tìm kiếm
-        Task<int> GetTotalCountAsync(string type, string searchTerm);
+        Task<int> GetTotalCountAsync(string type, string searchTerm);  
+        Task<List<Product_variants>> GetByTypeAsyncProduct(string type, int pageNumber, int pageSize, string searchTerm);
+        // Lấy tổng số bài viết theo type và tìm kiếm
+        Task<int> GetTotalCountAsyncProduct(string type, string searchTerm);
+        Task<List<Product_Posts>> GetByTypeAsyncDelete(string type, int pageNumber, int pageSize, string searchTerm);
+        // Lấy tổng số bài viết theo type và tìm kiếm
+        Task<int> GetTotalCountAsyncDelete(string type, string searchTerm);
         //Phân trang theo type và id cate
         Task<List<Product_Posts>> GetByTypeAsyncCate(string type, long categoryId, int pageNumber, int pageSize);
 
@@ -46,5 +53,6 @@ namespace appAPI.IRepository
 
         // Xóa bài viết
         Task Delete(long id);
+        Task<List<Product_variants>> GetAllByClient();
     }
 }
