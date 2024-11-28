@@ -77,11 +77,6 @@ namespace ViewsFE.Services
             await _client.DeleteAsync($"{_baseUrl}/api/Product_Post/Delete-post?id={id}");
         }
 
-        public async Task<List<Product_Posts>> GetAllType(string type)
-        {
-            return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/Get-all-type?Type={type}");
-        }
-
         public async Task<Product_Posts> GetByIdType(long id, string type)
         {
             // Gọi API và lấy dữ liệu
@@ -120,6 +115,36 @@ namespace ViewsFE.Services
             response.EnsureSuccessStatusCode();
             var responseData = await response.Content.ReadFromJsonAsync<ResponseMessage>();
             return responseData.Post_Id;
+        }
+
+        public async Task<List<Product_Posts>> GetAllProductDelete()
+        {
+            return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/GetAllProductDelete");
+        }
+
+        public async Task Restore(long id)
+        {
+            await _client.DeleteAsync($"{_baseUrl}/api/Product_Post/Restore-post?id={id}");
+        }
+
+        public async Task<List<Product_Posts>> GetByTypeAsyncDelete(string type, int pageNumber, int pageSize, string searchTerm)
+        {
+            var uri = $"{_baseUrl}/api/Product_Post/get-by-type-delete?type={type}&pageNumber={pageNumber}&pageSize={pageSize}&searchTerm={Uri.EscapeDataString(searchTerm)}";
+            return await _client.GetFromJsonAsync<List<Product_Posts>>(uri);
+        }
+        public async Task<int> GetTotalCountAsyncDelete(string type, string searchTerm)
+        {
+            var url = $"{_baseUrl}/api/Product_Post/Get-Total-Count-Delete?type={type}&searchTerm={Uri.EscapeDataString(searchTerm)}";
+            var response = await _client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var count = await response.Content.ReadFromJsonAsync<int>();
+            return count;
+        }
+
+        public async Task<List<Product_Posts>> GetAllType(string type)
+        {
+            return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/Get-all-type?type={type}");
         }
     }
 }

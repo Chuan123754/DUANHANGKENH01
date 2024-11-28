@@ -13,6 +13,7 @@ namespace appAPI.Repository
         }
         public async Task<Designer> Create(Designer at)
         {
+            at.Deleted = false;
             at.create_at = DateTime.Now;
             _context.Designer.Add(at);
             await _context.SaveChangesAsync();
@@ -22,18 +23,19 @@ namespace appAPI.Repository
         public async Task Delete(long id)
         {
             var data = _context.Designer.Find(id);
-            _context.Designer.Remove(data);
+            data.Deleted = true;
+            _context.Designer.Update(data);
             await _context.SaveChangesAsync();
         }
 
         public async Task<List<Designer>> GetAll()
         {
-          return await _context.Designer.ToListAsync();
+          return await _context.Designer.Where(p => p.Deleted == false).ToListAsync();
         }
 
         public async Task<Designer> GetById(long id)
         {
-            return await _context.Designer.FindAsync(id);
+            return await _context.Designer.Where(p => p.id_Designer == id && p.Deleted == false).FirstOrDefaultAsync();
            
         }
 
@@ -41,7 +43,7 @@ namespace appAPI.Repository
         {
             // Lấy danh sách sản phẩm theo loại, phân trang và tìm kiếm
             return await _context.Designer
-                .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)))
+                .Where(p => p.Deleted == false && (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)))
                 .OrderBy(p => p.id_Designer) // Thay đổi theo tiêu chí sắp xếp bạn muốn
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -52,7 +54,7 @@ namespace appAPI.Repository
         {
             // Lấy tổng số sản phẩm theo loại và tìm kiếm
             return await _context.Designer
-                .CountAsync(p => (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)));
+                .CountAsync(p =>p.Deleted == false && (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)));
         }
 
         public async Task<Designer> Update(Designer at)
@@ -71,6 +73,7 @@ namespace appAPI.Repository
             item.status = at.status;
             item.meta_data = at.meta_data;
             item.create_at = at.create_at;
+            item.Deleted = false;
             item.update_at = DateTime.Now;
             _context.Designer.Update(item);
             await _context.SaveChangesAsync();

@@ -7,7 +7,6 @@
 @inject IBannerServices bnser
 @inject IJSRuntime JS
 
-
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -330,12 +329,12 @@
     private List<Tags> TagsList = new List<Tags>();
     private List<long> SelectedCategories = new List<long>();
     private List<long> SelectedTags = new List<long>();
-    private Dictionary<string, string> statuses = Product_Posts.STATUSES;
     private List<Designer> designersList = new List<Designer>();
+    private Dictionary<string, string> statuses = Product_Posts.STATUSES;
+    private bool tinyMCEInitialized = false;
     private Media_modal mediaModalRef;
     private Modal mediaLibraryModal;
     private Media_manager media_ManagerRef;
-    private bool tinyMCEInitialized = false;
     private long postId;
 
 
@@ -346,6 +345,12 @@
         await JS.InvokeVoidAsync("openMediaModalN");
     }
 
+    private async Task HandleImageSelected(string imagePath)
+    {
+        Posts.Feature_image = imagePath ?? string.Empty;
+        StateHasChanged(); // Cập nhật giao diện
+        await JS.InvokeVoidAsync("closeMediaModal"); // Gọi hàm JavaScript để đóng modal
+    }
     private async Task HandleImageSelectedBanner(string imagePath)
     {
         // Nếu imagePath là null, xóa ảnh banner
@@ -353,18 +358,10 @@
         StateHasChanged();
         await JS.InvokeVoidAsync("closeMediaBannerModal");
     }
-
-    private async Task HandleImageSelected(string imagePath)
-    {
-        Posts.Feature_image = imagePath;
-        StateHasChanged();
-        await JS.InvokeVoidAsync("closeMediaModal");
-    }
     private async Task OpenMediaModalN(bool isMultiple, string referId)
     {
         await JS.InvokeVoidAsync("openMediaModalN", isMultiple, referId);
     }
-
     protected override async Task OnInitializedAsync()
     {
         Posts = await sev.GetByIdType(Id, "product");
@@ -373,9 +370,9 @@
         designersList = await des.GetAll();
         banner = await bnser.GetBannerByProductPostId(Id);
         SelectedCategories = (await cate.GetCategoryByPosstId(Id))
-                           .Where(pc => pc.Post_Id == Id)
-                           .Select(pc => pc.Category_Id)
-                           .ToList();
+                          .Where(pc => pc.Post_Id == Id)
+                          .Select(pc => pc.Category_Id)
+                          .ToList();
 
         SelectedTags = (await stag.GetTagByPostId(Id))
                         .Where(pt => pt.Post_Id == Id)
@@ -384,24 +381,20 @@
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && !tinyMCEInitialized)
         {
-            if (!tinyMCEInitialized)
-            {
-                await JS.InvokeVoidAsync("initTinyMCE");
-                tinyMCEInitialized = true;
-            }
-
-            if (TagsList?.Count > 0)
-            {
-                await JS.InvokeVoidAsync("initializeTagsList", TagsList);
-                await JS.InvokeVoidAsync("initializeTomSelect", "#tags-selects");
-            }
-            if (CategoriesList?.Count > 0)
-            {
-                await JS.InvokeVoidAsync("initializeCateList", CategoriesList);
-                await JS.InvokeVoidAsync("initializeTomSelectForCategories", "#categories");
-            }
+            await JS.InvokeVoidAsync("initTinyMCE");
+            tinyMCEInitialized = true;
+        }
+        if (TagsList?.Count > 0)
+        {
+            await JS.InvokeVoidAsync("initializeTagsList", TagsList);
+            await JS.InvokeVoidAsync("initializeTomSelect", "#tags-selects");
+        }
+        if (CategoriesList?.Count > 0)
+        {
+            await JS.InvokeVoidAsync("initializeCateList", CategoriesList);
+            await JS.InvokeVoidAsync("initializeTomSelectForCategories", "#categories");
         }
     }
     public async ValueTask DisposeAsync()
@@ -417,14 +410,13 @@
 
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         SelectedTags = string.IsNullOrEmpty(tags)
-             ? new List<long>() // Nếu tags rỗng, tạo danh sách trống
-             : tags.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
+            ? new List<long>() // Nếu tags rỗng, tạo danh sách trống
+            : tags.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
 
         var categories = await JS.InvokeAsync<string>("getSelectedValues", "#categories");
         SelectedCategories = string.IsNullOrEmpty(categories)
             ? new List<long>() // Nếu categories rỗng, tạo danh sách trống
             : categories.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
-
         try
         {
             postId = await sev.Updatetagcate(Posts, SelectedTags, SelectedCategories);

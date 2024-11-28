@@ -1,6 +1,6 @@
-﻿@page "/admin/post"
-@inject NavigationManager nav
-@inject IPostSer sev
+﻿@page "/admin/product-delete"
+@inject NavigationManager Navigation
+@inject IPostSer ProductService
 @inject IJSRuntime JS
 
 <div class="page-wrapper">
@@ -9,12 +9,7 @@
         <div class="container-xl">
             <div class="row g-2 align-items-center">
                 <div class="col d-flex gap-3">
-                    <h2 class="page-title">
-                        Danh sách bài viết
-                    </h2>
-                    <a href="/admin/post/create" class="btn btn-sm btn-outline-primary">
-                        Thêm bài viết
-                    </a>
+                    <h2 class="page-title">Danh sách sản phẩm đã xoá</h2>              
                 </div>
             </div>
         </div>
@@ -25,6 +20,7 @@
         <div class="container-xl">
             <div class="card">
                 <div class="card-body">
+                    <!-- Search form -->
                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
                         <div></div>
                         <EditForm Model="product_posts" OnValidSubmit="@OnSearch">
@@ -35,6 +31,7 @@
                         </EditForm>
                     </div>
 
+                    <!-- Product Table -->
                     <div id="table-default" class="table-responsive">
                         @if (product_posts_list != null && product_posts_list.Any())
                         {
@@ -43,23 +40,23 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-title">Tiêu đề</button>
+                                            <button class="table-sort">Tiêu đề</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-city">Tác giả</button>
+                                            <button class="table-sort">Tác giả</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-type">Chuyên mục</button>
+                                            <button class="table-sort">Chuyên mục</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-score">Thẻ</button>
+                                            <button class="table-sort">Thẻ</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-score">Trạng thái</button>
+                                            <button class="table-sort">Trạng thái</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" data-sort="sort-date">Thời gian</button>
-                                        </th>
+                                            <button class="table-sort">Ngày tạo</button>
+                                        </th>                                     
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -68,19 +65,14 @@
                                     {
                                         <tr class="post-row">
                                             <td>@post.Id</td>
-                                            <td class="sort-title">
+                                            <td>
                                                 @post.Title
                                                 <br />
-                                                <!-- Tạo các hành động sửa và xóa cho sản phẩm con -->
                                                 <div class="cell-action">
-                                                    <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(post.Id)">Chỉnh sửa</a>
-                                                    <a class="cell-action-delete text-danger" @onclick=" async () => await NavDeleteCtgr(post.Id)">Thùng rác</a>
+                                                    <a class="cell-action-delete text-danger" @onclick="() => ConfirmRestore(post.Id)">Khôi phục</a>
                                                 </div>
                                             </td>
-                                            <td class="sort-city">
-                                                @post.Designer?.Name
-                                            </td>
-
+                                            <td>@post.Designer?.Name</td>
                                             <td class="sort-type">
                                                 @if (post.Post_categories != null && post.Post_categories.Any())
                                                 {
@@ -93,7 +85,7 @@
                                                     <span>Không có danh mục</span>
                                                 }
                                             </td>
-                                            <td class="sort-score">
+                                            <td class="sort-tags">
                                                 @if (post.Post_tags != null && post.Post_tags.Any())
                                                 {
                                                     <span>
@@ -108,10 +100,15 @@
                                             <td class="sort-status">
                                                 <span class="@post.StatusClass">@post.StatusLabel</span>
                                             </td>
-                                            <td class="sort-date">@post.Created_at</td>
+                                            <td class="sort-date">
+                                                @post.Created_at
+                                            </td>                                   
                                         </tr>
                                     }
+
+
                                 </tbody>
+
                             </table>
                             <div class="mt-4">
                                 <Pagination TItem="Product_Posts" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
@@ -139,23 +136,11 @@
     private int page_size = 10;
     private int totalItems;
 
-    private async Task OnSearch()
-    {
-        product_posts_list = await sev.GetByTypeAsync("post", page_number, page_size, search_query);
-    }
-    private async Task LoadPosts()
-    {
-
-        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        product_posts_list = await sev.GetByTypeAsync("post", page_number, page_size, searchTerm);
-        totalItems = await sev.GetTotalCountAsync("post", searchTerm);
-        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
-        StateHasChanged();
-    }
     protected override async Task OnInitializedAsync()
     {
         await LoadPosts();
     }
+
     private async Task GoToPage(int page)
     {
         page_number = page;
@@ -168,28 +153,33 @@
         page_number = 1;
         await LoadPosts();
     }
-    
-    protected async Task NavEditCtgr(long id)
+    private async Task LoadPosts()
     {
-        nav.NavigateTo($"/admin/post/edit/{id}", forceLoad: true);
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        product_posts_list = await ProductService.GetByTypeAsyncDelete("product", page_number, page_size, searchTerm);
+        totalItems = await ProductService.GetTotalCountAsyncDelete("product", searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
     }
-    protected async Task NavDeleteCtgr(long id)
+
+    private async Task OnSearch()
+    {
+        product_posts_list = await ProductService.GetByTypeAsyncDelete("product", page_number, page_size, search_query);
+    }
+
+    private async Task ConfirmRestore(long id)
     {
         try
         {
-            await sev.Delete(id);
-            await JS.InvokeVoidAsync("toastr.success", "Xóa bản ghi thành công");
+            await ProductService.Restore(id);
+            await JS.InvokeVoidAsync("toastr.success", "Khôi phục bản ghi thành công!");
             await LoadPosts();
             StateHasChanged();
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể xoá bản ghi. Vui lòng thử lại.");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể khôi phục bản ghi. Vui lòng thử lại.");
         }
     }
-
-
 }
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="assets/libs/tabler/libs/list.js/dist/list.min.js" defer=""></script>

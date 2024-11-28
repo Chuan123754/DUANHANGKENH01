@@ -28,6 +28,7 @@ namespace appAPI.Models
         public virtual Size? Size { get; set; } 
         [ForeignKey("Color_Id")]
         public virtual Color? Color { get; set; }
+        [JsonIgnore]
         [ForeignKey("Product_Variant_Id")]
         public virtual Product_variants? Product_Variant { get; set; }
         [JsonIgnore]
