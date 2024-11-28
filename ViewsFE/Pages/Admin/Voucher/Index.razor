@@ -262,8 +262,8 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>STT</th>
                                             <th>Tích</th>
+                                            <th>Mã KH</th>
                                             <th>Tên Người Dùng</th>
                                             <th>Email</th>
                                             <th>Số Điện Thoại</th>
@@ -282,11 +282,10 @@
                                             @foreach (var user in pagedUsers)
                                             {
                                                 <tr>
-                                                    <td>@(++index + (currentCustomerPage - 1) * customerPageSize)</td>
                                                     <td>
-                                                        <!-- Checkbox cho khách hàng -->
                                                         <input type="checkbox" checked="@selectedUserIds.Contains(user.Id)" @onchange="@(e => OnCheckboxChange(e, user.Id))" />
                                                     </td>
+                                                    <td>@user.Id</td>
                                                     <td>@user.Name</td>
                                                     <td>@user.Email</td>
                                                     <td>@user.Phone</td>
@@ -385,11 +384,6 @@
         }
         ToggleUserSelection(userId, isChecked);
     }
-
-
-
-
-
 
     private void SetStatusToActive(ChangeEventArgs e)
     {
@@ -607,8 +601,6 @@
         }
     }
 
-
-
     private async Task EditVoucher(long id)
     {
         voucher = await VoucherService.Details(id);
@@ -641,9 +633,6 @@
     private void UpdateInitialUserIds()
     {
     }
-
-
-
 
     private async Task UpdateVoucher()
     {

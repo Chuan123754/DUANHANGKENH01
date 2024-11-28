@@ -17,7 +17,6 @@ namespace ViewsFE.Services
 
         public async Task<List<Discount>> GetAll()
         {
-            // Lấy danh sách Voucher từ API
             string requestURL = "https://localhost:7011/api/Discount";
             var response = await _httpClient.GetStringAsync(requestURL);
             var discount = JsonConvert.DeserializeObject<List<Discount>>(response);

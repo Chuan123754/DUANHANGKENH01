@@ -3,9 +3,32 @@
 @using ViewsFE.Models
 @using ViewsFE.IServices
 @inject IDiscountServices DiscountService
+@inject IProductAttributeServices productAttributeService
+@inject IAttributesDiscountServices AttributeDiscountService
 @inject IJSRuntime JS
 
 <style>
+    .btn-edit {
+        transition: all 0.3s ease;
+    }
+
+        .btn-edit:hover {
+            transform: scale(1.2);
+        }
+    .btn-end {
+        transition: all 0.3s ease;
+    }
+
+        .btn-end:hover {
+            transform: scale(1.2);
+        }
+            .btn-end:hover ~ .btn-edit {
+                transform: scale(1); 
+            }
+    .btn-edit:hover ~ .btn-end {
+        transform: scale(1); 
+    }
+
     .info-icon {
         position: relative;
         cursor: pointer;
@@ -82,14 +105,26 @@
                                 </div>
 
                                 <div class="form-group mb-1">
-                                    <label for="typeOfPromotion">Loại Khuyến Mãi
-                                        <span class="info-icon">
-                                            <i class="fas fa-info-circle fa-sm"></i>
-                                            <span class="tooltip-text">Giảm theo phần trăm phải có ký tự "%"</span>
+                                    <label for="typeOfPromotion">Loại Khuyến Mãi</label>
+                                    <select id="typeOfPromotion" @bind="selectedType" class="form-control">
+                                        <option value="Percentage">Giảm theo phần trăm</option>
+                                        <option value="Fixed">Giảm giá cố định</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group mb-1">
+                                    <label for="discountValue">Giá trị khuyến mãi</label>
+                                    <div class="input-group">
+                                        <input type="number" id="discountValue"
+                                               @bind="discountValue"
+                                               class="form-control"
+                                               placeholder="Nhập giá trị khuyến mãi"
+                                               @oninput="ValidateDiscountValue" />
+                                        <span class="input-group-text">
+                                            @((selectedType == "Percentage") ? "%" : "VNĐ")
                                         </span>
-                                    </label>
-                                    <input type="text" id="typeOfPromotion" @bind="discount.Type_of_promotion" class="form-control" placeholder="Loại khuyến mãi" />
-                                    <ValidationMessage For="@(() => discount.Type_of_promotion)" />
+                                    </div>
+                                    <ValidationMessage For="@(() => discountValue)" />
                                 </div>
 
                                 <div class="form-group mb-1">
@@ -99,33 +134,15 @@
                                 </div>
 
                                 <div class="form-group mb-1">
-                                    <label for="endDate">Ngày Kết Thúc
-                                        <span class="info-icon">
-                                            <i class="fas fa-info-circle fa-sm"></i>
-                                            <span class="tooltip-text">Lưu ý: Ngày kết thúc luôn lớn hơn ngày bắt đầu.</span>
-                                        </span>
-                                    </label>
+                                    <label for="endDate">Ngày Kết Thúc</label>
                                     <InputDate id="endDate" @bind-Value="discount.End_date" class="form-control" />
                                     <ValidationMessage For="@(() => discount.End_date)" />
                                 </div>
 
-                                 <div class="form-group mb-1">
-                                    <label>Trạng Thái</label><br />
-
-                                    <input type="radio" id="active" name="status" checked="@(discount.Status == "Hoạt động")" @onchange="SetStatusToActive" />
-                                    <label for="active">Hoạt động</label>
-
-                                    <input type="radio" id="inactive" name="status" checked="@(discount.Status == "Không hoạt động")" @onchange="SetStatusToInactive" />
-                                    <label for="inactive">Không hoạt động</label>
-
-                                    <ValidationMessage For="@(() => discount.Status)" />
-                                </div>
-
-                                <!-- Nút Tạo và Cập Nhật -->
                                 <div class="form-group">
                                     @if (discount.Id == 0)
                                     {
-                                        <button type="submit" class="btn btn-primary">Tạo</button>
+                                        <button type="button" class="btn btn-primary" @onclick="CreateDiscount">Xác nhận </button>
                                     }
                                     else
                                     {
@@ -150,13 +167,15 @@
                                     </div>
                                 </EditForm>
                             </div>
-                            <table class="table table-striped">
+                            <h3>Danh Sách Khuyến Mãi</h3>
+                            <table class="table ">
                                 <thead>
                                     <tr>
                                         <th>STT</th>
-                                        <th>Mã Khuyến Mãi</th>
-                                        <th>Tên Khuyến Mãi</th>
-                                        <th>Loại Khuyến Mãi</th>
+                                        <th>Mã KM</th>
+                                        <th>Tên KM</th>
+                                        <th>Loại KM</th>
+                                        <th>Gía trị KM</th>
                                         <th>Ngày Bắt Đầu</th>
                                         <th>Ngày Kết Thúc</th>
                                         <th>Trạng thái</th>
@@ -173,13 +192,24 @@
                                                 <td>@(++index + (currentPage - 1) * pageSize)</td>
                                                 <td>@discount.Code</td>
                                                 <td>@discount.Name</td>
-                                                <td>@discount.Type_of_promotion</td>
+                                                <td>@discount.Type_of_promotion</td>                                        
+                                                <td>
+                                                    @(discount.Type_of_promotion == "Percentage"
+                                                        ? $"{discount.Discount_value}%"
+                                                        : $"{discount.Discount_value:#,##0} VNĐ")
+                                                </td>
                                                 <td>@discount.Start_date.ToString("dd/MM/yyyy")</td>
                                                 <td>@discount.End_date.ToString("dd/MM/yyyy")</td>
                                                 <td>@discount.Status</td>
-                                                <td>
-                                                    <button class="btn btn-primary" @onclick="() => EditDiscount(discount.Id)">Sửa</button>
-                                                    <button class="btn btn-danger" @onclick="() => ConfirmDelete(discount.Id)">Xóa</button>
+                                                <td style="display: flex; justify-content: space-between; align-items: center;">
+                                                    <button class="btn btn-primary btn-edit"
+                                                            @onclick="() => EditDiscount(discount.Id)">
+                                                        Sửa
+                                                    </button>
+                                                    <button class="btn btn-danger btn-end"
+                                                            @onclick="() => EndDiscount(discount.Id)">
+                                                        End
+                                                    </button>
                                                 </td>
                                             </tr>
                                         }
@@ -201,6 +231,71 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Search Box -->
+                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                <EditForm Model="discount" OnValidSubmit="@SearchDiscounts">
+                                    <div class="form-group d-flex gap-2">
+                                        <InputText id="searchInput" class="form-control" @bind-Value="searchText" placeholder="Nhập từ khóa tìm kiếm" />
+                                        <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                    </div>
+                                </EditForm>
+                            </div>
+                            <h3>Danh Sách Sản Phẩm</h3>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <input type="checkbox" checked="@isAllSelected" @onchange="ToggleSelectAll" />
+                                            <label>All</label>
+                                        </th>                                     
+                                        <th>Hình ảnh</th>
+                                        <th>Mã Sản Phẩm</th>
+                                        <th>SKU</th>
+                                        <th>Màu sắc</th>
+                                        <th>Kích thước</th>
+                                        <th>Gía bán</th>
+                                        <th>Số lượng kho</th>
+                                        <th>Trạng thái</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in lst_ProductAtribites)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" checked="@selectedProductIds.Contains(item.Id)" @onchange="@(e => OnCheckboxChange(e, item.Id))" />
+                                            </td>
+                                            <td><img src="@item.Image" alt="Hình ảnh" style="width: 80px; height: auto;" /></td>
+                                            <td>@item.Id</td>
+                                            <td>@item.SKU</td>
+                                            <td class="text-center">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <span class="text-truncate">@item.Color?.Title</span>
+                                                    <div class="color-preview"
+                                                         style="width: 16px; height: 16px; background-color: @item.Color?.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>@item.Size.Title</td>
+                                            <td>@string.Format("{0:N0}", item.Regular_price).Replace(".", ",") VNĐ</td>
+                                            <td>@item.Stock</td>
+                                            <td>@item.Status</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+
+                            <!-- Phân trang -->
+@*                             <div class="mt-4">
+                                <Pagination TItem="Discount" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="discounts.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div> *@
+
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -209,14 +304,110 @@
 @code {
     private List<Discount> discounts = new List<Discount>();
     private List<Discount> pagedDiscounts = new List<Discount>();
+    private List<Product_Attributes> lst_ProductAtribites = new List<Product_Attributes>();
+    private List<P_attribute_discount> lst_attributeDiscount = new List<P_attribute_discount>();
     private Discount discount = new Discount();
-
+    private decimal discountValue;
+    private List<long> selectedProductIds = new List<long>();
+    private List<long> initialProductIds = new List<long>();
+    private int selectedProductCount = 0;
+    private bool isAllSelected = false;
+    private string selectedType = "";
     private string searchText = string.Empty;
     private string errorMessage = string.Empty;
     private int currentPage = 1;
     private int pageSize = 5;
     private int totalPages = 1;
 
+    private void ToggleUserSelection(long userId, bool isChecked)
+    {
+        if (isChecked)
+        {
+            if (!selectedProductIds.Contains(userId))
+            {
+                selectedProductIds.Add(userId);
+                selectedProductCount++;
+            }
+        }
+        else
+        {
+            if (selectedProductIds.Contains(userId))
+            {
+                selectedProductIds.Remove(userId);
+                selectedProductCount--;
+            }
+        }
+        selectedProductIds = selectedProductIds.Distinct().ToList();
+        Console.WriteLine(selectedProductIds);
+    }
+    private void ToggleSelectAll()
+    {
+        isAllSelected = !isAllSelected;
+        selectedProductIds.Clear();
+
+        if (isAllSelected)
+        {
+            // Add all product IDs to selectedProductIds
+            foreach (var item in lst_ProductAtribites)
+            {
+                selectedProductIds.Add(item.Id);
+            }
+        }
+
+        StateHasChanged(); // To force re-rendering
+    }
+    private void OnCheckboxChange(ChangeEventArgs e, long productId)
+    {
+        bool isChecked = e.Value is bool && (bool)e.Value;
+
+        if (isChecked)
+        {
+            if (!selectedProductIds.Contains(productId))
+            {
+                selectedProductIds.Add(productId);
+            }
+        }
+        else
+        {
+            if (selectedProductIds.Contains(productId))
+            {
+                selectedProductIds.Remove(productId);
+            }
+        }
+        isAllSelected = lst_ProductAtribites.All(item => selectedProductIds.Contains(item.Id));
+    }
+
+    private void ValidateDiscountValue(ChangeEventArgs e)
+    {
+        if (decimal.TryParse(e.Value?.ToString(), out var value))
+        {
+            if (selectedType == "Percentage")
+            {
+                if (value <= 0 || value > 100)
+                {
+                    errorMessage = "Giảm theo phần trăm phải lớn hơn 0 và không quá 100!";
+                    discountValue = 0; // Reset giá trị nếu không hợp lệ
+                    return;
+                }
+            }
+            else if (selectedType == "Fixed")
+            {
+                if (value <= 0)
+                {
+                    errorMessage = "Giảm giá cố định phải lớn hơn 0!";
+                    discountValue = 0; // Reset giá trị nếu không hợp lệ
+                    return;
+                }
+            }
+            errorMessage = null;
+            discountValue = value;
+        }
+        else
+        {
+            errorMessage = "Giá trị không hợp lệ!";
+            discountValue = 0;
+        }
+    }
     private void SetStatusToActive(ChangeEventArgs e)
     {
         discount.Status = "Hoạt động";
@@ -235,9 +426,12 @@
         discount.End_date = DateTime.Now.AddDays(1);
         discount.Status = "Hoạt động";
 
+        lst_ProductAtribites = await productAttributeService.GetAllProductAttributes();
+        lst_attributeDiscount = await AttributeDiscountService.GetAll();
         discounts = await DiscountService.GetAll();
         totalPages = (int)Math.Ceiling((double)discounts.Count / pageSize);
         LoadPagedDiscounts();
+        LoadProductAttribute();
     }
 
     private void LoadPagedDiscounts()
@@ -254,6 +448,11 @@
         discount.End_date = DateTime.Now.AddDays(1);
         discount.Status = "Hoạt động";
         pagedDiscounts = discounts.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+    }
+
+    private async Task LoadProductAttribute()
+    {
+        lst_ProductAtribites = await productAttributeService.GetAllProductAttributes();
     }
 
     private async Task GoToPage(int page)
@@ -295,7 +494,7 @@
         }
         else
         {
-            await UpdateDiscount();
+            await UpdateDiscount(discount.Id);
         }
     }
 
@@ -307,36 +506,92 @@
             var isDuplicateCode = discounts.Any(d => d.Code.Equals(discount.Code, StringComparison.OrdinalIgnoreCase));
             if (isDuplicateCode)
             {
-                errorMessage = "Mã khuyến mãi đã tồn tại!";
+                await JS.InvokeVoidAsync("toastr.warning", "Mã khuyến mãi đã tồn tại!");
                 return;
             }
-
-            // Kiểm tra "Type_of_promotion" chỉ chứa số hoặc ký tự "%"
-            if (!Regex.IsMatch(discount.Type_of_promotion, @"^\d+%?$"))
-            {
-                errorMessage = "Loại khuyến mãi phải là số hoặc số kèm ký tự '%'!";
-                return;
-            }
-
             if (discount.End_date <= discount.Start_date)
             {
-                errorMessage = "Ngày kết thúc phải lớn hơn ngày bắt đầu!";
+                await JS.InvokeVoidAsync("toastr.warning", "Ngày kết thúc phải lớn hơn ngày bắt đầu!");
                 return;
             }
-
-            if (string.IsNullOrWhiteSpace(discount.Code) ||
-                string.IsNullOrWhiteSpace(discount.Name) ||
-                string.IsNullOrWhiteSpace(discount.Type_of_promotion))
+            if (string.IsNullOrWhiteSpace(discount.Code) || string.IsNullOrWhiteSpace(discount.Name))
             {
-                errorMessage = "Các trường không được để trống hoặc chỉ chứa khoảng trắng!";
+                await JS.InvokeVoidAsync("toastr.warning", "Các trường không được để trống hoặc chỉ chứa khoảng trắng!");
                 return;
             }
+            var today = DateTime.Today;
+            if (discount.End_date < today)
+            {
+                discount.Status = "Đã kết thúc";
+            }
+            else if (discount.Start_date > today)
+            {
+                discount.Status = "Sắp diễn ra";
+            }
+            else
+            {
+                discount.Status = "Đang diễn ra";
+            }
 
-            await DiscountService.Create(discount);
+            if (selectedProductIds.Any())
+            {
+                var productDiscount = new Discount
+                    {
+                        Code = discount.Code,
+                        Name = discount.Name,
+                        Type_of_promotion = selectedType,
+                        Discount_value = discountValue,
+                        Start_date = discount.Start_date,
+                        End_date = discount.End_date,
+                        Status = discount.Status,
+                        IsGlobal=false,
+                        Create_at = DateTime.Now,
+                    };
+                // Tạo khuyến mãi
+                var createdDiscount = await DiscountService.Create(productDiscount);
+                foreach (var productId in selectedProductIds)
+                {
+                    // update giá
+                    if (discount.Status == "Đang diễn ra")
+                    {
+                        var product = await productAttributeService.GetProductAttributesById(productId);
+                        product.Sale_price = CalculateSalePrice(
+                            product.Regular_price ?? 0,
+                            discountValue,
+                            selectedType
+                        );
+                        await productAttributeService.Update(product,productId);
+                    }
+                    var productDiscountEntry = new Models.P_attribute_discount
+                        {
+                            P_attribute_Id = productId,
+                            Discount_Id = createdDiscount.Id
+                        };
+
+                    await AttributeDiscountService.Create(productDiscountEntry);
+                }
+            }
+            else
+            {
+                var newDiscount = new Discount
+                    {
+                        Code = discount.Code,
+                        Name = discount.Name,
+                        Type_of_promotion = selectedType, // Số lượng chỉ có thể nhập nếu không có khách hàng riêng
+                        Discount_value = discountValue,
+                        Start_date = discount.Start_date,
+                        End_date = discount.End_date,
+                        Status = discount.Status,
+                        Create_at = DateTime.Now,
+                    };
+
+                await DiscountService.Create(newDiscount);
+            }
+   
+
             await LoadDiscounts();
-            discount = new Discount();
             LoadPagedDiscounts();
-            errorMessage = "Đã tạo mới khuyến mãi thành công!";
+            await JS.InvokeVoidAsync("toastr.success", "Đã tạo mới khuyến mãi thành công!");
         }
         catch (Exception ex)
         {
@@ -344,8 +599,7 @@
         }
     }
 
-
-    private async Task UpdateDiscount()
+    private async Task UpdateDiscount(long id)
     {
         try
         {
@@ -353,14 +607,7 @@
             var isDuplicateCode = discounts.Any(d => d.Code.Equals(discount.Code, StringComparison.OrdinalIgnoreCase) && d.Id != discount.Id);
             if (isDuplicateCode)
             {
-                errorMessage = "Mã khuyến mãi đã tồn tại!";
-                return;
-            }
-
-            // Kiểm tra "Type_of_promotion" chỉ chứa số hoặc ký tự "%"
-            if (!Regex.IsMatch(discount.Type_of_promotion, @"^\d+%?$"))
-            {
-                errorMessage = "Loại khuyến mãi phải là số hoặc số kèm ký tự '%'!";
+                await JS.InvokeVoidAsync("toastr.warning", "Mã khuyến mãi đã tồn tại!");
                 return;
             }
 
@@ -370,19 +617,96 @@
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(discount.Code) ||
-                string.IsNullOrWhiteSpace(discount.Name) ||
-                string.IsNullOrWhiteSpace(discount.Type_of_promotion))
+            if (string.IsNullOrWhiteSpace(discount.Code) || string.IsNullOrWhiteSpace(discount.Name))
             {
                 errorMessage = "Các trường không được để trống hoặc chỉ chứa khoảng trắng!";
                 return;
             }
 
+            // Tính trạng thái khuyến mãi
+            var today = DateTime.Today;
+            if (discount.End_date < today)
+            {
+                discount.Status = "Đã kết thúc";
+            }
+            else if (discount.Start_date > today)
+            {
+                discount.Status = "Sắp diễn ra";
+            }
+            else
+            {
+                discount.Status = "Đang diễn ra";
+            }
+
+            selectedProductIds = selectedProductIds.Distinct().ToList();
+            initialProductIds = initialProductIds.Distinct().ToList();
+            discount.Discount_value = discountValue;
+            discount.Type_of_promotion = selectedType;
             await DiscountService.Update(discount);
+            foreach (var productId in selectedProductIds)
+            {
+                if (!initialProductIds.Contains(productId)) // Nếu sản phẩm mới được tích
+                {
+                    if (discount.Status == "Đang diễn ra")
+                    {
+                        var product = await productAttributeService.GetProductAttributesById(productId);
+                        product.Sale_price = CalculateSalePrice(
+                            product.Regular_price ?? 0,
+                            discountValue,
+                            selectedType
+                        );
+                        await productAttributeService.Update(product, productId);
+                    }
+                    var productDiscount = new Models.P_attribute_discount
+                        {
+                            P_attribute_Id = productId,
+                            Discount_Id = discount.Id
+                        };
+
+                    await AttributeDiscountService.Create(productDiscount);
+                }
+            }
+
+            foreach (var product in initialProductIds)
+            {
+                if (discount.Status == "Đang diễn ra")
+                {
+                    var product2 = await productAttributeService.GetProductAttributesById(product);
+                    product2.Sale_price = CalculateSalePrice(
+                        product2.Regular_price ?? 0,
+                        discountValue,
+                        selectedType
+                    );
+                    await productAttributeService.Update(product2, product);
+                }
+                if (!selectedProductIds.Contains(product))
+                {
+                    var productDiscount = await AttributeDiscountService.GetByIdDiscount(discount.Id);
+                    var remoteItem = productDiscount.Where(p => p.P_attribute_Id == product).FirstOrDefault();
+                    if (remoteItem != null)
+                    {
+                        await AttributeDiscountService.Delete(remoteItem.Id);
+                    }
+                    var productToUpdate = await productAttributeService.GetProductAttributesById(product);
+                    if (productToUpdate == null)
+                    {
+                        continue; // Bỏ qua sản phẩm này
+                    }
+
+                    productToUpdate.Sale_price = null;
+                    await productAttributeService.Update(productToUpdate, product);
+                }
+            }
+        
             await LoadDiscounts();
-            discount = new Discount();
             LoadPagedDiscounts();
-            errorMessage = "Cập nhật khuyến mãi thành công!";
+            selectedProductIds.Clear();
+            initialProductIds.Clear();
+            selectedProductCount = 0;
+            errorMessage = string.Empty;
+            selectedType = "";
+            discountValue = 0;
+            await JS.InvokeVoidAsync("toastr.success", "Cập nhật khuyến mãi thành công!");
         }
         catch (Exception ex)
         {
@@ -390,23 +714,104 @@
         }
     }
 
-
     private async Task EditDiscount(long id)
     {
         discount = await DiscountService.Details(id);
-    }
-
-    private async Task ConfirmDelete(long id)
-    {
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn xóa khuyến mãi này?");
-        if (confirmed)
+        try
         {
-            await DiscountService.Delete(id);
-            await LoadDiscounts();
-            LoadPagedDiscounts(); 
+            var productDiscount = await AttributeDiscountService.GetByIdDiscount(id);
+            initialProductIds.Clear();
+            selectedProductIds.Clear();
+
+            foreach (var userVoucher in productDiscount)
+            {
+                selectedProductIds.Add(userVoucher.P_attribute_Id ?? 0);
+                initialProductIds = selectedProductIds.ToList();
+            }
+
+            selectedProductCount = selectedProductIds.Count;
+            if (discount != null)
+            {
+                selectedType = discount.Type_of_promotion; 
+                discountValue = discount.Discount_value; 
+            }
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            initialProductIds.Clear();
+            selectedProductIds.Clear();
+            selectedProductCount = 0;
         }
     }
 
+    public static long CalculateSalePrice(long regularPrice, decimal discountValue, string discountType)
+    {
+        if (discountType == "Percentage")
+        {
+            decimal discountedPrice = regularPrice - (regularPrice * discountValue / 100);
+            return Math.Max((long)discountedPrice, 0); 
+        }
+        else if (discountType == "Fixed")
+        {
+            decimal discountedPrice = regularPrice - discountValue;
+            if (discountedPrice < 0)
+            {
+                discountedPrice = 1000;
+            }
+            return Math.Max((long)discountedPrice, 0); 
+        }
+        else
+        {
+            // Không giảm giá, trả về giá gốc
+            return regularPrice;
+        }
+    }
+
+    private async Task EndDiscount(long id)
+    {
+        try
+        {
+            var promotion = discounts.FirstOrDefault(d => d.Id == id);
+            if (promotion == null)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Khuyến mãi không tồn tại!");
+                return;
+            }
+
+            promotion.Status = "Đã dừng";
+            promotion.End_date = DateTime.Now;
+
+            bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn KẾT THỨC đợt khuyến mãi này?");
+            if (confirmed)
+            {
+                await DiscountService.Update(promotion);
+                var productDiscounts = await AttributeDiscountService.GetByIdDiscount(id);
+                foreach (var productDiscount in productDiscounts)
+                {
+                    // Lấy sản phẩm
+                    var product = await productAttributeService.GetProductAttributesById(productDiscount.P_attribute_Id ?? 0);
+                    if (product != null)
+                    {
+                        // Đặt Sale_price về null
+                        product.Sale_price = null;
+                        await productAttributeService.Update(product, productDiscount.P_attribute_Id ?? 0);
+                    }
+
+                    // Xóa liên kết sản phẩm-khuyến mãi
+                    await AttributeDiscountService.Delete(productDiscount.Id);
+                }
+                await LoadDiscounts();
+                LoadPagedDiscounts();
+            }
+            await JS.InvokeVoidAsync("toastr.success", " Đợt khuyến mãi đã được kết thúc!");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
+            await JS.InvokeVoidAsync("toastr.error", errorMessage);
+        }
+
+    }
 
     private async Task SearchDiscounts()
     {
@@ -434,7 +839,6 @@
         discount.Start_date = DateTime.Now;
         discount.End_date = DateTime.Now.AddDays(1);
     }
-
 
     private void HandleInvalidSubmit()
     {

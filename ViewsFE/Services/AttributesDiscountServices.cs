@@ -14,7 +14,7 @@ namespace ViewsFE.Services
         }
         public async Task<List<P_attribute_discount>> GetAll()
         {
-            string requestURL = "https://localhost:7011/api/VariantsDiscount";
+            string requestURL = "https://localhost:7011/api/VariantsDiscount/GetAll";
             var request = await _httpClient.GetStringAsync(requestURL);
             var item = JsonConvert.DeserializeObject<List<P_attribute_discount>>(request);
             return item;
@@ -37,14 +37,14 @@ namespace ViewsFE.Services
         }
         public async Task<P_attribute_discount> Details(long id)
         {
-            string requestURL = $"https://localhost:7011/api/VariantsDiscount/{id}";
+            string requestURL = $"https://localhost:7011/api/VariantsDiscount/GetById?id={id}";
             var request = await _httpClient.GetStringAsync(requestURL);
             var item = JsonConvert.DeserializeObject<P_attribute_discount>(request);
             return item;
         }
         public async Task<P_attribute_discount> Create(P_attribute_discount vd)
         {
-            string requestURL = $"https://localhost:7011/api/VariantsDiscount";
+            string requestURL = $"https://localhost:7011/api/VariantsDiscount/Create";
             var jsonContent = JsonConvert.SerializeObject(vd);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -79,7 +79,7 @@ namespace ViewsFE.Services
 
         public async Task<bool> Delete(long id)
         {
-            string requestURL = $"https://localhost:7011/api/VariantsDiscount/{id}";
+            string requestURL = $"https://localhost:7011/api/VariantsDiscount/Delete?id={id}";
             var request = await _httpClient.DeleteAsync(requestURL);
 
             if (!request.IsSuccessStatusCode)
@@ -89,6 +89,27 @@ namespace ViewsFE.Services
             }
 
             return request.IsSuccessStatusCode;
+        }
+
+        public Task<P_attribute_discount> GetByIdAndType(long id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<List<P_attribute_discount>> GetByIdDiscount(long idDiscount)
+        {
+            string requestURL = $"https://localhost:7011/api/VariantsDiscount/GetByDiscountId?discountId={idDiscount}";
+            var request = await _httpClient.GetStringAsync(requestURL);
+            var item = JsonConvert.DeserializeObject<List<P_attribute_discount>>(request);
+            return item;
+        }
+
+        public async Task<List<P_attribute_discount>> GetByIdProduct(long idProduct)
+        {
+            string requestURL = $"https://localhost:7011/api/VariantsDiscount/GetByProductId?productId={idProduct}";
+            var request = await _httpClient.GetStringAsync(requestURL);
+            var item = JsonConvert.DeserializeObject<List<P_attribute_discount>>(request);
+            return item;
         }
     }
 }
