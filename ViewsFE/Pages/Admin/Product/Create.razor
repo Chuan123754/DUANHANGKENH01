@@ -432,7 +432,7 @@
             banner.Type = "product";
             await bnser.AddBannerToPost(postId, banner);
             await JS.InvokeVoidAsync("toastr.success", "Thêm sản phẩm thành công");
-            nav.NavigateTo("/admin/productVariants/Create");
+            nav.NavigateTo("/Admin/productVariant/Create");
         }
         catch (Exception ex)
         {

@@ -62,8 +62,7 @@
     private async Task SubmitForm()
     {
         try
-        {
-            material.Create_at = DateTime.Now;
+        {          
             await sev.Create(material); // Gọi API để tạo thuộc tính
             await JS.InvokeVoidAsync("toastr.success", "Chất liệu đã được thêm thành công"); // Hiển thị thông báo thành công
             nav.NavigateTo("/admin/material"); // Điều hướng sau khi thành công

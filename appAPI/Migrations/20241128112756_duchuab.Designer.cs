@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241126065446_upadteDiscount")]
-    partial class upadteDiscount
+    [Migration("20241128112756_duchuab")]
+    partial class duchuab
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -984,7 +984,7 @@ namespace appAPI.Migrations
                     b.Property<string>("AccountId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<long?>("AuthorId")
+                    b.Property<long>("AuthorId")
                         .HasColumnType("bigint");
 
                     b.Property<DateTime?>("Created_at")
@@ -1037,8 +1037,23 @@ namespace appAPI.Migrations
                     b.Property<long?>("Updated_by")
                         .HasColumnType("bigint");
 
+                    b.Property<bool?>("baivietnoibat")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("bannernoibat")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("duannoibat")
+                        .HasColumnType("bit");
+
                     b.Property<string>("product_video")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("quytrinh")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("trendy")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -1522,21 +1537,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "8fecc611-39c1-4616-a740-6a97fdf452d9",
+                            ConcurrencyStamp = "fe783cb1-d8da-4b62-841d-0963f8a9013e",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "37377c00-8ba8-4b93-a5f0-1d08a7e2d9a1",
+                            ConcurrencyStamp = "14bede20-2e07-4b91-87d5-5f68307096b2",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "85866c64-86dc-44aa-959b-846989dd9ba6",
+                            ConcurrencyStamp = "13c8850c-f0eb-48a4-84d1-4ab1dc274c6c",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -1897,7 +1912,9 @@ namespace appAPI.Migrations
 
                     b.HasOne("appAPI.Models.Designer", "Designer")
                         .WithMany("Product_Posts")
-                        .HasForeignKey("AuthorId");
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Designer");
                 });
