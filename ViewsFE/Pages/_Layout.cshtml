@@ -214,8 +214,16 @@
                             <span class="avatar avatar-sm"
                                   style="background-image"></span>
                             <div class="d-none d-xl-block ps-2">
-                                <div>chuan</div>
-                                <div class="mt-1 small text-muted">SuperAdmin</div>
+                                @if(User.Identity.IsAuthenticated)
+                                {
+                                    <div>123</div>
+                                }
+                                else
+                                {
+                                    <div>XuanDung</div>
+                                    <div class="mt-1 small text-muted">Admin</div>
+                                }
+                       
                             </div>
                         </a>
                         <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
