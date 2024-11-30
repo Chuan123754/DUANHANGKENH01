@@ -4,6 +4,8 @@ using Microsoft.Extensions.Options;
 using RestSharp;
 using System.Security.Cryptography;
 using System.Text;
+using Dapper;
+using Microsoft.Data.SqlClient;
 
 namespace appAPI.Repository
 {
@@ -16,9 +18,41 @@ namespace appAPI.Repository
             _options = options.Value;
         }
 
+        public async Task<MomoQueryPaymentResponseModel> QueryTransactionAsync(string orderId)
+        {
+            var rawData =
+                $"partnerCode={_options.PartnerCode}&accessKey={_options.AccessKey}&requestId={orderId}&orderId={orderId}";
+            var signature = ComputeHmacSha256(rawData, _options.SecretKey);
+
+            var requestData = new
+            {
+                partnerCode = _options.PartnerCode,
+                accessKey = _options.AccessKey,
+                requestId = orderId,
+                orderId,
+                requestType = "transactionStatus", // Đảm bảo giá trị đúng
+                signature
+            };
+
+            var client = new RestClient("https://test-payment.momo.vn/v2/gateway/api/query");
+            var request = new RestRequest("", Method.Post);
+            request.AddHeader("Content-Type", "application/json; charset=UTF-8");
+            request.AddJsonBody(requestData);
+
+            var response = await client.ExecuteAsync<MomoQueryPaymentResponseModel>(request);
+
+            if (!response.IsSuccessful)
+            {
+                throw new Exception("Unable to query transaction status. Response: " + response.Content);
+            }
+
+            return response.Data;
+        }
+
+
         public async Task<MomoCreatePaymentResponseModel> CreatePaymentAsync(OrderInfoModel model)
         {
-            var orderId = DateTime.UtcNow.Ticks.ToString();
+            var orderId = DateTime.UtcNow.Ticks.ToString(); // Tạo OrderId duy nhất
             var rawData =
                 $"partnerCode={_options.PartnerCode}&accessKey={_options.AccessKey}&requestId={orderId}" +
                 $"&amount={model.Amount}&orderId={orderId}&orderInfo={model.OrderInfo}" +
@@ -38,7 +72,8 @@ namespace appAPI.Repository
                 orderInfo = model.OrderInfo,
                 requestId = orderId,
                 extraData = "",
-                signature
+                signature,
+                expireTime = DateTime.UtcNow.AddMinutes(15).ToString("yyyy-MM-ddTHH:mm:ss") // Thời gian hết hạn
             };
 
             var client = new RestClient(_options.MomoApiUrl);
@@ -46,14 +81,22 @@ namespace appAPI.Repository
             request.AddHeader("Content-Type", "application/json; charset=UTF-8");
             request.AddJsonBody(requestData);
 
-            Console.WriteLine($"PartnerCode: {_options.PartnerCode}");
-            Console.WriteLine($"AccessKey: {_options.AccessKey}");
-            Console.WriteLine($"OrderId: {orderId}");
-            Console.WriteLine($"Amount: {model.Amount}");
-            Console.WriteLine($"OrderInfo: {model.OrderInfo}");
+            int retryCount = 3; // Số lần thử lại khi gọi API thất bại
+            while (retryCount > 0)
+            {
+                var response = await client.ExecuteAsync<MomoCreatePaymentResponseModel>(request);
 
-            var response = await client.ExecuteAsync<MomoCreatePaymentResponseModel>(request);
-            return response.Data;
+                if (response.IsSuccessful)
+                {
+                    LogRequest(rawData, signature, response.Content); // Ghi log thành công
+                    return response.Data;
+                }
+
+                retryCount--;
+                Console.WriteLine($"Retrying... Attempts left: {retryCount}");
+            }
+
+            throw new Exception("Failed to call MoMo API after retries.");
         }
 
         private string ComputeHmacSha256(string message, string secretKey)
@@ -65,6 +108,21 @@ namespace appAPI.Repository
             return BitConverter.ToString(hmac.ComputeHash(Encoding.UTF8.GetBytes(message))).Replace("-", "").ToLower();
         }
 
-    }
+        private void LogRequest(string rawData, string signature, string responseContent)
+        {
+            Console.WriteLine("RawData: " + rawData);
+            Console.WriteLine("Signature: " + signature);
+            Console.WriteLine("Response: " + responseContent);
+        }
 
+        public async Task UpdateOrderStatusAsync(string orderId, string status)
+        {
+            // Ví dụ cập nhật trạng thái đơn hàng trong cơ sở dữ liệu
+            // Giả sử bạn có bảng `Orders` chứa thông tin đơn hàng
+            using var connection = new SqlConnection(_options.ConnectionString);
+            var query = "UPDATE Orders SET Status = @Status WHERE OrderId = @OrderId";
+            await connection.ExecuteAsync(query, new { Status = status, OrderId = orderId });
+        }
+
+    }
 }

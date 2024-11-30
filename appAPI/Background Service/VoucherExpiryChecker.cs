@@ -8,7 +8,7 @@ namespace appAPI.Background_Service
     public class VoucherExpiryChecker : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(15);
+        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(1);
         public VoucherExpiryChecker(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
@@ -25,23 +25,32 @@ namespace appAPI.Background_Service
 
                     foreach (var voucher in vouchers)
                     {
-                        if (voucher.End_time <= DateTime.Now && voucher.Status != "Hết hạn")
+                        if (voucher.End_time <= DateTime.Now && voucher.Status != "Đã kết thúc")
                         {
-                            voucher.Status = "Hết hạn";
+                            voucher.Status = "Đã kết thúc";
                             voucherRepository.Update(voucher);
                         }
 
-                        if (voucher.Start_time > DateTime.Now && voucher.Status != "Chưa kích hoạt")
+                        if (voucher.Start_time > DateTime.Now && voucher.Status != "Sắp diễn ra")
                         {
-                            voucher.Status = "Chưa kích hoạt";
+                            voucher.Status = "Sắp diễn ra";
                             voucherRepository.Update(voucher);
                         }
 
+                        // Kiểm tra trạng thái "Chờ" thành "Hoạt động"
+                        if (DateTime.Now >= voucher.Start_time && DateTime.Now < voucher.End_time && voucher.Status != "Đang diễn ra")
+                        {
+                            voucher.Status = "Đang diễn ra";
+                            voucherRepository.Update(voucher);
+                        }
+
+                        //Kiểm tra số lượng.
                         if (voucher.Quantity == "0" && voucher.Status != "Hết hàng")
                         {
                             voucher.Status = "Hết hàng";
                             voucherRepository.Update(voucher);
-                        }                        
+                        }
+
                     }
                 }
 

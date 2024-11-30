@@ -1,5 +1,6 @@
 ﻿@page "/admin/Loginclient"
 @using Blazored.SessionStorage
+@using Microsoft.AspNetCore.Identity
 @inject NavigationManager Navigation
 @inject IloginServices LoginServices
 @inject ISessionStorageService SessionStorage
@@ -295,11 +296,15 @@
                     ConfirmPassword = registerModel.ConfirmPassword,
                     Role = "Customer"
                 };
+
             var signUpSuccess = await LoginServices.SignUp(signUpModel);
 
-            // Kiểm tra thành công không
             if (signUpSuccess.Contains("thành công"))
             {
+                // Tạo PasswordHash
+                var passwordHasher = new PasswordHasher<object>();
+                var passwordHash = passwordHasher.HashPassword(null, registerModel.Password);
+
                 // Đăng nhập tự động
                 var signInModel = new SignInModel
                     {
@@ -311,27 +316,30 @@
 
                 if (!string.IsNullOrEmpty(token))
                 {
-                    registerMessage = "Đăng ký và đăng nhập thành công! Vui Lòng đợi một chút!";
+                    registerMessage = "Đăng ký và đăng nhập thành công! Vui lòng đợi một chút.";
 
                     await SessionStorage.SetItemAsStringAsync("token", token);
 
+                    // Tạo đối tượng người dùng mới
                     var newUser = new Users
                         {
                             Name = registerModel.Username,
                             Phone = "0123456789",
                             Email = registerModel.Email,
                             EmailVerifiedAt = DateTime.Now,
-                            Password = registerModel.Password,
+                            Password = passwordHash, // Lưu PasswordHash thay vì plain text
                             Address = "Nothing",
                             RememberToken = "Nothing",
                         };
+
                     var createdUser = await UserService.Create(newUser);
 
                     if (createdUser != null && createdUser.Id > 0)
                     {
                         StateHasChanged();
                         await Task.Delay(2000);
-                        // Chuyển hướng đến trang chi tiết người dùng (Sửa Nốt thông tin)
+
+                        // Điều hướng sang UserDetails
                         Navigation.NavigateTo($"/admin/UserDetails/{createdUser.Id}");
                     }
                     else
@@ -354,6 +362,7 @@
             registerMessage = $"Lỗi: {ex.Message}";
         }
     }
+
 
 
 

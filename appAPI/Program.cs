@@ -12,6 +12,7 @@ using System.Text;
 using appAPI.Background_Service;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,7 +83,18 @@ builder.Services.AddScoped<IProductAttributesRepository, ProductAttributesReposi
 builder.Services.AddScoped<IProductVariantsRepository, ProductVariantsRepository>();
 builder.Services.AddScoped<IProductAttributeDiscountRepository, ProductAttributeDiscount>();
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+
 builder.Services.AddScoped<IMomoRepository, MomoRepository>();
+builder.Services.AddScoped<IVnPayService, VnPayService>();
+
+builder.Services.AddControllers(options =>
+{
+    options.ModelMetadataDetailsProviders.Add(new SuppressChildValidationMetadataProvider(typeof(string)));
+});
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+});
 
 // Đăng ký CORS
 builder.Services.AddCors(options =>
@@ -145,7 +157,7 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
+    FileProvider = new PhysicalFileProvider(@"I:\VIs Stu fille\DATN\DATN-Blazon\appAPI\FileMedia"),
     RequestPath = "/FileMedia"
 });
 

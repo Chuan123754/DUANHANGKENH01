@@ -1,0 +1,59 @@
+﻿@page "/admin/payment"
+@inject NavigationManager nav
+@inject HttpClient Http
+
+<h3>Thanh toán qua Momo</h3>
+
+<EditForm Model="OrderInfo" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div>
+        <label>Họ tên</label>
+        <InputText @bind-Value="OrderInfo.FullName" class="form-control" />
+    </div>
+    <div>
+        <label>Số tiền</label>
+        <InputNumber @bind-Value="OrderInfo.Amount" class="form-control" />
+    </div>
+    <div>
+        <label>Nội dung thanh toán</label>
+        <InputText @bind-Value="OrderInfo.OrderInfo" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Thanh toán</button>
+</EditForm>
+
+@code {
+    private OrderInfoModel OrderInfo = new OrderInfoModel();
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync("https://localhost:7011/api/payment/create-payment-url", OrderInfo);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<CreatePaymentResponse>();
+                if (!string.IsNullOrEmpty(result?.PayUrl))
+                {
+                    nav.NavigateTo(result.PayUrl, true);
+                }
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Lỗi: {error}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi xảy ra: {ex.Message}");
+        }
+    }
+
+    public class CreatePaymentResponse
+    {
+        public string? PayUrl { get; set; }
+    }
+}

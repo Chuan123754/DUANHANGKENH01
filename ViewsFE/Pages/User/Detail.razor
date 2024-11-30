@@ -22,8 +22,27 @@ else
 
         <div class="form-group">
             <label for="Phone">Số điện thoại</label>
-            <InputText id="Phone" class="form-control" @bind-Value="user.Phone" />
+            <InputText id="Phone" class="form-control" @bind-Value="user.Phone" Disabled="@otpSent" />
+            <button type="button" class="btn btn-secondary mt-2" @onclick="SendOtp" Disabled="@otpSent">
+                Gửi OTP
+            </button>
+            @if (otpSent)
+            {
+                <div class="form-group mt-2">
+                    <label for="OTP">Nhập OTP</label>
+                    <InputText id="OTP" class="form-control" @bind-Value="otpInput" />
+                    <button type="button" class="btn btn-success mt-2" @onclick="VerifyOtp">
+                        Xác nhận OTP
+                    </button>
+                </div>
+            }
         </div>
+
+        @if (otpError != null)
+        {
+            <p class="text-danger">@otpError</p>
+        }
+
 
         <div class="form-group">
             <label for="Email">Email</label>
@@ -57,6 +76,13 @@ else
     private string message = string.Empty;
     private string errorMessage = string.Empty;
 
+    // OTP handling
+    private string otpInput;
+    private string generatedOtp;
+    private bool otpSent = false;
+    private DateTime? otpExpiryTime;
+    private string otpError;
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -65,7 +91,7 @@ else
             if (user == null)
             {
                 errorMessage = "Người dùng không tồn tại.";
-                Navigation.NavigateTo("/admin/UserList");
+                Navigation.NavigateTo("/admin/users");
             }
         }
         catch (Exception ex)
@@ -74,51 +100,118 @@ else
         }
     }
 
+    protected override void OnInitialized()
+    {
+        generatedOtp = null;
+        otpExpiryTime = null;
+        otpSent = false;
+    }
+
+    private async Task SendOtp()
+    {
+        if (string.IsNullOrEmpty(user.Phone))
+        {
+            otpError = "Số điện thoại không được để trống.";
+            return;
+        }
+
+        // Tạo OTP giả lập
+        generatedOtp = new Random().Next(100000, 999999).ToString();
+        otpSent = true;
+        otpExpiryTime = DateTime.Now.AddMinutes(5); // OTP hết hạn sau 5 phút
+
+        otpError = null;
+        message = $"OTP của bạn là: {generatedOtp} (Giả lập, chỉ dành cho thử nghiệm)";
+        StateHasChanged();
+
+        // Có thể gọi service gửi OTP thực tế tại đây
+        await Task.Delay(500); // Giả lập thời gian gửi OTP
+    }
+
+    private async Task VerifyOtp()
+    {
+        if (generatedOtp == null)
+        {
+            otpError = "Không tìm thấy OTP. Vui lòng gửi lại.";
+            return;
+        }
+
+        if (otpExpiryTime == null || otpExpiryTime <= DateTime.Now)
+        {
+            otpError = "OTP đã hết hạn. Vui lòng gửi lại.";
+            return;
+        }
+
+        if (otpInput != generatedOtp)
+        {
+            otpError = "OTP không chính xác.";
+            return;
+        }
+
+        otpError = null;
+        otpSent = false;
+
+        var allUsers = await UserService.GetAll();
+        var existingUser = allUsers.FirstOrDefault(u => u.Phone == user.Phone);
+        var emailUser = allUsers.FirstOrDefault(u => u.Email == user.Email);
+
+        if (existingUser != null)
+        {
+            // Lấy PasswordHash từ AccountService
+            var passwordHash = await accountService.GetPasswordHashByEmail(emailUser.Email);
+
+            // Cập nhật thông tin từ bản ghi hiện tại vào bản ghi tìm thấy
+            existingUser.Name = user.Name;
+            existingUser.Phone = user.Phone;
+            existingUser.Email = user.Email;
+            existingUser.Password = passwordHash; // Sử dụng PasswordHash
+            existingUser.Address = user.Address;
+            existingUser.Updated_at = DateTime.Now;
+
+            await UserService.Update(existingUser);
+
+            // Xóa bản ghi hiện tại sau khi cập nhật bản ghi tìm thấy
+            await UserService.Delete(user.Id);
+
+            // Gán bản ghi hiện tại sang bản ghi tìm thấy
+            user = existingUser;
+
+            message = "Cập nhật thông tin thành công! Số điện thoại đã được liên kết.";
+        }
+        else
+        {
+            await UserService.Update(user);
+            message = "Cập nhật thông tin thành công!";
+        }
+
+        StateHasChanged();
+    }
+
+
+
+
     private async Task HandleSubmit()
     {
+        if (otpSent)
+        {
+            otpError = "Vui lòng xác nhận OTP trước khi lưu thông tin.";
+            return;
+        }
+
         try
         {
-            var allUsers = await UserService.GetAll();
+            await UserService.Update(user);
+            message = "Lưu thay đổi thành công!";
+            Navigation.NavigateTo("/admin/users");
+            errorMessage = null;
 
-            // Kiểm tra số điện thoại đã tồn tại 
-            if (!string.IsNullOrEmpty(user.Phone))
-            {
-                var phoneExists = allUsers.Any(u => u.Phone == user.Phone && u.Id != user.Id);
-
-                if (phoneExists)
-                {
-                    errorMessage = "Số điện thoại đã được sử dụng bởi người dùng khác.";
-                    return;
-                }
-            }
-
-            var allAccount = await accountService.GetAll();
-            var account = allAccount.FirstOrDefault(a => a.Email == user.Email);
-
-            if (account != null)
-            {
-                account.PhoneNumber = user.Phone;
-
-                // Cập nhật tài khoản
-                var updateResult = await accountService.UpdateAccountAsync(account, account.Id);
-
-                user.Phone = account.PhoneNumber;
-                await UserService.Update(user);
-                message = "Cập nhật thông tin thành công!";
-                errorMessage = string.Empty;
-
-                StateHasChanged();
-                await Task.Delay(2000);
-                Navigation.NavigateTo("/");
-            }
-            else
-            {
-                errorMessage = "Không tìm thấy tài khoản tương ứng với email của người dùng.";
-            }        
+            StateHasChanged();
         }
         catch (Exception ex)
         {
             errorMessage = $"Lỗi khi cập nhật thông tin: {ex.Message}";
         }
     }
+
+    
 }

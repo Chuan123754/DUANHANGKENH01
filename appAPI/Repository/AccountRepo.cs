@@ -223,5 +223,16 @@ namespace appAPI.Repository
                 throw;
             }
         }
+
+        public async Task<string> GetPasswordHashByEmail(string email)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                throw new Exception("Người dùng không tồn tại.");
+            }
+            return user.PasswordHash;
+        }
+
     }
 }

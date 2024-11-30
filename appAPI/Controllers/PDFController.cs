@@ -1,10 +1,16 @@
-﻿using iTextSharp.text;
-using iTextSharp.text.pdf;
+﻿using System;
+using System.IO;
 using Microsoft.AspNetCore.Mvc;
+using iText.Kernel.Pdf;
+using iText.Layout;
+using iText.Layout.Element;
+using iText.IO.Font;
+using iText.Layout.Properties;
+using iText.Kernel.Geom;
+using iText.Kernel.Font;
+using iText.Layout.Borders;
 using appAPI.Repository;
 using appAPI.Models;
-using System.IO;
-using System.Linq;
 
 namespace appAPI.Controllers
 {
@@ -29,72 +35,6 @@ namespace appAPI.Controllers
             _productAttributesRepository = productAttributesRepository;
         }
 
-        public static string ConvertNumberToWords(decimal number)
-        {
-            string[] units = { "", "mươi", "trăm", "nghìn", "triệu", "tỷ" };
-            string[] numbers = { "không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín" };
-
-            if (number == 0)
-                return "không đồng";
-
-            string words = "";
-            bool isNegative = false;
-
-            if (number < 0)
-            {
-                isNegative = true;
-                number = Math.Abs(number);
-            }
-
-            int partCount = 0;
-            while (number > 0)
-            {
-                int part = (int)(number % 1000);
-                if (part > 0)
-                {
-                    string partWords = "";
-                    int hundred = part / 100;
-                    int ten = (part % 100) / 10;
-                    int unit = part % 10;
-
-                    if (hundred > 0)
-                    {
-                        partWords += numbers[hundred] + " trăm ";
-                        if (ten == 0 && unit > 0)
-                            partWords += "lẻ ";
-                    }
-
-                    if (ten > 1)
-                    {
-                        partWords += numbers[ten] + " mươi ";
-                        if (unit == 1)
-                            partWords += "mốt ";
-                        else if (unit > 0)
-                            partWords += numbers[unit] + " ";
-                    }
-                    else if (ten == 1)
-                    {
-                        partWords += "mười ";
-                        if (unit > 0)
-                            partWords += numbers[unit] + " ";
-                    }
-                    else if (ten == 0 && unit > 0)
-                    {
-                        partWords += numbers[unit] + " ";
-                    }
-
-                    partWords += units[partCount] + " ";
-                    words = partWords + words;
-                }
-
-                partCount++;
-                number = (int)(number / 1000);
-            }
-
-            words = words.Trim() + " đồng";
-            return isNegative ? "âm " + words : words;
-        }
-
 
         [HttpGet("generate")]
         public IActionResult GenerateInvoice([FromQuery] int orderId)
@@ -103,69 +43,71 @@ namespace appAPI.Controllers
             if (order == null) return NotFound("Không tìm thấy đơn hàng.");
 
             var user = _userRepository.GetById(order.User_id ?? 0);
-            if (user == null) return NotFound("Không tìm thấy người dùng.");
 
             var orderDetails = _orderDetailsRepository.Find(od => od.OrderId == orderId).ToList();
 
             using (var stream = new MemoryStream())
             {
-                Document document = new Document(PageSize.A4, 25, 25, 30, 30);
-                PdfWriter writer = PdfWriter.GetInstance(document, stream);
-                document.Open();
+                PdfWriter writer = new PdfWriter(stream);
+                PdfDocument pdf = new PdfDocument(writer);
+                Document document = new Document(pdf, PageSize.A4);
+                document.SetMargins(30, 25, 30, 25);
 
                 // Load font
-                string fontPath = Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "Roboto-Regular.ttf");
+                string fontPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "Roboto-Regular.ttf");
                 if (!System.IO.File.Exists(fontPath)) return BadRequest("Font không tồn tại tại đường dẫn: " + fontPath);
 
-                BaseFont baseFont = BaseFont.CreateFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-                Font fontNormal = new Font(baseFont, 10, Font.NORMAL);
-                Font fontBold = new Font(baseFont, 10, Font.BOLD);
+                PdfFont fontNormal = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
+                PdfFont fontBold = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
 
                 // Thông tin Header
-                PdfPTable headerTable = new PdfPTable(3);
-                headerTable.WidthPercentage = 100;
-                headerTable.AddCell(new PdfPCell(new Phrase("HangKenh", fontBold)) { HorizontalAlignment = Element.ALIGN_LEFT, Border = Rectangle.NO_BORDER });
-                headerTable.AddCell(new PdfPCell(new Phrase("HÓA ĐƠN GIÁ TRỊ GIA TĂNG", fontBold)) { HorizontalAlignment = Element.ALIGN_CENTER, Border = Rectangle.NO_BORDER });
-                headerTable.AddCell(new PdfPCell(new Phrase($"Ký hiệu (Series): 1K24TAA\nSố (No.): {order.Id}", fontNormal)) { HorizontalAlignment = Element.ALIGN_RIGHT, Border = Rectangle.NO_BORDER });
+                Table headerTable = new Table(3).UseAllAvailableWidth();
+                headerTable.AddCell(new Cell().Add(new Paragraph("HangKenh").SetFont(fontBold).SetFontSize(12)).SetBorder(Border.NO_BORDER));
+                headerTable.AddCell(new Cell().Add(new Paragraph("HÓA ĐƠN GIÁ TRỊ GIA TĂNG").SetFont(fontBold).SetFontSize(12).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER));
+                headerTable.AddCell(new Cell().Add(new Paragraph($"Số (No.): {order.Id}").SetFont(fontNormal).SetFontSize(9).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
                 document.Add(headerTable);
 
-                document.Add(new Paragraph("VAT INVOICE", fontNormal) { Alignment = Element.ALIGN_CENTER });
-                document.Add(new Paragraph($"Ngày (Date): {DateTime.Now:dd/MM/yyyy}\n\n", fontNormal) { Alignment = Element.ALIGN_CENTER });
+                document.Add(new Paragraph("VAT INVOICE").SetFont(fontNormal).SetFontSize(9).SetTextAlignment(TextAlignment.CENTER));
+                document.Add(new Paragraph($"Ngày (Date): {DateTime.Now:dd/MM/yyyy}\n\n").SetFont(fontNormal).SetFontSize(9).SetTextAlignment(TextAlignment.CENTER));
 
-                // Thông tin Người bán và Người mua
-                document.Add(new Paragraph("Tên đơn vị bán hàng (Seller): TRƯỜNG CAO ĐẲNG FPT POLYTECHNIC", fontNormal));
-                document.Add(new Paragraph("Mã số thuế (Tax code): 0102635866", fontNormal));
-                document.Add(new Paragraph("Địa chỉ (Address): Km12, đường Cầu Diễn, P.Phúc Diễn, Q.Bắc Từ Liêm, Hà Nội", fontNormal));
-                document.Add(new Paragraph("Số tài khoản (A/C No.): 13136969301 tại Ngân hàng TMCP Tiên Phong - CN Hoàn Kiếm", fontNormal));
+                // Thông tin Người bán
+                document.Add(new Paragraph("Tên đơn vị bán hàng (Seller): TRƯỜNG CAO ĐẲNG FPT POLYTECHNIC").SetFont(fontNormal).SetFontSize(9));
+                document.Add(new Paragraph("Mã số thuế (Tax code): 0102635866").SetFont(fontNormal).SetFontSize(9));
+                document.Add(new Paragraph("Địa chỉ (Address): Km12, đường Cầu Diễn, P.Phúc Diễn, Q.Bắc Từ Liêm, Hà Nội").SetFont(fontNormal).SetFontSize(9));
+                document.Add(new Paragraph("Số tài khoản (A/C No.): 13136969301 tại Ngân hàng TMCP Tiên Phong - CN Hoàn Kiếm").SetFont(fontNormal).SetFontSize(9));
                 document.Add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------------"));
 
-                // Thông tin người mua hàng
-                document.Add(new Paragraph($"Họ tên người mua hàng (Buyer): {user.Name}", fontNormal));
-                document.Add(new Paragraph($"Địa chỉ (Address): {user.Address}", fontNormal));
-                document.Add(new Paragraph($"Số điện thoại (Phone): {user.Phone}", fontNormal));
+                // Thông tin Người mua
+                if (user != null)
+                {
+                    document.Add(new Paragraph($"Họ tên người mua hàng (Buyer): {user.Name}").SetFont(fontNormal).SetFontSize(9));
+                    document.Add(new Paragraph($"Địa chỉ (Address): {user.Address}").SetFont(fontNormal).SetFontSize(9));
+                    document.Add(new Paragraph($"Số điện thoại (Phone): {user.Phone}").SetFont(fontNormal).SetFontSize(9));
+                }
+                else
+                {
+                    document.Add(new Paragraph("Họ tên người mua hàng (Buyer): ").SetFont(fontNormal).SetFontSize(9));
+                    document.Add(new Paragraph("Địa chỉ (Address): ").SetFont(fontNormal).SetFontSize(9));
+                    document.Add(new Paragraph("Số điện thoại (Phone): ").SetFont(fontNormal).SetFontSize(9));
+                }
 
-                // Bảng Payment Method và Account Number trên cùng một dòng
-                PdfPTable paymentTable = new PdfPTable(2);
-                paymentTable.WidthPercentage = 100;
-                paymentTable.AddCell(new PdfPCell(new Phrase("Hình thức thanh toán (Payment method): Chuyển khoản", fontNormal)) { Border = Rectangle.NO_BORDER });
-                paymentTable.AddCell(new PdfPCell(new Phrase("Số tài khoản (A/C No.): 13136969301", fontNormal)) { Border = Rectangle.NO_BORDER });
+                // Bảng chi tiết thanh toán
+                Table paymentTable = new Table(new float[] { 1, 1 }).UseAllAvailableWidth();
+                paymentTable.AddCell(new Cell().Add(new Paragraph("Hình thức thanh toán (Payment method): Chuyển khoản").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                paymentTable.AddCell(new Cell().Add(new Paragraph("Số tài khoản (A/C No.): 13136969301").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 document.Add(paymentTable);
 
-                document.Add(new Paragraph("Ngân hàng (Bank): [Tên ngân hàng của bạn]", fontNormal));
+                document.Add(new Paragraph("Ngân hàng (Bank): [Tên ngân hàng của bạn]").SetFont(fontNormal).SetFontSize(9));
                 document.Add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------------"));
 
-                // Bảng chi tiết sản phẩm với chiều rộng tùy chỉnh cho từng cột
-                PdfPTable itemTable = new PdfPTable(7) { WidthPercentage = 100 };
-                float[] columnWidths = { 1f, 3f, 2f, 2f, 2f, 1.5f, 2f };
-                itemTable.SetWidths(columnWidths);
-
-                itemTable.AddCell(new Phrase("STT (No.)", fontBold));
-                itemTable.AddCell(new Phrase("Mã sản phẩm SKU", fontBold));
-                itemTable.AddCell(new Phrase("Đơn giá", fontBold));
-                itemTable.AddCell(new Phrase("Giá Giảm (Nếu có)", fontBold));
-                itemTable.AddCell(new Phrase("Giá cuối", fontBold));
-                itemTable.AddCell(new Phrase("Số lượng", fontBold));
-                itemTable.AddCell(new Phrase("Thành tiền", fontBold));
+                // Bảng chi tiết sản phẩm
+                Table itemTable = new Table(new float[] { 1, 3, 2, 2, 1.5f, 2 }).UseAllAvailableWidth();
+                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("STT (No.)").SetFont(fontBold).SetFontSize(9)));
+                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Mã sản phẩm SKU").SetFont(fontBold).SetFontSize(9)));
+                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Đơn giá").SetFont(fontBold).SetFontSize(9)));
+                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Giá Giảm (Nếu có)").SetFont(fontBold).SetFontSize(9)));
+                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Số lượng").SetFont(fontBold).SetFontSize(9)));
+                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Thành tiền").SetFont(fontBold).SetFontSize(9)));
 
                 int index = 1;
                 decimal totalAmount = 0;
@@ -176,80 +118,100 @@ namespace appAPI.Controllers
                     {
                         decimal unitPrice = product.Regular_price ?? 0;
                         decimal discountPrice = product.Sale_price ?? 0;
-                        decimal finalPrice = unitPrice - discountPrice;
-                        decimal amount = detail.Quantity * finalPrice;
+                        decimal amount = detail.Quantity * discountPrice;
 
-                        itemTable.AddCell(new Phrase(index.ToString(), fontNormal));
-                        itemTable.AddCell(new Phrase(product.SKU, fontNormal));
-                        itemTable.AddCell(new Phrase(product.Regular_price.ToString(), fontNormal));
-                        itemTable.AddCell(new Phrase(discountPrice > 0 ? $"{discountPrice:0,0}" : "0", fontNormal));
-                        itemTable.AddCell(new Phrase($"{finalPrice:0,0}", fontNormal));
-                        itemTable.AddCell(new Phrase(detail.Quantity.ToString(), fontNormal));
-                        itemTable.AddCell(new Phrase($"{amount:0,0}", fontNormal));
+                        itemTable.AddCell(new Cell().Add(new Paragraph(index.ToString()).SetFont(fontNormal).SetFontSize(9)));
+                        itemTable.AddCell(new Cell().Add(new Paragraph(product.SKU).SetFont(fontNormal).SetFontSize(9)));
+                        itemTable.AddCell(new Cell().Add(new Paragraph($"{unitPrice:0,0}").SetFont(fontNormal).SetFontSize(9)));
+                        itemTable.AddCell(new Cell().Add(new Paragraph($"{discountPrice:0,0}").SetFont(fontNormal).SetFontSize(9)));
+                        itemTable.AddCell(new Cell().Add(new Paragraph(detail.Quantity.ToString()).SetFont(fontNormal).SetFontSize(9)));
+                        itemTable.AddCell(new Cell().Add(new Paragraph($"{amount:0,0}").SetFont(fontNormal).SetFontSize(9)));
 
                         totalAmount += amount;
                         index++;
                     }
                 }
-
                 document.Add(itemTable);
 
                 document.Add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------------"));
 
-                // Tính tổng tiền thanh toán
+                // Tổng tiền
                 decimal totalPayment = totalAmount * 1.1m;
                 string amountInWords = ConvertNumberToWords(totalPayment);
 
-                // Footer tổng tiền với số tiền viết bằng chữ, sử dụng các Paragraph riêng lẻ cho từng dòng
-                PdfPTable totalTable = new PdfPTable(1);
-                totalTable.WidthPercentage = 100;
-
-                // Tạo từng Paragraph với khoảng cách sau mỗi dòng
-                Paragraph totalAmountParagraph = new Paragraph($"Cộng tiền hàng (Total amount): {totalAmount:0,0} VND", fontNormal)
-                {
-                    SpacingAfter = 5f 
-                };
-                Paragraph vatRateParagraph = new Paragraph("Thuế suất GTGT (VAT rate): 10%", fontNormal)
-                {
-                    SpacingAfter = 5f
-                };
-                Paragraph vatAmountParagraph = new Paragraph($"Tiền thuế GTGT (VAT amount): {(totalAmount * 0.1m):0,0} VND", fontNormal)
-                {
-                    SpacingAfter = 5f
-                };
-                Paragraph totalPaymentParagraph = new Paragraph($"Tổng cộng tiền thanh toán (Total payment): {totalPayment:0,0} VND", fontNormal)
-                {
-                    SpacingAfter = 5f
-                };
-                Paragraph amountInWordsParagraph = new Paragraph($"Số tiền viết bằng chữ (Amount in words): {amountInWords}", fontNormal)
-                {
-                    SpacingAfter = 15f
-                };
-
-                // Thêm các Paragraph vào bảng
-                totalTable.AddCell(new PdfPCell(totalAmountParagraph) { Border = Rectangle.NO_BORDER });
-                totalTable.AddCell(new PdfPCell(vatRateParagraph) { Border = Rectangle.NO_BORDER });
-                totalTable.AddCell(new PdfPCell(vatAmountParagraph) { Border = Rectangle.NO_BORDER });
-                totalTable.AddCell(new PdfPCell(totalPaymentParagraph) { Border = Rectangle.NO_BORDER });
-                totalTable.AddCell(new PdfPCell(amountInWordsParagraph) { Border = Rectangle.NO_BORDER });
-
-                // Thêm bảng tổng tiền vào tài liệu
+                Table totalTable = new Table(1).UseAllAvailableWidth();
+                totalTable.AddCell(new Cell().Add(new Paragraph($"Cộng tiền hàng (Total amount): {totalAmount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                totalTable.AddCell(new Cell().Add(new Paragraph($"Tiền thuế GTGT (VAT amount): {(totalAmount * 0.1m):0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                totalTable.AddCell(new Cell().Add(new Paragraph($"Tổng cộng tiền thanh toán (Total payment): {totalPayment:0,0} VND").SetFont(fontBold).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 document.Add(totalTable);
-                document.Add(new Paragraph("\n"));
 
+                document.Add(new Paragraph($"Số tiền viết bằng chữ (Amount in words): {amountInWords}").SetFont(fontNormal).SetFontSize(9));
 
                 // Ký tên
-                PdfPTable signatureTable = new PdfPTable(2) { WidthPercentage = 100 };
-                signatureTable.AddCell(new PdfPCell(new Phrase("NGƯỜI MUA HÀNG (Buyer)\n(Ký, ghi rõ họ, tên)", fontNormal)) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_LEFT });
-                signatureTable.AddCell(new PdfPCell(new Phrase("NGƯỜI BÁN HÀNG (Seller)\n(Ký, đóng dấu, ghi rõ họ, tên)", fontNormal)) { Border = Rectangle.NO_BORDER, HorizontalAlignment = Element.ALIGN_RIGHT });
+                Table signatureTable = new Table(new float[] { 1, 1 }).UseAllAvailableWidth();
+                signatureTable.AddCell(new Cell().Add(new Paragraph("NGƯỜI MUA HÀNG (Buyer)\n(Ký, ghi rõ họ, tên)").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                signatureTable.AddCell(new Cell().Add(new Paragraph("NGƯỜI BÁN HÀNG (Seller)\n(Ký, đóng dấu, ghi rõ họ, tên)").SetFont(fontNormal).SetFontSize(9).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
                 document.Add(signatureTable);
 
                 document.Close();
 
-                // Trả file PDF về client
-                byte[] file = stream.ToArray();
-                return File(file, "application/pdf", $"hoa_don_{orderId}.pdf");
+                byte[] pdfBytes = stream.ToArray();
+                return File(pdfBytes, "application/pdf", $"hoa_don_{orderId}.pdf");
             }
+        }
+
+
+
+        private static string ConvertNumberToWords(decimal number)
+        {
+            string[] units = { "", "nghìn", "triệu", "tỷ" };
+            string[] numbers = { "không", "một", "hai", "ba", "bốn", "năm", "sáu", "bảy", "tám", "chín" };
+
+            if (number == 0) return "không đồng";
+
+            string words = "";
+            int unitIndex = 0;
+
+            while (number > 0)
+            {
+                int part = (int)(number % 1000);
+                if (part > 0)
+                {
+                    string partWords = "";
+                    int hundreds = part / 100;
+                    int tens = (part % 100) / 10;
+                    int unitsPart = part % 10;
+
+                    if (hundreds > 0)
+                    {
+                        partWords += numbers[hundreds] + " trăm ";
+                        if (tens == 0 && unitsPart > 0) partWords += "lẻ ";
+                    }
+
+                    if (tens > 1)
+                    {
+                        partWords += numbers[tens] + " mươi ";
+                        if (unitsPart > 0) partWords += numbers[unitsPart] + " ";
+                    }
+                    else if (tens == 1)
+                    {
+                        partWords += "mười ";
+                        if (unitsPart > 0) partWords += numbers[unitsPart] + " ";
+                    }
+                    else if (unitsPart > 0)
+                    {
+                        partWords += numbers[unitsPart] + " ";
+                    }
+
+                    partWords += units[unitIndex] + " ";
+                    words = partWords + words;
+                }
+
+                number /= 1000;
+                unitIndex++;
+            }
+
+            return words.Trim() + " đồng";
         }
     }
 }
