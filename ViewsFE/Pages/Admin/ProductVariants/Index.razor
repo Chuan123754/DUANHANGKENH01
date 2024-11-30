@@ -1,11 +1,13 @@
 ﻿@page "/admin/productVarians"
 @inject NavigationManager Navigation
-@inject IProductVariantServices productVarians
-@inject IProductAttributeServices productAttribute
+@inject IProductVariantServices productVariansService
+@inject IProductAttributeServices productAttributeService
 @inject IStyleServices StyleServices
 @inject ISizeServices SizeServices
 @inject IMaterialServices MaterialService
 @inject ITextile_technologyServices Textile_technologyServices
+@inject IColorServices colorService
+@inject ISizeServices sizeService
 @inject IJSRuntime JS
 
 <div class="page-wrapper">
@@ -78,7 +80,7 @@
                                                 @post.Posts.Title
                                                 <br />
                                                 <div class="cell-action">
-                                                    <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(post.Id)">Chỉnh sửa</a>
+                                                    <a class="cell-action-edit text-primary" @onclick="() => OpenModalAddAttribute(post.Id)">Thêm biến thể</a>
                                                     <a class="cell-action-delete text-danger" @onclick="() => ConfirmDelete(post.Id)">Xóa</a>
                                                 </div>
                                             </td>
@@ -114,6 +116,80 @@
                         }
 
                     </div>
+                    @if(isModalAddAttributeVisiable)
+                    {
+                        <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                            <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 75%; width: auto;">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Chọn biến thể sản phẩm</h5>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
+                                                <div class="accordion-body pt-0">
+                                                    <div class="form-group mb-3">
+                                                        <label class="form-label">Chọn Màu Sắc <span class="text-danger">*</span></label>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="colorDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                Chọn màu sắc
+                                                            </button>
+                                                            <ul class="dropdown-menu" aria-labelledby="colorDropdown">
+                                                                @foreach (var color in colorList)
+                                                                {
+                                                                    <li>
+                                                                        <div class="form-check d-flex justify-content-between align-items-center">
+                                                                            <!-- Thêm màu sắc -->
+                                                                            <label class="form-check-label d-flex align-items-center" for="color-@color.Id">
+                                                                                <span class="color-box" style="background-color:@color.Color_code; width: 20px; height: 20px; margin-right: 10px; border-radius: 50%;"></span>
+                                                                                @color.Title
+                                                                            </label>
+                                                                            <input type="checkbox"
+                                                                                   id="color-@color.Id"
+                                                                                   @onchange="(e) => OnColorSelectionChanged(color.Id, e.Value)" />
+                                                                        </div>
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group mb-3">
+                                                        <label class="form-label">Chọn Kích Thước <span class="text-danger">*</span></label>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="sizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                Chọn kích thước
+                                                            </button>
+                                                            <ul class="dropdown-menu" aria-labelledby="sizeDropdown">
+                                                                @foreach (var size in sizeList)
+                                                                {
+                                                                    <li>
+                                                                        <div class="form-check d-flex justify-content-between align-items-center">
+
+                                                                            <label class="form-check-label d-flex align-items-center" for="size-@size.Id">
+                                                                                @size.Title
+                                                                            </label>
+                                                                            <input type="checkbox"
+                                                                                   id="size-@size.Id"
+                                                                                   @onchange="(e) => OnSizeSelectionChanged(size.Id, e.Value)" />
+                                                                        </div>
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                    <button class="btn btn-primary" @onclick="CreateProductAttributes">Tạo biến thể</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-backdrop fade show"></div>
+                    }
                     @if (showAttributes)
                     {
                         @if (productAttributesList != null && productAttributesList.Any())
@@ -279,10 +355,17 @@
     private List<Product_Attributes> productAttributesList = new List<Product_Attributes>();
     private Product_Attributes selectedAttribute = new Product_Attributes();
     private Product_Posts product_posts = new Product_Posts();
+
+    private List<Size> sizeList = new List<Size>();
+    private List<Color> colorList = new List<Color>();
+    private Dictionary<long, bool> colorSelections = new();
+    private Dictionary<long, bool> sizeSelections = new();
+
+    private long selectedPostId;
     private bool showAttributes = false;
     private bool isUpdateProductAttributeModal = false;
     private string productPostTitle;
-
+    private bool isModalAddAttributeVisiable = false;
     private string search_query = string.Empty;
     private int page_number = 1;
     private int total_pages = 1;
@@ -293,6 +376,90 @@
     {
         await LoadPosts();
     }
+
+    private void OnColorSelectionChanged(long colorId, object isChecked)
+    {
+        colorSelections[colorId] = (bool)isChecked;
+        updateVariants();
+    }
+    private void OnSizeSelectionChanged(long sizeId, object isChecked)
+    {
+        sizeSelections[sizeId] = (bool)isChecked;
+        updateVariants();
+    }
+    private void updateVariants()
+    {
+        // xử lý khi các tùy chọn màu và kích thước được thay đổi
+        var selectedColors = colorSelections
+            .Where(c => c.Value)
+            .Select(c => colorList.FirstOrDefault(color => color.Id == c.Key)?.Title)
+            .ToList();
+
+        var selectedSizes = sizeSelections
+            .Where(s => s.Value)
+            .Select(s => sizeList.FirstOrDefault(size => size.Id == s.Key)?.Title)
+            .ToList();
+
+    }
+    private async Task CreateProductAttributes()
+    {
+        var selectedColors = colorSelections.Where(c => c.Value).Select(c => c.Key).ToList();
+        var selectedSizes = sizeSelections.Where(s => s.Value).Select(s => s.Key).ToList();
+
+        // Kiểm tra nếu không có màu hoặc kích thước được chọn
+        if (!selectedColors.Any() || !selectedSizes.Any())
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn ít nhất một màu và một kích thước.");
+            return;
+        }
+
+        var productVariant = await productVariansService.GetProductVariantsById(selectedPostId);
+        if (productVariant == null)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Không tìm thấy biến thể sản phẩm.");
+            return;
+        }
+
+        foreach (var colorId in selectedColors)
+        {
+            foreach (var sizeId in selectedSizes)
+            {
+                string productName = productVariant.Posts.Title;
+                string textileTechnology = productVariant.Textile_Technology?.Slug ?? string.Empty;
+                string style = productVariant.Style?.Slug ?? string.Empty;
+                string material = productVariant.Material?.Slug ?? string.Empty;
+
+                // Tạo tên viết tắt của sản phẩm
+                string productAbbreviation = string.Concat(productName
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(word => word[0].ToString().ToUpper()));
+
+                // Lấy 3 ký tự đầu của các tiêu đề (nếu có)
+                string textileAbbreviation = textileTechnology.Length >= 3 ? textileTechnology.Substring(0, 3).ToUpper() : textileTechnology.ToUpper();
+                string styleAbbreviation = style.Length >= 3 ? style.Substring(0, 3).ToUpper() : style.ToUpper();
+                string materialAbbreviation = material.Length >= 3 ? material.Substring(0, 3).ToUpper() : material.ToUpper();
+
+                // Tạo mã SKU
+                string sku = $"{productAbbreviation}-{textileAbbreviation}-{styleAbbreviation}-{materialAbbreviation}";
+
+
+                // Tạo biến thể mới
+                var productAttribute = new Product_Attributes
+                    {
+                        Product_Variant_Id = selectedPostId,
+                        Color_Id = colorId,
+                        Size_Id = sizeId,
+                        Status = "Còn hàng",
+                        SKU = sku,
+                    };
+
+                await productAttributeService.Create(productAttribute);
+            }
+        }
+
+        await JS.InvokeVoidAsync("toastr.success", "Tạo thành công các biến thể.");
+    }
+
     private void FormatCurrency(ChangeEventArgs e)
     {
         var input = e.Value?.ToString() ?? string.Empty;
@@ -302,7 +469,15 @@
             selectedAttribute.Regular_price = parsedValue;
         }
     }
-
+    private void OpenModalAddAttribute(long postId)
+    {
+        selectedPostId = postId;
+        isModalAddAttributeVisiable = true;
+    }
+    private void CloseModalAddAttribute()
+    {
+        isModalAddAttributeVisiable = false;
+    }
     private void UpdatePrice(ChangeEventArgs e)
     {
         var input = e.Value?.ToString().Replace(",", "").Replace(".", "");
@@ -324,7 +499,7 @@
     }
     private async Task ShowAttributes(long productVariantId)
     {
-        productAttributesList = await productAttribute.GetProductAttributesByProductVarianId(productVariantId);
+        productAttributesList = await productAttributeService.GetProductAttributesByProductVarianId(productVariantId);
         var selectedVariant = product_Varians_list.FirstOrDefault(v => v.Id == productVariantId);
         if (selectedVariant != null)
         {
@@ -336,7 +511,7 @@
     private async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        product_Varians_list = await productVarians.GetAllProductVarians();
+        product_Varians_list = await productVariansService.GetAllProductVarians();
 
         Size_list = await SizeServices.GetAll();
         Material_list = await MaterialService.GetAll();
@@ -344,7 +519,7 @@
         Style_list = await StyleServices.GetAll();
 
 
-        totalItems = await productVarians.GetTotalCountAsync("product", searchTerm);
+        totalItems = await productVariansService.GetTotalCountAsync("product", searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
     }
@@ -358,12 +533,12 @@
     }
     private async Task ConfirmDelete(long id)
     {
-        await productVarians.Delete(id);
+        await productVariansService.Delete(id);
         await LoadPosts();
     }
     private async Task OpenUpdateProductAttributeModal(long productAttributeId)
     {
-        selectedAttribute = await productAttribute.GetProductAttributesById(productAttributeId);
+        selectedAttribute = await productAttributeService.GetProductAttributesById(productAttributeId);
         isUpdateProductAttributeModal = true;
     }
     private void CloseUpdateProductAttributeModal()
@@ -372,10 +547,21 @@
     }
     private async Task UpdateProductAttribute()
     {
+        if (selectedAttribute.Stock <= 0)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Số lượng tồn kho phải lớn hơn 0");
+            return;
+        }
+
+        if (selectedAttribute.Regular_price <= 0)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Giá bán phải lớn hơn 0");
+            return;
+        }
         if (selectedAttribute != null)
         {
-            await productAttribute.Update(selectedAttribute, selectedAttribute.Id);
-            await JS.InvokeVoidAsync("toastr.success", "Cập nhật thành công");
+            await productAttributeService.Update(selectedAttribute, selectedAttribute.Id);
+            await JS.InvokeVoidAsync("toastr.success", "Cập nhật thông tin sản phẩm thành công");
             isUpdateProductAttributeModal = false;
             await ShowAttributes(selectedAttribute.Product_Variant_Id);
             LoadPosts();

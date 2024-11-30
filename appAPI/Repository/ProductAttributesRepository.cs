@@ -36,6 +36,7 @@ namespace appAPI.Repository
                 return await _context.Product_Attributes
                                      .Include(p => p.Size)
                                      .Include(p => p.Color)
+                                     .Include(p=>p.Product_Variant)
                                      .Include(p => p.Product_Variant).ThenInclude(p => p.Style)
                                      .Include(p => p.Product_Variant).ThenInclude(p => p.Material)
                                      .Include(p => p.Product_Variant).ThenInclude(p => p.Textile_Technology)

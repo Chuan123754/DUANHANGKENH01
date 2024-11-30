@@ -320,6 +320,7 @@
                                                         <input type="text" id="searchCustomer" class="form-control" style="width: 250px;" placeholder="Nhập SĐT hoặc Email khách hàng">
                                                     </div>
                                                     <button class="btn btn-success" @onclick="OpenModalCreateCustomer">Thêm mới khách hàng</button>
+
                                                 </div>
                                                 @if (isCreateCustomerModalVisible)
                                                 {
@@ -328,6 +329,7 @@
                                                             <div class="modal-content">
                                                                 <div class="modal-header">
                                                                     <h5 class="modal-title">Thêm mới khách hàng</h5>
+                                                                    <button type="button" class="btn-close" @onclick="CloseModalCreateCustomer" aria-label="Close"></button>
                                                                 </div>
                                                                 <div class="modal-body">
                                                                     <form>
@@ -843,8 +845,8 @@
     private decimal totalPrincipal = 0; // tổng tiền hàng chưa giảm
     decimal discountAmount = 0 ; // tiền được giảm 
     private int totalQuantity = 0;
-    private decimal feeShipping = 0;
-    private decimal totalMoney = 0;
+    private decimal feeShipping = 0; // phí ship 
+    private decimal totalMoney = 0; // cần thanh toán
     private IEnumerable<Product_Attributes> paged_Orders;
     private List<Product_Attributes> pageProductAttributes = new List<Product_Attributes>();
     private string search_query = string.Empty;
@@ -1090,7 +1092,7 @@
         var newOrder = new Orders
         {
             Note = "Tại quầy",
-                CreatedByAdminId = null,
+            CreatedByAdminId = null,
             Status = "Hóa đơn treo"
         };
         await orderService.Create(newOrder);
@@ -1261,9 +1263,23 @@
 
     private async void CreateCustomer()
     {
+        var phoneRegex = new System.Text.RegularExpressions.Regex(@"^0\d{9}$");
+        var emailRegex = new System.Text.RegularExpressions.Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+
+        // Kiểm tra số điện thoại
+        if (string.IsNullOrEmpty(Customer.Phone) || !phoneRegex.IsMatch(Customer.Phone))
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Số điện thoại không hợp lệ. Số điện thoại phải bắt đầu bằng 0 và có 10 chữ số.");
+            return;
+        }
+        if (string.IsNullOrEmpty(Customer.Email) || !emailRegex.IsMatch(Customer.Email))
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Email không hợp lệ. Vui lòng nhập đúng định dạng email.");
+            return;
+        }
         if (string.IsNullOrEmpty(Customer.Phone) || await userService.IsPhoneExists(Customer.Phone))
         {
-            await JS.InvokeVoidAsync("toastr.error", "Số điện thoại đã tồn tại hoặc không hợp lệ.");
+            await JS.InvokeVoidAsync("toastr.error", "Số điện thoại đã được đăng ký hoặc không hợp lệ");
             return;
         }
 
@@ -1272,14 +1288,20 @@
             await JS.InvokeVoidAsync("toastr.error", "Số điện thoại không được bỏ trống.");
             return;
         }
+        if (string.IsNullOrEmpty(Customer.Email) || await userService.IsEmailExists(Customer.Email))
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Email đã được đăng ký hoặc không hợp lệ.");
+            return;
+        }
+        isCreateCustomerModalVisible = false;
         var createdCustomer = await userService.Create(Customer);
         lst_Customer = await userService.GetAll();
+    
         isCustomerAdded = true;
-        isCreateCustomerModalVisible = false;
-        isAddCustomerModalVisible = false;
         customerName = createdCustomer.Name;
         await JS.InvokeVoidAsync("toastr.success", "Thêm khách hàng thành công");
     }
+
     private async void OpenModalCreateCustomer()
     {
         isCreateCustomerModalVisible = true;
@@ -1303,7 +1325,6 @@
             return;
         }
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
-
         if (orderToUpdate != null)
         {
             CalculateTotalMoney();
@@ -1312,6 +1333,28 @@
             orderToUpdate.TotalPrincipal = totalPrincipal; // Tổng tiền hàng chưa giảm
             orderToUpdate.FeeShipping = feeShipping; // Phí vận chuyển
             orderToUpdate.Totalmoney = totalMoney;
+            orderToUpdate.TotalPrincipal = totalPrincipal;
+            if (isDeliveryVisible)
+            {
+                orderToUpdate.Status = "Đã xác nhận";
+                orderToUpdate.FeeShipping = feeShipping;
+
+             
+            }
+            else
+            {
+                orderToUpdate.Status = "Đã thanh toán";
+                orderToUpdate.FeeShipping = 0;
+            }
+            foreach (var item in lst_OrderDetail)
+            {
+                var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
+                if (product != null)
+                {
+                    if (item.Quantity > product.Stock || product.Stock==0)
+                    {
+                        await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.SKU} trong kho không đủ.");
+                        return;
 
             if (paymentMethod == "momo")
             {

@@ -14,8 +14,16 @@ namespace appAPI.Repository
         }
         public async Task Create(Orders orders)
         {
-            await _context.Orders.AddAsync(orders);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.Orders.AddAsync(orders);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                Console.WriteLine(ex.InnerException?.Message); 
+                throw;
+            }
         }
 
         public async Task Delete(long id)
