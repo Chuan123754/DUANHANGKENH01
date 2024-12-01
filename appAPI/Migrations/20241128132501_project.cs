@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace appAPI.Migrations
 {
-    public partial class duchuab : Migration
+    public partial class project : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -34,13 +34,13 @@ namespace appAPI.Migrations
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
+                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: true),
                     PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
+                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: true),
+                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: true),
                     LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
                     LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
                     AccessFailedCount = table.Column<int>(type: "int", nullable: false)
@@ -60,9 +60,9 @@ namespace appAPI.Migrations
                     Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Slug = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
                     Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Parent_id = table.Column<long>(type: "bigint", nullable: false),
+                    Parent_id = table.Column<long>(type: "bigint", nullable: true),
                     Deleted = table.Column<bool>(type: "bit", nullable: true),
-                    Dept = table.Column<int>(type: "int", nullable: false),
+                    Dept = table.Column<int>(type: "int", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -79,14 +79,14 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Color_code = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Deleted = table.Column<bool>(type: "bit", nullable: true),
-                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Delete_at = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Delete_at = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -109,8 +109,8 @@ namespace appAPI.Migrations
                     image_library = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     meta_data = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    update_at = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    create_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    update_at = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -126,10 +126,10 @@ namespace appAPI.Migrations
                     Code = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Type_of_promotion = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Discount_value = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Discount_value = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     IsGlobal = table.Column<bool>(type: "bit", nullable: true),
-                    Start_date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    End_date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Start_date = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    End_date = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Created_by = table.Column<long>(type: "bigint", nullable: true),
                     Updated_by = table.Column<long>(type: "bigint", nullable: true),
@@ -150,7 +150,7 @@ namespace appAPI.Migrations
                     Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Slug = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Mine = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Size = table.Column<int>(type: "int", nullable: false),
+                    Size = table.Column<int>(type: "int", nullable: true),
                     Ext = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Path = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -167,13 +167,13 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Deleted = table.Column<bool>(type: "bit", nullable: true),
-                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Delete_at = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Delete_at = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -220,8 +220,8 @@ namespace appAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Question = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Answer = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Created_by = table.Column<long>(type: "bigint", nullable: false),
-                    Updated_by = table.Column<long>(type: "bigint", nullable: false),
+                    Created_by = table.Column<long>(type: "bigint", nullable: true),
+                    Updated_by = table.Column<long>(type: "bigint", nullable: true),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -237,7 +237,7 @@ namespace appAPI.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Model_type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Post_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Post_Id = table.Column<long>(type: "bigint", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Keywords = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -255,13 +255,13 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Deleted = table.Column<bool>(type: "bit", nullable: true),
-                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Delete_at = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Delete_at = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -274,13 +274,13 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Deleted = table.Column<bool>(type: "bit", nullable: true),
-                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Delete_at = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Delete_at = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -310,13 +310,13 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Slug = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Deleted = table.Column<bool>(type: "bit", nullable: true),
-                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Delete_at = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Delete_at = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -350,17 +350,17 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Code = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Description = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Quantity = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Percent = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     MaxDiscountValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Condition = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Start_time = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    End_time = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Start_time = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    End_time = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -373,7 +373,7 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RoleId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -394,11 +394,11 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Log_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Subject_type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Time = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    Log_name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Subject_type = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Time = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -417,7 +417,7 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -550,11 +550,11 @@ namespace appAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Label = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Link = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Parent = table.Column<long>(type: "bigint", nullable: false),
-                    Sort = table.Column<int>(type: "int", nullable: false),
+                    Parent = table.Column<long>(type: "bigint", nullable: true),
+                    Sort = table.Column<int>(type: "int", nullable: true),
                     Class = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    MenuId = table.Column<long>(type: "bigint", nullable: false),
-                    Depth = table.Column<int>(type: "int", nullable: false),
+                    MenuId = table.Column<long>(type: "bigint", nullable: true),
+                    Depth = table.Column<int>(type: "int", nullable: true),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -603,7 +603,7 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<long>(type: "bigint", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -624,7 +624,7 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    User_id = table.Column<long>(type: "bigint", nullable: false),
+                    User_id = table.Column<long>(type: "bigint", nullable: true),
                     Create_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Delete_at = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -646,12 +646,12 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<long>(type: "bigint", nullable: false),
-                    VoucherId = table.Column<long>(type: "bigint", nullable: false),
+                    UserId = table.Column<long>(type: "bigint", nullable: true),
+                    VoucherId = table.Column<long>(type: "bigint", nullable: true),
                     IsApplied = table.Column<bool>(type: "bit", nullable: false),
                     AppliedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Create_at = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Update_at = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -708,13 +708,13 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Post_id = table.Column<long>(type: "bigint", nullable: false),
-                    User_id = table.Column<long>(type: "bigint", nullable: false),
-                    User_admin_id = table.Column<long>(type: "bigint", nullable: false),
+                    Post_id = table.Column<long>(type: "bigint", nullable: true),
+                    User_id = table.Column<long>(type: "bigint", nullable: true),
+                    User_admin_id = table.Column<long>(type: "bigint", nullable: true),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Author_IP = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Parent = table.Column<long>(type: "bigint", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    Parent = table.Column<long>(type: "bigint", nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -742,8 +742,8 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Post_Id = table.Column<long>(type: "bigint", nullable: false),
-                    Category_Id = table.Column<long>(type: "bigint", nullable: false)
+                    Post_Id = table.Column<long>(type: "bigint", nullable: true),
+                    Category_Id = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -768,8 +768,8 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Post_Id = table.Column<long>(type: "bigint", nullable: false),
-                    Tag_Id = table.Column<long>(type: "bigint", nullable: false)
+                    Post_Id = table.Column<long>(type: "bigint", nullable: true),
+                    Tag_Id = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1069,17 +1069,17 @@ namespace appAPI.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "ADMIN_ROLE_ID", "fe783cb1-d8da-4b62-841d-0963f8a9013e", "Admin", "ADMIN" });
+                values: new object[] { "ADMIN_ROLE_ID", "ec535f5a-02f5-4f71-a43c-6ad1cfe57992", "Admin", "ADMIN" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "DESIGNER_ROLE_ID", "13c8850c-f0eb-48a4-84d1-4ab1dc274c6c", "Designer", "DESIGNER" });
+                values: new object[] { "DESIGNER_ROLE_ID", "a56bbc60-9e4c-4ba3-a8b7-ef60241c32b7", "Designer", "DESIGNER" });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "EMPLOYEE_ROLE_ID", "14bede20-2e07-4b91-87d5-5f68307096b2", "Employee", "EMPLOYEE" });
+                values: new object[] { "EMPLOYEE_ROLE_ID", "94c298ec-28b5-4546-9ed3-7b298fe9d5e0", "Employee", "EMPLOYEE" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Activity_history_AccountId",

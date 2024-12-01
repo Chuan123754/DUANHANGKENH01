@@ -119,10 +119,11 @@
                     @if(isModalAddAttributeVisiable)
                     {
                         <div class="modal fade show d-block" tabindex="-1" role="dialog">
-                            <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 75%; width: auto;">
+                            <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 25%; width: auto;">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title">Chọn biến thể sản phẩm</h5>
+                                        <button type="button" class="btn-close" @onclick="CloseModalAddAttribute" aria-label="Close"></button>
                                     </div>
 
                                     <div class="modal-body">
@@ -179,7 +180,10 @@
                                                             </ul>
                                                         </div>
                                                     </div>
-                                                    <button class="btn btn-primary" @onclick="CreateProductAttributes">Tạo biến thể</button>
+                                                    <div class="modal-footer d-flex justify-content-between">
+                                                        <button type="button" class="btn btn-primary" @onclick="CreateProductAttributes">Xác nhận</button>
+                                                        <button type="button" class="btn btn-secondary" @onclick="CloseModalAddAttribute">Hủy</button>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -251,6 +255,7 @@
                                                 <td>@attributes.Size?.Title</td>                        
                                                 <td>
                                                     <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenUpdateProductAttributeModal(attributes.Id)">Sửa thông tin</button>
+                                                    <button class="btn btn-danger" @onclick="() => DeleteProductAttribute(attributes.Id)">        <i class="bi bi-trash3"></i></button>
                                                 </td>
                                             </tr>
                                         }
@@ -375,6 +380,8 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadPosts();
+        colorList = await colorService.GetAll();
+        sizeList = await sizeService.GetAll();
     }
 
     private void OnColorSelectionChanged(long colorId, object isChecked)
@@ -420,10 +427,31 @@
             return;
         }
 
+        var existingListVariants = await productAttributeService.GetProductAttributesByProductVarianId(selectedPostId);
+
         foreach (var colorId in selectedColors)
         {
             foreach (var sizeId in selectedSizes)
             {
+                // Kiểm tra biến thể trùng cả màu và kích thước
+                bool isVariantExists = existingListVariants.Any(v => v.Color_Id == colorId && v.Size_Id == sizeId);
+                if (isVariantExists)
+                {
+                    var colorTitle = colorList.FirstOrDefault(c => c.Id == colorId)?.Title ?? "Không rõ";
+                    var sizeTitle = sizeList.FirstOrDefault(s => s.Id == sizeId)?.Title ?? "Không rõ";
+                    await JS.InvokeVoidAsync("toastr.warning", $"Biến thể với size '{sizeTitle}' và màu '{colorTitle}' đã có.");
+                    continue;
+                }
+
+                // Kiểm tra biến thể cùng màu khác kích thước hoặc cùng kích thước khác màu
+                bool isColorExists = existingListVariants.Any(v => v.Color_Id == colorId && v.Size_Id != sizeId);
+                bool isSizeExists = existingListVariants.Any(v => v.Size_Id == sizeId && v.Color_Id != colorId);
+
+                if (!isColorExists && !isSizeExists)
+                {
+                    continue;
+                }
+
                 string productName = productVariant.Posts.Title;
                 string textileTechnology = productVariant.Textile_Technology?.Slug ?? string.Empty;
                 string style = productVariant.Style?.Slug ?? string.Empty;
@@ -442,7 +470,6 @@
                 // Tạo mã SKU
                 string sku = $"{productAbbreviation}-{textileAbbreviation}-{styleAbbreviation}-{materialAbbreviation}";
 
-
                 // Tạo biến thể mới
                 var productAttribute = new Product_Attributes
                     {
@@ -454,12 +481,16 @@
                     };
 
                 await productAttributeService.Create(productAttribute);
+
+                // Hiển thị thông báo thành công
+                var createdColorTitle = colorList.FirstOrDefault(c => c.Id == colorId)?.Title ?? "Không rõ";
+                var createdSizeTitle = sizeList.FirstOrDefault(s => s.Id == sizeId)?.Title ?? "Không rõ";
+                await JS.InvokeVoidAsync("toastr.success", $"Tạo thành công biến thể size '{createdSizeTitle}' và color '{createdColorTitle}'.");
+                await ShowAttributes(productVariant.Id);
+                CloseModalAddAttribute();
             }
         }
-
-        await JS.InvokeVoidAsync("toastr.success", "Tạo thành công các biến thể.");
     }
-
     private void FormatCurrency(ChangeEventArgs e)
     {
         var input = e.Value?.ToString() ?? string.Empty;
@@ -534,6 +565,7 @@
     private async Task ConfirmDelete(long id)
     {
         await productVariansService.Delete(id);
+        await JS.InvokeVoidAsync("toastr.success", "Xóa thành công sản phẩm ");
         await LoadPosts();
     }
     private async Task OpenUpdateProductAttributeModal(long productAttributeId)
@@ -572,7 +604,23 @@
         selectedAttribute = attribute;
         await JS.InvokeVoidAsync("openMediaModal");
     }
-
+    private async Task DeleteProductAttribute(long id)
+    {
+        try
+        {
+            await productAttributeService.Delete(id);
+            var attributeToRemove = productAttributesList.FirstOrDefault(attr => attr.Id == id);
+            if (attributeToRemove != null)
+            {
+                productAttributesList.Remove(attributeToRemove);
+                await JS.InvokeVoidAsync("toastr.success", "Xóa sản phẩm thành công");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi xóa sản phẩm: {ex.Message}");
+        }
+    }
 }
 <script>
     function openMediaModal() {

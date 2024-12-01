@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241128112756_duchuab")]
-    partial class duchuab
+    [Migration("20241129033719_addPayment")]
+    partial class addPayment
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -585,15 +585,12 @@ namespace appAPI.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Slug")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Update_at")
@@ -820,6 +817,9 @@ namespace appAPI.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long?>("Payment_Id")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Status")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
@@ -846,6 +846,8 @@ namespace appAPI.Migrations
                         .HasFilter("[Address_Id] IS NOT NULL");
 
                     b.HasIndex("CreatedByAdminId");
+
+                    b.HasIndex("Payment_Id");
 
                     b.HasIndex("User_id");
 
@@ -879,6 +881,25 @@ namespace appAPI.Migrations
                     b.HasIndex("P_attribute_Id");
 
                     b.ToTable("p_Variants_Discounts");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Payment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Payment");
                 });
 
             modelBuilder.Entity("appAPI.Models.Post_categories", b =>
@@ -1537,21 +1558,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "fe783cb1-d8da-4b62-841d-0963f8a9013e",
+                            ConcurrencyStamp = "8978ae3c-6289-4de5-a4a4-02b76918cce4",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "14bede20-2e07-4b91-87d5-5f68307096b2",
+                            ConcurrencyStamp = "52f108d2-80ef-4861-9440-b4e46c0b0760",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "13c8850c-f0eb-48a4-84d1-4ab1dc274c6c",
+                            ConcurrencyStamp = "7b24352e-bcc3-45ff-89c8-f079ac70580b",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -1817,6 +1838,10 @@ namespace appAPI.Migrations
                         .WithMany("CreatedOrders")
                         .HasForeignKey("CreatedByAdminId");
 
+                    b.HasOne("appAPI.Models.Payment", "Payment")
+                        .WithMany("Orders")
+                        .HasForeignKey("Payment_Id");
+
                     b.HasOne("appAPI.Models.Users", "Users")
                         .WithMany("Orders")
                         .HasForeignKey("User_id");
@@ -1824,6 +1849,8 @@ namespace appAPI.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Admin");
+
+                    b.Navigation("Payment");
 
                     b.Navigation("Users");
                 });
@@ -2101,6 +2128,11 @@ namespace appAPI.Migrations
                     b.Navigation("Order_details");
 
                     b.Navigation("Order_trackings");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Payment", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("appAPI.Models.Product_Attributes", b =>

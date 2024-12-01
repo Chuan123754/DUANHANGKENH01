@@ -136,7 +136,16 @@
                                                                     </div>
                                                                 </div>
                                                             </td>
-                                                            <td class="text-center">@product.Stock</td>
+                                                            <td class="text-center">
+                                                                @if (product.Stock == null || product.Stock == 0)
+                                                                {
+                                                                    <span style="color: red; font-weight: bold;">Đã hết hàng</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    @product.Stock
+                                                                }
+                                                            </td>
                                                             <td class="text-end">
                                                                 @if (product.Sale_price != null && product.Sale_price > 0)
                                                                 {
@@ -235,7 +244,7 @@
                                             </td>
                                             <td>@item.ProductAttributes.Size.Title</td>
                                             <td>@item.Quantity </td>
-                                            <td class="text-end">
+                                            <td class="text-start">
                                                 @if (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
                                                 {
                                                     <div>
@@ -258,7 +267,7 @@
                                                     </div>
                                                 }
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-start">
                                                 @if (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
                                                 {
                                                     <span>
@@ -1152,9 +1161,9 @@
         }
 
         var productAttribute = await productAttributeService.GetProductAttributesById(productAttributeId);
-        if (productAttribute == null)
+        if (productAttribute.Stock == null || productAttribute.Stock == 0)
         {
-            await JS.InvokeVoidAsync("toastr.error", "Sản phẩm không tồn tại.");
+            await JS.InvokeVoidAsync("toastr.error", "Sản phẩm hiện không có trong kho.");
             return;
         }
 
