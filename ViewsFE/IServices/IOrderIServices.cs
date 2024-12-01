@@ -15,5 +15,7 @@ namespace ViewsFE.IServices
         Task<byte[]> ExportInvoice(long orderId);
 
         Task<MomoPaymentResponse> CreateMomoPaymentUrl(string fullName, decimal amount, string orderInfo);
+        Task<MomoPaymentResponse> QueryPaymentStatus(string orderId);
+
     }
 }

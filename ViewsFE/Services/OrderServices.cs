@@ -1,5 +1,4 @@
-﻿using iTextSharp.text.pdf.qrcode;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using ViewsFE.IServices;
 using ViewsFE.Models;
@@ -95,13 +94,12 @@ namespace ViewsFE.Services
                     throw new Exception("API MoMo không trả về URL thanh toán.");
                 }
 
-                // Tạo mã QR từ URL
                 var qrCodeBase64 = GenerateQrCode(payUrl);
 
                 return new MomoPaymentResponse
                 {
                     PayUrl = payUrl,
-                    QrCodeBase64 = qrCodeBase64
+                    QrCodeBase64 = qrCodeBase64,
                 };
             }
             else
@@ -109,6 +107,7 @@ namespace ViewsFE.Services
                 throw new Exception("Không thể tạo mã QR thanh toán MoMo.");
             }
         }
+
 
 
         public string GenerateQrCode(string url)
@@ -123,6 +122,29 @@ namespace ViewsFE.Services
                 return $"data:image/png;base64,{Convert.ToBase64String(qrCodeBytes)}";
             }
         }
+
+        public async Task<MomoPaymentResponse> QueryPaymentStatus(string orderId)
+        {
+            var response = await _client.GetAsync($"https://localhost:7011/api/payment/query-transaction?orderId={orderId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var json = JObject.Parse(responseContent);
+
+                var resultCode = json["response"]["resultCode"]?.ToString();
+
+                return new MomoPaymentResponse
+                {
+                    ResultCode = resultCode
+                };
+            }
+            else
+            {
+                throw new Exception("Không thể kiểm tra trạng thái thanh toán.");
+            }
+        }
+
 
     }
 }

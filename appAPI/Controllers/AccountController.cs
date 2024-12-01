@@ -155,5 +155,24 @@ namespace appAPI.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpGet("GetPasswordHashByEmail")]
+        public async Task<IActionResult> GetPasswordHashByEmail(string email)
+        {
+            try
+            {
+                var passwordHash = await _repo.GetPasswordHashByEmail(email);
+                if (string.IsNullOrEmpty(passwordHash))
+                {
+                    return NotFound("Không tìm thấy PasswordHash.");
+                }
+                return Ok(passwordHash);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
 }

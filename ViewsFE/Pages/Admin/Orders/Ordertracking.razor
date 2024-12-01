@@ -1,0 +1,402 @@
+﻿@page "/ordertracking/{OrderId:long}"
+@inject IOrderIServices orderService
+@inject IOrderTrackingService orderTrackingService
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+@inject IJSRuntime JS
+
+<style>
+    .card-header {
+        font-weight: bold;
+        background-color: #f8f9fa;
+    }
+
+    .table th, .table td {
+        vertical-align: middle;
+    }
+
+</style>
+<div class="container">
+    @if (OrderTracking != null && OrderTracking.OrderTrackings != null)
+    {
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">Cập nhật trạng thái</h5>
+            </div>
+            <div class="card-body">
+                @if (OrderTracking != null && OrderTracking.OrderTrackings.Any())
+                {
+                    <div class="d-flex flex-wrap gap-2">
+                        @if (OrderTracking != null && OrderTracking.Status != null)
+                        {
+                            <button class="btn btn-sm @GetButtonClass(OrderTracking.Status)"
+                                    @onclick="HandleButtonClick">
+                                @GetButtonLabel(OrderTracking.Status, OrderTracking.Note)
+                            </button>
+
+                            <!-- Hiển thị ô nhập số tiền -->
+                            @if (OrderTracking.Status == "Đã nhận hàng")
+                            {
+                                <div class="mb-3 mt-3">
+                                    <p><strong>Tổng tiền cần thanh toán:</strong> @OrderTracking.TotalMoney.ToString("N0") VND</p>
+                                    <label for="enteredAmount" class="form-label">Số tiền khách trả</label>
+                                    <input type="text" id="enteredAmount" class="form-control" @bind="enteredAmount" />
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p>Trạng thái không xác định hoặc chưa được tải.</p>
+                        }
+                    </div>
+
+                }
+            </div>
+        </div>
+
+        <!-- Modal nhận lý do -->
+        @if (isModalVisible)
+        {
+            <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Khôi phục trạng thái</h5>
+                            <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <textarea class="form-control" @bind="restoreNote" rows="4" placeholder="Nhập lý do khôi phục trạng thái"></textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" @onclick="ConfirmRestoreStatus">Xác nhận</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseModal">Hủy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-backdrop fade show"></div>
+        }
+
+    }
+    else
+    {
+        <p>Không có lịch sử thanh toán để hiển thị.</p>
+    }
+
+
+    @if (OrderTracking != null)
+    {
+        <!-- Lịch sử đơn hàng -->
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">Lịch sử đơn hàng</h5>
+                <button class="btn btn-outline-primary" style="margin-left: 10px;" @onclick="() => DownloadInvoice(OrderId)">Xuất hóa đơn</button>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Số tiền</th>
+                            <th scope="col">Thời gian</th>
+                            <th scope="col">Loại giao dịch</th>
+                            <th scope="col">PTTT</th>
+                            <th scope="col">Trạng thái</th>
+                            <th scope="col">Ghi chú</th>
+                            <th scope="col">Nhân viên xác nhận</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var tracking in OrderTracking.OrderTrackings.OrderByDescending(t => t.CreatedAt))
+                        {
+                            <tr>
+                                <td>@OrderTracking.TotalMoney.ToString("N0") VND</td>
+                                <td>@tracking.CreatedAt?.ToString("dd-MM-yyyy HH:mm:ss")</td>
+                                <td>Thanh toán</td>
+                                <td>Tiền mặt</td>
+                                <td><span class="badge bg-success">@tracking.Status</span></td>
+                                <td>@tracking.Note</td>
+                                <td>@OrderTracking.SellerName</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Danh sách sản phẩm -->
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">Danh sách sản phẩm</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Hình ảnh</th>
+                            <th scope="col">Tên sản phẩm</th>
+                            <th scope="col">Màu sắc</th>
+                            <th scope="col">Size</th>
+                            <th scope="col">Giá gốc</th>
+                            <th scope="col">Giá giảm</th>
+                            <th scope="col">Số lượng</th>
+                            <th scope="col">Tổng tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var product in OrderTracking.Products)
+                        {
+                            <tr>
+                                <td><img src="@product.Image_library" alt="Hình ảnh" style="width: 80px; height: auto;" /></td>
+                                <td>@product.SKU </td>
+                                <td>@product.Color</td>
+                                <td>@product.Size</td>
+                                <td>@((product.Regular_price ?? 0).ToString("N0")) VND</td>
+                                <td>@((product.UnitPrice ?? 0).ToString("N0")) VND</td>
+                                <td>@product.Quantity</td>
+                                <td>@((product.Quantity * (product.UnitPrice ?? 0)).ToString("N0")) VND</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+         <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">Danh sách sản phẩm</h5>
+            </div>
+            <div class="card-body">
+                <h4>Thông Tin Hóa Đơn</h4>
+                <p><strong>Tổng tiền hàng:</strong> @OrderTracking.TotalPrincipal.ToString("N0") VND</p>
+                <p><strong>Tổng tiền được giảm:</strong> @OrderTracking.TotalDiscount.ToString("N0") VND</p>
+                <p><strong>Phí ship:</strong> @OrderTracking.FeeShipping.ToString("N0") VND</p>
+                <p><strong>Tổng tiền hàng đã giảm:</strong> @OrderTracking.TotalAmount.ToString("N0") VND</p>
+                <p><strong>Tổng tiền cần thanh toán:</strong> @OrderTracking.TotalMoney.ToString("N0") VND</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p>Đang tải thông tin...</p>
+    }
+</div>
+
+@code {
+    [Parameter] public long OrderId { get; set; }
+    private OrderTrackingDTO? OrderTracking { get; set; }
+
+    private string currentStatus;
+    private string previousStatus;
+    private string restoreNote;
+
+    private bool isModalVisible = false; //Modal
+    private long selectedTrackingId; // Biến lưu ID của trạng thái đang chỉnh sửa
+
+    private decimal enteredAmount = 0; // Biến lưu số tiền khách trả
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            OrderTracking = await orderTrackingService.GetBy(OrderId);
+
+            if (OrderTracking != null && OrderTracking.OrderTrackings.Any())
+            {
+                OrderTracking.Status = OrderTracking.OrderTrackings
+                    .OrderByDescending(t => t.CreatedAt) // Sắp xếp giảm dần theo thời gian
+                    .FirstOrDefault()?.Status;
+            }
+            else
+            {
+                OrderTracking.Status = null;
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi tải thông tin vận chuyển: {ex.Message}");
+        }
+    }
+
+
+    private async Task DownloadInvoice(long orderId)
+    {
+        try
+        {
+            var fileBytes = await orderService.ExportInvoice(orderId);
+            var fileName = $"hoa_don_{orderId}.pdf";
+
+            // Sử dụng JavaScript để tải về file PDF
+            using var streamRef = new DotNetStreamReference(stream: new MemoryStream(fileBytes));
+            await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi xuất hóa đơn: {ex.Message}");
+        }
+    }
+
+    private async Task ChangeStatus(long trackingId, string status)
+    {
+        selectedTrackingId = trackingId; // Lưu lại trackingId
+        previousStatus = currentStatus;
+        currentStatus = status;
+
+        if (status == "Khôi phục")
+        {
+            isModalVisible = true; // Hiển thị modal
+        }
+        else
+        {
+            await UpdateStatus(trackingId, currentStatus, previousStatus, string.Empty);
+        }
+    }
+
+
+
+    private void CloseModal()
+    {
+        isModalVisible = false;
+        restoreNote = string.Empty;
+    }
+
+
+    private async Task ConfirmRestoreStatus()
+    {
+        await UpdateStatus(selectedTrackingId, previousStatus, currentStatus, restoreNote);
+        isModalVisible = false; // Đóng modal
+        restoreNote = string.Empty; // Xóa ghi chú
+    }
+
+    private async Task UpdateStatus(long trackingId, string newStatus, string oldStatus, string note)
+    {
+        try
+        {
+            // Tạo đối tượng order_trackings để gửi cập nhật
+            var updatedTracking = new order_trackings
+                {
+                    Id = trackingId, 
+                    Status = newStatus,
+                    Note = note,
+                    Updated_at = DateTime.Now
+                };
+
+            await orderTrackingService.UpdateOrderTracking(trackingId, updatedTracking);
+
+            await ReloadTrackingData();
+            await JS.InvokeVoidAsync("toastr.success", $"Cập nhật trạng thái thành công: {newStatus}");
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("toastr.error", $"Lỗi cập nhật trạng thái: {ex.Message}");
+        }
+    }
+
+
+
+
+    private async Task ReloadTrackingData()
+    {
+        OrderTracking = await orderTrackingService.GetBy(OrderId);
+
+        if (OrderTracking != null && OrderTracking.OrderTrackings.Any())
+        {
+            // Lấy trạng thái mới nhất theo CreatedAt
+            OrderTracking.Status = OrderTracking.OrderTrackings
+                .OrderByDescending(t => t.CreatedAt) // giảm dần
+                .FirstOrDefault()?.Status;
+        }
+        else
+        {
+            OrderTracking.Status = null;
+        }
+
+        StateHasChanged();
+    }
+
+
+    private string GetButtonClass(string status)
+    {
+        return status switch
+        {
+            "Chờ xác nhận" => "btn-warning",
+            "Xác nhận" => "btn-primary",
+            "Giao hàng" => "btn-info",
+            "Đã nhận hàng" => "btn-success",
+            "Đã thanh toán" => "btn-secondary",
+            _ => "btn-light"
+        };
+    }
+
+
+
+    private string GetButtonLabel(string status, string? note)
+    {
+        return status switch
+        {
+            "Chờ xác nhận" => "Xác nhận",
+            "Xác nhận" => "Giao hàng",
+            "Giao hàng" => "Đã nhận hàng",
+            "Đã nhận hàng" => "Xác nhận thanh toán",
+            "Đã thanh toán" => "Hoàn thành",
+            _ => "Hành động khác" 
+        };
+    }
+
+    private async Task HandleButtonClick()
+    {
+        try
+        {
+            // Lấy trạng thái hiện tại hoặc mặc định
+            var latestTracking = OrderTracking.OrderTrackings
+                .OrderByDescending(t => t.CreatedAt)
+                .FirstOrDefault();
+
+            string currentStatus = latestTracking?.Status ?? "Chờ xác nhận";
+
+            // Xác định trạng thái tiếp theo
+            string newStatus = currentStatus switch
+            {
+                "Chờ xác nhận" => "Xác nhận",
+                "Xác nhận" => "Giao hàng",
+                "Giao hàng" => "Đã nhận hàng",
+                "Đã nhận hàng" => "Đã thanh toán",
+                "Đã thanh toán" => "Hoàn thành",
+                _ => "Không rõ"
+            };
+
+            string note = newStatus == "Đã thanh toán" ? $"Số tiền khách trả: {enteredAmount:N0} VND" : string.Empty;
+
+            // Tạo trạng thái mới
+            var newTracking = new order_trackings
+                {
+                    OrderId = OrderId,
+                    Status = newStatus,
+                    Note = note,
+                    Created_at = DateTime.Now,
+                    Created_by = 1 // Hiện ID ảo
+                };
+
+            var result = await orderTrackingService.AddOrderTracking(newTracking);
+
+            if (result == "Thêm mới thành công.")
+            {
+                // Tải lại dữ liệu và cập nhật trạng thái
+                await ReloadTrackingData();
+                await JS.InvokeVoidAsync("toastr.success", $"Trạng thái mới được thêm: {newStatus}");
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("toastr.error", result);
+            }
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("toastr.error", $"Lỗi khi thêm trạng thái: {ex.Message}");
+        }
+    }
+
+
+
+}

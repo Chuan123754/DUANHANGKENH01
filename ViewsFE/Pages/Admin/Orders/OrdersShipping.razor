@@ -240,7 +240,7 @@
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <button class="btn btn-primary mt-2">Thông tin vận chuyển</button>
+                                                    <button class="btn btn-primary" @onclick="() => GoToOrderTracking(item.Id)">Thông Tin Vận Chuyển</button>
                                                 </td>
                                             </tr>
                                         }
@@ -336,6 +336,11 @@
     {
         await ListOrder();
         LoadPagedOrders();
+    }
+
+    private void GoToOrderTracking(long orderId)
+    {
+        nav.NavigateTo($"/ordertracking/{orderId}");
     }
 
     public async Task ListOrder()

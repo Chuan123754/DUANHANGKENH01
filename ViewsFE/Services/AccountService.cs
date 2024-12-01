@@ -121,5 +121,21 @@ namespace ViewsFE.Services
                 throw new Exception($"Unable to toggle lock account: {errorMessage}");
             }
         }
+
+        public async Task<string> GetPasswordHashByEmail(string email)
+        {
+            string requestURL = $"https://localhost:7011/api/Account/GetPasswordHashByEmail?email={email}";
+            var response = await _client.GetAsync(requestURL);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                throw new Exception("Không thể lấy PasswordHash.");
+            }
+        }
+
     }
 }
