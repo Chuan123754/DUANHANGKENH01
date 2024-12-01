@@ -68,5 +68,17 @@ namespace appAPI.Repository
             return _entities.Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
 
         }
+
+        public IEnumerable<T> Find(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties)
+        {
+            IQueryable<T> query = _entities.Where(predicate);
+
+            foreach (var includeProperty in includeProperties)
+            {
+                query = query.Include(includeProperty);
+            }
+
+            return query.ToList();
+        }
     }
 }

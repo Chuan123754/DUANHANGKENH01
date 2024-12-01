@@ -1,0 +1,76 @@
+﻿@page "/admin/user/create"
+@inject NavigationManager nav
+@inject IUserService userService
+@inject IJSRuntime JS
+
+<EditForm Model="user" OnValidSubmit="SubmitForm" FormName="userAdd">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+    <ValidationSummary></ValidationSummary>
+    <div class="page-wrapper">
+        <div class="page-header d-print-none">
+            <div class="container-xl">
+                <div class="row g-2 align-items-center">
+                    <div class="col">
+                        <h2 class="page-title">
+                            Thêm người dùng
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page-body">
+            <div class="container-xl">
+                <div class="row">
+                    <div class="col-md-12 col-12">
+                        <div class="card">
+                            <div class="card-body">
+
+                                <div class="form-group mb-3">
+                                    <label for="user-name" class="form-label">Tên người dùng <span class="text-danger">*</span></label>
+                                    <InputText id="user-name" class="form-control" @bind-Value="user.Name" required />
+                                    <ValidationMessage For="@(() => user.Name)" />
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="user-email" class="form-label">Email <span class="text-danger">*</span></label>
+                                    <InputText id="user-email" class="form-control" @bind-Value="user.Email" required />
+                                    <ValidationMessage For="@(() => user.Email)" />
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="user-phone" class="form-label">Số điện thoại</label>
+                                    <InputText id="user-phone" class="form-control" @bind-Value="user.Phone" />
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary" style="float: right">
+                                        Thêm người dùng
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private Users user = new Users();
+
+    private async Task SubmitForm()
+    {
+        try
+        {
+            await userService.Create(user); // Gọi API để tạo người dùng
+            await JS.InvokeVoidAsync("toastr.success", "Người dùng đã được thêm thành công"); // Hiển thị thông báo thành công
+            nav.NavigateTo("/admin/users"); // Điều hướng sau khi thành công
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm người dùng. Vui lòng thử lại."); // Hiển thị thông báo lỗi
+        }
+    }
+}
