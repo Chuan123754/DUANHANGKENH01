@@ -12,6 +12,7 @@ using System.Text;
 using appAPI.Background_Service;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +31,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
-    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "HangKenh API", Version = "v1" });
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         In = ParameterLocation.Header,
@@ -82,7 +83,19 @@ builder.Services.AddScoped<IProductAttributesRepository, ProductAttributesReposi
 builder.Services.AddScoped<IProductVariantsRepository, ProductVariantsRepository>();
 builder.Services.AddScoped<IProductAttributeDiscountRepository, ProductAttributeDiscount>();
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+
 builder.Services.AddScoped<IMomoRepository, MomoRepository>();
+builder.Services.AddScoped<IVnPayService, VnPayService>();
+
+builder.Services.AddControllers(options =>
+{
+    options.ModelMetadataDetailsProviders.Add(new SuppressChildValidationMetadataProvider(typeof(string)));
+});
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+});
+builder.Services.AddScoped<IContactReponsetory, ContacReponsetory>();
 
 // Đăng ký CORS
 builder.Services.AddCors(options =>

@@ -25,14 +25,9 @@ namespace appAPI.Controllers
 
         // GET api/<MaterialController>/5
         [HttpGet("{id}")]
-        public IActionResult Get(long id)
-        {
-            var colo = _repos.GetByIdAndType(id);
-            if (colo == null)
-            {
-                return NotFound("Color not found");
-            }
-            return Ok(colo);
+        public async Task<Material> Get(long id)
+        { 
+            return await _repos.GetByIdAndType(id);
         }
 
 

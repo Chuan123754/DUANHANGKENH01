@@ -45,8 +45,9 @@ namespace appAPI.Repository
             return await _context.Orders
                 .Include(o => o.Admin)
                 .Include(o => o.Users)
-                .FirstAsync(o=>o.Id==id);
+                .FirstOrDefaultAsync(o => o.Id == id); // Trả về null nếu không tìm thấy
         }
+
 
         public async Task Update(Orders orders, long id)
         {
@@ -58,6 +59,8 @@ namespace appAPI.Repository
                 updateItem.Note = orders.Note;
                 updateItem.TotalAmount = orders.TotalAmount;
                 updateItem.Totalmoney = orders.Totalmoney;
+                updateItem.TotalPrincipal = orders.TotalPrincipal;
+                updateItem.FeeShipping = orders.FeeShipping;
                 updateItem.Update_at = DateTime.Now;
 
                 _context.Orders.Update(updateItem);

@@ -425,6 +425,40 @@ namespace appAPI.Migrations
                     b.ToTable("Comments");
                 });
 
+            modelBuilder.Entity("appAPI.Models.Contact", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Contacts");
+                });
+
             modelBuilder.Entity("appAPI.Models.Designer", b =>
                 {
                     b.Property<long>("id_Designer")
@@ -583,15 +617,12 @@ namespace appAPI.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Slug")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Update_at")
@@ -818,6 +849,9 @@ namespace appAPI.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<long?>("Payment_Id")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Status")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
@@ -844,6 +878,8 @@ namespace appAPI.Migrations
                         .HasFilter("[Address_Id] IS NOT NULL");
 
                     b.HasIndex("CreatedByAdminId");
+
+                    b.HasIndex("Payment_Id");
 
                     b.HasIndex("User_id");
 
@@ -877,6 +913,25 @@ namespace appAPI.Migrations
                     b.HasIndex("P_attribute_Id");
 
                     b.ToTable("p_Variants_Discounts");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Payment", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Payment");
                 });
 
             modelBuilder.Entity("appAPI.Models.Post_categories", b =>
@@ -1263,11 +1318,9 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Slug")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Update_at")
@@ -1330,11 +1383,9 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Slug")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Update_at")
@@ -1535,21 +1586,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "fe783cb1-d8da-4b62-841d-0963f8a9013e",
+                            ConcurrencyStamp = "9a5dc393-4873-4934-8817-d3dde6d84ceb",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "14bede20-2e07-4b91-87d5-5f68307096b2",
+                            ConcurrencyStamp = "3029704b-cd70-4c6d-b926-f2bf1d77433d",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "13c8850c-f0eb-48a4-84d1-4ab1dc274c6c",
+                            ConcurrencyStamp = "76907396-8596-4fd9-a1b5-11cf7a1aa238",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -1815,6 +1866,10 @@ namespace appAPI.Migrations
                         .WithMany("CreatedOrders")
                         .HasForeignKey("CreatedByAdminId");
 
+                    b.HasOne("appAPI.Models.Payment", "Payment")
+                        .WithMany("Orders")
+                        .HasForeignKey("Payment_Id");
+
                     b.HasOne("appAPI.Models.Users", "Users")
                         .WithMany("Orders")
                         .HasForeignKey("User_id");
@@ -1822,6 +1877,8 @@ namespace appAPI.Migrations
                     b.Navigation("Address");
 
                     b.Navigation("Admin");
+
+                    b.Navigation("Payment");
 
                     b.Navigation("Users");
                 });
@@ -2099,6 +2156,11 @@ namespace appAPI.Migrations
                     b.Navigation("Order_details");
 
                     b.Navigation("Order_trackings");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Payment", b =>
+                {
+                    b.Navigation("Orders");
                 });
 
             modelBuilder.Entity("appAPI.Models.Product_Attributes", b =>

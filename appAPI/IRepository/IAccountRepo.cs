@@ -15,5 +15,7 @@ namespace appAPI.IRepository
         public Task<Account> GetAccountById(string idAccount);
         public Task<List<AccountWithRoles>> GetAllAccountsAsync();
         public Task<IdentityResult> ToggleLockAccountAsync(string idAccount);
+        Task<string> GetPasswordHashByEmail(string email);
+
     }
 }

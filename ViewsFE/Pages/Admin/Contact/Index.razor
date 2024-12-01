@@ -1,0 +1,155 @@
+﻿@page "/admin/contact"
+@inject NavigationManager nav
+@inject IContacServices sev
+@inject IJSRuntime JS
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">
+                        Danh sách chuyên mục
+                    </h2>                
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="card-body">
+                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                        <div></div>
+                        <EditForm Model="contact" OnValidSubmit="@OnSearch">
+                            <div class="form-group d-flex gap-2">
+                                <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                            </div>
+                        </EditForm>
+                    </div>
+
+                    <div id="table-default" class="table-responsive">
+                        @if (Listcontacts != null && Listcontacts.Any())
+                        {
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>
+                                            <button class="table-sort" @* @onclick='() => SortBy("id")' *@>ID</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @* @onclick='() => SortBy("title")' *@>Họ & Tên</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @* @onclick='() => SortBy("slug")' *@>Email</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort" @* @onclick='() => SortBy("create_at")' *@>Phone</button>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int stt = (page_number - 1) * page_size + 1;
+                                    }
+                                    @foreach (var ct in Listcontacts)
+                                    {
+                                        // Hiển thị sản phẩm cha
+                                        <tr class="post-row">
+                                            <td>@stt</td>
+                                            <td class="sort-title">
+                                                @ct.FullName
+                                                <br />
+                                                <div class="cell-action">
+                                                    <a class="cell-action-edit text-primary" @onclick="() => NavDetails(ct.Id)">Xem chi tiết</a>
+                                                    <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(ct.Id)">Thùng rác</a>
+                                                </div>
+                                            </td>
+                                            <td>@ct.Email</td>
+                                            <td>@ct.Phone</td>
+                                        </tr>
+                                        stt++;
+                                    }
+                                </tbody>
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Contact" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="4" class="text-center">Không có dữ liệu</td>
+                            </tr>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@code
+{
+    private List<Contact> Listcontacts = new List<Contact>();
+    private Contact contact = new Contact();
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
+    private int totalItems;
+
+    private async Task OnSearch()
+    {
+        Listcontacts = await sev.GetByTypeAsync(page_number, page_size, search_query);
+    }
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        Listcontacts = await sev.GetByTypeAsync(page_number, page_size, searchTerm);
+        totalItems = await sev.GetTotalCountAsync(searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPosts();
+    }
+
+    private async Task GoToPage(int page)
+    {
+        page_number = page;
+        await LoadPosts();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        page_size = newPageSize;
+        page_number = 1;
+        await LoadPosts();
+    }
+    private async Task NavDetails(long id)
+    {
+        nav.NavigateTo($"/admin/contact/details/{id}");
+    }
+    private async Task NavDeleteCtgr(long id)
+    {
+        try
+        {
+            await sev.Delete(id);
+            // Cập nhật danh sách sau khi xóa, chỉ lấy những màu chưa bị xóa
+            await JS.InvokeVoidAsync("toastr.success", "Xóa bản ghi thành công!");
+            await LoadPosts();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể xoá bản ghi. Vui lòng thử lại.");
+        }
+    }
+}

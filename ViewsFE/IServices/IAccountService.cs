@@ -15,5 +15,6 @@ namespace ViewsFE.IServices
         public Task<Account> GetAccountById(string idAccount);
         public Task<List<AccountWithRoles>> GetAllAccountsAsync();
         public Task<IdentityResult> ToggleLockAccountAsync(string idAccount);
+        public Task<string> GetPasswordHashByEmail(string email);
     }
 }

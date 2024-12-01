@@ -132,7 +132,10 @@
 
                                 <div class="form-group mb-1">
                                     <label for="startTime">Thời Gian Bắt Đầu
-                                       
+                                        <span class="info-icon">
+                                            <i class="fas fa-info-circle fa-sm"></i>
+                                            <span class="tooltip-text">Ngày hiện tại lớn hơn ngày bắt đầu = "Hết hạn" <br /> Ngày hiện tại nhỏ hơn ngày bát đầu = "Chò kich hoạt"</span>
+                                        </span>
                                     </label>
                                     <InputDate id="startTime" @bind-Value="voucher.Start_time" class="form-control" />
                                     <ValidationMessage For="@(() => voucher.Start_time)" />
@@ -150,7 +153,7 @@
                                 </div>
 
 
-                                <div class="form-group mb-1">
+                                @* <div class="form-group mb-1">
                                     <label>Trạng Thái</label><br />
 
                                     <input type="radio" id="active" name="status" checked="@(voucher.Status == "Hoạt động")" @onchange="SetStatusToActive" />
@@ -160,7 +163,7 @@
                                     <label for="inactive">Không hoạt động</label>
 
                                     <ValidationMessage For="@(() => voucher.Status)" />
-                                </div>
+                                </div> *@
 
                                 <!-- Nút Tạo và Cập Nhật -->
                                 <div class="form-group">
@@ -224,7 +227,7 @@
                                                     <td>
                                                         <button class="btn btn-primary" @onclick="() => EditVoucher(voucher.Id)">Sửa</button>
 
-                                                        <button class="btn btn-danger" @onclick="() => ConfirmDelete(voucher.Id)">Xóa</button>
+                                                        <button class="btn btn-danger" @onclick="() => ConfirmDelete(voucher.Id)">Dừng</button>
                                                     </td>
                                                 </tr>
                                             }
@@ -490,6 +493,27 @@
     {
         try
         {
+            // Kiểm tra trùng mã Code
+            if (vouchers.Any(v => v.Code.Equals(voucher.Code, StringComparison.OrdinalIgnoreCase)))
+            {
+                errorMessage = "Mã voucher đã tồn tại, vui lòng nhập mã khác!";
+                return;
+            }
+
+            // kiểm tra thời gian.
+            if (DateTime.Now < voucher.Start_time)
+            {
+                voucher.Status = "Chưa kích hoạt";
+            }
+
+            // kiểm tra thời gian kết thúc
+            if (voucher.End_time < voucher.Start_time)
+            {
+                errorMessage = "Thời gian kết thúc phải lớn hơn thời gian bắt đầu";
+                return;
+
+            }
+
             if (voucher.Status == "Không hoạt động")
             {
                 errorMessage = "Voucher đang không hoạt động. Không thể thêm khách hàng.";
@@ -520,6 +544,20 @@
             {
                 errorMessage = "Điều kiện chỉ chứa số!";
                 return;
+            }
+
+            var today = DateTime.Today;
+            if (voucher.End_time < today)
+            {
+                voucher.Status = "Đã kết thúc";
+            }
+            else if (voucher.Start_time > today)
+            {
+                voucher.Status = "Sắp diễn ra";
+            }
+            else
+            {
+                voucher.Status = "Đang diễn ra";
             }
 
             // Nếu có khách hàng riêng, gán số lượng bằng số lượng khách hàng đã tích
@@ -607,7 +645,7 @@
 
         try
         {
-            // Lấy khách hàng có voucher từ cơ sở dữ liệu
+            // Lấy khách hàng có voucher
             var userVouchers = await UserVoucherService.GetByVoucherId(id);
 
             selectedUserIds.Clear();
@@ -638,6 +676,26 @@
     {
         try
         {
+            // Kiểm tra trùng mã Code trừ ID hiện tại.
+            if (vouchers.Any(v => v.Code.Equals(voucher.Code, StringComparison.OrdinalIgnoreCase) && v.Id != voucher.Id))
+            {
+                errorMessage = "Mã voucher đã tồn tại, vui lòng nhập mã khác!";
+                return;
+            }
+
+            // kiểm tra thời gian.
+            if (DateTime.Now < voucher.Start_time)
+            {
+                voucher.Status = "Chưa kích hoạt";
+            }
+
+            // kiểm tra thời gian kết thúc
+            if (voucher.End_time < voucher.Start_time)
+            {
+                errorMessage = "Thời gian kết thúc phải lớn hơn thời gian bắt đầu";
+                return;
+            }
+
             // Kiểm tra "Type_of_promotion" chỉ chứa số hoặc ký tự "%"
             if (!Regex.IsMatch(voucher.Percent, @"^\d+%?$"))
             {
@@ -664,6 +722,20 @@
                 return;
             }
 
+            var today = DateTime.Today;
+            if (voucher.End_time < today)
+            {
+                voucher.Status = "Đã kết thúc";
+            }
+            else if (voucher.Start_time > today)
+            {
+                voucher.Status = "Sắp diễn ra";
+            }
+            else
+            {
+                voucher.Status = "Đang diễn ra";
+            }
+
             // Kiểm tra trạng thái voucher
             if (voucher.Status == "Không hoạt động")
             {
@@ -681,7 +753,7 @@
                 initialUserIds.Clear();
                 selectedUserCount = 0;
 
-                errorMessage = "Cập nhật Voucher thành công. \nLưu ý: Trạng thái 'Không hoạt động' không cho phép thêm/bỏ khách hàng.";
+                errorMessage = "Cập nhật Voucher thành công. \n Lưu ý: Trạng thái 'Không hoạt động' không cho phép thêm/bỏ khách hàng.";
                 return;
             }
 
@@ -776,7 +848,6 @@
             // Gán Giá trị giảm tối đa = Giá trị giảm theo VND
             voucher.MaxDiscountValue = value.ToString();
 
-            // Kiểm tra điều kiện
             if (double.TryParse(voucher.Condition.ToString(), out double conditionValue) && conditionValue <= value)
             {
                 errorMessage = "Điều kiện phải lớn hơn giá trị giảm.";
@@ -784,7 +855,6 @@
             }
         }
 
-        // Tiếp tục xử lý nếu giá trị hợp lệ
         if (voucher.Id == 0)
         {
             await CreateVoucher();

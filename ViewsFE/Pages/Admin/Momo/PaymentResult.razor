@@ -1,0 +1,40 @@
+﻿@page "/admin/payment-result"
+@inject NavigationManager NavigationManager
+
+<h3>Kết quả thanh toán</h3>
+
+@if (!string.IsNullOrEmpty(ErrorCode))
+{
+    <p>Mã lỗi (errorCode): @ErrorCode</p>
+    <p>Thông báo: @Message</p>
+    <p>Mã đơn hàng: @OrderId</p>
+
+    @if (ErrorCode == "0")
+    {
+        <p style="color: green;">Thanh toán thành công!</p>
+    }
+    else
+    {
+        <p style="color: red;">Thanh toán thất bại!</p>
+    }
+}
+else
+{
+    <p>Đang xử lý...</p>
+}
+
+@code {
+    private string? ErrorCode;
+    private string? Message;
+    private string? OrderId;
+
+    protected override void OnInitialized()
+    {
+        var uri = new Uri(NavigationManager.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+        ErrorCode = query["errorCode"];
+        Message = query["message"];
+        OrderId = query["orderId"];
+    }
+}

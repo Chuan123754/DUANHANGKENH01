@@ -41,6 +41,12 @@ namespace appAPI.Controllers
             var list = await _postRepository.GetAllByType(type);
             return Ok(list);
         }
+        [HttpGet("Get-all-client-type-cate")]
+        public async Task<IActionResult> GetAllByClientTypeCate(string type, string cate)
+        {
+            var list = await _postRepository.GetAllByClientTypeCate(type, cate);
+            return Ok(list);
+        }
         [HttpGet("GetCountByType")]
         public async Task<IActionResult> GetCountByType(string type, long designerId)
         {

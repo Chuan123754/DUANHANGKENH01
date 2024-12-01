@@ -26,29 +26,24 @@ namespace appAPI.Controllers
 
         // GET api/<StyleController>/5
         [HttpGet("{id}")]
-        public IActionResult Get(long id)
+        public async Task<Style> Get(long id)
         {
-            var style = _repos.GetByIdAndType(id);
-            if (style == null)
-            {
-                return NotFound("Style not found");
-            }
-            return Ok(style);
+            return await _repos.GetByIdAndType(id);         
         }
 
 
         // POST api/<StyleController>
         [HttpPost]
-        public async Task Post(Style mate)
+        public async Task Post(Style style)
         {
-            await _repos.Create(mate);
+            await _repos.Create(style);
         }
 
         // PUT api/<StyleController>/5
-        [HttpPut("{id}")]
-        public async Task Put(Style mate)
+        [HttpPut("update-style")]
+        public async Task Put(Style style)
         {
-            await _repos.Update(mate);
+            await _repos.Update(style);
         }
         // DELETE api/<StyleController>/5
         [HttpDelete("{id}")]

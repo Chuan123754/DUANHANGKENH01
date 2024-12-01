@@ -39,7 +39,7 @@ namespace appAPI.Repository
 
         public async Task<Material> GetByIdAndType(long id)
         {
-            return await _context.Materials.FirstOrDefaultAsync(p => p.Id == id && p.Deleted == false);
+            return await _context.Materials.FindAsync(id);
         }
 
         public async Task<List<Material>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)

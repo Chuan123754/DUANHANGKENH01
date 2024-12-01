@@ -1,10 +1,5 @@
-﻿using Newtonsoft.Json;
-using Org.BouncyCastle.Asn1.Ocsp;
-using System.Net.Http;
-using System.Text.Json;
-using ViewsFE.IServices;
+﻿using ViewsFE.IServices;
 using ViewsFE.Models;
-using ViewsFE.Models.DTO;
 
 namespace ViewsFE.Services
 {
