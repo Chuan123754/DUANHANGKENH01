@@ -31,5 +31,8 @@
     <PackageReference Include="RestSharp" Version="112.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
+	<PropertyGroup>
+		<NoWarn>0618</NoWarn>
+	</PropertyGroup>
 
 </Project>

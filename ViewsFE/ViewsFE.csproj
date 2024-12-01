@@ -43,6 +43,9 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 		<PackageReference Include="TinyMCE" Version="7.4.1" />
 	</ItemGroup>
+	<PropertyGroup>
+		<NoWarn>0618</NoWarn>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<Folder Include="Pages\Admin\Login\" />
