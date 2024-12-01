@@ -28,7 +28,6 @@ builder.Services.AddAuthorizationCore(config =>
 {
     config.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")); // cấu hình xác thực cho Blazor 
 });
-
 // Thêm cấu hình session
 builder.Services.AddSession(options =>
 {
@@ -100,7 +99,11 @@ builder.Services.AddScoped<IAttributesDiscountServices, AttributesDiscountServic
 builder.Services.AddScoped<IUploadService, UploadService>();
 builder.Services.AddScoped<IOrderTrackingService, OrderTrackingService>();
 builder.Services.AddHttpClient<MomoService>();
-builder.Services.AddScoped<IContacServices, ContacServices>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddServerSideBlazor(options => options.DetailedErrors = true);
+
+
+
 
 var app = builder.Build();
 
@@ -111,14 +114,14 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+app.UseSession();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseRouting();
 
-app.UseSession();
+
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

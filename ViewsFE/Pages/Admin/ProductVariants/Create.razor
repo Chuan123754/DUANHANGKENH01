@@ -397,7 +397,7 @@
                 product_Variant.Style_id == null ||
                 product_Variant.Material_id == null)
             {
-                await JS.InvokeVoidAsync("toastr.error", "Vui lòng không để trống các trường bắt buộc");
+                await JS.InvokeVoidAsync("toastr.error", "Vui lòng không để trống các thông tin bắt buộc");
                 return;
             }
 
@@ -442,10 +442,10 @@
             foreach (var sizeId in selectedSizes)
             {
                 var productCreated = await productVariant.GetProductVariantsById(IdProductVariantCreated);
-                string productName = productCreated.Posts.Title; // Tên sản phẩm
-                string textileTechnology = productCreated.Textile_Technology.Slug; //  công nghệ dệt
-                string style = productCreated.Style.Slug; //  phong cách
-                string material = productCreated.Material.Slug; //  chất liệu
+                string productName = productCreated.Posts.Title;
+                string textileTechnology = productCreated.Textile_Technology.Slug;
+                string style = productCreated.Style.Slug;
+                string material = productCreated.Material.Slug; 
 
                 // Tạo tên viết tắt của sản phẩm
                 string productAbbreviation = string.Concat(productName
@@ -470,7 +470,7 @@
 
                     };           
                 await productAttributes.Create(productAttribute);
-                await JS.InvokeVoidAsync("toastr.success", "Tạo thành công Oke!!");
+                await JS.InvokeVoidAsync("toastr.success", "Tạo thành công các biến thể");
                 isProductAttributesCreated = true;
             }
         }
@@ -484,11 +484,6 @@
     {
         foreach (var item in LST_ProductAttributes)
         {
-            if (string.IsNullOrEmpty(item.SKU))
-            {
-                await JS.InvokeVoidAsync("toastr.error", "SKU không được để trống.");
-                return;
-            }
 
             if (item.Stock == null)
             {

@@ -319,6 +319,11 @@
     private int pageSize = 5;
     private int totalPages = 1;
 
+    private void OnTypeOfPromotionChange(ChangeEventArgs e)
+    {
+        selectedType = e.Value?.ToString(); 
+        discountValue = 0; 
+    }
     private void ToggleUserSelection(long userId, bool isChecked)
     {
         if (isChecked)
@@ -376,7 +381,6 @@
         }
         isAllSelected = lst_ProductAtribites.All(item => selectedProductIds.Contains(item.Id));
     }
-
     private void ValidateDiscountValue(ChangeEventArgs e)
     {
         if (decimal.TryParse(e.Value?.ToString(), out var value))
@@ -519,6 +523,18 @@
                 await JS.InvokeVoidAsync("toastr.warning", "Các trường không được để trống hoặc chỉ chứa khoảng trắng!");
                 return;
             }
+            if (selectedType == "Percentage" && (discountValue < 1 || discountValue > 100))
+            {
+                await JS.InvokeVoidAsync("toastr.warning", "Giảm theo phần trăm phải từ 1% đến 100%!");
+                return;
+            }
+
+            if (selectedType == "Fixed" && discountValue < 1)
+            {
+                await JS.InvokeVoidAsync("toastr.warning", "Giảm giá cố định phải lớn hơn 0!");
+                return;
+            }
+
             var today = DateTime.Today;
             if (discount.End_date < today)
             {
@@ -622,6 +638,18 @@
                 errorMessage = "Các trường không được để trống hoặc chỉ chứa khoảng trắng!";
                 return;
             }
+            if (selectedType == "Percentage" && (discountValue < 1 || discountValue > 100))
+            {
+                await JS.InvokeVoidAsync("toastr.warning", "Giảm theo phần trăm phải từ 1% đến 100%!");
+                return;
+            }
+
+            if (selectedType == "Fixed" && discountValue < 1)
+            {
+                await JS.InvokeVoidAsync("toastr.warning", "Giảm giá cố định phải lớn hơn 0!");
+                return;
+            }
+
 
             // Tính trạng thái khuyến mãi
             var today = DateTime.Today;

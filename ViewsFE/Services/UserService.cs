@@ -127,7 +127,6 @@ namespace ViewsFE.Services
             }
             catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                // Nếu mã trạng thái là 404, thì số điện thoại chưa tồn tại
                 return false;
             }
         }
