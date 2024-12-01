@@ -50,6 +50,9 @@
                                         <th>
                                             <button class="table-sort" @* @onclick='() => SortBy("create_at")' *@>Phone</button>
                                         </th>
+                                        <th>
+                                            <button class="table-sort" @* @onclick='() => SortBy("create_at")' *@>Thời gian</button>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -71,6 +74,7 @@
                                             </td>
                                             <td>@ct.Email</td>
                                             <td>@ct.Phone</td>
+                                            <td>@ct.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")</td>
                                         </tr>
                                         stt++;
                                     }
