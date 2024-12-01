@@ -25,14 +25,10 @@ namespace appAPI.Controllers
 
         // GET api/<Textile_technologyController>/5
         [HttpGet("{id}")]
-        public IActionResult Get(long id)
+        public async Task<Textile_technology> Get(long id)
         {
-            var style = _repos.GetByIdAndType(id);
-            if (style == null)
-            {
-                return NotFound("Textile_technology not found");
-            }
-            return Ok(style);
+          return await _repos.GetByIdAndType(id);
+         
         }
 
         // POST api/<Textile_technologyController>

@@ -1,5 +1,64 @@
-﻿<h3>Details</h3>
+﻿@page "/admin/contact/details/{id:long}"
+@inject NavigationManager nav
+@inject IContacServices sev
+@inject IJSRuntime JS
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">
+                        Xem chi tiết thông tin liên hệ
+                    </h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row">
+                <div class="col-md-12 col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <!-- Hiển thị tiêu đề -->
+                            <div class="form-group mb-3">
+                                <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                <div class="form-control-plaintext">@ct.FullName</div>
+                            </div>
+
+                            <!-- Hiển thị đường dẫn -->
+                            <div class="form-group mb-3">
+                                <label class="form-label">Email</label>
+                                <div class="form-control-plaintext">@ct.Email</div>
+                            </div>
+
+                            <!-- Hiển thị mô tả số điện thoại -->
+                            <div class="form-group mb-3">
+                                <label class="form-label">Số điện thoại</label>
+                                <div class="form-control-plaintext">@ct.Phone</div>
+                            </div>
+
+                            <!-- Hiển thị mô tả tin nhắn -->
+                            <div class="form-group mb-3">
+                                <label class="form-label">Tin nhắn</label>
+                                <div class="form-control-plaintext">@ct.Message</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @code {
+    [Parameter]
+    public long Id { get; set; }
+    private Contact ct = new Contact();
 
+    protected async override Task OnInitializedAsync()
+    {
+        ct = await sev.GetById(Id);
+    }
 }

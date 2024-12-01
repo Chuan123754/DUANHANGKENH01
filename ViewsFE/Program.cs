@@ -100,7 +100,7 @@ builder.Services.AddScoped<IAttributesDiscountServices, AttributesDiscountServic
 builder.Services.AddScoped<IUploadService, UploadService>();
 builder.Services.AddScoped<IOrderTrackingService, OrderTrackingService>();
 builder.Services.AddHttpClient<MomoService>();
-
+builder.Services.AddScoped<IContacServices, ContacServices>();
 
 var app = builder.Build();
 

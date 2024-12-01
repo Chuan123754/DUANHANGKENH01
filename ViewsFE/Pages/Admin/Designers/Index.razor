@@ -61,10 +61,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
+                                    @{
+                                        int stt = (page_number - 1) * page_size + 1;
+                                    }
                                     @foreach (var item in designersList)
                                     {
                                         <tr class="post-row">
-                                            <td>@item.id_Designer</td>
+                                            <td>@stt</td>
                                             <td class="sort-img">
 
 
@@ -89,6 +92,7 @@
                                             </td>
                                             <td class="sort-date">@item.create_at</td>
                                         </tr>
+                                        stt++;
                                     }
                                 </tbody>
                             </table>

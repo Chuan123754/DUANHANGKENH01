@@ -1,6 +1,6 @@
 ﻿@page "/admin/contact"
 @inject NavigationManager nav
-@inject ICategoriesServices sev
+@inject IContacServices sev
 @inject IJSRuntime JS
 
 <div class="page-wrapper">
@@ -24,7 +24,7 @@
                 <div class="card-body">
                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
                         <div></div>
-                        <EditForm Model="categories" OnValidSubmit="@OnSearch">
+                        <EditForm Model="contact" OnValidSubmit="@OnSearch">
                             <div class="form-group d-flex gap-2">
                                 <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
                                 <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
@@ -33,7 +33,7 @@
                     </div>
 
                     <div id="table-default" class="table-responsive">
-                        @if (categoriesList != null && categoriesList.Any())
+                        @if (Listcontacts != null && Listcontacts.Any())
                         {
                             <table class="table">
                                 <thead>
@@ -42,39 +42,42 @@
                                             <button class="table-sort" @* @onclick='() => SortBy("id")' *@>ID</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" @* @onclick='() => SortBy("title")' *@>Tiêu đề</button>
+                                            <button class="table-sort" @* @onclick='() => SortBy("title")' *@>Họ & Tên</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" @* @onclick='() => SortBy("slug")' *@>Đường dẫn</button>
+                                            <button class="table-sort" @* @onclick='() => SortBy("slug")' *@>Email</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" @* @onclick='() => SortBy("create_at")' *@>Thời gian</button>
+                                            <button class="table-sort" @* @onclick='() => SortBy("create_at")' *@>Phone</button>
                                         </th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var ctgr in categoriesList.Where(ctgr => ctgr.Parent_id == 0))
+                                    @{
+                                        int stt = (page_number - 1) * page_size + 1;
+                                    }
+                                    @foreach (var ct in Listcontacts)
                                     {
                                         // Hiển thị sản phẩm cha
                                         <tr class="post-row">
-                                            <td>@ctgr.Id</td>
-                                            <td>
-                                                <a href="@($"/admin/manager-attribute?parent_id={ctgr.Id}")">@ctgr.Title</a>
+                                            <td>@stt</td>
+                                            <td class="sort-title">
+                                                @ct.FullName
                                                 <br />
-                                                <!-- Tạo các hành động sửa và xóa -->
                                                 <div class="cell-action">
-                                                    <a class="cell-action-edit text-primary" @onclick="() => NavEditCtgr(ctgr.Id)">Chỉnh sửa</a>
-                                                    <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(ctgr.Id)">Thùng rác</a>
+                                                    <a class="cell-action-edit text-primary" @onclick="() => NavDetails(ct.Id)">Xem chi tiết</a>
+                                                    <a class="cell-action-delete text-danger" @onclick="() => NavDeleteCtgr(ct.Id)">Thùng rác</a>
                                                 </div>
                                             </td>
-                                            <td>@ctgr.Slug</td>
-                                            <td>@ctgr.Created_at.ToString("dd/MM/yyyy")</td>
+                                            <td>@ct.Email</td>
+                                            <td>@ct.Phone</td>
                                         </tr>
+                                        stt++;
                                     }
                                 </tbody>
                             </table>
                             <div class="mt-4">
-                                <Pagination TItem="Categories" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                                <Pagination TItem="Contact" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
                             </div>
                         }
                         else
@@ -91,8 +94,8 @@
 </div>
 @code
 {
-    private List<Categories> categoriesList = new List<Categories>();
-    private Categories categories = new Categories();
+    private List<Contact> Listcontacts = new List<Contact>();
+    private Contact contact = new Contact();
     private string search_query = string.Empty;
     private int page_number = 1;
     private int total_pages = 1;
@@ -101,13 +104,13 @@
 
     private async Task OnSearch()
     {
-        categoriesList = await sev.GetByTypeAsync("post", page_number, page_size, search_query);
+        Listcontacts = await sev.GetByTypeAsync(page_number, page_size, search_query);
     }
     private async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        categoriesList = await sev.GetByTypeAsync("post", page_number, page_size, searchTerm);
-        totalItems = await sev.GetTotalCountAsync("post", searchTerm);
+        Listcontacts = await sev.GetByTypeAsync(page_number, page_size, searchTerm);
+        totalItems = await sev.GetTotalCountAsync(searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
     }
@@ -129,10 +132,9 @@
         page_number = 1;
         await LoadPosts();
     }
-
-    protected async Task NavEditCtgr(long id)
+    private async Task NavDetails(long id)
     {
-        nav.NavigateTo($"/admin/categorie/edit/{id}");
+        nav.NavigateTo($"/admin/contact/details/{id}");
     }
     private async Task NavDeleteCtgr(long id)
     {

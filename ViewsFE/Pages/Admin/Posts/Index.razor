@@ -63,11 +63,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-
+                                    @{
+                                        int stt = (page_number - 1) * page_size + 1;
+                                    }
                                     @foreach (var post in product_posts_list)
                                     {
                                         <tr class="post-row">
-                                            <td>@post.Id</td>
+                                            <td>@stt</td>
                                             <td class="sort-title">
                                                 @post.Title
                                                 <br />
@@ -110,6 +112,7 @@
                                             </td>
                                             <td class="sort-date">@post.Created_at</td>
                                         </tr>
+                                        stt++;
                                     }
                                 </tbody>
                             </table>

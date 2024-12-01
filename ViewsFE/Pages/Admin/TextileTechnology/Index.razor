@@ -114,11 +114,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-
+                                    @{
+                                        int stt = (page_number - 1) * page_size + 1;
+                                    }
                                     @foreach (var sz in listTechnology)
                                     {
                                         <tr class="post-row">
-                                            <td>@sz.Id</td>
+                                            <td>@stt</td>
                                             <td class="sort-title">
                                                 @sz.Title
                                                 <br />
@@ -132,6 +134,7 @@
                                             <td class="sort-city">@sz.Description</td>
                                             <td class="sort-date">@sz.Create_at</td>
                                         </tr>
+                                        stt++;
                                     }
 
                                 </tbody>

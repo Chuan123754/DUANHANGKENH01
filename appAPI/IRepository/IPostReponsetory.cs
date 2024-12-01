@@ -10,6 +10,7 @@ namespace appAPI.IRepository
 
         // Lấy tất cả bài viết theo type
         Task<List<Product_Posts>> GetAllByType(string type);
+        Task<List<Product_Posts>> GetAllByClientTypeCate(string type, string cate);
         Task<List<Product_Posts>> GetCountByType(string type, long designerId);
         Task<List<Product_Posts>> GetAllProductDelete();
         Task Restore(long id);

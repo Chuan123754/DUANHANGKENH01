@@ -147,7 +147,18 @@ namespace appAPI.Repository
                 .ToListAsync();
         }
 
-
+        public async Task<List<Product_Posts>> GetAllByClientTypeCate(string type, string cate)
+        {
+            return await _context.Posts
+                .Where(p => p.Type == type && p.Deleted == false && p.Post_categories.Any(pc => pc.Categories.Slug == cate))
+                .Include(p => p.Post_tags)          // Lấy thông tin về Post_tags
+                    .ThenInclude(pt => pt.Tag)      // Lấy thông tin chi tiết của Tag liên quan
+                .Include(p => p.Post_categories)    // Lấy thông tin về Post_categories
+                    .ThenInclude(pc => pc.Categories)
+                .Include(p => p.Designer)           // Lấy thông tin Designer
+                .OrderByDescending(p => p.Id)
+                .ToListAsync();
+        }
         // Lấy tất cả bài viết
         public async Task<List<Product_Posts>> GetAll()
         {
@@ -397,7 +408,5 @@ namespace appAPI.Repository
                                  .Select(p => p.Name)
                                  .FirstOrDefaultAsync();
         }
-
-      
     }
 }

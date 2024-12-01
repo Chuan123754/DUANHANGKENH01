@@ -24,11 +24,6 @@ namespace appAPI.Models
 
         [StringLength(20)]
         public string? Status { get; set; }
-        public bool? bannernoibat {  get; set; }
-        public bool? duannoibat { get; set; }
-        public bool? trendy { get; set; }
-        public bool? baivietnoibat { get; set; }
-        public bool? quytrinh {  get; set; }
         public long AuthorId { get; set; }
         public bool? Deleted { get; set; }
 

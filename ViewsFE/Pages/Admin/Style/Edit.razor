@@ -67,7 +67,7 @@
     {
         try
         {
-            await sev.Create(style); // Gọi API để tạo thuộc tính
+            await sev.Update(style); // Gọi API để tạo thuộc tính
             await JS.InvokeVoidAsync("toastr.success", "Phong cách đã được sửa thành công"); // Hiển thị thông báo thành công
             nav.NavigateTo("/admin/style"); // Điều hướng sau khi thành công
         }
