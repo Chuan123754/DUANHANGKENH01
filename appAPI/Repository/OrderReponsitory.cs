@@ -45,6 +45,7 @@ namespace appAPI.Repository
            return await _context.Orders
                 .Include(o=>o.Admin)
                 .Include(o=>o.Users)
+                .Include(o=>o.Payment)
                 .ToListAsync();
         }
 
@@ -53,6 +54,7 @@ namespace appAPI.Repository
             return await _context.Orders
                 .Include(o => o.Admin)
                 .Include(o => o.Users)
+                .Include(o => o.Payment)
                 .FirstOrDefaultAsync(o => o.Id == id); // Trả về null nếu không tìm thấy
         }
 

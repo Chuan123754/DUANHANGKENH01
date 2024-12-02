@@ -99,7 +99,7 @@
                             <th scope="col">Số tiền</th>
                             <th scope="col">Thời gian</th>
                             <th scope="col">Loại giao dịch</th>
-                            <th scope="col">PTTT</th>
+                            <th scope="col">Phương thức thanh toán</th>
                             <th scope="col">Trạng thái</th>
                             <th scope="col">Ghi chú</th>
                             <th scope="col">Nhân viên xác nhận</th>
@@ -112,7 +112,7 @@
                                 <td>@OrderTracking.TotalMoney.ToString("N0") VND</td>
                                 <td>@tracking.CreatedAt?.ToString("dd-MM-yyyy HH:mm:ss")</td>
                                 <td>Thanh toán</td>
-                                <td>Tiền mặt</td>
+                                <td>@OrderTracking.TypePayment</td>
                                 <td><span class="badge bg-success">@tracking.Status</span></td>
                                 <td>@tracking.Note</td>
                                 <td>@OrderTracking.SellerName</td>
@@ -151,9 +151,12 @@
                                 <td>@product.Color</td>
                                 <td>@product.Size</td>
                                 <td>@((product.Regular_price ?? 0).ToString("N0")) VND</td>
-                                <td>@((product.UnitPrice ?? 0).ToString("N0")) VND</td>
+                                <td>@((product.UnitPrice ?? 0) > 0 ? (product.UnitPrice ?? 0).ToString("N0") + " VND" : "#N/A")</td>
                                 <td>@product.Quantity</td>
-                                <td>@((product.Quantity * (product.UnitPrice ?? 0)).ToString("N0")) VND</td>
+                                <td>
+                                    @(((product.Quantity) * ((product.UnitPrice ?? 0) > 0 ? (product.UnitPrice ?? 0) : (product.Regular_price ?? 0))).ToString("N0")) VND
+                                      
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -163,7 +166,7 @@
 
          <div class="card mb-4">
             <div class="card-header bg-light">
-                <h5 class="card-title mb-0">Danh sách sản phẩm</h5>
+                <h5 class="card-title mb-0">Thông tin tổng tiền</h5>
             </div>
             <div class="card-body">
                 <h4>Thông Tin Hóa Đơn</h4>

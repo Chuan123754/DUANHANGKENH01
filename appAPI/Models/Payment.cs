@@ -11,7 +11,7 @@ namespace appAPI.Models
         public string? Name { get; set; }
         public string? Description { get; set; }
         [JsonIgnore]
-        public virtual ICollection<Orders> Orders { get; set; } = new List<Orders>();
+        public virtual ICollection<Orders>? Orders { get; set; } = new List<Orders>();
 
     }
 
