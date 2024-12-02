@@ -11,6 +11,7 @@
         public string? Note { get; set; } 
         public DateTime? Created_at { get; set; }
         public List<ProductItem> Products { get; set; }
+        public string TypePayment { get; set; }      // Loại thanh toán
         public decimal TotalPrincipal { get; set; }
         public decimal TotalAmount { get; set; }
         public decimal TotalDiscount { get; set; }
@@ -24,6 +25,7 @@
     {
         public long Id { get; set; }            // ID của order_trackings
         public string Status { get; set; }       // Trạng thái đơn hàng
+
         public string PreviousStatus { get; set; }
         public string Note { get; set; }         // Ghi chú
         public decimal TotalMoney { get; set; }  // Tổng tiền

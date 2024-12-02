@@ -112,12 +112,12 @@ namespace appAPI.Controllers
                 {
                     if (errorCode == "0") // Thanh toán thành công
                     {
-                        order.Status = "Paid";
+                        order.Status = "Đã thanh toán";
                         
                     }
                     else
                     {
-                        order.Status = "Failed";
+                        order.Status = "Chưa thanh toán";
                     }
 
                     await _repo.Update(order, order.Id); // Gọi phương thức Update của Repository
