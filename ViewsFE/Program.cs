@@ -97,6 +97,7 @@ builder.Services.AddScoped<IBannerServices, BannerServices>();
 builder.Services.AddScoped<IDiscountServices, DiscountServices>();
 builder.Services.AddScoped<IAttributesDiscountServices, AttributesDiscountServices>();
 builder.Services.AddScoped<IUploadService, UploadService>();
+builder.Services.AddScoped<IPaymentServices, PaymentServices>();
 builder.Services.AddScoped<IOrderTrackingService, OrderTrackingService>();
 builder.Services.AddHttpClient<MomoService>();
 builder.Services.AddHttpContextAccessor();
