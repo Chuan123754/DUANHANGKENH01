@@ -6,6 +6,7 @@
 @inject OrderDetailsIServices orderDetailService
 @inject IProductAttributeServices productAttributeService
 @inject IProductVariantServices productVariantService
+@inject MomoService momoService
 @inject IOrderTrackingService orderTrackingService
 @inject IJSRuntime JS
 
@@ -244,7 +245,11 @@
                                                 </div>
                                             </td>
                                             <td>@item.ProductAttributes.Size.Title</td>
-                                            <td>@item.Quantity </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => UpdateQuantityView(item.Id, item.Quantity - 1)">-</button>
+                                                <span class="mx-2">@item.Quantity</span>               
+                                                <button class="btn btn-sm btn-outline-secondary" @onclick="() => UpdateQuantityView(item.Id, item.Quantity + 1)">+</button>
+                                            </td>
                                             <td class="text-start">
                                                 @if (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
                                                 {
@@ -798,6 +803,7 @@
                             <div class="d-flex justify-content-center my-3">
                                 <button type="button" class="btn btn-primary me-2" @onclick="PayByCash">Thanh toán tiền mặt</button>
                                 <button type="button" class="btn btn-success" @onclick="PayByMomo">Thanh toán qua MoMo</button>
+                              
 
                             </div>
 
@@ -814,9 +820,14 @@
                                         <div class="modal-body">
                                             <iframe src="@payUrl" style="width: 100%; height: 600px; border: none;" allowfullscreen></iframe>
                                         </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" @onclick="CancelMomoPayment">Hủy</button>
-                                            <button type="button" class="btn btn-primary" @onclick="ConfirmMomoPayment">Xác nhận thanh toán</button>
+                                        <div class="modal-footer d-flex justify-content-between">
+                                            <div>
+                                                <button type="button" class="btn btn-secondary" @onclick="CancelMomoPayment">Hủy</button>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="btn btn-primary" @onclick="ConfirmMomoPayment">Hoàn thành</button>
+                                                <button class="btn btn-outline-primary" style="margin-left: 10px;" @onclick="() => DownloadInvoice(selectedOrderId)">Xuất hóa đơn</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -870,19 +881,20 @@
     private int totalItems;
 
     private string momoError = null; // Lỗi từ phía MoMo
+    private string? ErrorCode;
     private string payUrl { get; set; } // URL thanh toán MoMo
     private string qrCodeBase64 { get; set; } // Mã QR Base64 để hiển thị
 
     private bool isMomoModalVisible = false; // Kiểm tra modal MoMo đang mở hay không
+                                             // Hiển thị modal QR MoMo
 
-    // Hiển thị modal QR MoMo
     private void ShowMomoModal(string momoUrl)
     {
         payUrl = momoUrl;
+
         isMomoModalVisible = true;
         StateHasChanged();
     }
-
     // Xử lý khi nhấn nút "Hủy"
     private async Task CancelMomoPayment()
     {
@@ -890,15 +902,37 @@
         await LoadOrders(); // Reload lại danh sách Order
         StateHasChanged();
     }
-
     // Xử lý khi nhấn nút "Xác nhận thanh toán"
     private async Task ConfirmMomoPayment()
     {
-        isMomoModalVisible = false;
-        await JS.InvokeVoidAsync("toastr.success", "Thanh toán thành công qua QR MoMo!");
-        await ResetViewState();
-    }
+        var updateitem = await orderService.GetByIdOrders(selectedOrderId);
+        if(updateitem.Status == "Đã thanh toán")
+        {
+            var orderDetailsCopy = lst_OrderDetail.ToList();
+            foreach (var item in orderDetailsCopy)
+            {
+                var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
+                if (product != null)
+                {
+                    if (item.Quantity > product.Stock || product.Stock == 0)
+                    {
+                        await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.SKU} trong kho không đủ.");
+                        return;
+                    }
+                    product.Stock -= item.Quantity; // trừ số lượng trong kho
+                    await productAttributeService.Update(product, product.Id);
+                    await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
+                    isMomoModalVisible = false;
+                    await ResetViewState();
+                }
+            }
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("toastr.error", $"Đơn hàng chưa được thanh toán");
+        }
 
+    }
     // Reset trạng thái sau khi thanh toán xong
     private async Task ResetViewState()
     {
@@ -924,20 +958,28 @@
         await LoadProducts();
         StateHasChanged();
     }
-
-
-
-    private void PayByCash()
+    private async void PayByCash()
     {
         CheckOut("cash");
+        foreach (var item in lst_OrderDetail)
+        {
+            var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
+            if (product != null)
+            {
+                if (item.Quantity > product.Stock || product.Stock == 0)
+                {
+                    await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.SKU} trong kho không đủ.");
+                    return;
+                }
+                product.Stock -= item.Quantity; // trừ số lượng trong kho
+                await productAttributeService.Update(product, product.Id);
+            }
+        }
     }
-
-    private void PayByMomo()
+    private async void PayByMomo()
     {
         CheckOut("momo");
     }
-
-
     private async Task OnSearch()
     {
         // Ngăn ngừa load lại trang
@@ -1093,6 +1135,34 @@
         await orderDetailService.Delete(id);
         CalculateTotalMoney();
         await LoadOrderDetails();
+    }
+    private async Task UpdateQuantityView(long itemId, int newQuantity)
+    {
+        if (newQuantity < 1) return; // Tránh việc số lượng nhỏ hơn 1
+
+        var orderDetail = lst_OrderDetail.FirstOrDefault(x => x.Id == itemId);
+        if (orderDetail != null)
+        {
+            var productVariant = orderDetail.ProductAttributes;
+            var stock = productVariant.Stock;
+            if(newQuantity > stock)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Số lượng trong kho không đủ");
+                return;
+            }
+            // Cập nhật số lượng
+            orderDetail.Quantity = newQuantity;
+
+            await UpdateOrderDetail(orderDetail);
+            CalculateTotalMoney();
+            // Cập nhật lại giao diện
+            StateHasChanged();
+        }
+    }
+    private async Task UpdateOrderDetail(Order_details orderDetail)
+    {
+        // Ví dụ gọi API để lưu thay đổi
+        await orderDetailService.Update(orderDetail,orderDetail.Id);
     }
     private async Task CreateOrder()
     {
@@ -1273,8 +1343,6 @@
 
         totalMoney = isDeliveryVisible ? (feeShipping + totalAmount) : totalAmount;
     }
-
-
     private async void CreateCustomer()
     {
         var phoneRegex = new System.Text.RegularExpressions.Regex(@"^0\d{9}$");
@@ -1315,7 +1383,6 @@
         customerName = createdCustomer.Name;
         await JS.InvokeVoidAsync("toastr.success", "Thêm khách hàng thành công");
     }
-
     private async void OpenModalCreateCustomer()
     {
         isCreateCustomerModalVisible = true;
@@ -1338,73 +1405,98 @@
             await JS.InvokeVoidAsync("toastr.warning", "Đơn hàng chưa có sản phẩm nào.");
             return;
         }
+        foreach (var item in lst_OrderDetail)
+        {
+            var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
+            if (product != null)
+            {
+                if (item.Quantity > product.Stock || product.Stock == 0)
+                {
+                    await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.SKU} trong kho không đủ.");
+                    return;
+                }
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("toastr.error", $"Không tìm thấy sản phẩm {item.Product_Attribute_Id}.");
+                return;
+            }
+        }
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate != null)
         {
             CalculateTotalMoney();
 
-            orderToUpdate.TotalAmount = totalAmount;
+            orderToUpdate.TotalAmount = totalAmount; // tiền hàng đã giảm
             orderToUpdate.TotalPrincipal = totalPrincipal; // Tổng tiền hàng chưa giảm
-            orderToUpdate.FeeShipping = feeShipping; // Phí vận chuyển
-            orderToUpdate.Totalmoney = totalMoney;
-            orderToUpdate.TotalPrincipal = totalPrincipal;
+            orderToUpdate.Totalmoney = totalMoney; // tổng cần thanh toán ( nếu có ship )
             if (isDeliveryVisible)
             {
                 orderToUpdate.Status = "Đã xác nhận";
                 orderToUpdate.FeeShipping = feeShipping;
-
-
             }
             else
             {
                 orderToUpdate.Status = "Đã thanh toán";
                 orderToUpdate.FeeShipping = 0;
             }
-            foreach (var item in lst_OrderDetail)
+            if (paymentMethod == "momo")
             {
-                var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
-                if (product != null)
+                try
                 {
-                    if (item.Quantity > product.Stock || product.Stock == 0)
+                    // Tạo giao dịch MoMo
+                    var momoResponse = await orderService.CreateMomoPaymentUrl(customerName, orderToUpdate.Totalmoney ?? 0, $"Thanh toán hóa đơn {selectedOrderId}");
+                    if (!string.IsNullOrEmpty(momoResponse.PayUrl))
                     {
-                        await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.SKU} trong kho không đủ.");
-                        return;
-
-                        if (paymentMethod == "momo")
-                        {
-                            try
-                            {
-                                // Tạo giao dịch MoMo
-                                var momoResponse = await orderService.CreateMomoPaymentUrl(customerName, totalAmount, $"Thanh toán hóa đơn {selectedOrderId}");
-                                if (!string.IsNullOrEmpty(momoResponse.PayUrl))
-                                {
-                                    // Hiển thị modal QR code MoMo
-                                    ShowMomoModal(momoResponse.PayUrl);
-                                }
-                                else
-                                {
-                                    await JS.InvokeVoidAsync("toastr.error", "Không thể tạo giao dịch MoMo.");
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                await JS.InvokeVoidAsync("toastr.error", $"Lỗi khi xử lý thanh toán MoMo: {ex.Message}");
-                            }
-                        }
-                        else
-                        {
-                            // Tiếp tục logic thanh toán khác (nếu có)
-                            orderToUpdate.Status = "Đã thanh toán";
-                            await orderService.Update(orderToUpdate, orderToUpdate.Id);
-                            await ResetViewState();
-
-                            await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
-                        }
-
-
+                        // Hiển thị modal QR code MoMo
+                        orderToUpdate.TypePayment = "Chuyển khoản MoMo";
+                        ShowMomoModal(momoResponse.PayUrl);
+                        
+                    }
+                    else
+                    {
+                        await JS.InvokeVoidAsync("toastr.error", "Không thể tạo giao dịch MoMo.");
                     }
                 }
+                catch (Exception ex)
+                {
+                    await JS.InvokeVoidAsync("toastr.error", $"Lỗi khi xử lý thanh toán MoMo: {ex.Message}");
+                }
             }
+            else
+            {
+                // Tiếp tục logic thanh toán khác (nếu có)
+                orderToUpdate.TypePayment = "Thanh toán tiền mặt";
+                await ResetViewState();
+
+                await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
+            }
+            var newOrderTracking = new order_trackings
+                {
+                    OrderId = orderToUpdate.Id,
+                    Status = isDeliveryVisible ? "Giao hàng" : "Tại quầy",
+                    Note = "Hóa đơn thanh toán thành công",
+                    Created_at = DateTime.Now,
+                    Created_by = 1 // ID tạm
+                };
+            await orderService.Update(orderToUpdate, orderToUpdate.Id);
+            await orderTrackingService.AddOrderTracking(newOrderTracking);
+        }
+    }
+    private async Task DownloadInvoice(long orderId)
+    {
+        try
+        {
+            var fileBytes = await orderService.ExportInvoice(orderId);
+            var fileName = $"hoa_don_{orderId}.pdf";
+
+            // Sử dụng JavaScript để tải về file PDF
+            using var streamRef = new DotNetStreamReference(stream: new MemoryStream(fileBytes));
+            await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Lỗi khi xuất hóa đơn: {ex.Message}");
         }
     }
     // tính tiền vận chuyển

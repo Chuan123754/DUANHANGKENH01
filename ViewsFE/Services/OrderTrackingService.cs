@@ -51,6 +51,7 @@ namespace ViewsFE.Services
                     Regular_price = p.Regular_price,
                     Image_library = p.Image_library
                 }).ToList(),
+                TypePayment=tracking.TypePayment,
                 TotalPrincipal = tracking.TotalPrincipal,
                 TotalAmount = tracking.TotalAmount,
                 TotalDiscount = tracking.TotalDiscount,
