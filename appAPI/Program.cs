@@ -82,6 +82,7 @@ builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IProductAttributesRepository, ProductAttributesRepository>();
 builder.Services.AddScoped<IProductVariantsRepository, ProductVariantsRepository>();
 builder.Services.AddScoped<IProductAttributeDiscountRepository, ProductAttributeDiscount>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
 
 builder.Services.AddScoped<IMomoRepository, MomoRepository>();

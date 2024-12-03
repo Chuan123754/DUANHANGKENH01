@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using appAPI.Models;
 
@@ -11,9 +12,10 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    partial class APP_DATA_DATNModelSnapshot : ModelSnapshot
+    [Migration("20241201142236_allnull")]
+    partial class allnull
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -865,9 +867,6 @@ namespace appAPI.Migrations
                     b.Property<decimal?>("Totalmoney")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("TypePayment")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime?>("Update_at")
                         .HasColumnType("datetime2");
 
@@ -935,20 +934,6 @@ namespace appAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Payment");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Description = "Thanh toán bằng tiền mặt",
-                            Name = "Tiền mặt"
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            Description = "Thanh toán qua chuyển khoản ngân hàng",
-                            Name = "Chuyển khoản"
-                        });
                 });
 
             modelBuilder.Entity("appAPI.Models.Post_categories", b =>
@@ -1107,8 +1092,23 @@ namespace appAPI.Migrations
                     b.Property<long?>("Updated_by")
                         .HasColumnType("bigint");
 
+                    b.Property<bool?>("baivietnoibat")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("bannernoibat")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("duannoibat")
+                        .HasColumnType("bit");
+
                     b.Property<string>("product_video")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("quytrinh")
+                        .HasColumnType("bit");
+
+                    b.Property<bool?>("trendy")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -1588,21 +1588,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "a4dc4f23-7706-4328-83e6-040f46268cdc",
+                            ConcurrencyStamp = "9a5dc393-4873-4934-8817-d3dde6d84ceb",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "99189480-2acd-414c-8e6b-27ba81bb0ab4",
+                            ConcurrencyStamp = "3029704b-cd70-4c6d-b926-f2bf1d77433d",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "6dfc6acd-1631-4a37-a5e9-f685e9f02e2e",
+                            ConcurrencyStamp = "76907396-8596-4fd9-a1b5-11cf7a1aa238",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });

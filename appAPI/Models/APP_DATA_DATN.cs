@@ -45,6 +45,7 @@ namespace appAPI.Models
         public DbSet<Material> Materials { get; set; }
         public DbSet<Textile_technology> Textile_Technologies { get; set; }
         public DbSet<Product_Attributes> Product_Attributes { get; set; }
+        public DbSet<Payment> Payment { get; set; }
         public DbSet<UserVouchers> userVouchers { get; set; }
         public DbSet<Contact> Contacts { get; set; }
 
@@ -57,6 +58,21 @@ namespace appAPI.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Payment>().HasData(
+                  new Payment
+                  {
+                      Id = 1,
+                      Name = "Tiền mặt",
+                      Description = "Thanh toán bằng tiền mặt"
+                  },
+                  new Payment
+                  {
+                      Id = 2,
+                      Name = "Chuyển khoản",
+                      Description = "Thanh toán qua chuyển khoản ngân hàng"
+                  }
+            );
             modelBuilder.Entity<IdentityRole>().HasData(
                 new IdentityRole
                 {

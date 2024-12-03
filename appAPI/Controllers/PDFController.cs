@@ -11,6 +11,7 @@ using iText.Kernel.Font;
 using iText.Layout.Borders;
 using appAPI.Repository;
 using appAPI.Models;
+using appAPI.IRepository;
 
 namespace appAPI.Controllers
 {
@@ -21,23 +22,23 @@ namespace appAPI.Controllers
         private readonly IRepository<Orders> _orderRepository;
         private readonly IRepository<Order_details> _orderDetailsRepository;
         private readonly IRepository<Users> _userRepository;
-        private readonly IRepository<Product_Attributes> _productAttributesRepository;
+        private readonly IProductAttributesRepository _productAttrubuteRepo;
 
         public PDFController(
             IRepository<Orders> orderRepository,
             IRepository<Order_details> orderDetailsRepository,
             IRepository<Users> userRepository,
-            IRepository<Product_Attributes> productAttributesRepository)
+            IProductAttributesRepository productAttrubuteRepo)
         {
             _orderRepository = orderRepository;
             _orderDetailsRepository = orderDetailsRepository;
             _userRepository = userRepository;
-            _productAttributesRepository = productAttributesRepository;
+            _productAttrubuteRepo = productAttrubuteRepo;
         }
 
 
         [HttpGet("generate")]
-        public IActionResult GenerateInvoice([FromQuery] int orderId)
+        public async Task<IActionResult> GenerateInvoice([FromQuery] int orderId)
         {
             var order = _orderRepository.GetById(orderId);
             if (order == null) return NotFound("Không tìm thấy đơn hàng.");
@@ -63,7 +64,7 @@ namespace appAPI.Controllers
                 // Thông tin Header
                 Table headerTable = new Table(3).UseAllAvailableWidth();
                 headerTable.AddCell(new Cell().Add(new Paragraph("HangKenh").SetFont(fontBold).SetFontSize(12)).SetBorder(Border.NO_BORDER));
-                headerTable.AddCell(new Cell().Add(new Paragraph("HÓA ĐƠN GIÁ TRỊ GIA TĂNG").SetFont(fontBold).SetFontSize(12).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER));
+                headerTable.AddCell(new Cell().Add(new Paragraph("HÓA ĐƠN BÁN HÀNG").SetFont(fontBold).SetFontSize(12).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER));
                 headerTable.AddCell(new Cell().Add(new Paragraph($"Số (No.): {order.Id}").SetFont(fontNormal).SetFontSize(9).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
                 document.Add(headerTable);
 
@@ -86,9 +87,9 @@ namespace appAPI.Controllers
                 }
                 else
                 {
-                    document.Add(new Paragraph("Họ tên người mua hàng (Buyer): ").SetFont(fontNormal).SetFontSize(9));
+                    document.Add(new Paragraph("Họ tên người mua hàng (Buyer): KHÁCH LẺ").SetFont(fontNormal).SetFontSize(9));
                     document.Add(new Paragraph("Địa chỉ (Address): ").SetFont(fontNormal).SetFontSize(9));
-                    document.Add(new Paragraph("Số điện thoại (Phone): ").SetFont(fontNormal).SetFontSize(9));
+                    document.Add(new Paragraph("Số điện thoại (Phone): #N/A ").SetFont(fontNormal).SetFontSize(9));
                 }
 
                 // Bảng chi tiết thanh toán
@@ -101,33 +102,49 @@ namespace appAPI.Controllers
                 document.Add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------------"));
 
                 // Bảng chi tiết sản phẩm
-                Table itemTable = new Table(new float[] { 1, 3, 2, 2, 1.5f, 2 }).UseAllAvailableWidth();
-                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("STT (No.)").SetFont(fontBold).SetFontSize(9)));
-                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Mã sản phẩm SKU").SetFont(fontBold).SetFontSize(9)));
+                Table itemTable = new Table(new float[] { 0.7f, 1.5f, 1.2f, 1.2f, 1, 1.5f, 1, 1.5f }).UseAllAvailableWidth();
+                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("STT").SetFont(fontBold).SetFontSize(9)));
+                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Mã sản phẩm").SetFont(fontBold).SetFontSize(9)));
+                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Màu sắc").SetFont(fontBold).SetFontSize(9)));
+                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Size").SetFont(fontBold).SetFontSize(9)));
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Đơn giá").SetFont(fontBold).SetFontSize(9)));
-                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Giá Giảm (Nếu có)").SetFont(fontBold).SetFontSize(9)));
+                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Giá Giảm").SetFont(fontBold).SetFontSize(9)));
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Số lượng").SetFont(fontBold).SetFontSize(9)));
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Thành tiền").SetFont(fontBold).SetFontSize(9)));
 
                 int index = 1;
-                decimal totalAmount = 0;
+                decimal totalAmount = 0;              // Tổng tiền hàng đã giảm
+                decimal totalAmountWithoutDiscount = 0; // Tổng tiền hàng chưa giảm
+                decimal totalDiscount = 0;            // Tổng tiền đực giảm
+                decimal totalPayableAmount = 0;     // tổng thanh toán
                 foreach (var detail in orderDetails)
                 {
-                    var product = _productAttributesRepository.GetById(detail.Product_Attribute_Id);
+                    var product = await _productAttrubuteRepo.GetProductAttributesById(detail.Product_Attribute_Id);
                     if (product != null)
                     {
-                        decimal unitPrice = product.Regular_price ?? 0;
-                        decimal discountPrice = product.Sale_price ?? 0;
-                        decimal amount = detail.Quantity * discountPrice;
+                        decimal unitPrice = product.Regular_price ?? 0; // giá gốc
+                        decimal discountPrice = product.Sale_price ?? 0; // giá giảm
+                        string discountPriceText = discountPrice > 0 ? $"{discountPrice:0,0}" : "#N/A"; // giá giảm null
+                        decimal appliedPrice = discountPrice > 0 ? discountPrice : unitPrice; // nếu giá giảm null thì giá giảm = giá gốc
+
+                        decimal amount = detail.Quantity * appliedPrice; // giá tổng giá đã giảm
+                        decimal amountWithoutDiscount = detail.Quantity * unitPrice;  // giá ban đầu
+                        decimal discountAmount = (unitPrice - discountPrice) * detail.Quantity; // tổng tiền được giảm                    
 
                         itemTable.AddCell(new Cell().Add(new Paragraph(index.ToString()).SetFont(fontNormal).SetFontSize(9)));
                         itemTable.AddCell(new Cell().Add(new Paragraph(product.SKU).SetFont(fontNormal).SetFontSize(9)));
+                        itemTable.AddCell(new Cell().Add(new Paragraph(product.Color.Title).SetFont(fontNormal).SetFontSize(9)));
+                        itemTable.AddCell(new Cell().Add(new Paragraph(product.Size.Title).SetFont(fontNormal).SetFontSize(9)));
                         itemTable.AddCell(new Cell().Add(new Paragraph($"{unitPrice:0,0}").SetFont(fontNormal).SetFontSize(9)));
-                        itemTable.AddCell(new Cell().Add(new Paragraph($"{discountPrice:0,0}").SetFont(fontNormal).SetFontSize(9)));
+                        itemTable.AddCell(new Cell().Add(new Paragraph(discountPriceText).SetFont(fontNormal).SetFontSize(9)));
                         itemTable.AddCell(new Cell().Add(new Paragraph(detail.Quantity.ToString()).SetFont(fontNormal).SetFontSize(9)));
                         itemTable.AddCell(new Cell().Add(new Paragraph($"{amount:0,0}").SetFont(fontNormal).SetFontSize(9)));
 
-                        totalAmount += amount;
+                        totalAmount += amount; // Tổng tiền hàng đã giảm
+                        totalAmountWithoutDiscount += amountWithoutDiscount; // Tổng tiền hàng chưa giảm
+                        totalDiscount += discountAmount; // Tổng tiền giảm
+                        totalPayableAmount += amount;
+
                         index++;
                     }
                 }
@@ -136,13 +153,15 @@ namespace appAPI.Controllers
                 document.Add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------------"));
 
                 // Tổng tiền
-                decimal totalPayment = totalAmount * 1.1m;
-                string amountInWords = ConvertNumberToWords(totalPayment);
+                //decimal totalPayment = totalAmount * 1.1m;
+                string amountInWords = ConvertNumberToWords(totalPayableAmount);
 
                 Table totalTable = new Table(1).UseAllAvailableWidth();
-                totalTable.AddCell(new Cell().Add(new Paragraph($"Cộng tiền hàng (Total amount): {totalAmount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
-                totalTable.AddCell(new Cell().Add(new Paragraph($"Tiền thuế GTGT (VAT amount): {(totalAmount * 0.1m):0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
-                totalTable.AddCell(new Cell().Add(new Paragraph($"Tổng cộng tiền thanh toán (Total payment): {totalPayment:0,0} VND").SetFont(fontBold).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                totalTable.AddCell(new Cell().Add(new Paragraph($"Cộng tiền hàng chưa giảm (Total): {totalAmountWithoutDiscount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                totalTable.AddCell(new Cell().Add(new Paragraph($"Cộng tiền hàng đã giảm giá (Total amount): {totalAmount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                totalTable.AddCell(new Cell().Add(new Paragraph($"Tổng tiền được giảm: - {totalDiscount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                totalTable.AddCell(new Cell().Add(new Paragraph($"Phí giao hàng ( FeeShipping): {order.FeeShipping:0,0} VND").SetFont(fontBold).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                totalTable.AddCell(new Cell().Add(new Paragraph($"Tổng cộng tiền thanh toán (Total payment): {totalPayableAmount + order.FeeShipping:0,0} VND").SetFont(fontBold).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 document.Add(totalTable);
 
                 document.Add(new Paragraph($"Số tiền viết bằng chữ (Amount in words): {amountInWords}").SetFont(fontNormal).SetFontSize(9));
@@ -150,18 +169,15 @@ namespace appAPI.Controllers
                 // Ký tên
                 Table signatureTable = new Table(new float[] { 1, 1 }).UseAllAvailableWidth();
                 signatureTable.AddCell(new Cell().Add(new Paragraph("NGƯỜI MUA HÀNG (Buyer)\n(Ký, ghi rõ họ, tên)").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
-                signatureTable.AddCell(new Cell().Add(new Paragraph("NGƯỜI BÁN HÀNG (Seller)\n(Ký, đóng dấu, ghi rõ họ, tên)").SetFont(fontNormal).SetFontSize(9).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
+                signatureTable.AddCell(new Cell().Add(new Paragraph("NGƯỜI BÁN HÀNG (Seller)\n(Ký, đóng dấu, ghi rõ họ, tên)").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 document.Add(signatureTable);
 
                 document.Close();
 
-                byte[] pdfBytes = stream.ToArray();
-                return File(pdfBytes, "application/pdf", $"hoa_don_{orderId}.pdf");
+                byte[] bytes = stream.ToArray();
+                return File(bytes, "application/pdf", $"hoa_don_{orderId}.pdf");
             }
         }
-
-
-
         private static string ConvertNumberToWords(decimal number)
         {
             string[] units = { "", "nghìn", "triệu", "tỷ" };

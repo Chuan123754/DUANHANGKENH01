@@ -25,6 +25,8 @@ namespace ViewsFE.Models
         [StringLength(20)]
         public string? Status { get; set; }
         public string? Note { get; set; }
+        public string? TypePayment { get; set; }
+        
         public DateTime? Approved_at { get; set; }
         public DateTime? Created_at { get; set; } = DateTime.Now;
         public DateTime? Update_at { get; set; }

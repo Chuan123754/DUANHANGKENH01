@@ -24,6 +24,7 @@ namespace appAPI.Models
         public long? User_id { get; set; } // khách hàng ( hóa đơn treo có thể chưa thêm khách hàng )
         [StringLength(20)]
         public string? Status { get; set; } 
+        public string? TypePayment { get; set; } 
         public string? Note { get; set; }
         public DateTime? Approved_at { get; set; }
         public DateTime? Created_at { get; set; } = DateTime.Now;
@@ -44,6 +45,7 @@ namespace appAPI.Models
         public virtual Address? Address { get; set; }
         public long? Payment_Id { get; set; }
         [ForeignKey("Payment_Id")]
+        [JsonIgnore]
         public virtual Payment? Payment { get; set; }
 
     }

@@ -1,4 +1,6 @@
 ﻿@page "/admin/productVarians"
+@using System.Text
+@using System.Globalization
 @inject NavigationManager Navigation
 @inject IProductVariantServices productVariansService
 @inject IProductAttributeServices productAttributeService
@@ -255,7 +257,7 @@
                                                 <td>@attributes.Size?.Title</td>                        
                                                 <td>
                                                     <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenUpdateProductAttributeModal(attributes.Id)">Sửa thông tin</button>
-                                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteProductAttribute(attributes.Id)">        <i class="bi bi-trash3"></i></button>
+                                                    <i class="bi bi-trash3 text-danger" style="cursor: pointer;" @onclick="() => DeleteProductAttribute(attributes.Id)"></i>
                                                 </td>
                                             </tr>
                                         }
@@ -282,22 +284,20 @@
                                             <table class="table table-bordered table-striped align-middle">
                                                 <thead>
                                                     <tr>
-                                                        <th style="width: 8%;">SKU</th>
                                                         <th style="width: 8%;">Hình ảnh</th>
+                                                        <th style="width: 8%;">SKU</th>                                             
                                                         <th style="width: 5%;">Màu sắc</th>
                                                         <th style="width: 9%;">Kích thước</th>
                                                         <th style="width: 10%;">Gía gốc</th>
+                                                        <th style="width: 10%;">Gía giảm</th>
                                                         <th style="width: 5%;">Số lượng tồn kho</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr>
                                                         <td>
-                                                            <input type="text" @bind="@selectedAttribute.SKU" class="form-control" />
-                                                        </td>
-                                                        <td>
                                                             <div class="image-container d-flex align-items-center justify-content-center"
-                                                                 style="width: 100px; height: 100px; border: 1px solid #ddd; border-radius: 5px;">
+                                                                 style="width: 50px; height: 60px; border: 1px solid #ddd; border-radius: 5px;">
                                                                 @if (!string.IsNullOrEmpty(selectedAttribute.Image))
                                                                 {
                                                                     <img src="@selectedAttribute.Image" class="img-fluid w-100 h-100" style="object-fit: cover;" />
@@ -311,6 +311,10 @@
                                                                 }
                                                             </div>
                                                         </td>
+                                                        <td>
+                                                            <input type="text" @bind="@selectedAttribute.SKU" class="form-control" readonly />
+                                                        </td>
+                                     
                                                         <td>@selectedAttribute.Color?.Title</td>
                                                         <td>
                                                             <div style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
@@ -322,6 +326,16 @@
                                                                 <input type="text"
                                                                        class="form-control"
                                                                        value="@string.Format("{0:N0}", selectedAttribute.Regular_price).Replace(".", ",")"
+                                                                       @oninput="FormatCurrency"
+                                                                       @onchange="UpdatePrice" />
+                                                                <span class="input-group-text">VNĐ</span>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="input-group">
+                                                                <input type="text"
+                                                                       class="form-control"
+                                                                       value="@string.Format("{0:N0}", selectedAttribute.Sale_price).Replace(".", ",")"
                                                                        @oninput="FormatCurrency"
                                                                        @onchange="UpdatePrice" />
                                                                 <span class="input-group-text">VNĐ</span>
@@ -408,6 +422,13 @@
             .ToList();
 
     }
+    public string RemoveDiacritics(string text)
+    {
+        var chars = text.Normalize(System.Text.NormalizationForm.FormD)
+                        .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                        .ToArray();
+        return new string(chars).Normalize(System.Text.NormalizationForm.FormC);
+    }
     private async Task CreateProductAttributes()
     {
         var selectedColors = colorSelections.Where(c => c.Value).Select(c => c.Key).ToList();
@@ -427,14 +448,15 @@
             return;
         }
 
-        var existingListVariants = await productAttributeService.GetProductAttributesByProductVarianId(selectedPostId);
+        // Lấy danh sách biến thể sản phẩm hiện tại (dù có hay không có biến thể nào)
+        var existingVariants = await productAttributeService.GetProductAttributesByProductVarianId(selectedPostId);
 
         foreach (var colorId in selectedColors)
         {
             foreach (var sizeId in selectedSizes)
             {
                 // Kiểm tra biến thể trùng cả màu và kích thước
-                bool isVariantExists = existingListVariants.Any(v => v.Color_Id == colorId && v.Size_Id == sizeId);
+                bool isVariantExists = existingVariants.Any(v => v.Color_Id == colorId && v.Size_Id == sizeId);
                 if (isVariantExists)
                 {
                     var colorTitle = colorList.FirstOrDefault(c => c.Id == colorId)?.Title ?? "Không rõ";
@@ -444,8 +466,8 @@
                 }
 
                 // Kiểm tra biến thể cùng màu khác kích thước hoặc cùng kích thước khác màu
-                bool isColorExists = existingListVariants.Any(v => v.Color_Id == colorId && v.Size_Id != sizeId);
-                bool isSizeExists = existingListVariants.Any(v => v.Size_Id == sizeId && v.Color_Id != colorId);
+                bool isColorExists = existingVariants.Any(v => v.Color_Id == colorId && v.Size_Id != sizeId);
+                bool isSizeExists = existingVariants.Any(v => v.Size_Id == sizeId && v.Color_Id != colorId);
 
                 if (!isColorExists && !isSizeExists)
                 {
@@ -460,7 +482,7 @@
                 // Tạo tên viết tắt của sản phẩm
                 string productAbbreviation = string.Concat(productName
                     .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(word => word[0].ToString().ToUpper()));
+                    .Select(word => RemoveDiacritics(word)[0].ToString().ToUpper()));
 
                 // Lấy 3 ký tự đầu của các tiêu đề (nếu có)
                 string textileAbbreviation = textileTechnology.Length >= 3 ? textileTechnology.Substring(0, 3).ToUpper() : textileTechnology.ToUpper();
@@ -476,7 +498,7 @@
                         Product_Variant_Id = selectedPostId,
                         Color_Id = colorId,
                         Size_Id = sizeId,
-                        Status = "Còn hàng",
+                        Status = "",
                         SKU = sku,
                     };
 
@@ -487,10 +509,13 @@
                 var createdSizeTitle = sizeList.FirstOrDefault(s => s.Id == sizeId)?.Title ?? "Không rõ";
                 await JS.InvokeVoidAsync("toastr.success", $"Tạo thành công biến thể size '{createdSizeTitle}' và color '{createdColorTitle}'.");
                 await ShowAttributes(productVariant.Id);
+                colorSelections.Clear();
+                sizeSelections.Clear();
                 CloseModalAddAttribute();
             }
         }
     }
+
     private void FormatCurrency(ChangeEventArgs e)
     {
         var input = e.Value?.ToString() ?? string.Empty;
