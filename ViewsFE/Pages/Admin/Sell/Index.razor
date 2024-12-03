@@ -1474,8 +1474,8 @@
             var newOrderTracking = new order_trackings
                 {
                     OrderId = orderToUpdate.Id,
-                    Status = isDeliveryVisible ? "Giao hàng" : "Tại quầy",
-                    Note = "Hóa đơn thanh toán thành công",
+                    Status = isDeliveryVisible ? "Đã xác nhận" : "Tại quầy",
+                    Note = "Đã xác nhận đơn hàng Tại quầy",
                     Created_at = DateTime.Now,
                     Created_by = 1 // ID tạm
                 };
