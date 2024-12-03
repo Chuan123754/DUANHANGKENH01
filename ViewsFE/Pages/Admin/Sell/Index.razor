@@ -6,6 +6,7 @@
 @inject OrderDetailsIServices orderDetailService
 @inject IProductAttributeServices productAttributeService
 @inject IProductVariantServices productVariantService
+@inject MomoService momoService
 @inject IOrderTrackingService orderTrackingService
 @inject IJSRuntime JS
 
@@ -819,10 +820,14 @@
                                         <div class="modal-body">
                                             <iframe src="@payUrl" style="width: 100%; height: 600px; border: none;" allowfullscreen></iframe>
                                         </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" @onclick="CancelMomoPayment">Hủy</button>
-                                            <button type="button" class="btn btn-primary" @onclick="ConfirmMomoPayment">Xác nhận thanh toán</button>
-                                            <button class="btn btn-outline-primary" style="margin-left: 10px;" @onclick="() => DownloadInvoice(selectedOrderId)">Xuất hóa đơn</button>
+                                        <div class="modal-footer d-flex justify-content-between">
+                                            <div>
+                                                <button type="button" class="btn btn-secondary" @onclick="CancelMomoPayment">Hủy</button>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="btn btn-primary" @onclick="ConfirmMomoPayment">Hoàn thành</button>
+                                                <button class="btn btn-outline-primary" style="margin-left: 10px;" @onclick="() => DownloadInvoice(selectedOrderId)">Xuất hóa đơn</button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -876,14 +881,17 @@
     private int totalItems;
 
     private string momoError = null; // Lỗi từ phía MoMo
+    private string? ErrorCode;
     private string payUrl { get; set; } // URL thanh toán MoMo
     private string qrCodeBase64 { get; set; } // Mã QR Base64 để hiển thị
 
     private bool isMomoModalVisible = false; // Kiểm tra modal MoMo đang mở hay không
                                              // Hiển thị modal QR MoMo
+
     private void ShowMomoModal(string momoUrl)
     {
         payUrl = momoUrl;
+
         isMomoModalVisible = true;
         StateHasChanged();
     }
@@ -897,22 +905,32 @@
     // Xử lý khi nhấn nút "Xác nhận thanh toán"
     private async Task ConfirmMomoPayment()
     {
-        isMomoModalVisible = false;
-        foreach (var item in lst_OrderDetail)
+        var updateitem = await orderService.GetByIdOrders(selectedOrderId);
+        if(updateitem.Status == "Đã thanh toán")
         {
-            var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
-            if (product != null)
+            foreach (var item in lst_OrderDetail)
             {
-                if (item.Quantity > product.Stock || product.Stock == 0)
+                var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
+                if (product != null)
                 {
-                    await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.SKU} trong kho không đủ.");
-                    return;
+                    if (item.Quantity > product.Stock || product.Stock == 0)
+                    {
+                        await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.SKU} trong kho không đủ.");
+                        return;
+                    }
+                    product.Stock -= item.Quantity; // trừ số lượng trong kho
+                    await productAttributeService.Update(product, product.Id);
+                    await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
+                    isMomoModalVisible = false;
+                    await ResetViewState();
                 }
-                product.Stock -= item.Quantity; // trừ số lượng trong kho
-                await productAttributeService.Update(product, product.Id);
             }
         }
-        await ResetViewState();
+        else
+        {
+            await JS.InvokeVoidAsync("toastr.error", $"Đơn hàng chưa được thanh toán");
+        }
+
     }
     // Reset trạng thái sau khi thanh toán xong
     private async Task ResetViewState()
@@ -1386,6 +1404,23 @@
             await JS.InvokeVoidAsync("toastr.warning", "Đơn hàng chưa có sản phẩm nào.");
             return;
         }
+        foreach (var item in lst_OrderDetail)
+        {
+            var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
+            if (product != null)
+            {
+                if (item.Quantity > product.Stock || product.Stock == 0)
+                {
+                    await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.SKU} trong kho không đủ.");
+                    return;
+                }
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("toastr.error", $"Không tìm thấy sản phẩm {item.Product_Attribute_Id}.");
+                return;
+            }
+        }
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate != null)
         {
@@ -1398,8 +1433,6 @@
             {
                 orderToUpdate.Status = "Đã xác nhận";
                 orderToUpdate.FeeShipping = feeShipping;
-
-
             }
             else
             {
