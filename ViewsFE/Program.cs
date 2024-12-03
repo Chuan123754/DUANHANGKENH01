@@ -101,8 +101,7 @@ builder.Services.AddScoped<IOrderTrackingService, OrderTrackingService>();
 builder.Services.AddHttpClient<MomoService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddServerSideBlazor(options => options.DetailedErrors = true);
-
-
+builder.Services.AddScoped<IContacServices, ContacServices>();
 
 
 var app = builder.Build();

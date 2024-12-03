@@ -408,5 +408,28 @@ namespace appAPI.Repository
                                  .Select(p => p.Name)
                                  .FirstOrDefaultAsync();
         }
+
+        public async Task<List<Product_variants>> GetCountByTypeDesigner(long designerId)
+        {
+            return await _context.product_variants
+                .Where(p=> p.Posts.AuthorId == designerId && p.Posts.Deleted == false)
+                  .Include(p => p.Posts) // Bao gồm bảng Posts
+                      .ThenInclude(pc => pc.Post_categories) // Bao gồm bảng Post_categories từ Posts
+                          .ThenInclude(pc => pc.Categories) // Bao gồm Categories từ Post_categories
+                  .Include(p => p.Posts)
+                      .ThenInclude(pt => pt.Post_tags) // Bao gồm bảng Post_tags từ Posts
+                          .ThenInclude(pt => pt.Tag) // Bao gồm Tags từ Post_tags
+                  .Include(p => p.Product_Attributes) // Bao gồm Product_Attributes từ Product_variants
+                      .ThenInclude(ps => ps.Size) // Bao gồm Size từ Product_Attributes
+                  .Include(p => p.Product_Attributes)
+                      .ThenInclude(pl => pl.Color) // Bao gồm Color từ Product_Attributes
+                  .Include(p => p.Posts)
+                      .ThenInclude(pd => pd.Designer) // Bao gồm Designer từ Posts
+                  .Include(p => p.Material) // Bao gồm Material
+                  .Include(p => p.Textile_Technology) // Bao gồm Textile_Technology
+                  .Include(p => p.Style) // Bao gồm Style
+                  .OrderByDescending(p => p.Created_at) // Sắp xếp giảm dần theo Created_at                 
+                  .ToListAsync();
+        }
     }
 }

@@ -35,6 +35,16 @@ namespace appAPI.Controllers
             }
             return NotFound();
         }
+        [HttpGet("GetProductAttributesByProductVarianIdClient")]
+        public async Task<IActionResult> GetProductAttributesByProductVarianIdClient(long id)
+        {
+            var result = await _repo.GetProductAttributesByProductVarianIdClient(id);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return NotFound();
+        }
         [HttpGet("GetProductAttributeById")]
         public async Task<IActionResult> GetById(long id)
         {
