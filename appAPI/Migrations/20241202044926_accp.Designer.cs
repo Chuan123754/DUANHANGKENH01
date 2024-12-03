@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241129033719_addPayment")]
-    partial class addPayment
+    [Migration("20241202044926_accp")]
+    partial class accp
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -425,6 +425,40 @@ namespace appAPI.Migrations
                     b.HasIndex("User_id");
 
                     b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Contact", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<DateTime?>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Contacts");
                 });
 
             modelBuilder.Entity("appAPI.Models.Designer", b =>
@@ -1058,23 +1092,8 @@ namespace appAPI.Migrations
                     b.Property<long?>("Updated_by")
                         .HasColumnType("bigint");
 
-                    b.Property<bool?>("baivietnoibat")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("bannernoibat")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("duannoibat")
-                        .HasColumnType("bit");
-
                     b.Property<string>("product_video")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool?>("quytrinh")
-                        .HasColumnType("bit");
-
-                    b.Property<bool?>("trendy")
-                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -1286,11 +1305,9 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Slug")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Update_at")
@@ -1353,11 +1370,9 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Slug")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("Update_at")
@@ -1558,21 +1573,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "8978ae3c-6289-4de5-a4a4-02b76918cce4",
+                            ConcurrencyStamp = "bbd68769-a337-4f41-91b4-90d8df6b89a6",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "52f108d2-80ef-4861-9440-b4e46c0b0760",
+                            ConcurrencyStamp = "f0564064-6168-4bf9-9197-58538f22e5a4",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "7b24352e-bcc3-45ff-89c8-f079ac70580b",
+                            ConcurrencyStamp = "db0b51a7-45fe-4cfb-99f6-ff1864f4345c",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });

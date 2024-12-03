@@ -57,11 +57,14 @@
                                 </thead>
                                 <tbody>
 
+                                    @{
+                                        int stt = (page_number - 1) * page_size + 1;
+                                    }
                                     @foreach (var ctgr in categoriesList.Where(ctgr => ctgr.Parent_id == 0))
                                     {
                                         // Hiển thị sản phẩm cha
                                         <tr class="post-row">
-                                            <td>@ctgr.Id</td>
+                                            <td>@stt</td>
                                             <td>
                                                 <a href="@($"/admin/manager-attribute?parent_id={ctgr.Id}")">@ctgr.Title</a>
                                                 <br />
@@ -72,8 +75,9 @@
                                                 </div>
                                             </td>
                                             <td>@ctgr.Slug</td>
-                                            <td>@ctgr.Created_at.ToString("dd/MM/yyyy")</td>
+                                            <td>@ctgr.Created_at.ToString("dd/MM/yyyy HH:mm:ss")</td>
                                         </tr>
+                                        stt++;
                                     }
                                 </tbody>
                             </table>

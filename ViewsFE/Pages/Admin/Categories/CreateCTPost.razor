@@ -90,7 +90,7 @@
     protected override async Task OnInitializedAsync()
     {
         // Tải danh sách thuộc tính nếu chưa có
-        categoriesList = (await sev.GetAll()).Where(ctgr => ctgr.Parent_id == 0).ToList();
+        categoriesList = (await sev.GetAllType("post")).Where(ctgr => ctgr.Parent_id == 0).ToList();
     }
 
     private async void HandleValidSubmit()
@@ -99,7 +99,7 @@
         {
             await sev.CreateTypePost(categories);
             await JS.InvokeVoidAsync("toastr.success", "Thêm danh mục thành công");
-            nav.NavigateTo("/admin/project/categorie");
+            nav.NavigateTo("/admin/post/categorie");
 
         }
         catch (Exception ex)

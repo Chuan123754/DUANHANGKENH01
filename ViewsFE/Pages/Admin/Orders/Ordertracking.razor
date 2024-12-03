@@ -62,14 +62,14 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Khôi phục trạng thái</h5>
-                            <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+                            <button type="button" class="btn-outline-close" @onclick="CloseModal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <textarea class="form-control" @bind="restoreNote" rows="4" placeholder="Nhập lý do khôi phục trạng thái"></textarea>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" @onclick="ConfirmRestoreStatus">Xác nhận</button>
-                            <button type="button" class="btn btn-secondary" @onclick="CloseModal">Hủy</button>
+                            <button type="button" class="btn btn-outline-primary" @onclick="ConfirmRestoreStatus">Xác nhận</button>
+                            <button type="button" class="btn btn-outline-secondary" @onclick="CloseModal">Hủy</button>
                         </div>
                     </div>
                 </div>

@@ -90,7 +90,7 @@
     protected override async Task OnInitializedAsync()
     {
         // Tải danh sách thuộc tính nếu chưa có
-        categoriesList = (await sev.GetAll()).Where(ctgr => ctgr.Parent_id == 0).ToList();
+        categoriesList = (await sev.GetAllType("project")).Where(ctgr => ctgr.Parent_id == 0).ToList();
     }
 
     private async void HandleValidSubmit()

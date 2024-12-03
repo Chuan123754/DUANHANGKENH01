@@ -53,6 +53,12 @@ namespace appAPI.Controllers
             var list = await _postRepository.GetCountByType(type, designerId);
             return Ok(list);
         }
+        [HttpGet("GetCountByTypeDesigner")]
+        public async Task<IActionResult> GetCountByTypeDesigner( long designerId)
+        {
+            var list = await _postRepository.GetCountByTypeDesigner(designerId);
+            return Ok(list);
+        }
         // Lấy sản phẩm theo ID và loại
         [HttpGet("GetByIdAndType")]
         public async Task<IActionResult> GetByIdProduct(long id, string type)

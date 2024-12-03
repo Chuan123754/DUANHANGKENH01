@@ -79,6 +79,16 @@ namespace appAPI.Repository
                                 .Include(p => p.Product_Variant)
                                 .ToListAsync();
         }
+        public async Task<List<Product_Attributes>> GetProductAttributesByProductVarianIdClient(long id)
+        {
+            return await _context.Product_Attributes
+                              .Where(p => p.Product_Variant_Id == id)
+                              .Include(p => p.Color)
+                              .Include(p => p.Size)
+                              .Include(p => p.Product_Variant).ThenInclude(pt => pt.Posts).ThenInclude(pc=> pc.Post_categories).ThenInclude(pd => pd.Categories)
+                              .Include(p => p.Product_Variant).ThenInclude(pt => pt.Posts).ThenInclude(pc=> pc.Post_tags).ThenInclude(pd => pd.Tag)
+                              .ToListAsync();
+        }
 
         public async Task<List<Product_Attributes_DTO>> GetVariantByProductVariantId(List<long> variantIds)
         {

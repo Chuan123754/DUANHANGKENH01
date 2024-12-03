@@ -79,6 +79,9 @@ namespace ViewsFE.Services
             await _client.PutAsJsonAsync($"{_baseUrl}/api/Category/edit-category", c);
         }
 
-      
+        public async Task<List<Categories>> GetAllType(string type)
+        {
+            return await _client.GetFromJsonAsync<List<Categories>>($"{_baseUrl}/api/Category/GetAllType?type={type}");
+        }
     }
 }

@@ -8,6 +8,7 @@ namespace appAPI.IRepository
     {
         Task<List<Product_Attributes>> GetAllProductAttributes();
         Task<List<Product_Attributes>> GetProductAttributesByProductVarianId(long id);
+        Task<List<Product_Attributes>> GetProductAttributesByProductVarianIdClient(long id);
         Task<Product_Attributes> GetProductAttributesById(long id);
         Task Create(Product_Attributes productAttribute);
         Task Update(Product_Attributes productAttribute ,long id);
