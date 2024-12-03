@@ -908,7 +908,8 @@
         var updateitem = await orderService.GetByIdOrders(selectedOrderId);
         if(updateitem.Status == "Đã thanh toán")
         {
-            foreach (var item in lst_OrderDetail)
+            var orderDetailsCopy = lst_OrderDetail.ToList();
+            foreach (var item in orderDetailsCopy)
             {
                 var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
                 if (product != null)
@@ -1444,7 +1445,7 @@
                 try
                 {
                     // Tạo giao dịch MoMo
-                    var momoResponse = await orderService.CreateMomoPaymentUrl(customerName, totalAmount, $"Thanh toán hóa đơn {selectedOrderId}");
+                    var momoResponse = await orderService.CreateMomoPaymentUrl(customerName, orderToUpdate.Totalmoney ?? 0, $"Thanh toán hóa đơn {selectedOrderId}");
                     if (!string.IsNullOrEmpty(momoResponse.PayUrl))
                     {
                         // Hiển thị modal QR code MoMo
@@ -1466,8 +1467,6 @@
             {
                 // Tiếp tục logic thanh toán khác (nếu có)
                 orderToUpdate.TypePayment = "Thanh toán tiền mặt";
-                orderToUpdate.Status = "Đã thanh toán";
-                await orderService.Update(orderToUpdate, orderToUpdate.Id);
                 await ResetViewState();
 
                 await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
@@ -1480,6 +1479,7 @@
                     Created_at = DateTime.Now,
                     Created_by = 1 // ID tạm
                 };
+            await orderService.Update(orderToUpdate, orderToUpdate.Id);
             await orderTrackingService.AddOrderTracking(newOrderTracking);
         }
     }

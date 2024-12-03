@@ -160,7 +160,8 @@ namespace appAPI.Controllers
                 totalTable.AddCell(new Cell().Add(new Paragraph($"Cộng tiền hàng chưa giảm (Total): {totalAmountWithoutDiscount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 totalTable.AddCell(new Cell().Add(new Paragraph($"Cộng tiền hàng đã giảm giá (Total amount): {totalAmount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 totalTable.AddCell(new Cell().Add(new Paragraph($"Tổng tiền được giảm: - {totalDiscount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
-                totalTable.AddCell(new Cell().Add(new Paragraph($"Tổng cộng tiền thanh toán (Total payment): {totalPayableAmount:0,0} VND").SetFont(fontBold).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                totalTable.AddCell(new Cell().Add(new Paragraph($"Phí giao hàng ( FeeShipping): {order.FeeShipping:0,0} VND").SetFont(fontBold).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                totalTable.AddCell(new Cell().Add(new Paragraph($"Tổng cộng tiền thanh toán (Total payment): {totalPayableAmount + order.FeeShipping:0,0} VND").SetFont(fontBold).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 document.Add(totalTable);
 
                 document.Add(new Paragraph($"Số tiền viết bằng chữ (Amount in words): {amountInWords}").SetFont(fontNormal).SetFontSize(9));
