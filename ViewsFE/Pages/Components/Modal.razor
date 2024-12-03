@@ -71,6 +71,7 @@
     </div>
 </div>
 
+
 @code {
     [Parameter]
     public EventCallback<List<string>> OnImagesSelectedN { get; set; }
@@ -84,6 +85,11 @@
     private int page_size = 21;
     private int totalItems;
 
+    [Parameter]
+    public bool IsVisible { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
     private async Task SelectImages()
     {
         await OnImagesSelectedN.InvokeAsync(selectedImages);

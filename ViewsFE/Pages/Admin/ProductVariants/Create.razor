@@ -56,34 +56,46 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Chọn Công Nghệ Dệt <span class="text-danger">*</span></label>
-                                    <select class="form-select" @bind="product_Variant.Textile_technology_id" disabled="@isProductVariantCreated">
-                                        <option value="">Chọn công nghệ dệt</option>
-                                        @foreach (var tech in textileTechnologyList)
-                                        {
-                                            <option value="@tech.Id">@tech.Title</option>
-                                        }
-                                    </select>
+                                    <div class="input-group">
+                                        <select class="form-select" @bind="product_Variant.Textile_technology_id" disabled="@isProductVariantCreated">
+                                            <option value="">Chọn công nghệ dệt</option>
+                                            @foreach (var tech in textileTechnologyList)
+                                            {
+                                                <option value="@tech.Id">@tech.Title</option>
+                                            }
+                                        </select>
+                                        <button class="btn btn-outline-primary" @onclick="OpenTextileTechnologyModal">+</button>
+                                    </div>
                                 </div>
+
                                 <div class="mb-3">
                                     <label class="form-label">Chọn Kiểu Dáng <span class="text-danger">*</span></label>
-                                    <select class="form-select" @bind="product_Variant.Style_id" disabled="@isProductVariantCreated">
-                                        <option value="">Chọn kiểu dáng</option>
-                                        @foreach (var style in styleList)
-                                        {
-                                            <option value="@style.Id">@style.Title</option>
-                                        }
-                                    </select>
+                                    <div class="input-group">
+                                        <select class="form-select" @bind="product_Variant.Style_id" disabled="@isProductVariantCreated">
+                                            <option value="">Chọn kiểu dáng</option>
+                                            @foreach (var style in styleList)
+                                            {
+                                                <option value="@style.Id">@style.Title</option>
+                                            }
+                                        </select>
+                                        <button class="btn btn-outline-primary" @onclick="OpenStyleModal">+</button>
+                                    </div>
                                 </div>
+
                                 <div class="mb-3">
                                     <label class="form-label">Chọn Chất Liệu <span class="text-danger">*</span></label>
-                                    <select class="form-select" @bind="product_Variant.Material_id" disabled="@isProductVariantCreated">
-                                        <option value="">Chọn chất liệu</option>
-                                        @foreach (var material in materialList)
-                                        {
-                                            <option value="@material.Id">@material.Title</option>
-                                        }
-                                    </select>
+                                    <div class="input-group">
+                                        <select class="form-select" @bind="product_Variant.Material_id" disabled="@isProductVariantCreated">
+                                            <option value="">Chọn chất liệu</option>
+                                            @foreach (var material in materialList)
+                                            {
+                                                <option value="@material.Id">@material.Title</option>
+                                            }
+                                        </select>
+                                        <button class="btn btn-outline-primary" @onclick="OpenMaterialModal">+</button>
+                                    </div>
                                 </div>
+
                                 <div class="mb-3">
                                     <label for="description" class="form-label"> Mô tả</label>
                                     <InputText @bind-Value="product_Variant.Description" class="form-control" disabled="@isProductVariantCreated" />
@@ -91,6 +103,7 @@
                                 <button class="btn btn-primary" @onclick="CreateProductVariant">Tạo sản phẩm</button>
                             </div>
                         </div>
+                        
                     </div>
                     <div class="col-md-3 col-12">
                         <div class="accordion bg-white mb-3">
@@ -136,54 +149,56 @@
                                                 <div class="accordion-body pt-0">
                                                     <div class="form-group mb-3">
                                                         <label class="form-label">Chọn Màu Sắc <span class="text-danger">*</span></label>
-                                                        <div class="dropdown">
-                                                            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="colorDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                Chọn màu sắc
-                                                            </button>
-                                                            <ul class="dropdown-menu" aria-labelledby="colorDropdown">
-                                                                @foreach (var color in colorList)
-                                                                {
-                                                                    <li>
-                                                                        <div class="form-check d-flex justify-content-between align-items-center">
-                                                                            <!-- Thêm màu sắc -->
-                                                                            <label class="form-check-label d-flex align-items-center" for="color-@color.Id">
-                                                                                <span class="color-box" style="background-color:@color.Color_code; width: 20px; height: 20px; margin-right: 10px; border-radius: 50%;"></span>
-                                                                                @color.Title
-                                                                            </label>
-                                                                            <input type="checkbox"
-                                                                                   id="color-@color.Id"
-                                                                                   @onchange="(e) => OnColorSelectionChanged(color.Id, e.Value)" />
-                                                                        </div>
-                                                                    </li>
-                                                                }
-                                                            </ul>
+                                                        <div class="input-group">
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="colorDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    Chọn màu sắc
+                                                                </button>
+                                                                <ul class="dropdown-menu" aria-labelledby="colorDropdown">
+                                                                    @foreach (var color in colorList)
+                                                                    {
+                                                                        <li>
+                                                                            <div class="form-check d-flex justify-content-between align-items-center">
+                                                                                <label class="form-check-label d-flex align-items-center" for="color-@color.Id">
+                                                                                    <span class="color-box" style="background-color:@color.Color_code; width: 20px; height: 20px; margin-right: 10px; border-radius: 50%;"></span>
+                                                                                    @color.Title
+                                                                                </label>
+                                                                                <input type="checkbox" id="color-@color.Id" @onchange="(e) => OnColorSelectionChanged(color.Id, e.Value)" />
+                                                                            </div>
+                                                                        </li>
+                                                                    }
+                                                                </ul>
+                                                            </div>
+                                                            <button class="btn btn-outline-primary" @onclick="OpenColorModal">+</button>
                                                         </div>
                                                     </div>
+
 
                                                     <div class="form-group mb-3">
                                                         <label class="form-label">Chọn Kích Thước <span class="text-danger">*</span></label>
-                                                        <div class="dropdown">
-                                                            <button class="btn btn-outline-primary dropdown-toggle" type="button" id="sizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                Chọn kích thước
-                                                            </button>
-                                                            <ul class="dropdown-menu" aria-labelledby="sizeDropdown">
-                                                                @foreach (var size in sizeList)
-                                                                {
-                                                                    <li>
-                                                                        <div class="form-check d-flex justify-content-between align-items-center">
-
-                                                                            <label class="form-check-label d-flex align-items-center" for="size-@size.Id">
-                                                                                @size.Title
-                                                                            </label>
-                                                                            <input type="checkbox"
-                                                                                   id="size-@size.Id"
-                                                                                   @onchange="(e) => OnSizeSelectionChanged(size.Id, e.Value)" />
-                                                                        </div>
-                                                                    </li>
-                                                                }
-                                                            </ul>
+                                                        <div class="input-group">
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-outline-primary dropdown-toggle" type="button" id="sizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    Chọn kích thước
+                                                                </button>
+                                                                <ul class="dropdown-menu" aria-labelledby="sizeDropdown">
+                                                                    @foreach (var size in sizeList)
+                                                                    {
+                                                                        <li>
+                                                                            <div class="form-check d-flex justify-content-between align-items-center">
+                                                                                <label class="form-check-label d-flex align-items-center" for="size-@size.Id">
+                                                                                    @size.Title
+                                                                                </label>
+                                                                                <input type="checkbox" id="size-@size.Id" @onchange="(e) => OnSizeSelectionChanged(size.Id, e.Value)" />
+                                                                            </div>
+                                                                        </li>
+                                                                    }
+                                                                </ul>
+                                                            </div>
+                                                            <button class="btn btn-outline-primary" @onclick="OpenSizeModal">+</button>
                                                         </div>
                                                     </div>
+
                                                     <button class="btn btn-primary" @onclick="CreateProductAttributes">Tạo biến thể</button>
                                                 </div>
                                             </div>
@@ -270,8 +285,133 @@
             </div>
         </div>
     </div>
-
 </EditForm>
+
+@if (isModalOpen)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@modalTitle</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if (currentForm == "TextileTechnology")
+                    {
+                        <EditForm Model="newTextileTechnology" OnValidSubmit="CreateTextileTechnology">
+                            <DataAnnotationsValidator />
+                            <div class="mb-3">
+                                <label class="form-label">Tên Công Nghệ Dệt</label>
+                                <InputText class="form-control" @bind-Value="newTextileTechnology.Title" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Slug</label>
+                                <InputText class="form-control" @bind-Value="newTextileTechnology.Slug" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mô Tả</label>
+                                <InputTextArea class="form-control" @bind-Value="newTextileTechnology.Description" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Thêm</button>
+                        </EditForm>
+                    }
+                    @if (currentForm == "Style")
+                    {
+                        <EditForm Model="newStyle" OnValidSubmit="CreateStyle">
+                            <DataAnnotationsValidator />
+                            <div class="mb-3">
+                                <label class="form-label">Tên Kiểu Dáng</label>
+                                <InputText class="form-control" @bind-Value="newStyle.Title" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Slug</label>
+                                <InputText class="form-control" @bind-Value="newStyle.Slug" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mô Tả</label>
+                                <InputTextArea class="form-control" @bind-Value="newStyle.Description" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Thêm</button>
+                        </EditForm>
+                    }
+                    @if (currentForm == "Size")
+                    {
+                        <EditForm Model="newSize" OnValidSubmit="CreateSize">
+                            <DataAnnotationsValidator />
+                            <div class="mb-3">
+                                <label class="form-label">Tên Kích Thước</label>
+                                <InputText class="form-control" @bind-Value="newSize.Title" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Slug</label>
+                                <InputText class="form-control" @bind-Value="newSize.Slug" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mô Tả</label>
+                                <InputTextArea class="form-control" @bind-Value="newSize.Description" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Thêm</button>
+                        </EditForm>
+                    }
+                    @if (currentForm == "Material")
+                    {
+                        <EditForm Model="newMaterial" OnValidSubmit="CreateMaterial">
+                            <DataAnnotationsValidator />
+                            <div class="mb-3">
+                                <label class="form-label">Tên Chất Liệu</label>
+                                <InputText class="form-control" @bind-Value="newMaterial.Title" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Slug</label>
+                                <InputText class="form-control" @bind-Value="newMaterial.Slug" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mô Tả</label>
+                                <InputTextArea class="form-control" @bind-Value="newMaterial.Description" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Thêm</button>
+                        </EditForm>
+                    }
+                    @if (currentForm == "Color")
+                    {
+                        <EditForm Model="newColor" OnValidSubmit="CreateColor">
+                            <DataAnnotationsValidator />
+                            <div class="mb-3">
+                                <label class="form-label">Tên Màu Sắc</label>
+                                <InputText class="form-control" @bind-Value="newColor.Title" />
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="color-picker" class="form-label">Bảng mã màu</label>
+                                <input type="color" id="color-picker" class="form-control form-control-color" value="#000000"
+                                       @onchange="OnColorChange" />
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="attribute-color_code" class="form-label">Mã màu</label>
+                                <InputText id="attribute-color_code" class="form-control" @bind-Value="newColor.Color_code" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Slug</label>
+                                <InputText class="form-control" @bind-Value="newColor.Slug" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mô Tả</label>
+                                <InputTextArea class="form-control" @bind-Value="newColor.Description" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Thêm</button>
+                        </EditForm>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+
 <Media_modal OnImageSelected="HandleImageSelected"></Media_modal>
 
 @code {
@@ -294,6 +434,113 @@
     private bool isProductVariantCreated = false;
     private long IdProductVariantCreated; // biến lưu id sản phẩm vừa tạo được
     private bool isProductAttributesCreated = false;
+
+    [Parameter]
+    public bool IsVisible { get; set; } // Thuộc tính được truyền từ component cha
+
+    private string ModalClass => IsVisible ? "modal show d-block" : "modal hide";
+    private bool isModalOpen = false;
+    private string currentForm = string.Empty;
+    private string modalTitle = string.Empty;
+
+    private Textile_technology newTextileTechnology = new Textile_technology();
+    private Style newStyle = new Style();
+    private Size newSize = new Size();
+    private Material newMaterial = new Material();
+    private Color newColor = new Color();
+
+    private void OnColorChange(ChangeEventArgs e)
+    {
+        newColor.Color_code = e.Value?.ToString();
+    }
+
+    // Mở modal cho Textile Technology
+    private void OpenTextileTechnologyModal()
+    {
+        OpenModal("TextileTechnology", "Thêm Công Nghệ Dệt");
+    }
+
+    // Mở modal cho Style
+    private void OpenStyleModal()
+    {
+        OpenModal("Style", "Thêm Kiểu Dáng");
+    }
+
+    // Mở modal cho Size
+    private void OpenSizeModal()
+    {
+        OpenModal("Size", "Thêm Kích Thước");
+    }
+
+    // Mở modal cho Material
+    private void OpenMaterialModal()
+    {
+        OpenModal("Material", "Thêm Chất Liệu");
+    }
+
+    // Mở modal cho Color
+    private void OpenColorModal()
+    {
+        OpenModal("Color", "Thêm Màu Sắc");
+    }
+
+    // Hàm chung để mở modal
+    private void OpenModal(string formType, string title)
+    {
+        isModalOpen = true;
+        currentForm = formType;
+        modalTitle = title;
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+{
+    isModalOpen = false;
+    currentForm = string.Empty;
+    modalTitle = string.Empty;
+    StateHasChanged();
+}
+
+    private async Task CreateTextileTechnology()
+    {
+        await tech.Create(newTextileTechnology);
+        textileTechnologyList = await tech.GetAll();
+        newTextileTechnology = new Textile_technology();
+        isModalOpen = false;
+        StateHasChanged();
+    }
+
+    private async Task CreateStyle()
+    {
+        await style.Create(newStyle);
+        styleList = await style.GetAll();
+        newStyle = new Style();
+        isModalOpen = false;
+    }
+
+    private async Task CreateSize()
+    {
+        await size.Create(newSize);
+        sizeList = await size.GetAll();
+        newSize = new Size();
+        isModalOpen = false;
+    }
+
+    private async Task CreateMaterial()
+    {
+        await material.Create(newMaterial);
+        materialList = await material.GetAll();
+        newMaterial = new Material();
+        isModalOpen = false;
+    }
+
+    private async Task CreateColor()
+    {
+        await color.Create(newColor);
+        colorList = await color.GetAll();
+        newColor = new Color();
+        isModalOpen = false;
+    }
 
 
     private void FormatCurrency(ChangeEventArgs e, Product_Attributes product)
@@ -538,6 +785,7 @@
         Console.WriteLine("Form submitted successfully!");
     }
 }
+
 <script>
     function openMediaModal() {
         var modalElement = document.getElementById('mediaModal');
