@@ -1,7 +1,7 @@
 ﻿@page "/Admin/productVariant/Create"
 @using System.ComponentModel.DataAnnotations
-@using ViewsFE.DTO
-@using appAPI.DTO
+@using ViewsFE.DTO;
+@using appAPI.DTO;
 @inject NavigationManager nav
 @inject IProductAttributeServices productAttributes
 @inject IPostSer post
@@ -56,34 +56,46 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label">Chọn Công Nghệ Dệt <span class="text-danger">*</span></label>
-                                    <select class="form-select" @bind="product_Variant.Textile_technology_id" disabled="@isProductVariantCreated">
-                                        <option value="">Chọn công nghệ dệt</option>
-                                        @foreach (var tech in textileTechnologyList)
-                                        {
-                                            <option value="@tech.Id">@tech.Title</option>
-                                        }
-                                    </select>
+                                    <div class="input-group">
+                                        <select class="form-select" @bind="product_Variant.Textile_technology_id" disabled="@isProductVariantCreated">
+                                            <option value="">Chọn công nghệ dệt</option>
+                                            @foreach (var tech in textileTechnologyList)
+                                            {
+                                                <option value="@tech.Id">@tech.Title</option>
+                                            }
+                                        </select>
+                                        <button class="btn btn-outline-primary" @onclick="OpenTextileTechnologyModal">+</button>
+                                    </div>
                                 </div>
+
                                 <div class="mb-3">
                                     <label class="form-label">Chọn Kiểu Dáng <span class="text-danger">*</span></label>
-                                    <select class="form-select" @bind="product_Variant.Style_id" disabled="@isProductVariantCreated">
-                                        <option value="">Chọn kiểu dáng</option>
-                                        @foreach (var style in styleList)
-                                        {
-                                            <option value="@style.Id">@style.Title</option>
-                                        }
-                                    </select>
+                                    <div class="input-group">
+                                        <select class="form-select" @bind="product_Variant.Style_id" disabled="@isProductVariantCreated">
+                                            <option value="">Chọn kiểu dáng</option>
+                                            @foreach (var style in styleList)
+                                            {
+                                                <option value="@style.Id">@style.Title</option>
+                                            }
+                                        </select>
+                                        <button class="btn btn-outline-primary" @onclick="OpenStyleModal">+</button>
+                                    </div>
                                 </div>
+
                                 <div class="mb-3">
                                     <label class="form-label">Chọn Chất Liệu <span class="text-danger">*</span></label>
-                                    <select class="form-select" @bind="product_Variant.Material_id" disabled="@isProductVariantCreated">
-                                        <option value="">Chọn chất liệu</option>
-                                        @foreach (var material in materialList)
-                                        {
-                                            <option value="@material.Id">@material.Title</option>
-                                        }
-                                    </select>
+                                    <div class="input-group">
+                                        <select class="form-select" @bind="product_Variant.Material_id" disabled="@isProductVariantCreated">
+                                            <option value="">Chọn chất liệu</option>
+                                            @foreach (var material in materialList)
+                                            {
+                                                <option value="@material.Id">@material.Title</option>
+                                            }
+                                        </select>
+                                        <button class="btn btn-outline-primary" @onclick="OpenMaterialModal">+</button>
+                                    </div>
                                 </div>
+
                                 <div class="mb-3">
                                     <label for="description" class="form-label"> Mô tả</label>
                                     <InputText @bind-Value="product_Variant.Description" class="form-control" disabled="@isProductVariantCreated" />
@@ -91,6 +103,7 @@
                                 <button class="btn btn-primary" @onclick="CreateProductVariant">Tạo sản phẩm</button>
                             </div>
                         </div>
+                        
                     </div>
                     <div class="col-md-3 col-12">
                         <div class="accordion bg-white mb-3">
@@ -103,8 +116,7 @@
 
                                 <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                     <div class="accordion-body pt-0">
-                                        <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
-                                             onclick="openMediaModal()">
+                                        <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center">
                                             @if (product_Variant?.Posts?.Feature_image != null && !string.IsNullOrEmpty(product_Variant.Posts.Feature_image))
                                             {
                                                 <img src="@product_Variant.Posts.Feature_image" class="w-100 h-100 object-cover" />
@@ -123,7 +135,7 @@
                                     </div>
                                 </div>
 
-                                @if (isProductVariantCreated)   
+                                @if (isProductVariantCreated)
                                 {
                                     <div class="accordion bg-white mb-3">
                                         <div class="accordion-item">
@@ -136,6 +148,9 @@
                                                 <div class="accordion-body pt-0">
                                                     <div class="form-group mb-3">
                                                         <label class="form-label">Chọn Màu Sắc <span class="text-danger">*</span></label>
+
+                                                        <div class="input-group">
+                                 
                                                         <div class="dropdown">
                                                             <button class="btn btn-outline-primary dropdown-toggle" type="button" id="colorDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                                                 Chọn màu sắc
@@ -150,18 +165,22 @@
                                                                                 <span class="color-box" style="background-color:@color.Color_code; width: 20px; height: 20px; margin-right: 10px; border-radius: 50%;"></span>
                                                                                 @color.Title
                                                                             </label>
-                                                                            <input type="checkbox"
+                                                                            <input type="checkbox" style="margin-right: 15px"
                                                                                    id="color-@color.Id"
                                                                                    @onchange="(e) => OnColorSelectionChanged(color.Id, e.Value)" />
                                                                         </div>
                                                                     </li>
                                                                 }
                                                             </ul>
+
                                                         </div>
                                                     </div>
 
+
                                                     <div class="form-group mb-3">
                                                         <label class="form-label">Chọn Kích Thước <span class="text-danger">*</span></label>
+                                                        <div class="input-group">
+                                                           
                                                         <div class="dropdown">
                                                             <button class="btn btn-outline-primary dropdown-toggle" type="button" id="sizeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                                                 Chọn kích thước
@@ -175,7 +194,7 @@
                                                                             <label class="form-check-label d-flex align-items-center" for="size-@size.Id">
                                                                                 @size.Title
                                                                             </label>
-                                                                            <input type="checkbox"
+                                                                            <input type="checkbox" style="margin-right: 15px"
                                                                                    id="size-@size.Id"
                                                                                    @onchange="(e) => OnSizeSelectionChanged(size.Id, e.Value)" />
                                                                         </div>
@@ -184,6 +203,7 @@
                                                             </ul>
                                                         </div>
                                                     </div>
+
                                                     <button class="btn btn-primary" @onclick="CreateProductAttributes">Tạo biến thể</button>
                                                 </div>
                                             </div>
@@ -227,19 +247,28 @@
                                         <td>
                                             <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                                 <div class="accordion-body pt-0">
-                                                    <div id="feature_image"
-                                                         style="width: 80px; height: 80px; aspect-ratio: 1 / 1; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
-                                                         onclick="openMediaModal()">
-                                                        <div class="icon" style="display: flex; align-items: center; justify-content: center;">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path d="M12 5v14" />
-                                                                <path d="M5 12h14" />
-                                                            </svg>
-                                                        </div>
+
+                                                    <div style="width: 80px; height: 80px; aspect-ratio: 1 / 1; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                                         id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
+                                                         data-multiple="false" data-refer-id="#feature_image" @onclick="() => openMediaModal(item.Id)">
+                                                        @if (!string.IsNullOrEmpty(item.Image))
+                                                        {
+                                                            <img src="@item.Image" class="w-100 h-100 object-cover" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="icon d-flex align-items-center justify-content-center">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
+                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                    <path d="M12 5v14" />
+                                                                    <path d="M5 12h14" />
+                                                                </svg>
+                                                            </div>
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
+
                                         </td>
                                         <td>
                                             <div class="input-group">
@@ -270,15 +299,142 @@
             </div>
         </div>
     </div>
-
 </EditForm>
-<Media_modal OnImageSelected="HandleImageSelected"></Media_modal>
+
+@if (isModalOpen)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@modalTitle</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if (currentForm == "TextileTechnology")
+                    {
+                        <EditForm Model="newTextileTechnology" OnValidSubmit="CreateTextileTechnology">
+                            <DataAnnotationsValidator />
+                            <div class="mb-3">
+                                <label class="form-label">Tên Công Nghệ Dệt</label>
+                                <InputText class="form-control" @bind-Value="newTextileTechnology.Title" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Slug</label>
+                                <InputText class="form-control" @bind-Value="newTextileTechnology.Slug" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mô Tả</label>
+                                <InputTextArea class="form-control" @bind-Value="newTextileTechnology.Description" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Thêm</button>
+                        </EditForm>
+                    }
+                    @if (currentForm == "Style")
+                    {
+                        <EditForm Model="newStyle" OnValidSubmit="CreateStyle">
+                            <DataAnnotationsValidator />
+                            <div class="mb-3">
+                                <label class="form-label">Tên Kiểu Dáng</label>
+                                <InputText class="form-control" @bind-Value="newStyle.Title" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Slug</label>
+                                <InputText class="form-control" @bind-Value="newStyle.Slug" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mô Tả</label>
+                                <InputTextArea class="form-control" @bind-Value="newStyle.Description" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Thêm</button>
+                        </EditForm>
+                    }
+                    @if (currentForm == "Size")
+                    {
+                        <EditForm Model="newSize" OnValidSubmit="CreateSize">
+                            <DataAnnotationsValidator />
+                            <div class="mb-3">
+                                <label class="form-label">Tên Kích Thước</label>
+                                <InputText class="form-control" @bind-Value="newSize.Title" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Slug</label>
+                                <InputText class="form-control" @bind-Value="newSize.Slug" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mô Tả</label>
+                                <InputTextArea class="form-control" @bind-Value="newSize.Description" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Thêm</button>
+                        </EditForm>
+                    }
+                    @if (currentForm == "Material")
+                    {
+                        <EditForm Model="newMaterial" OnValidSubmit="CreateMaterial">
+                            <DataAnnotationsValidator />
+                            <div class="mb-3">
+                                <label class="form-label">Tên Chất Liệu</label>
+                                <InputText class="form-control" @bind-Value="newMaterial.Title" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Slug</label>
+                                <InputText class="form-control" @bind-Value="newMaterial.Slug" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mô Tả</label>
+                                <InputTextArea class="form-control" @bind-Value="newMaterial.Description" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Thêm</button>
+                        </EditForm>
+                    }
+                    @if (currentForm == "Color")
+                    {
+                        <EditForm Model="newColor" OnValidSubmit="CreateColor">
+                            <DataAnnotationsValidator />
+                            <div class="mb-3">
+                                <label class="form-label">Tên Màu Sắc</label>
+                                <InputText class="form-control" @bind-Value="newColor.Title" />
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="color-picker" class="form-label">Bảng mã màu</label>
+                                <input type="color" id="color-picker" class="form-control form-control-color" value="#000000"
+                                       @onchange="OnColorChange" />
+                            </div>
+                            <div class="form-group mb-3">
+                                <label for="attribute-color_code" class="form-label">Mã màu</label>
+                                <InputText id="attribute-color_code" class="form-control" @bind-Value="newColor.Color_code" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Slug</label>
+                                <InputText class="form-control" @bind-Value="newColor.Slug" />
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Mô Tả</label>
+                                <InputTextArea class="form-control" @bind-Value="newColor.Description" />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Thêm</button>
+                        </EditForm>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+
+<MediaModal_Product OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></MediaModal_Product>
+
 
 @code {
     private string search_query = string.Empty;
     private int page_number = 1;
     private int total_pages = 1;
     private int page_size = 10;
+    private MediaModal_Product mediaModalRef;
     private Product_variants product_Variant = new Product_variants();
     private List<Product_Posts> product_posts_list = new List<Product_Posts>();
     private Product_Attributes product_Attributes = new Product_Attributes();
@@ -295,6 +451,115 @@
     private long IdProductVariantCreated; // biến lưu id sản phẩm vừa tạo được
     private bool isProductAttributesCreated = false;
 
+
+    [Parameter]
+    public bool IsVisible { get; set; } // Thuộc tính được truyền từ component cha
+
+    private string ModalClass => IsVisible ? "modal show d-block" : "modal hide";
+    private bool isModalOpen = false;
+    private string currentForm = string.Empty;
+    private string modalTitle = string.Empty;
+
+    private Textile_technology newTextileTechnology = new Textile_technology();
+    private Style newStyle = new Style();
+    private Size newSize = new Size();
+    private Material newMaterial = new Material();
+    private Color newColor = new Color();
+
+    private void OnColorChange(ChangeEventArgs e)
+    {
+        newColor.Color_code = e.Value?.ToString();
+    }
+
+    // Mở modal cho Textile Technology
+    private void OpenTextileTechnologyModal()
+    {
+        OpenModal("TextileTechnology", "Thêm Công Nghệ Dệt");
+    }
+
+    // Mở modal cho Style
+    private void OpenStyleModal()
+    {
+        OpenModal("Style", "Thêm Kiểu Dáng");
+    }
+
+    // Mở modal cho Size
+    private void OpenSizeModal()
+    {
+        OpenModal("Size", "Thêm Kích Thước");
+    }
+
+    // Mở modal cho Material
+    private void OpenMaterialModal()
+    {
+        OpenModal("Material", "Thêm Chất Liệu");
+    }
+
+    // Mở modal cho Color
+    private void OpenColorModal()
+    {
+        OpenModal("Color", "Thêm Màu Sắc");
+    }
+
+    // Hàm chung để mở modal
+    private void OpenModal(string formType, string title)
+    {
+        isModalOpen = true;
+        currentForm = formType;
+        modalTitle = title;
+        StateHasChanged();
+    }
+
+    private void CloseModal()
+{
+    isModalOpen = false;
+    currentForm = string.Empty;
+    modalTitle = string.Empty;
+    StateHasChanged();
+}
+
+    private async Task CreateTextileTechnology()
+    {
+        await tech.Create(newTextileTechnology);
+        textileTechnologyList = await tech.GetAll();
+        newTextileTechnology = new Textile_technology();
+        isModalOpen = false;
+        StateHasChanged();
+    }
+
+    private async Task CreateStyle()
+    {
+        await style.Create(newStyle);
+        styleList = await style.GetAll();
+        newStyle = new Style();
+        isModalOpen = false;
+    }
+
+    private async Task CreateSize()
+    {
+        await size.Create(newSize);
+        sizeList = await size.GetAll();
+        newSize = new Size();
+        isModalOpen = false;
+    }
+
+    private async Task CreateMaterial()
+    {
+        await material.Create(newMaterial);
+        materialList = await material.GetAll();
+        newMaterial = new Material();
+        isModalOpen = false;
+    }
+
+    private async Task CreateColor()
+    {
+        await color.Create(newColor);
+        colorList = await color.GetAll();
+        newColor = new Color();
+        isModalOpen = false;
+    }
+
+    private long selectedItemId; // Biến để lưu ID của sản phẩm đang được chỉnh sửa
 
     private void FormatCurrency(ChangeEventArgs e, Product_Attributes product)
     {
@@ -314,6 +579,11 @@
         {
             product.Regular_price = (long?)Convert.ToInt64(parsedPrice);
         }
+    }
+    private async void openMediaModal(long itemId)
+    {
+        selectedItemId = itemId; 
+        await JS.InvokeVoidAsync("openMediaModalProduct");
     }
     protected override async Task OnInitializedAsync()
     {
@@ -351,18 +621,16 @@
     }
     private async Task HandleImageSelected(string imagePath)
     {
-        if (SelectedProductAttribute != null)
+        // Đảm bảo bạn xác định phần tử cần cập nhật
+        var itemToUpdate = LST_ProductAttributes.FirstOrDefault(x => x.Id == selectedItemId);
+        if (itemToUpdate != null)
         {
-            SelectedProductAttribute.Image = imagePath ?? string.Empty;
+            itemToUpdate.Image = imagePath;
             StateHasChanged();
-            await JS.InvokeVoidAsync("closeMediaModal");
+            await JS.InvokeVoidAsync("closeMediaModalProduct");
         }
     }
-    private async Task SelectProductAttribute(Product_Attributes attribute)
-    {
-        SelectedProductAttribute = attribute;
-        await JS.InvokeVoidAsync("openMediaModal");
-    }
+
     private void OnColorSelectionChanged(long colorId, object isChecked)
     {
         colorSelections[colorId] = (bool)isChecked;
@@ -445,7 +713,7 @@
                 string productName = productCreated.Posts.Title;
                 string textileTechnology = productCreated.Textile_Technology.Slug;
                 string style = productCreated.Style.Slug;
-                string material = productCreated.Material.Slug; 
+                string material = productCreated.Material.Slug;
 
                 // Tạo tên viết tắt của sản phẩm
                 string productAbbreviation = string.Concat(productName
@@ -468,7 +736,7 @@
                         Status = product_Attributes.Stock == 0 ? "Hết hàng" : "Còn hàng",
                         SKU = sku,
 
-                    };           
+                    };
                 await productAttributes.Create(productAttribute);
                 await JS.InvokeVoidAsync("toastr.success", "Tạo thành công các biến thể");
                 isProductAttributesCreated = true;
@@ -538,20 +806,4 @@
         Console.WriteLine("Form submitted successfully!");
     }
 }
-<script>
-    function openMediaModal() {
-        var modalElement = document.getElementById('mediaModal');
-        if (modalElement) {
-            if (!modalElement._bsModalInstance) {
-                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
-            }
-            modalElement._bsModalInstance.show();
-        }
-    }
-    function closeMediaModal() {
-        var modalElement = document.getElementById('mediaModal');
-        if (modalElement && modalElement._bsModalInstance) {
-            modalElement._bsModalInstance.hide();
-        }
-    }
-</script>
+

@@ -8,6 +8,7 @@ namespace appAPI.IRepository
         Task<List<Product_variants>> GetAllProductVarians();
         Task<Product_variants> GetProductVariantsById(long id);
         Task<int> GetTotalCountAsync(string type, string searchTerm);
+        Task<int> GetTotal();
         Task Create(Product_variants productVariants);
         Task Update(Product_variants productVariants , long id);
         Task Delete(long id);

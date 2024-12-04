@@ -68,6 +68,7 @@ namespace appAPI.Repository
             item.Title = color.Title;
             item.Slug = color.Slug;
             item.Description = color.Description;
+            item.Color_code = color.Color_code;
             item.Update_at = DateTime.Now;
             _context.Color.Update(item);
             await _context.SaveChangesAsync();

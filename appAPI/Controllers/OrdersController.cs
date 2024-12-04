@@ -99,5 +99,29 @@ namespace appAPI.Controllers
             }
 
         }
+        [HttpGet("Get-Total-Order")]
+        public async Task<IActionResult> GetTotal()
+        {
+            var totalCount = await _repo.GetTotal();
+            return Ok(totalCount);
+        }
+        [HttpGet("Get-Total-Order-Today")]
+        public async Task<IActionResult> GetTotalToday()
+        {
+            var totalCount = await _repo.GetTotalToday();
+            return Ok(totalCount);
+        }
+        [HttpGet("Get-Total-Pice-Today")]
+        public async Task<IActionResult> GetTotalPiceToday()
+        {
+            var totalCount = await _repo.GetTotalPiceToday();
+            return Ok(totalCount);
+        }
+        [HttpGet("Get-Total-Pice-Week")]
+        public async Task<IActionResult> GetTotalPiceWeek()
+        {
+            var totalCount = await _repo.GetTotalPiceWeek();
+            return Ok(totalCount);
+        }
     }
 }

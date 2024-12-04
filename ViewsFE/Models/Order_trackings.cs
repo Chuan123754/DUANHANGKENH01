@@ -19,7 +19,7 @@ namespace ViewsFE.Models
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set;}
         public long Created_by { get; set; }
-        [StringLength(20)]
+        [StringLength(100)]
         public string? Status { get; set; }
 
         [ForeignKey("OrderId")]

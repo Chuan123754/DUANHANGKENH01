@@ -82,12 +82,12 @@
                                         </div>
                                         <div class="search-box d-flex align-items-center justify-content-between mb-3">
                                             <div></div>
-                                 @*            <EditForm Model="product_Attributes" OnValidSubmit="@OnSearch">
-                                                <div class="form-group d-flex gap-2">
-                                                    <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
-                                                    <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
-                                                </div>
-                                            </EditForm> *@
+                                            @*            <EditForm Model="product_Attributes" OnValidSubmit="@OnSearch">
+                                        <div class="form-group d-flex gap-2">
+                                        <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                        <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                        </div>
+                                        </EditForm> *@
                                         </div>
 
                                         <div class="modal-body">
@@ -151,24 +151,24 @@
                                                             <td class="text-end">
                                                                 @if (product.Sale_price != null && product.Sale_price > 0)
                                                                 {
-                                                                <div>
-                                                                    <span style="text-decoration: line-through; color: gray;">
+                                                                    <div>
+                                                                        <span style="text-decoration: line-through; color: gray;">
                                                                             @string.Format("{0:N0}", product.Regular_price).Replace(".", ",") VNĐ
-                                                                    </span>
-                                                                </div>
-                                                                <div>
-                                                                    <span style="font-weight: bold; color: red;">
+                                                                        </span>
+                                                                    </div>
+                                                                    <div>
+                                                                        <span style="font-weight: bold; color: red;">
                                                                             @string.Format("{0:N0}", product.Sale_price).Replace(".", ",") VNĐ
-                                                                    </span>
-                                                                </div>
+                                                                        </span>
+                                                                    </div>
                                                                 }
                                                                 else
                                                                 {
-                                                                <div>
-                                                                    <span>
+                                                                    <div>
+                                                                        <span>
                                                                             @string.Format("{0:N0}", product.Regular_price).Replace(".", ",") VNĐ
-                                                                    </span>
-                                                                </div>
+                                                                        </span>
+                                                                    </div>
                                                                 }
                                                             </td>
                                                             <td>
@@ -207,7 +207,7 @@
                                         <button type="button" class="btn-close position-absolute top-0 end-0"
                                                 style="width: 0.8rem; height: 0.8rem; margin: 0.25rem;"
                                                 title="Xóa hóa đơn"
-                                                 @onclick:stopPropagation 
+                                        @onclick:stopPropagation
                                                 @onclick="() => DeleteOrder(order.Id)">
                                         </button>
                                         Hóa đơn @order.Id  <i class="bi bi-cart-check-fill"></i>
@@ -215,7 +215,7 @@
                                 }
 
                             </div>
-                        </div>  
+                        </div>
                         <div class="table-responsive">
                             <table class="table card-table table-vcenter text-nowrap datatable">
                                 <thead>
@@ -285,9 +285,9 @@
                                                     <span>
                                                         @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Regular_price)).Replace(".", ",") VNĐ
                                                     </span>
-                                            
-                                              
-                                                 }
+
+
+                                                }
                                             </td>
                                             <td>
 
@@ -311,7 +311,7 @@
                             <h3 class="card-title">Thông tin khách hàng</h3>
                             <div class="col-auto">
                                 <div class="border rounded d-flex align-items-center justify-content-center p-2"
-                                     style="width: 200px; background-color: #ccdaff; border-radius: 30px; border-color:#7399fa;">
+                                     style="max-width: 200px; background-color: #ccdaff; border-radius: 30px; border-color:#7399fa;">
                                     @(isCustomerAdded ? customerName : "Khách lẻ")
                                 </div>
                             </div>
@@ -383,7 +383,7 @@
                                                     </thead>
                                                     <tbody>
                                                         @{
-                                                            int index = 1; 
+                                                            int index = 1;
                                                         }
                                                         @foreach (var item in lst_Customer)
                                                         {
@@ -440,71 +440,71 @@
                                                                             <div class="modal-header">
                                                                                 <h5 class="modal-title">Thêm mới địa chỉ</h5>
                                                                             </div>
-                                                                                <form class="p-4 bg-light rounded shadow">
-                                                                                    <div class="row mb-3">
-                                                                                        <div class="col-md-6">
-                                                                                            <label for="name" class="form-label">Tên địa chỉ</label>
+                                                                            <form class="p-4 bg-light rounded shadow">
+                                                                                <div class="row mb-3">
+                                                                                    <div class="col-md-6">
+                                                                                        <label for="name" class="form-label">Tên địa chỉ</label>
                                                                                         <input type="text" @bind="address.Name" class="form-control" placeholder="Nhập tên địa chỉ">
-                                                                                        </div>
-                                                                                        
                                                                                     </div>
-                                                                                    <div class="row mb-3">
-                                                                                        <div class="col-md-4">
-                                                                                            <label for="city" class="form-label">Tỉnh/Thành phố</label>
-                                                                                            <select id="city" @onchange="OnProvinceChange" class="form-select">
-                                                                                                <option value="">Chọn Tỉnh</option>
-                                                                                                @if (provinces != null && provinces.Count > 0)
+
+                                                                                </div>
+                                                                                <div class="row mb-3">
+                                                                                    <div class="col-md-4">
+                                                                                        <label for="city" class="form-label">Tỉnh/Thành phố</label>
+                                                                                        <select id="city" @onchange="OnProvinceChange" class="form-select">
+                                                                                            <option value="">Chọn Tỉnh</option>
+                                                                                            @if (provinces != null && provinces.Count > 0)
+                                                                                            {
+                                                                                                @foreach (var province in provinces)
                                                                                                 {
-                                                                                                    @foreach (var province in provinces)
-                                                                                                    {
-                                                                                                        <option value="@province.Id">@province.Name</option>
-                                                                                                    }
+                                                                                                    <option value="@province.Id">@province.Name</option>
                                                                                                 }
-                                                                                            </select>
-                                                                                        </div>
-                                                                                        <div class="col-md-4">
-                                                                                            <label for="district" class="form-label">Quận/Huyện</label>
-                                                                                            <select id="district" @onchange="OnDistrictChange" class="form-select" disabled="@(!hasDistricts)">
-                                                                                                <option value="">Chọn Huyện</option>
-                                                                                                @if (districts != null && districts.Count > 0)
-                                                                                                {
-                                                                                                    @foreach (var district in districts)
-                                                                                                    {
-                                                                                                        <option value="@district.Id">@district.Name</option>
-                                                                                                    }
-                                                                                                }
-                                                                                            </select>
-                                                                                        </div>
-                                                                                        <div class="col-md-4">
-                                                                                            <label for="ward" class="form-label">Xã/Phường/Thị trấn</label>
-                                                                                            <select id="ward" @onchange="OnWardChange" class="form-select" disabled="@(!hasWards)">
-                                                                                                <option value="">Chọn Xã</option>
-                                                                                                @if (wards != null && wards.Count > 0)
-                                                                                                {
-                                                                                                    @foreach (var ward in wards)
-                                                                                                    {
-                                                                                                        <option value="@ward.Id">@ward.Name</option>
-                                                                                                    }
-                                                                                                }
-                                                                                            </select>
-                                                                                        </div>
+                                                                                            }
+                                                                                        </select>
                                                                                     </div>
-                                                                                    <div class="row mb-3">
-                                                                                        <div class="col-md-8">
-                                                                                            <label for="address" class="form-label">Địa chỉ cụ thể</label>
+                                                                                    <div class="col-md-4">
+                                                                                        <label for="district" class="form-label">Quận/Huyện</label>
+                                                                                        <select id="district" @onchange="OnDistrictChange" class="form-select" disabled="@(!hasDistricts)">
+                                                                                            <option value="">Chọn Huyện</option>
+                                                                                            @if (districts != null && districts.Count > 0)
+                                                                                            {
+                                                                                                @foreach (var district in districts)
+                                                                                                {
+                                                                                                    <option value="@district.Id">@district.Name</option>
+                                                                                                }
+                                                                                            }
+                                                                                        </select>
+                                                                                    </div>
+                                                                                    <div class="col-md-4">
+                                                                                        <label for="ward" class="form-label">Xã/Phường/Thị trấn</label>
+                                                                                        <select id="ward" @onchange="OnWardChange" class="form-select" disabled="@(!hasWards)">
+                                                                                            <option value="">Chọn Xã</option>
+                                                                                            @if (wards != null && wards.Count > 0)
+                                                                                            {
+                                                                                                @foreach (var ward in wards)
+                                                                                                {
+                                                                                                    <option value="@ward.Id">@ward.Name</option>
+                                                                                                }
+                                                                                            }
+                                                                                        </select>
+                                                                                    </div>
+                                                                                </div>
+                                                                                <div class="row mb-3">
+                                                                                    <div class="col-md-8">
+                                                                                        <label for="address" class="form-label">Địa chỉ cụ thể</label>
                                                                                         <input type="text" @bind="address.Street" class="form-control" placeholder="Nhập địa chỉ cụ thể">
-                                                                                        </div>
-                                                                                        <div class="col-md-4">
-                                                                                            <label for="note" class="form-label">Ghi chú</label>
-                                                                                            <input type="text" id="note" class="form-control" placeholder="Nhập ghi chú">
-                                                                                        </div>
                                                                                     </div>
-                                                                      
-                                                                                    <div class="modal-footer d-flex justify-content-between">
-                                                                                        <button type="button" class="btn btn-primary" @onclick="CreateAddress">Xác nhận</button>
-                                                                                        <button type="button" class="btn btn-secondary" @onclick="CloseCreateAddress">Hủy</button>
+                                                                                    <div class="col-md-4">
+                                                                                        <label for="note" class="form-label">Ghi chú</label>
+                                                                                        <input type="text" id="note" class="form-control" placeholder="Nhập ghi chú">
                                                                                     </div>
-                                                                                </form>
+                                                                                </div>
+
+                                                                                <div class="modal-footer d-flex justify-content-between">
+                                                                                    <button type="button" class="btn btn-primary" @onclick="CreateAddress">Xác nhận</button>
+                                                                                    <button type="button" class="btn btn-secondary" @onclick="CloseCreateAddress">Hủy</button>
+                                                                                </div>
+                                                                            </form>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -703,14 +703,14 @@
                     <div class="card">
                         <div class="card-header d-flex align-items-center justify-content-between">
                             <h3 class="card-title">Thông tin đơn hàng</h3>
-                            @if(selectedOrderId!=0)
+                            @if (selectedOrderId != 0)
                             {
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" @bind="IsDeliveryVisible">
                                     <label class="form-check-label" for="flexSwitchCheckChecked">Giao hàng</label>
                                 </div>
-                            }                   
-                        </div>  
+                            }
+                        </div>
                         <div class="table-responsive">
                             <div class="container px-4 text-center">
                                 <div class="row gx-2 justify-content-between">
@@ -757,16 +757,16 @@
                                                     <strong>Phí vận chuyển :</strong>
                                                 </div>
                                             </td>
-                                            @if(isDeliveryVisible)
+                                            @if (isDeliveryVisible)
                                             {
                                                 <td class="text-nowrap text-secondary"> <strong>@feeShipping.ToString("N0").Replace(".", ",") VND</strong></td>
                                             }
                                             else
                                             {
-                                                <td class="text-nowrap text-secondary"> <strong>0 VNĐ</strong></td>                                                
+                                                <td class="text-nowrap text-secondary"> <strong>0 VNĐ</strong></td>
                                             }
                                         </tr>
-                                
+
                                         <tr>
                                             <td class="td-truncate">
                                                 <div class="text-truncate">
@@ -805,7 +805,7 @@
                                 <button type="button" class="btn btn-success" @onclick="PayByMomo">Thanh toán qua MoMo</button>
                               
 
-                           </div>
+                            </div>
 
                         </div>
                         @if (isMomoModalVisible)
@@ -837,15 +837,15 @@
                         }
 
                     </div>
-                    
-                    
+
+
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-@code 
+@code
 {
     private long selectedOrderId;
     private string customerName = "";
@@ -868,9 +868,9 @@
     private Dictionary<long, int> productQuantities = new Dictionary<long, int>();
     private decimal totalAmount = 0; // tổng tiền hàng đã giảm
     private decimal totalPrincipal = 0; // tổng tiền hàng chưa giảm
-    decimal discountAmount = 0 ; // tiền được giảm 
+    decimal discountAmount = 0; // tiền được giảm
     private int totalQuantity = 0;
-    private decimal feeShipping = 0; // phí ship 
+    private decimal feeShipping = 0; // phí ship
     private decimal totalMoney = 0; // cần thanh toán
     private IEnumerable<Product_Attributes> paged_Orders;
     private List<Product_Attributes> pageProductAttributes = new List<Product_Attributes>();
@@ -1008,7 +1008,7 @@
     private async Task SelectOrder(long orderId) // chọn hóa đơn
     {
         selectedOrderId = orderId;
-        lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId); 
+        lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate?.User_id != null)
         {
@@ -1030,7 +1030,7 @@
         }
         if (orderToUpdate.Note == "Giao hàng")
         {
-            IsDeliveryVisible = true;  
+            IsDeliveryVisible = true;
             totalMoney = feeShipping + totalAmount;
         }
         else
@@ -1174,11 +1174,11 @@
             return;
         }
         var newOrder = new Orders
-        {
-            Note = "Tại quầy",
-            CreatedByAdminId = null,
-            Status = "Hóa đơn treo"
-        };
+            {
+                Note = "Tại quầy",
+                CreatedByAdminId = null,
+                Status = "Hóa đơn treo"
+            };
         await orderService.Create(newOrder);
         lst_Orders = await orderService.GetAll();
         await LoadOrders();
@@ -1192,7 +1192,7 @@
             {
                 isDeliveryVisible = value;
                 orders.Note = isDeliveryVisible ? "Giao hàng" : "Tại quầy";
-                _ = UpdateOrderNote(); 
+                _ = UpdateOrderNote();
                 if (isDeliveryVisible)
                 {
                     totalMoney = feeShipping + totalAmount;
@@ -1201,7 +1201,7 @@
                 {
                     totalMoney = totalAmount;
                 }
-                StateHasChanged(); 
+                StateHasChanged();
             }
         }
     }
@@ -1474,8 +1474,8 @@
             var newOrderTracking = new order_trackings
                 {
                     OrderId = orderToUpdate.Id,
-                    Status = isDeliveryVisible ? "Giao hàng" : "Tại quầy",
-                    Note = "Hóa đơn thanh toán thành công",
+                    Status = isDeliveryVisible ? "Đã xác nhận" : "Tại quầy",
+                    Note = "Đã xác nhận đơn hàng Tại quầy",
                     Created_at = DateTime.Now,
                     Created_by = 1 // ID tạm
                 };
@@ -1499,10 +1499,10 @@
             Console.WriteLine($"Lỗi khi xuất hóa đơn: {ex.Message}");
         }
     }
-            // tính tiền vận chuyển
+    // tính tiền vận chuyển
     private decimal CalculateShippingFee()
     {
-        const decimal baseShippingFee = 38000m; 
+        const decimal baseShippingFee = 38000m;
         feeShipping = baseShippingFee;
 
         if (totalQuantity > 10 && totalQuantity <= 20)
@@ -1532,7 +1532,7 @@
         if (selectedOrderId == null)
         {
             await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn hóa đơn trước");
-            return;  
+            return;
         }
         var order = await orderService.GetByIdOrders(selectedOrderId);
         if (order?.User_id.HasValue == true)
@@ -1565,7 +1565,7 @@
         if (order?.User_id.HasValue == true)
         {
             address.User_Id = order.User_id.Value; // Gắn User_Id từ Order
-            if (address.Type == null) address.Type = ""; 
+            if (address.Type == null) address.Type = "";
             if (address.Status == null) address.Status = "";
             var province = provinces.FirstOrDefault(p => p.Id == address.Province_city);
             var district = districts.FirstOrDefault(d => d.Id == address.District);
@@ -1595,11 +1595,11 @@
     {
         isCreateAddress = false;
     }
-    // tách được đoạn code này ra chỗ khác thì càng tốt 
+    // tách được đoạn code này ra chỗ khác thì càng tốt
     private List<Province> provinces = new List<Province>();
     private List<Districted> districts = new List<Districted>();
     private List<Ward> wards = new List<Ward>();
-    private Address address = new Address(); 
+    private Address address = new Address();
     private bool hasDistricts = false;
     private bool hasWards = false;
     [Inject] private AddressService address_Service { get; set; }
@@ -1613,7 +1613,7 @@
             districts = await address_Service.GetDistrictsAsync(int.Parse(selectedProvinceId));
             hasDistricts = districts.Count > 0;
             wards.Clear();
-            hasWards = false; 
+            hasWards = false;
         }
     }
     private async Task OnDistrictChange(ChangeEventArgs e)
@@ -1646,7 +1646,7 @@
         ClearInfoAddress();
         if (address != null)
         {
-            selectedAddress = address; 
+            selectedAddress = address;
             city = address.Province_city;
             district = address.District;
             ward = address.Ward_commune;
@@ -1662,7 +1662,7 @@
         district = string.Empty;
         ward = string.Empty;
         street = string.Empty;
-        phone = string.Empty;        
+        phone = string.Empty;
     }
 
 }

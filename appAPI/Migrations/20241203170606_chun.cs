@@ -4,16 +4,39 @@
 
 namespace appAPI.Migrations
 {
-    public partial class paymentType : Migration
+    public partial class chun : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "TypePayment",
-                table: "orders",
-                type: "nvarchar(max)",
-                nullable: true);
+        name: "TypePayment",
+        table: "orders",
+        type: "nvarchar(max)",
+        nullable: true);
+            migrationBuilder.UpdateData(
+                table: "AspNetRoles",
+                keyColumn: "Id",
+                keyValue: "ADMIN_ROLE_ID",
+                column: "ConcurrencyStamp",
+                value: "d33889ac-5c00-4457-b977-1fe4d5489312");
 
+            migrationBuilder.UpdateData(
+                table: "AspNetRoles",
+                keyColumn: "Id",
+                keyValue: "DESIGNER_ROLE_ID",
+                column: "ConcurrencyStamp",
+                value: "4ca9ddeb-b5df-47cf-a810-3b74e2fb990a");
+
+            migrationBuilder.UpdateData(
+                table: "AspNetRoles",
+                keyColumn: "Id",
+                keyValue: "EMPLOYEE_ROLE_ID",
+                column: "ConcurrencyStamp",
+                value: "4e5a755d-1481-482d-ad88-5636e735b469");
+        }
+
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
             migrationBuilder.UpdateData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
@@ -34,34 +57,6 @@ namespace appAPI.Migrations
                 keyValue: "EMPLOYEE_ROLE_ID",
                 column: "ConcurrencyStamp",
                 value: "99189480-2acd-414c-8e6b-27ba81bb0ab4");
-        }
-
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            migrationBuilder.DropColumn(
-                name: "TypePayment",
-                table: "orders");
-
-            migrationBuilder.UpdateData(
-                table: "AspNetRoles",
-                keyColumn: "Id",
-                keyValue: "ADMIN_ROLE_ID",
-                column: "ConcurrencyStamp",
-                value: "50eb828b-e5ba-4792-8ff0-1de168f4753a");
-
-            migrationBuilder.UpdateData(
-                table: "AspNetRoles",
-                keyColumn: "Id",
-                keyValue: "DESIGNER_ROLE_ID",
-                column: "ConcurrencyStamp",
-                value: "69f1322e-225f-406f-8f31-0106a9839d0e");
-
-            migrationBuilder.UpdateData(
-                table: "AspNetRoles",
-                keyColumn: "Id",
-                keyValue: "EMPLOYEE_ROLE_ID",
-                column: "ConcurrencyStamp",
-                value: "2cf87cb7-6332-45c1-bbcb-b69e48dd8f71");
         }
     }
 }
