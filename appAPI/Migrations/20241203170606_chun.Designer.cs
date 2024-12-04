@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241202044926_accp")]
-    partial class accp
+    [Migration("20241203170606_chun")]
+    partial class chun
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -867,6 +867,9 @@ namespace appAPI.Migrations
                     b.Property<decimal?>("Totalmoney")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("TypePayment")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("Update_at")
                         .HasColumnType("datetime2");
 
@@ -934,6 +937,20 @@ namespace appAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Payment");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Description = "Thanh toán bằng tiền mặt",
+                            Name = "Tiền mặt"
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            Description = "Thanh toán qua chuyển khoản ngân hàng",
+                            Name = "Chuyển khoản"
+                        });
                 });
 
             modelBuilder.Entity("appAPI.Models.Post_categories", b =>
@@ -1573,21 +1590,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "bbd68769-a337-4f41-91b4-90d8df6b89a6",
+                            ConcurrencyStamp = "d33889ac-5c00-4457-b977-1fe4d5489312",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "f0564064-6168-4bf9-9197-58538f22e5a4",
+                            ConcurrencyStamp = "4e5a755d-1481-482d-ad88-5636e735b469",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "db0b51a7-45fe-4cfb-99f6-ff1864f4345c",
+                            ConcurrencyStamp = "4ca9ddeb-b5df-47cf-a810-3b74e2fb990a",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });

@@ -16,6 +16,10 @@ namespace ViewsFE.IServices
 
         Task<MomoPaymentResponse> CreateMomoPaymentUrl(string fullName, decimal amount, string orderInfo);
         Task<MomoPaymentResponse> QueryPaymentStatus(string orderId);
+        Task<int> GetTotal();
+        Task<int> GetTotalToday();
+        Task<decimal> GetTotalPiceToday();
+        Task<decimal> GetTotalPiceWeek();
 
     }
 }

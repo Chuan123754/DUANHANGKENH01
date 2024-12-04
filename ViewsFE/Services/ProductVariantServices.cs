@@ -17,7 +17,7 @@ namespace ViewsFE.Services
         }
         public async Task<long> Create(Product_variants productVariants)
         {
-             var response = await _client.PostAsJsonAsync("https://localhost:7011/api/ProductVarians/CreateProduct",productVariants);
+             var response = await _client.PostAsJsonAsync($"{_baseUrl}/api/ProductVarians/CreateProduct", productVariants);
             if (response.IsSuccessStatusCode)
             {
                 // Đọc phản hồi dưới dạng chuỗi và sau đó chuyển đổi thành long
@@ -38,26 +38,26 @@ namespace ViewsFE.Services
 
         public async Task Delete(long id)
         {
-            await _client.DeleteAsync($"https://localhost:7011/api/ProductVarians/{id}");
+            await _client.DeleteAsync($"{_baseUrl}/api/ProductVarians/{id}");
         }
 
         public async Task<List<Product_variants>> GetAllProductVarians()
         {
-            string requestURL = "https://localhost:7011/api/ProductVarians/GetAllProduct";
+            string requestURL = $"{_baseUrl}/api/ProductVarians/GetAllProduct";
             var response = await _client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Product_variants>>(response);
         }
 
         public async Task<Product_variants> GetProductVariantsById(long id)
         {
-            string requestURL = $"https://localhost:7011/api/ProductVarians/GetProductById?id={id}";
+            string requestURL = $"{_baseUrl}/api/ProductVarians/GetProductById?id={id}";
             var response = await _client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<Product_variants>(response);
         }
 
         public async Task Update(Product_variants productVariants, long id)
         {
-            await _client.PutAsJsonAsync($"https://localhost:7011/api/ProductVarians/UpdateProduct?id={id}", productVariants);
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/ProductVarians/UpdateProduct?id={id}", productVariants);
         }
 
         public async Task<int> GetTotalCountAsync(string type, string searchTerm)
@@ -78,7 +78,7 @@ namespace ViewsFE.Services
 
         public async Task<Product_variants> FindVariant(long postId, byte textileTechnologyId, byte styleId, byte materialId)
         {
-            string requestURL = $"https://localhost:7011/api/ProductVarians/FindVariant?postId={postId}&textileTechnologyId={textileTechnologyId}&styleId={styleId}&materialId={materialId}";
+            string requestURL = $"{_baseUrl}/api/ProductVarians/FindVariant?postId={postId}&textileTechnologyId={textileTechnologyId}&styleId={styleId}&materialId={materialId}";
             var response = await _client.GetAsync(requestURL);
             if (response.IsSuccessStatusCode)
             {
@@ -86,6 +86,16 @@ namespace ViewsFE.Services
                 return JsonConvert.DeserializeObject<Product_variants>(responseData);
             }
             return null;
+        }
+
+        public async Task<int> GetTotal()
+        {
+            var url = $"{_baseUrl}/api/ProductVarians/Get-Total-Product";
+            var response = await _client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var count = await response.Content.ReadFromJsonAsync<int>();
+            return count;
         }
     }
 }

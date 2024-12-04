@@ -78,5 +78,43 @@ namespace appAPI.Repository
 
             }
         }
+
+        public async Task<int> GetTotal()
+        {
+            return await _context.Orders
+               .CountAsync(p => p.Status != "Hóa đơn treo");
+        }
+        public async Task<int> GetTotalToday()
+        {
+            var today = DateTime.Today; // Lấy ngày hiện tại (00:00:00)
+            return await _context.Orders
+                .CountAsync(p => p.Status != "Hóa đơn treo" &&
+                                 p.Created_at.HasValue && // Kiểm tra không null
+                                 p.Created_at.Value.Date == today); // So sánh chỉ phần ngày
+        }
+
+        public async Task<decimal> GetTotalPiceToday()
+        {
+            var today = DateTime.Today; // Lấy ngày hiện tại (00:00:00)
+            return await _context.Orders
+                .Where(p => p.Status != "Hóa đơn treo" &&
+                            p.Created_at.HasValue &&
+                            p.Created_at.Value.Date == today) // So sánh phần ngày
+                .SumAsync(p => p.TotalAmount ?? 0); // Tổng giá trị TotalAmount, mặc định là 0 nếu null
+        }
+        public async Task<decimal> GetTotalPiceWeek()
+        {
+            var today = DateTime.Today; // Ngày hiện tại (00:00:00)
+            var startOfWeek = today.AddDays(-(int)today.DayOfWeek + 1); // Lấy ngày bắt đầu tuần (thứ Hai)
+            var endOfWeek = startOfWeek.AddDays(6); // Lấy ngày cuối tuần (Chủ nhật)
+
+            return await _context.Orders
+                .Where(p => p.Status != "Hóa đơn treo" &&
+                            p.Created_at.HasValue &&
+                            p.Created_at.Value.Date >= startOfWeek &&
+                            p.Created_at.Value.Date <= endOfWeek) // Lọc các hóa đơn trong tuần hiện tại
+                .SumAsync(p => p.TotalAmount ?? 0); // Tổng giá trị TotalAmount, mặc định là 0 nếu null
+        }
+
     }
 }

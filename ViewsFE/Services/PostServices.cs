@@ -141,5 +141,15 @@ namespace ViewsFE.Services
         {
             return await _client.GetFromJsonAsync<List<Product_Posts>>($"{_baseUrl}/api/Product_Post/Get-all-type?type={type}");
         }
+
+        public async Task<int> GetTotalType(string type)
+        {
+            var url = $"{_baseUrl}/api/Product_Post/GetTotalType?type={type}";
+            var response = await _client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var count = await response.Content.ReadFromJsonAsync<int>();
+            return count;
+        }
     }
 }
