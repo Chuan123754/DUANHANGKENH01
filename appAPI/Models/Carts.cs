@@ -14,13 +14,12 @@ namespace appAPI.Models
     {
         [Key]
         public long Id { get; set; }
-        public long UserId { get; set; }
+        public long? UserId { get; set; }
         public string? Status { get; set; }
         public string? Description { get; set; }
         [JsonIgnore]
         public virtual ICollection<Cart_details> Cart_Details { get; set; } = new List<Cart_details>();
         [ForeignKey("UserId")]
-        [JsonIgnore]
         public virtual Users? Users { get; set; }
     }
 }

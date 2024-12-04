@@ -780,7 +780,7 @@
             item.Status = item.Stock == 0 ? "Hết hàng" : "Còn hàng";
             await productAttributes.Update(item, item.Id);
         }
-
+        await JS.InvokeVoidAsync("toastr.success", $"Tạo biến thể thành công");
         nav.NavigateTo("/admin/product");
     }
 

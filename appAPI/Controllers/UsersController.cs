@@ -1,6 +1,9 @@
 ﻿using appAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Crypto.Generators;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace appAPI.Controllers
 {
@@ -79,7 +82,6 @@ namespace appAPI.Controllers
             item.Name = user.Name;
             item.Phone = user.Phone;
             item.Email = user.Email;
-            item.EmailVerifiedAt = user.EmailVerifiedAt;
             item.Password = user.Password;
             item.RememberToken = user.RememberToken;
             item.Address = user.Address;
@@ -102,7 +104,75 @@ namespace appAPI.Controllers
             context.SaveChanges();
             return Ok(new { message = "Xóa thành công" });
         }
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] Users user)
+        {
+            if (context.Users.Any(u => u.Email == user.Email))
+            {
+                return BadRequest(new { message = "Email đã được sử dụng." });
+            }
+
+            user.Password = HashPassword(user.Password!); // Mã hóa mật khẩu
+            user.Created_at = DateTime.Now;
+            context.Users.Add(user);
+            context.SaveChanges();
+
+            return Ok(new { message = "Đăng ký thành công", user });
+        }
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] Users loginUser)
+        {
+            if (loginUser == null)
+            {
+                return BadRequest(new { message = "Dữ liệu đầu vào không hợp lệ." });
+            }
+
+            var user = context.Users.FirstOrDefault(u => u.Email == loginUser.Email);
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Email không tồn tại." });
+            }
+
+            if (user.Password != loginUser.Password)
+            {
+                return Unauthorized(new { message = "Mật khẩu không đúng." });
+            }
+
+            return Ok(new { message = "Đăng nhập thành công", user });
+        }
 
 
+
+        [HttpPost("logout")]
+        public IActionResult Logout(long userId)
+        {
+            var user = context.Users.Find(userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "User không tồn tại." });
+            }
+
+            user.RememberToken = null; // Xóa token
+            context.SaveChanges();
+
+            return Ok(new { message = "Đăng xuất thành công." });
+        }
+
+        // *** Helpers ***
+        private static string HashPassword(string password)
+        {
+            using (var sha256 = SHA256.Create())
+            {
+                var bytes = Encoding.UTF8.GetBytes(password);
+                var hash = sha256.ComputeHash(bytes);
+                return Convert.ToBase64String(hash);
+            }
+        }
+
+        private static bool VerifyPassword(string password, string hashedPassword)
+        {
+            return HashPassword(password) == hashedPassword;
+        }
     }
 }

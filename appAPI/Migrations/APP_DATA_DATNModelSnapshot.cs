@@ -237,13 +237,13 @@ namespace appAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
 
-                    b.Property<long>("Cart_id")
+                    b.Property<long?>("Cart_id")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("Product_id")
+                    b.Property<long?>("Product_id")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int?>("Quantity")
                         .HasColumnType("int");
 
                     b.Property<string>("Status")
@@ -273,7 +273,7 @@ namespace appAPI.Migrations
                     b.Property<string>("Status")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("UserId")
+                    b.Property<long?>("UserId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
@@ -1417,9 +1417,6 @@ namespace appAPI.Migrations
                         .IsUnicode(false)
                         .HasColumnType("varchar(255)");
 
-                    b.Property<DateTime?>("EmailVerifiedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Name")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -1588,21 +1585,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "d33889ac-5c00-4457-b977-1fe4d5489312",
+                            ConcurrencyStamp = "2e0fc6d2-d054-4bc0-b6ac-7c79c447e330",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "4e5a755d-1481-482d-ad88-5636e735b469",
+                            ConcurrencyStamp = "71d99ff4-33eb-41db-a4af-ed1071bb5eab",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "4ca9ddeb-b5df-47cf-a810-3b74e2fb990a",
+                            ConcurrencyStamp = "2767817d-3810-47e9-a0fc-9e8414438be3",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -1753,15 +1750,11 @@ namespace appAPI.Migrations
                 {
                     b.HasOne("appAPI.Models.Carts", "Carts")
                         .WithMany("Cart_Details")
-                        .HasForeignKey("Cart_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Cart_id");
 
                     b.HasOne("appAPI.Models.Product_Attributes", "Product_Attributes")
                         .WithMany()
-                        .HasForeignKey("Product_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Product_id");
 
                     b.Navigation("Carts");
 
@@ -1772,9 +1765,7 @@ namespace appAPI.Migrations
                 {
                     b.HasOne("appAPI.Models.Users", "Users")
                         .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("UserId");
 
                     b.Navigation("Users");
                 });

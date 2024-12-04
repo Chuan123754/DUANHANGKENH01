@@ -24,6 +24,9 @@ namespace appAPI.Controllers
             var cartDetails = _context.Cart_Details
                 .Include(cd => cd.Carts)
                 .Include(cd => cd.Product_Attributes)
+                .Include(cd => cd.Product_Attributes).ThenInclude(cd=>cd.Color)
+                .Include(cd => cd.Product_Attributes).ThenInclude(cd=>cd.Size)
+                .Include(cd => cd.Product_Attributes).ThenInclude(cd=>cd.Size)               
                 .ToList();
             return Ok(cartDetails);
         }

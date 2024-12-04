@@ -24,7 +24,6 @@ namespace appAPI.Models
         [Unicode(false)]
         [EmailAddress]
         public string? Email { get; set; }
-        public DateTime? EmailVerifiedAt { get; set; }
         [StringLength(255)]
         public string? Password { get; set; }
         [StringLength(int.MaxValue)]
