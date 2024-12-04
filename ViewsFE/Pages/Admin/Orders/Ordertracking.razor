@@ -15,6 +15,8 @@
         vertical-align: middle;
     }
 
+   
+
 </style>
 <div class="container">
     @if (OrderTracking != null && OrderTracking.OrderTrackings != null)
@@ -29,10 +31,14 @@
                     <div class="d-flex flex-wrap gap-2">
                         @if (OrderTracking != null && OrderTracking.Status != null)
                         {
-                            <button class="btn btn-sm @GetButtonClass(OrderTracking.Status)"
-                                    @onclick="HandleButtonClick">
-                                @GetButtonLabel(OrderTracking.Status, OrderTracking.Note)
-                            </button>
+                            @if (GetButtonLabel(OrderTracking.Status, OrderTracking.Note) != null)
+                            {
+                                <button class="btn btn-sm @GetButtonClass(OrderTracking.Status)"
+                                        @onclick="HandleButtonClick">
+                                    @GetButtonLabel(OrderTracking.Status, OrderTracking.Note)
+                                </button>
+                            }
+
 
                             <!-- Hiển thị ô nhập số tiền -->
                             @if (OrderTracking.Status == "Đã nhận hàng")
@@ -43,6 +49,25 @@
                                     <input type="text" id="enteredAmount" class="form-control" @bind="enteredAmount" />
                                 </div>
                             }
+                            @if (OrderTracking.Status == "Giao dịch thất bại")
+                            {
+                                <button class="btn btn-sm btn-warning" @onclick="() => OpenRedoTransactionModal()">Giao dịch lại</button>
+                            }
+
+                            @if (OrderTracking.Status == "Đang vận chuyển")
+                            {
+                                <button class="btn btn-sm btn-success" @onclick="OpenSussStatusModal">Giao thành công</button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => OpenFailureReasonModal()">Giao thất bại</button>
+                            }
+                            else if (OrderTracking.Status == "Đã chuẩn bị hàng")
+                            {
+                                <button class="btn btn-sm btn-dark" @onclick="() => OpenFailureReasonModal()">Đơn hủy</button>
+                            }
+                            else if (OrderTracking.Status == "Đơn hủy" || OrderTracking.Status == "Giao thất bại")
+                            {
+                                <button class="btn btn-sm btn-warning" @onclick="() => OpenRestoreStatusModal()">Khôi phục</button>
+                            }
+
                         }
                         else
                         {
@@ -113,7 +138,7 @@
                                 <td>@tracking.CreatedAt?.ToString("dd-MM-yyyy HH:mm:ss")</td>
                                 <td>Thanh toán</td>
                                 <td>@OrderTracking.TypePayment</td>
-                                <td><span class="badge bg-success">@tracking.Status</span></td>
+                                <td><span class="@GetStatusClass(tracking.Status)">@tracking.Status</span></td>
                                 <td>@tracking.Note</td>
                                 <td>@OrderTracking.SellerName</td>
                             </tr>
@@ -184,6 +209,55 @@
     }
 </div>
 
+@if (isModalOpen)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@currentModalTitle</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if (currentModalId == "FailureReason")
+                    {
+                        <textarea class="form-control" @bind="failureReason" rows="4" placeholder="Nhập lý do giao thất bại"></textarea>
+                    }
+                    else if (currentModalId == "RestoreStatus")
+                    {
+                        <textarea class="form-control" @bind="restoreNote" rows="4" placeholder="Nhập lý do khôi phục trạng thái"></textarea>
+                    }
+                    else if (currentModalId == "SuccessPayment")
+                    {
+                        <p><strong>Tổng tiền cần thanh toán:</strong> @OrderTracking.TotalMoney.ToString("N0") VND</p>
+                        <label for="enteredAmount" class="form-label">Số tiền khách trả:</label>
+                        <input type="number" id="enteredAmount" class="form-control" @bind="enteredAmount"
+                               min="0" max="@OrderTracking.TotalMoney" />
+                        @if (enteredAmount < OrderTracking.TotalMoney && enteredAmount > 0)
+                        {
+                            <p class="text-danger mt-2">Số tiền khách trả không đủ để hoàn tất đơn hàng. Nếu tiếp tục thì Đơn hàng Sẽ đặt là <strong>"Giao dịch thất bại"</strong></p>
+                        }
+                        else if (enteredAmount > OrderTracking.TotalMoney && enteredAmount > 0)
+                        {
+                            <p class="text-danger mt-2">Tiền khách trả không thể lớn hơn tổng tiền</p>
+
+                        }
+                    }
+                    else if (currentModalId == "RedoTransaction")
+                    {
+                        <textarea class="form-control" @bind="restoreNote" rows="4" placeholder="Nhập lý do khôi phục trạng thái"></textarea>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" @onclick="HandleModalConfirm">Xác nhận</button>
+                    <button type="button" class="btn btn-outline-secondary" @onclick="CloseModal">Hủy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
 @code {
     [Parameter] public long OrderId { get; set; }
     private OrderTrackingDTO? OrderTracking { get; set; }
@@ -197,21 +271,36 @@
 
     private decimal enteredAmount = 0; // Biến lưu số tiền khách trả
 
+    private bool isFailureModalVisible = false;
+    private string failureReason = string.Empty;
+
+    private string currentModalId = string.Empty;
+    private string currentModalTitle = string.Empty;
+    private bool isModalOpen = false;
+
+    
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            // Lấy thông tin OrderTracking
             OrderTracking = await orderTrackingService.GetBy(OrderId);
 
             if (OrderTracking != null && OrderTracking.OrderTrackings.Any())
             {
-                OrderTracking.Status = OrderTracking.OrderTrackings
-                    .OrderByDescending(t => t.CreatedAt) // Sắp xếp giảm dần theo thời gian
-                    .FirstOrDefault()?.Status;
+                // Sắp xếp theo Created_at giảm dần và lấy bản ghi mới nhất
+                var latestTracking = OrderTracking.OrderTrackings
+                    .OrderByDescending(t => t.CreatedAt)
+                    .FirstOrDefault();
+
+                // Cập nhật trạng thái hiện tại và selectedTrackingId
+                OrderTracking.Status = latestTracking?.Status;
+                selectedTrackingId = latestTracking?.Id ?? 0; // Lấy ID của bản ghi mới nhất
             }
             else
             {
                 OrderTracking.Status = null;
+                selectedTrackingId = 0; // Không có bản ghi nào
             }
 
             StateHasChanged();
@@ -221,6 +310,200 @@
             Console.WriteLine($"Lỗi tải thông tin vận chuyển: {ex.Message}");
         }
     }
+
+    private void OpenModal(string modalId, string modalTitle)
+    {
+        currentModalId = modalId;
+        currentModalTitle = modalTitle;
+        isModalOpen = true;
+    }
+
+    private void CloseModal()
+    {
+        currentModalId = string.Empty;
+        currentModalTitle = string.Empty;
+        isModalOpen = false;
+    }
+
+    private async Task ConfirmSuccessStatus()
+    {
+        if (enteredAmount <= 0)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng nhập số tiền hợp lệ.");
+            return;
+        }
+
+        // Xử lý khi tiền khách trả không đủ
+        if (enteredAmount < OrderTracking.TotalMoney)
+        {
+            string note = $"Khách trả: {enteredAmount:N0} VND, Còn thiếu: {(OrderTracking.TotalMoney - enteredAmount):N0} VND";
+            await AddNewTracking("Giao dịch thất bại", note);
+            await JS.InvokeVoidAsync("toastr.warning", "Tiền khách trả không đủ, trạng thái đã cập nhật thành Giao dịch thất bại.");
+            CloseModal();
+            return;
+        }
+
+        // Xử lý khi tiền khách trả vượt quá hoặc bằng tổng tiền cần thanh toán
+        if (enteredAmount > OrderTracking.TotalMoney)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Số tiền khách trả không thể vượt quá tổng tiền cần thanh toán.");
+            return;
+        }
+
+        // Trạng thái "Giao thành công" khi đủ tiền
+        string successNote = $"Khách trả: {enteredAmount:N0} VND, Đã thanh toán đầy đủ.";
+        await AddNewTracking("Giao thành công", successNote);
+        await JS.InvokeVoidAsync("toastr.success", "Giao dịch thành công, trạng thái đã cập nhật thành Giao thành công.");
+        CloseModal();
+    }
+
+    private async Task AddNewTracking(string status, string note)
+    {
+        try
+        {
+            var newTracking = new order_trackings
+                {
+                    OrderId = OrderId,
+                    Status = status,
+                    Note = note,
+                    Created_at = DateTime.Now,
+                    Created_by = 1 // Đang dùng ID ảo.
+                };
+
+            // Gửi API để thêm trạng thái mới
+            var result = await orderTrackingService.AddOrderTracking(newTracking);
+
+            if (result == "Thêm mới thành công.")
+            {
+                await ReloadTrackingData(); // Tải lại dữ liệu mới
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("toastr.error", result);
+            }
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("toastr.error", $"Lỗi khi thêm trạng thái mới: {ex.Message}");
+        }
+    }
+
+
+    private void OpenFailureReasonModal()
+    {
+        OpenModal("FailureReason", "Lý do giao thất bại");
+    }
+
+    private void OpenRestoreStatusModal()
+    {
+        OpenModal("RestoreStatus", "Lý do khôi phục trạng thái");
+    }
+    private void OpenSussStatusModal()
+    {
+        OpenModal("SuccessPayment", "Giao thành công - Nhập tiền khách trả");
+    }
+
+    private void OpenRedoTransactionModal()
+    {
+        OpenModal("RedoTransaction", "Ghi chú giao dịch lại");
+    }
+
+    private void OpenFailureModal()
+    {
+        isFailureModalVisible = true;
+    }
+
+    private void CloseFailureModal()
+    {
+        isFailureModalVisible = false;
+        failureReason = string.Empty;
+    }
+
+    private async Task HandleModalConfirm()
+    {
+        try
+        {
+            // Xác định trạng thái và ghi chú dựa trên modal hiện tại
+            var status = currentModalId switch
+            {
+                "FailureReason" => "Giao thất bại",
+                "RestoreStatus" => "Chờ xác nhận",
+                "SuccessPayment" => enteredAmount < OrderTracking.TotalMoney
+                    ? "Giao dịch thất bại"
+                    : "Giao thành công",
+                "RedoTransaction" => "Đang vận chuyển",
+                _ => "Không xác định"
+            };
+
+            var note = currentModalId switch
+            {
+                "FailureReason" => failureReason,
+                "RestoreStatus" => restoreNote,
+                "SuccessPayment" => enteredAmount < OrderTracking.TotalMoney
+                    ? $"Khách trả: {enteredAmount:N0} VND, Còn thiếu: {(OrderTracking.TotalMoney - enteredAmount):N0} VND"
+                    : $"Khách trả: {enteredAmount:N0} VND, Đã thanh toán đầy đủ.",
+                "RedoTransaction" => restoreNote,
+                _ => string.Empty
+            };
+
+            // Kiểm tra nếu là SuccessPayment và tiền khách trả vượt quá
+            if (currentModalId == "SuccessPayment" && enteredAmount > OrderTracking.TotalMoney)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Số tiền khách trả không thể vượt quá tổng tiền cần thanh toán.");
+                return;
+            }
+
+            // Tạo bản ghi mới
+            var newTracking = new order_trackings
+                {
+                    OrderId = OrderId,
+                    Status = status,
+                    Note = note,
+                    Created_at = DateTime.Now,
+                    Created_by = 1 // Thay bằng ID nhân viên hiện tại
+                };
+
+            // Gọi API để thêm mới bản ghi
+            var result = await orderTrackingService.AddOrderTracking(newTracking);
+
+            if (result == "Thêm mới thành công.")
+            {
+                await ReloadTrackingData(); // Tải lại dữ liệu mới
+                await JS.InvokeVoidAsync("toastr.success", "Thêm trạng thái mới thành công.");
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("toastr.error", result);
+            }
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("toastr.error", $"Lỗi khi thêm trạng thái mới: {ex.Message}");
+        }
+        finally
+        {
+            CloseModal(); // Đóng modal sau khi xử lý
+        }
+    }
+
+
+
+
+    private async Task ConfirmFailureStatus()
+    {
+        if (string.IsNullOrWhiteSpace(failureReason))
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng nhập lý do giao thất bại.");
+            return;
+        }
+
+        await UpdateStatus(selectedTrackingId, "Giao thất bại", currentStatus, failureReason);
+
+        isFailureModalVisible = false;
+        failureReason = string.Empty;
+    }
+
+
 
 
     private async Task DownloadInvoice(long orderId)
@@ -242,28 +525,23 @@
 
     private async Task ChangeStatus(long trackingId, string status)
     {
-        selectedTrackingId = trackingId; // Lưu lại trackingId
+        selectedTrackingId = trackingId;
         previousStatus = currentStatus;
         currentStatus = status;
 
-        if (status == "Khôi phục")
+        if (status == "Chờ xác nhận")
         {
-            isModalVisible = true; // Hiển thị modal
+            await UpdateStatus(trackingId, "Chờ xác nhận", "Đơn hủy", string.Empty);
+        }
+        else if (status == "Khôi phục")
+        {
+            isModalVisible = true; // Hiển thị modal (nếu cần lý do khôi phục)
         }
         else
         {
             await UpdateStatus(trackingId, currentStatus, previousStatus, string.Empty);
         }
     }
-
-
-
-    private void CloseModal()
-    {
-        isModalVisible = false;
-        restoreNote = string.Empty;
-    }
-
 
     private async Task ConfirmRestoreStatus()
     {
@@ -318,87 +596,128 @@
         StateHasChanged();
     }
 
+    private string GetStatusClass(string status)
+{
+    return status switch
+    {
+        "Chờ xác nhận" => "badge bg-warning",
+        "Đã xác nhận" => "badge bg-primary",
+        "Đã chuẩn bị hàng" => "badge bg-info",
+        "Đã lấy hàng" => "badge bg-secondary",
+        "Đang vận chuyển" => "badge bg-info",
+        "Giao thành công" => "badge bg-success",
+        "Giao thất bại" => "badge bg-danger",
+        "Giao dịch thất bại" => "badge bg-danger",
+        "Hoàn tất đơn" => "badge bg-success",
+        "Đơn hủy" => "badge bg-dark",
+        "Tại quầy" => "badge bg-success",
+        _ => "badge bg-light"
+    };
+}
+
 
     private string GetButtonClass(string status)
     {
         return status switch
         {
             "Chờ xác nhận" => "btn-warning",
-            "Xác nhận" => "btn-primary",
-            "Giao hàng" => "btn-info",
-            "Đã nhận hàng" => "btn-success",
-            "Đã thanh toán" => "btn-secondary",
-            _ => "btn-light"
+            "Đã xác nhận" => "btn-primary",
+            "Đã chuẩn bị hàng" => "btn-info",
+            "Đã lấy hàng" => "btn-secondary",
+            "Đang vận chuyển" => "btn-info",
+            "Giao thành công" => "btn-success",
+            "Hoàn tất đơn" => "btn-success",
+            "Đơn hủy" => "btn-dark",
+            _ => "btn-warning"
         };
     }
 
 
 
-    private string GetButtonLabel(string status, string? note)
+
+    private string? GetButtonLabel(string status, string? note)
     {
         return status switch
         {
-            "Chờ xác nhận" => "Xác nhận",
-            "Xác nhận" => "Giao hàng",
-            "Giao hàng" => "Đã nhận hàng",
-            "Đã nhận hàng" => "Xác nhận thanh toán",
-            "Đã thanh toán" => "Hoàn thành",
-            _ => "Hành động khác" 
+            "Chờ xác nhận" => "Đã xác nhận",
+            "Đã xác nhận" => "Chuẩn bị hàng",
+            "Đã chuẩn bị hàng" => "Lấy hàng",
+            "Đã lấy hàng" => "Vận chuyển",
+            "Đang vận chuyển" => null,
+            "Giao thất bại" => null,
+            "Giao thành công" => "Hoàn tất đơn",
+            "Đơn hủy" => "Khôi phục đơn",
+            "Giao dịch thất bại" => null,
+            _ => "Hóa đơn đã hoàn thành"
         };
     }
 
+
+
     private async Task HandleButtonClick()
     {
-        try
+        var latestTracking = OrderTracking.OrderTrackings
+            .OrderByDescending(t => t.CreatedAt)
+            .FirstOrDefault();
+
+        string currentStatus = latestTracking?.Status ?? "Chờ xác nhận";
+
+        // Lấy nhãn nút hiện tại
+        string currentButtonLabel = GetButtonLabel(currentStatus, latestTracking?.Note);
+
+        // Nếu nhãn nút là "Hóa đơn đã hoàn thành", chỉ hiển thị thông báo
+        if (currentButtonLabel == "Hóa đơn đã hoàn thành")
         {
-            // Lấy trạng thái hiện tại hoặc mặc định
-            var latestTracking = OrderTracking.OrderTrackings
-                .OrderByDescending(t => t.CreatedAt)
-                .FirstOrDefault();
+            await JS.InvokeVoidAsync("toastr.info", "Hóa đơn đã hoàn thành, không thể cập nhật trạng thái.");
+            return;
+        }
 
-            string currentStatus = latestTracking?.Status ?? "Chờ xác nhận";
+        if (currentStatus == "Đang vận chuyển")
+        {
+            return;
+        }
 
-            // Xác định trạng thái tiếp theo
-            string newStatus = currentStatus switch
+        string newStatus = currentStatus switch
+        {
+            "Chờ xác nhận" => "Đã xác nhận",
+            "Đã xác nhận" => "Đã chuẩn bị hàng",
+            "Đã chuẩn bị hàng" => "Đã lấy hàng",
+            "Đã lấy hàng" => "Đang vận chuyển",
+            "Đang vận chuyển" => "Giao thành công",
+            "Giao thành công" => "Hoàn tất đơn",
+            _ => "Không rõ"
+        };
+
+        string note = string.Empty;
+
+        if (newStatus == "Giao thất bại")
+        {
+            OpenFailureModal();
+            return;
+        }
+
+        var newTracking = new order_trackings
             {
-                "Chờ xác nhận" => "Xác nhận",
-                "Xác nhận" => "Giao hàng",
-                "Giao hàng" => "Đã nhận hàng",
-                "Đã nhận hàng" => "Đã thanh toán",
-                "Đã thanh toán" => "Hoàn thành",
-                _ => "Không rõ"
+                OrderId = OrderId,
+                Status = newStatus,
+                Note = note,
+                Created_at = DateTime.Now,
+                Created_by = 1
             };
 
-            string note = newStatus == "Đã thanh toán" ? $"Số tiền khách trả: {enteredAmount:N0} VND" : string.Empty;
+        var result = await orderTrackingService.AddOrderTracking(newTracking);
 
-            // Tạo trạng thái mới
-            var newTracking = new order_trackings
-                {
-                    OrderId = OrderId,
-                    Status = newStatus,
-                    Note = note,
-                    Created_at = DateTime.Now,
-                    Created_by = 1 // Hiện ID ảo
-                };
-
-            var result = await orderTrackingService.AddOrderTracking(newTracking);
-
-            if (result == "Thêm mới thành công.")
-            {
-                // Tải lại dữ liệu và cập nhật trạng thái
-                await ReloadTrackingData();
-                await JS.InvokeVoidAsync("toastr.success", $"Trạng thái mới được thêm: {newStatus}");
-            }
-            else
-            {
-                await JS.InvokeVoidAsync("toastr.error", result);
-            }
-        }
-        catch (Exception ex)
+        if (result == "Thêm mới thành công.")
         {
-            await JS.InvokeVoidAsync("toastr.error", $"Lỗi khi thêm trạng thái: {ex.Message}");
+            await ReloadTrackingData();
+            await JS.InvokeVoidAsync("toastr.success", $"Trạng thái mới được thêm: {newStatus}");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("toastr.error", result);
         }
     }
+
 
 
 
