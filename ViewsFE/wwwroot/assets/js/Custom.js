@@ -87,8 +87,6 @@ window.initializeDropzoneBanner = () => {
 };
 
 
-
-
 window.initializeDropzoneMutile = () => {
     if (typeof Dropzone !== 'undefined') {
         if (Dropzone.instances.length > 0) {
@@ -135,6 +133,51 @@ window.initializeDropzoneMutile = () => {
 
 
 
+window.initializeDropzoneProduct = () => {
+    if (typeof Dropzone !== 'undefined') {
+        if (Dropzone.instances.length > 0) {
+            Dropzone.instances.forEach(dz => dz.destroy());
+        }
+
+        var dropzone = new Dropzone("#dropzone-product", {
+            url: "https://localhost:7011/api/Files/upload",  // URL của API
+            method: "post",
+            autoProcessQueue: true,
+            addRemoveLinks: true,
+            parallelUploads: 20,
+            maxFilesize: 1, // Kích thước tối đa là 1 MB
+            dictRemoveFile: "Xóa",
+            init: function () {
+                this.on("success", function (file, response) {
+                    toastr.success('Thêm thành công.');
+                    // Xóa tệp khỏi Dropzone sau khi upload thành công
+                    this.removeFile(file);
+
+                    setTimeout(() => {
+                        location.reload(); // Reload the page after 2 seconds
+                    }, 1000);
+                });
+
+
+                this.on("error", function (file, errorMessage) {
+                    toastr.error('Thêm thất bại: ' + errorMessage);
+                    this.removeFile(file); // Xóa tệp khỏi Dropzone nếu có lỗi
+                });
+
+                // Thông báo lỗi nếu kích thước tệp vượt quá mức tối đa
+                this.on("maxfilesexceeded", function (file) {
+                    toastr.error('Tệp vượt quá kích thước tối đa cho phép (1 MB).');
+                    this.removeFile(file); // Xóa tệp khỏi Dropzone nếu vượt kích thước
+                });
+            }
+        });
+    } else {
+        console.error("Dropzone is not defined. Make sure the script is included.");
+    }
+};
+
+
+
 
 
 
@@ -149,6 +192,15 @@ function openMediaModal() {
 }
 function openMediaBannerModal() {
     var modalElement = document.getElementById('mediaBannerModal');
+    if (modalElement) {
+        if (!modalElement._bsModalInstance) {
+            modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
+        }
+        modalElement._bsModalInstance.show();
+    }
+}
+function openMediaModalProduct() {
+    var modalElement = document.getElementById('mediaModalProduct');
     if (modalElement) {
         if (!modalElement._bsModalInstance) {
             modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
@@ -187,7 +239,12 @@ function closeMediaBannerModal() {
     }
 }
 
-
+function closeMediaModalProduct() {
+    var modalElement = document.getElementById('mediaModalProduct');
+    if (modalElement && modalElement._bsModalInstance) {
+        modalElement._bsModalInstance.hide();
+    }
+}
 
 
 
@@ -221,7 +278,7 @@ function initializeTomSelect(selector) {
     const element = document.querySelector(selector);
     if (element) {
         new TomSelect(selector, {
-            create: true, // Cho phép thêm mới cho từ khóa
+            create: false, // Cho phép thêm mới cho từ khóa
             persist: false,
             hideSelected: true,
             closeAfterSelect: true,

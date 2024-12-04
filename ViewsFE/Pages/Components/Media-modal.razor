@@ -15,13 +15,12 @@
             <div class="modal-body">
                 <div>
                     <div class="page-body">
-                        <div class="container-xl">
+                        <div class="container-xl">                      
                             <form class="dropzone mb-5" id="dropzone-default" enctype="multipart/form-data">
                                 <div class="fallback">
                                     <input name="file" type="file" accept="image/*" multiple />
                                 </div>
                             </form>
-
                             <div class="card">
                                 <div class="card-body">
                                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
@@ -95,6 +94,11 @@
         totalItems = await sev.GetTotalCountAsync(searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
+    }
+    public void Show()
+    {
+        // Gọi JavaScript để mở modal
+        JS.InvokeVoidAsync("openMediaModal");
     }
     private bool IsImageSelected(string imagePath)
     {
