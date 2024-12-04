@@ -14,6 +14,7 @@ namespace appAPI.Repository
         }
         public async Task Create(Product_variants productVariants)
         {
+            productVariants.Created_at = DateTime.Now;
             await _context.product_variants.AddAsync(productVariants);
             await _context.SaveChangesAsync();
         }
@@ -21,23 +22,27 @@ namespace appAPI.Repository
         public async Task Delete(long id)
         {
             var deleteItem = await _context.product_variants.FindAsync(id);
-            _context.product_variants.Remove(deleteItem);
-            await _context.SaveChangesAsync();  
+            deleteItem.Status = "Đã xoá";
+            deleteItem.Deleted_at = DateTime.Now;
+            _context.product_variants.Update(deleteItem);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<List<Product_variants>> GetAllProductVarians()
         {
             return await _context.product_variants
-                .Include(p=>p.Posts)
-                .Include(p=>p.Textile_Technology)
-                .Include(p=>p.Material)
-                .Include(p=>p.Style)
+                  .Where(p => p.Status == "Hoạt động")
+                .Include(p => p.Posts)
+                .Include(p => p.Textile_Technology)
+                .Include(p => p.Material)
+                .Include(p => p.Style)
                 .ToListAsync();
 
         }
         public async Task<Product_variants> GetProductVariantsById(long id)
         {
             return await _context.product_variants
+                .Where(p => p.Status == "Hoạt động")
                 .Include(p => p.Posts)
                 .Include(p => p.Textile_Technology)
                 .Include(p => p.Material)
@@ -52,6 +57,11 @@ namespace appAPI.Repository
                 .CountAsync(p => p.Status == status && p.Deleted_at == null &&
                                  (string.IsNullOrEmpty(searchTerm) || p.Description.Contains(searchTerm)));
         }
+        public async Task<int> GetTotal()
+        {
+            return await _context.product_variants
+                .CountAsync(p => p.Status == "Hoạt động");
+        }
 
 
         public async Task Update(Product_variants productVariants, long id)
@@ -60,8 +70,7 @@ namespace appAPI.Repository
             if (updateItem != null)
             {
                 updateItem.Post_Id = productVariants.Post_Id;
-                updateItem.Image=productVariants.Image;
-                updateItem.Status = productVariants.Status;
+                updateItem.Image = productVariants.Image;
                 updateItem.Description = productVariants.Description;
                 updateItem.Textile_technology_id = productVariants.Textile_technology_id;
                 updateItem.Material_id = productVariants.Material_id;
@@ -75,12 +84,12 @@ namespace appAPI.Repository
             else
             {
                 throw new KeyNotFoundException("Not Found");
-            }    
+            }
         }
 
         public async Task<Product_variants?> FindVariant(long postId, byte textileTechnologyId, byte styleId, byte materialId)
         {
-            return await _context.product_variants
+            return await _context.product_variants.Where(p => p.Status == "Hoạt động")
                 .FirstOrDefaultAsync(pv => pv.Post_Id == postId &&
                                            pv.Textile_technology_id == textileTechnologyId &&
                                            pv.Style_id == styleId &&

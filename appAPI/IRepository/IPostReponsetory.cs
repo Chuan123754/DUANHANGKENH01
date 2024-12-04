@@ -22,7 +22,8 @@ namespace appAPI.IRepository
         // Lấy bài viết theo type với phân trang và tìm kiếm
         Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm);
         // Lấy tổng số bài viết theo type và tìm kiếm
-        Task<int> GetTotalCountAsync(string type, string searchTerm);  
+        Task<int> GetTotalCountAsync(string type, string searchTerm);
+        Task<int> GetTotalType(string type);
         Task<List<Product_variants>> GetByTypeAsyncProduct(string type, int pageNumber, int pageSize, string searchTerm);
         // Lấy tổng số bài viết theo type và tìm kiếm
         Task<int> GetTotalCountAsyncProduct(string type, string searchTerm);

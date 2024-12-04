@@ -11,5 +11,9 @@ namespace appAPI.IRepository
         Task Create(Orders orders);
         Task Update(Orders orders , long id);
         Task Delete(long id);
+        Task<int> GetTotal();
+        Task<int> GetTotalToday();
+        Task<decimal> GetTotalPiceToday();
+        Task<decimal> GetTotalPiceWeek();
     }
 }

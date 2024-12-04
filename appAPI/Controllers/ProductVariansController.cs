@@ -88,6 +88,12 @@ namespace appAPI.Controllers
             var totalCount = await _repo.GetTotalCountAsync(type, searchTerm);
             return Ok(totalCount);
         }
+        [HttpGet("Get-Total-Product")]
+        public async Task<IActionResult> GetTotal()
+        {  
+            var totalCount = await _repo.GetTotal();
+            return Ok(totalCount);
+        }
 
         [HttpGet("FindVariant")]
         public async Task<IActionResult> FindVariant(long postId, byte textileTechnologyId, byte styleId, byte materialId)

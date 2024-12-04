@@ -245,6 +245,11 @@ namespace appAPI.Repository
                 .CountAsync(p => p.Type == type && p.Deleted == false &&
                                 (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
         }
+        public async Task<int> GetTotalType(string type)
+        {
+            return await _context.Posts
+                .CountAsync(p => p.Type == type && p.Deleted == false);
+        }
 
         public async Task<List<Product_variants>> GetByTypeAsyncProduct(string type, int pageNumber, int pageSize, string searchTerm)
         {
@@ -430,6 +435,6 @@ namespace appAPI.Repository
                   .Include(p => p.Style) // Bao gồm Style
                   .OrderByDescending(p => p.Created_at) // Sắp xếp giảm dần theo Created_at                 
                   .ToListAsync();
-        }
+        }      
     }
 }
