@@ -139,7 +139,7 @@ namespace appAPI.Controllers
                 return Unauthorized(new { message = "Mật khẩu không đúng." });
             }
 
-            return Ok(new { message = "Đăng nhập thành công", user });
+            return Ok(user);
         }
 
 

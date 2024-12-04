@@ -65,7 +65,7 @@ namespace appAPI.Controllers
                 _context.Cart_Details.Add(cartDetail);
                 _context.SaveChanges();
 
-                return Ok(new { message = "Thêm chi tiết giỏ hàng thành công" });
+                return Ok();
             }
             catch (Exception ex)
             {

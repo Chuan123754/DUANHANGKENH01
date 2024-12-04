@@ -933,6 +933,7 @@
         }
 
     }
+
     // Reset trạng thái sau khi thanh toán xong
     private async Task ResetViewState()
     {
@@ -958,6 +959,7 @@
         await LoadProducts();
         StateHasChanged();
     }
+
     private async void PayByCash()
     {
         CheckOut("cash");
@@ -976,15 +978,18 @@
             }
         }
     }
+
     private async void PayByMomo()
     {
         CheckOut("momo");
     }
+
     private async Task OnSearch()
     {
         // Ngăn ngừa load lại trang
         lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
     }
+
     private async Task LoadPosts()
     {
 
@@ -994,11 +999,13 @@
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
     }
+
     private async Task GoToPage(int page)
     {
         page_number = page;
         await LoadPosts();
     }
+
     private async Task OnPageSizeChanged(int newPageSize)
     {
         page_size = newPageSize;
@@ -1109,6 +1116,7 @@
         CalculateTotalMoney();
         StateHasChanged();
     }
+
     protected override async Task OnInitializedAsync()
     {
         await LoadPosts();
@@ -1118,24 +1126,28 @@
         lst_Customer = await userService.GetAll();
         provinces = await address_Service.GetProvincesAsync();
     } // LOAD
+
     private async Task LoadOrders() // lấy ra các hóa đơn treo ( chưa thanh toán )
     {
         var allOrders = await orderService.GetAll();
         lst_Orders = allOrders.Where(order => order.Status == "Hóa đơn treo").ToList();
         StateHasChanged();
     }
+
     private async Task DeleteOrder(long id)
     {
         await orderService.Delete(id);
         selectedOrderId = 0;
         await LoadOrders();
     }// xóa order
+
     private async Task DeleteOrderDetail(long id) // xóa orderdetail
     {
         await orderDetailService.Delete(id);
         CalculateTotalMoney();
         await LoadOrderDetails();
     }
+
     private async Task UpdateQuantityView(long itemId, int newQuantity)
     {
         if (newQuantity < 1) return; // Tránh việc số lượng nhỏ hơn 1
@@ -1159,11 +1171,13 @@
             StateHasChanged();
         }
     }
+
     private async Task UpdateOrderDetail(Order_details orderDetail)
     {
         // Ví dụ gọi API để lưu thay đổi
         await orderDetailService.Update(orderDetail,orderDetail.Id);
     }
+
     private async Task CreateOrder()
     {
         var pendingOrders = lst_Orders.Where(order => order.Status == "Hóa đơn treo").ToList();
@@ -1183,6 +1197,7 @@
         lst_Orders = await orderService.GetAll();
         await LoadOrders();
     }// tạo order
+
     private bool IsDeliveryVisible
     {
         get => isDeliveryVisible;
@@ -1205,6 +1220,7 @@
             }
         }
     }
+
     private async Task UpdateOrderNote()
     {
         orders = await orderService.GetByIdOrders(selectedOrderId);
