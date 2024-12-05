@@ -163,7 +163,9 @@
                                                                                     <span class="color-box" style="background-color:@color.Color_code; width: 20px; height: 20px; margin-right: 10px; border-radius: 50%;"></span>
                                                                                     @color.Title
                                                                                 </label>
-                                                                                <input type="checkbox" id="color-@color.Id" @onchange="(e) => OnColorSelectionChanged(color.Id, e.Value)" />
+
+                                                                                <input type="checkbox" style="margin-right: 15px" id="color-@color.Id" @onchange="(e) => OnColorSelectionChanged(color.Id, e.Value)" />
+
                                                                             </div>
                                                                         </li>
                                                                     }
@@ -189,7 +191,8 @@
                                                                                 <label class="form-check-label d-flex align-items-center" for="size-@size.Id">
                                                                                     @size.Title
                                                                                 </label>
-                                                                                <input type="checkbox" id="size-@size.Id" @onchange="(e) => OnSizeSelectionChanged(size.Id, e.Value)" />
+
+                                                                                <input type="checkbox" style="margin-right: 15px" id="size-@size.Id" @onchange="(e) => OnSizeSelectionChanged(size.Id, e.Value)" />
                                                                             </div>
                                                                         </li>
                                                                     }
@@ -242,16 +245,24 @@
                                         <td>
                                             <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                                 <div class="accordion-body pt-0">
-                                                    <div id="feature_image"
-                                                         style="width: 80px; height: 80px; aspect-ratio: 1 / 1; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
-                                                         onclick="openMediaModal()">
-                                                        <div class="icon" style="display: flex; align-items: center; justify-content: center;">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path d="M12 5v14" />
-                                                                <path d="M5 12h14" />
-                                                            </svg>
-                                                        </div>
+
+                                                    <div style="width: 80px; height: 80px; aspect-ratio: 1 / 1; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                                         id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
+                                                         data-multiple="false" data-refer-id="#feature_image" @onclick="() => openMediaModal(item.Id)">
+                                                        @if (!string.IsNullOrEmpty(item.Image))
+                                                        {
+                                                            <img src="@item.Image" class="w-100 h-100 object-cover" />
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="icon d-flex align-items-center justify-content-center">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
+                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                    <path d="M12 5v14" />
+                                                                    <path d="M5 12h14" />
+                                                                </svg>
+                                                            </div>
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
@@ -412,7 +423,9 @@
 }
 
 
-<Media_modal OnImageSelected="HandleImageSelected"></Media_modal>
+
+<MediaModal_Product OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></MediaModal_Product>
+
 
 @code {
     private string search_query = string.Empty;
@@ -434,6 +447,8 @@
     private bool isProductVariantCreated = false;
     private long IdProductVariantCreated; // biến lưu id sản phẩm vừa tạo được
     private bool isProductAttributesCreated = false;
+
+    private long selectedItemId; // Biến để lưu ID của sản phẩm đang được chỉnh sửa
 
     [Parameter]
     public bool IsVisible { get; set; } // Thuộc tính được truyền từ component cha
@@ -595,6 +610,11 @@
             }
         }
         StateHasChanged();
+    }
+    private async void openMediaModal(long itemId)
+    {
+        selectedItemId = itemId;
+        await JS.InvokeVoidAsync("openMediaModalProduct");
     }
     private async Task HandleImageSelected(string imagePath)
     {
@@ -786,20 +806,4 @@
     }
 }
 
-<script>
-    function openMediaModal() {
-        var modalElement = document.getElementById('mediaModal');
-        if (modalElement) {
-            if (!modalElement._bsModalInstance) {
-                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
-            }
-            modalElement._bsModalInstance.show();
-        }
-    }
-    function closeMediaModal() {
-        var modalElement = document.getElementById('mediaModal');
-        if (modalElement && modalElement._bsModalInstance) {
-            modalElement._bsModalInstance.hide();
-        }
-    }
-</script>
+
