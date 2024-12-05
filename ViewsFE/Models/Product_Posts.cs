@@ -16,15 +16,19 @@ namespace ViewsFE.Models
         [Key]
         public long Id { get; set; }
         [StringLength(255)]
+        [Required(ErrorMessage = "Tên là bắt buộc.")]
         public string? Title { get; set; }
 
         [StringLength(255)]
         [Unicode(false)]
+        [Required(ErrorMessage = "Đường dẫn là bắt buộc.")]
         public string? Slug { get; set; }
 
         [StringLength(20)]
+        [Required(ErrorMessage = "Trạng thái là bắt buộc.")]
         public string? Status { get; set; }
-        public long AuthorId { get; set; }
+        [Required(ErrorMessage = "Không được để trống.")]
+        public long? AuthorId { get; set; }
         public bool? Deleted { get; set; }
 
         [StringLength(255)]

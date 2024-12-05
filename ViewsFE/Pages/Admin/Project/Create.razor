@@ -9,7 +9,6 @@
 
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
-    <ValidationSummary />
     <div class="page-wrapper">
         <div class="page-header d-print-none">
             <div class="container-xl">
@@ -28,15 +27,16 @@
                             <div class="card-body">
                                 <!-- Tên dự án -->
                                 <div class="mb-3">
-                                    <label for="title" class="form-label">Tên dự án</label>
-                                    <InputText id="title" class="form-control" @bind-Value="Posts.Title" placeholder="Tên dự án" required />
-                                    <div id="title_error" class="validate-error"></div>
+                                    <label for="title" class="form-label">Tên dự án<span class="text-danger">*</span></label>
+                                    <InputText id="title" class="form-control" @bind-Value="Posts.Title" placeholder="Tên dự án" />
+                                    <ValidationMessage For="@(() => Posts.Title)" />
                                 </div>
 
                                 <!-- Đường dẫn -->
                                 <div class="mb-3">
-                                    <label for="seoSlug" class="form-label">Đường dẫn</label>
+                                    <label for="seoSlug" class="form-label">Đường dẫn<span class="text-danger">*</span></label>
                                     <InputText id="seoSlug" class="form-control" @bind-Value="Posts.Slug" />
+                                    <ValidationMessage For="@(() => Posts.Slug)" />
                                 </div>
 
                                 <!-- Mô tả ngắn -->
@@ -58,13 +58,13 @@
                                 <h2 class="accordion-header">
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                             data-bs-target="#banner_block" aria-expanded="true">
-                                        Cấu hình banner
+                                        Cấu hình banner<span class="text-danger">*</span>
                                     </button>
                                 </h2>
                                 <div id="banner_block" class="accordion-collapse collapse show">
                                     <div class="card-body pb-4 px-4" style="height: 300px">
                                         <div class="mb-3">
-                                            <label for="title" class="form-label">Tiêu đề</label>
+                                            <label for="title" class="form-label">Tiêu đề<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" @bind-value="banner.Name"
                                                    placeholder="Tiêu đề">
                                         </div>
@@ -108,14 +108,14 @@
                                     <h2 class="accordion-header">
                                         <button class="accordion-button " type="button" data-bs-toggle="collapse"
                                                 data-bs-target="#action-1" aria-expanded="true">
-                                            Đăng
+                                           Khởi tạo
                                         </button>
                                     </h2>
                                     <div class="accordion-collapse collapse show" id="action-1">
                                         <div class="accordion-body pt-0">
                                             <!-- Trạng thái -->
                                             <div class="form-group mb-3">
-                                                <label class="form-label">Trạng thái</label>
+                                                <label class="form-label">Trạng thái<span class="text-danger">*</span></label>
                                                 <select @bind="Posts.Status" class="form-control">
                                                     @foreach (var status in statuses)
                                                     {
@@ -123,20 +123,23 @@
                                                             @status.Value
                                                         </option>
                                                     }
+                                                    <ValidationMessage For="@(() => Posts.Status)" />
                                                 </select>
                                             </div>
                                             <div class="form-group mb-3">
-                                                <label class="form-label">Tác giả</label>
+                                                <label class="form-label">Nhà thiết kế<span class="text-danger">*</span></label>
                                                 <InputSelect @bind-Value="Posts.AuthorId" class="form-control" multiple>
+                                                    <option value="" disabled selected>Chọn nhà thiết kế</option>
                                                     @foreach (var desi in designersList)
                                                     {
                                                         <option value="@desi.id_Designer">@desi.Name</option>
                                                     }
                                                 </InputSelect>
+                                                <ValidationMessage For="@(() => Posts.AuthorId)" />
                                             </div>
                                             <!-- Nút Đăng -->
                                             <button type="submit" class="btn btn-primary" style="float: right">
-                                                Đăng
+                                               Tạo dự án
                                             </button>
                                             <div class="clearfix"></div>
                                         </div>

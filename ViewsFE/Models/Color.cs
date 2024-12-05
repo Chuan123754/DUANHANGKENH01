@@ -8,11 +8,13 @@ namespace ViewsFE.Models
     {
         [Key]
         public long Id { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Tên màu sắc bắt buộc.")]
         public string Title { get; set; }
+        [Required(ErrorMessage = "Đường dẫn là bắt buộc.")]
         public string Slug { get; set; }
+        [Required(ErrorMessage = "Mã màu là bắt buộc.")]
         public string? Color_code { get; set; }
-        public string Description { get; set; }
+        public string? Description { get; set; }
         public bool? Deleted { get; set; }
         public DateTime Create_at { get; set; }
         public DateTime Update_at { get; set; }

@@ -7,8 +7,9 @@ namespace ViewsFE.Models
     {
         [Key]
         public long Id { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Tên là bắt buộc.")]
         public string? Title { get; set; }
+        [Required(ErrorMessage = "Đường dẫn là bắt buộc.")]
         public string? Slug { get; set; }
         public string? Description { get; set; }
         public bool? Deleted { get; set; }

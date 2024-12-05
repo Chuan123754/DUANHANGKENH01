@@ -117,5 +117,19 @@ namespace appAPI.Repository
                 .SumAsync(p => p.TotalAmount ?? 0); // Tổng giá trị TotalAmount, mặc định là 0 nếu null
         }
 
+        public async Task<decimal> GetTotalPiceMonth()
+        {
+            var today = DateTime.Today; // Ngày hiện tại (00:00:00)
+            var startOfMonth = new DateTime(today.Year, today.Month, 1); // Ngày bắt đầu tháng (1 của tháng hiện tại)
+            var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1); // Ngày cuối cùng của tháng hiện tại
+
+            return await _context.Orders
+                .Where(p => p.Status != "Hóa đơn treo" &&
+                            p.Created_at.HasValue &&
+                            p.Created_at.Value.Date >= startOfMonth &&
+                            p.Created_at.Value.Date <= endOfMonth) // Lọc hóa đơn trong tháng hiện tại
+                .SumAsync(p => p.TotalAmount ?? 0); // Tổng giá trị TotalAmount, mặc định là 0 nếu null
+        }
+
     }
 }

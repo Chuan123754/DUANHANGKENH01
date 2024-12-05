@@ -12,11 +12,16 @@ namespace ViewsFE.Models
     {
         [Key]
         public long id_Designer { get; set; }
+        [Required(ErrorMessage = "Tên là bắt buộc.")]
         public string? Name { get; set; }
+        [Required(ErrorMessage = "Tên ngắn là bắt buộc.")]
         public string? ShortName { get; set; }
+        [Required(ErrorMessage = "Đường dẫn là bắt buộc.")]
         public string? slug { get; set; }
+        [Required(ErrorMessage = "Mô tả ngắn là bắt buộc.")]
         public string? short_description { get; set; }
         public string? description { get; set; }
+        [Required(ErrorMessage = "Ảnh đại diện là bắt buộc.")]
         public string? image { get; set; }
         public bool? Deleted { get; set; }
         public string? image_library { get; set; }

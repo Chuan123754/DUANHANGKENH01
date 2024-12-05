@@ -5,7 +5,6 @@
 
 <EditForm Model="size" OnValidSubmit="SubmitForm" FormName="sizeadd">
     <DataAnnotationsValidator></DataAnnotationsValidator>
-    <ValidationSummary></ValidationSummary>
     <div class="page-wrapper">
         <div class="page-header d-print-none">
             <div class="container-xl">
@@ -27,7 +26,7 @@
 
                                 <div class="form-group mb-3">
                                     <label for="material-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
-                                    <InputText id="material-title" class="form-control" @bind-Value="size.Title" required />
+                                    <InputText id="material-title" class="form-control" @bind-Value="size.Title" />
                                     <ValidationMessage For="@(() => size.Title)" />
                                 </div>
 
@@ -35,6 +34,7 @@
                                     <label for="attribute-slug" class="form-label">Đường dẫn</label>
                                     <InputText id="attribute-slug" class="form-control" @bind-Value="size.Slug" />
                                     <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
+                                    <ValidationMessage For="@(() => size.Slug)" />
                                 </div>
 
                                 <div class="form-group mb-3">
