@@ -5,7 +5,6 @@
 
 <EditForm Model="material" OnValidSubmit="SubmitForm" FormName="materialadd">
     <DataAnnotationsValidator></DataAnnotationsValidator>
-    <ValidationSummary></ValidationSummary>
     <div class="page-wrapper">
         <div class="page-header d-print-none">
             <div class="container-xl">
@@ -35,6 +34,7 @@
                                     <label for="attribute-slug" class="form-label">Đường dẫn</label>
                                     <InputText id="attribute-slug" class="form-control" @bind-Value="material.Slug" />
                                     <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
+                                    <ValidationMessage For="@(() => material.Slug)" />
                                 </div>
 
                                 <div class="form-group mb-3">

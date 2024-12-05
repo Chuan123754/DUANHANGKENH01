@@ -80,7 +80,68 @@
     </div>
 </div>
 
+<script>
+    window.initializeDropzone = () => {
+        if (typeof Dropzone !== 'undefined') {
+            if (Dropzone.instances.length > 0) {
+                Dropzone.instances.forEach(dz => dz.destroy());
+            }
+
+            var dropzone = new Dropzone("#dropzone-default", {
+                url: "https://localhost:7011/api/Files/upload",  // URL của API
+                method: "post",
+                autoProcessQueue: true,
+                addRemoveLinks: true,
+                parallelUploads: 20,
+                maxFilesize: 2, // Kích thước tối đa là 2 MB
+                dictRemoveFile: "Xóa",
+                init: function () {
+                    this.on("success", function (file, response) {
+                        toastr.success('Thêm thành công.');
+                        // Xóa tệp khỏi Dropzone sau khi upload thành công
+                        this.removeFile(file);
+
+                        //setTimeout(() => {
+                        //    location.reload(); // Reload the page after 2 seconds
+                        //}, 1000);
+                        if (dotNetObjectReference) {
+                            dotNetObjectReference.invokeMethodAsync('LoadPosts')
+                                .then(() => {
+                                    console.log("LoadPosts đã được gọi từ JavaScript.");
+                                })
+                                .catch(error => {
+                                    console.error("Lỗi khi gọi LoadPosts từ JavaScript: ", error);
+                                });
+                        }
+                    });
+
+
+                    this.on("error", function (file, errorMessage) {
+                        toastr.error('Thêm thất bại: ' + errorMessage);
+                        this.removeFile(file); // Xóa tệp khỏi Dropzone nếu có lỗi
+                    });
+
+                    // Thông báo lỗi nếu kích thước tệp vượt quá mức tối đa
+                    this.on("maxfilesexceeded", function (file) {
+                        toastr.error('Tệp vượt quá kích thước tối đa cho phép (1 MB).');
+                        this.removeFile(file); // Xóa tệp khỏi Dropzone nếu vượt kích thước
+                    });
+
+                  
+                }
+            });
+        } else {
+            console.error("Dropzone is not defined. Make sure the script is included.");
+        }
+    };
+
+ 
+
+</script>
+
 @code {
+    private DotNetObjectReference<Index> objRef;
+
     private List<Files> listFiles = new();
     private Files files = new();
     private string search_query = string.Empty;
@@ -89,11 +150,17 @@
     private int page_size = 21;
     private int totalItems;
 
+    protected override void OnInitialized()
+    {
+        // Tạo đối tượng DotNetObjectReference cho component của bạn
+        objRef = DotNetObjectReference.Create(this);
+    }
     protected override async Task OnInitializedAsync()
     {
         await LoadPosts();
     }
-    private async Task LoadPosts()
+    [JSInvokable]
+    public async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
         listFiles = await sev.GetByTypeAsync(page_number, page_size, search_query);
@@ -106,8 +173,17 @@
     {
         if (firstRender)
         {
-            await JS.InvokeVoidAsync("initializeDropzone");
+            Console.WriteLine("Khởi tạo Dropzone...");
+            await JS.InvokeVoidAsync("initializeDropzone", objRef);
         }
+
+        // Chắc chắn gọi lại LoadPosts nếu cần
+        await LoadPosts();
+    }
+
+    public void Dispose()
+    {
+        objRef?.Dispose();
     }
     private async Task GoToPage(int page)
     {

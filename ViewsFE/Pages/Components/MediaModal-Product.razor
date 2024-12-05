@@ -13,56 +13,56 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div>
-                    <div class="page-body">
-                        <div class="container-xl">
-                            <form class="dropzone mb-5" id="dropzone-product" enctype="multipart/form-data">
-                                <div class="fallback">
-                                    <input name="file" type="file" accept="image/*" multiple />
-                                </div>
-                            </form>
 
-                            <div class="card">
-                                <div class="card-body">
-                                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
-                                        <div></div>
-                                        <EditForm Model="files" class="search-form" OnValidSubmit="@OnSearch">
-                                            <div class="form-group d-flex gap-2">
-                                                <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
-                                                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
-                                            </div>
-                                        </EditForm>
-                                    </div>
-                                    <div id="table-default">
-                                        <div class="d-grid" style="grid-template-columns: repeat(7, 1fr); gap: 16px">
-                                            @if (listFiles != null)
+                <div class="page-body">
+                    <div class="container-xl">
+                        <form class="dropzone mb-5" id="dropzone-product" enctype="multipart/form-data">
+                            <div class="fallback">
+                                <input name="file" type="file" accept="image/*" multiple />
+                            </div>
+                        </form>
+
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                    <div></div>
+                                    <EditForm Model="files" class="search-form" OnValidSubmit="@OnSearch">
+                                        <div class="form-group d-flex gap-2">
+                                            <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                            <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                        </div>
+                                    </EditForm>
+                                </div>
+                                <div id="table-default">
+                                    <div class="d-grid" style="grid-template-columns: repeat(7, 1fr); gap: 16px">
+                                        @if (listFiles != null)
+                                        {
+                                            @foreach (var file in listFiles)
                                             {
-                                                @foreach (var file in listFiles)
-                                                {
-                                                    <div class="image-item" data-name="@file.Name" data-id="@file.Id" style="position: relative;" key="@file.Id">
-                                                        <button type="button" class="btn btn-default p-0 m-0 btn-choose-image"
-                                                                @onclick="() => ToggleSelectImage(file.Path)"
-                                                                data-file-id="@file.Id" data-file-image="@file.Path"
-                                                                style="width: 100%">
-                                                            <img src="@file.Path" class="w-100 object-fit-cover" alt="IMG" height="150" />
-                                                        </button>
-                                                        @if (selectedImagePathProduct == file.Path) // Kiểm tra nếu ảnh đã được chọn
-                                                        {
-                                                            <span class="selected-icon">✓</span> <!-- Dấu tích -->
-                                                        }
-                                                    </div>
-                                                }
+                                                <div class="image-item" data-name="@file.Name" data-id="@file.Id" style="position: relative;" key="@file.Id">
+                                                    <button type="button" class="btn btn-default p-0 m-0 btn-choose-image"
+                                                            @onclick="() => ToggleSelectImage(file.Path)"
+                                                            data-file-id="@file.Id" data-file-image="@file.Path"
+                                                            style="width: 100%">
+                                                        <img src="@file.Path" class="w-100 object-fit-cover" alt="IMG" height="150" />
+                                                    </button>
+                                                    @if (selectedImagePathProduct == file.Path) // Kiểm tra nếu ảnh đã được chọn
+                                                    {
+                                                        <span class="selected-icon">✓</span> <!-- Dấu tích -->
+                                                    }
+                                                </div>
                                             }
-                                        </div>
-                                        <div class="mt-4">
-                                            <PaginationMediaModal TItem="Files" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
-                                        </div>
+                                        }
+                                    </div>
+                                    <div class="mt-4">
+                                        <PaginationMediaModal TItem="Files" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
@@ -71,9 +71,56 @@
         </div>
     </div>
 </div>
+<script>
+    window.initializeDropzoneProduct = () => {
+        if (typeof Dropzone !== 'undefined') {
+            if (Dropzone.instances.length > 0) {
+                Dropzone.instances.forEach(dz => dz.destroy());
+            }
 
+            var dropzone = new Dropzone("#dropzone-product", {
+                url: "https://localhost:7011/api/Files/upload",  // URL của API
+                method: "post",
+                autoProcessQueue: true,
+                addRemoveLinks: true,
+                parallelUploads: 20,
+                maxFilesize: 1, // Kích thước tối đa là 1 MB
+                dictRemoveFile: "Xóa",
+                init: function () {
+                    this.on("success", function (file, response) {
+                        toastr.success('Thêm thành công.');
+                        // Xóa tệp khỏi Dropzone sau khi upload thành công
+                        this.removeFile(file);
+                        if (dotNetObjectReference) {
+                            dotNetObjectReference.invokeMethodAsync('LoadPosts')
+                                .then(() => {
+                                    console.log("LoadPosts đã được gọi từ JavaScript.");
+                                })
+                                .catch(error => {
+                                    console.error("Lỗi khi gọi LoadPosts từ JavaScript: ", error);
+                                });
+                        }
+                    });
+                    this.on("error", function (file, errorMessage) {
+                        toastr.error('Thêm thất bại: ' + errorMessage);
+                        this.removeFile(file); // Xóa tệp khỏi Dropzone nếu có lỗi
+                    });
 
+                    // Thông báo lỗi nếu kích thước tệp vượt quá mức tối đa
+                    this.on("maxfilesexceeded", function (file) {
+                        toastr.error('Tệp vượt quá kích thước tối đa cho phép (1 MB).');
+                        this.removeFile(file); // Xóa tệp khỏi Dropzone nếu vượt kích thước
+                    });
+                }
+            });
+        } else {
+            console.error("Dropzone is not defined. Make sure the script is included.");
+        }
+    };
+
+</script>
 @code {
+    private DotNetObjectReference<MediaModal_Product> objRef;
     [Parameter]
     public EventCallback<string> OnImageSelected { get; set; }
     private List<Files> listFiles = new();
@@ -84,11 +131,17 @@
     private int total_pages = 1;
     private int page_size = 21;
     private int totalItems;
+    protected override void OnInitialized()
+    {
+        // Tạo đối tượng DotNetObjectReference cho component của bạn
+        objRef = DotNetObjectReference.Create(this);
+    }
     protected override async Task OnInitializedAsync()
     {
         await LoadPosts();
     }
-    private async Task LoadPosts()
+    [JSInvokable]
+    public async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
         listFiles = await sev.GetByTypeAsync(page_number, page_size, search_query);
@@ -122,8 +175,14 @@
     {
         if (firstRender)
         {
-            await JS.InvokeVoidAsync("initializeDropzoneProduct");
+            await JS.InvokeVoidAsync("initializeDropzoneProduct", objRef);
         }
+        // Chắc chắn gọi lại LoadPosts nếu cần
+        await LoadPosts();
+    }
+    public void Dispose()
+    {
+        objRef?.Dispose();
     }
 
     private async Task GoToPage(int page)

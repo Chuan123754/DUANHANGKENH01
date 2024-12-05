@@ -449,6 +449,7 @@
     private long IdProductVariantCreated; // biến lưu id sản phẩm vừa tạo được
     private bool isProductAttributesCreated = false;
 
+
     private long selectedItemId; // Biến để lưu ID của sản phẩm đang được chỉnh sửa
 
     [Parameter]
@@ -619,11 +620,13 @@
     }
     private async Task HandleImageSelected(string imagePath)
     {
-        if (SelectedProductAttribute != null)
+        // Đảm bảo bạn xác định phần tử cần cập nhật
+        var itemToUpdate = LST_ProductAttributes.FirstOrDefault(x => x.Id == selectedItemId);
+        if (itemToUpdate != null)
         {
-            SelectedProductAttribute.Image = imagePath ?? string.Empty;
+            itemToUpdate.Image = imagePath;
             StateHasChanged();
-            await JS.InvokeVoidAsync("closeMediaModal");
+            await JS.InvokeVoidAsync("closeMediaModalProduct");
         }
     }
     private async Task SelectProductAttribute(Product_Attributes attribute)

@@ -20,6 +20,7 @@ namespace ViewsFE.IServices
         Task<int> GetTotalToday();
         Task<decimal> GetTotalPiceToday();
         Task<decimal> GetTotalPiceWeek();
+        Task<decimal> GetTotalPiceMonth();
 
     }
 }

@@ -185,5 +185,15 @@ namespace ViewsFE.Services
             var count = await response.Content.ReadFromJsonAsync<decimal>();
             return count;
         }
+
+        public async Task<decimal> GetTotalPiceMonth()
+        {
+            var url = $"{_baseUrl}/api/Orders/Get-Total-Pice-Month";
+            var response = await _client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var count = await response.Content.ReadFromJsonAsync<decimal>();
+            return count;
+        }
     }
 }

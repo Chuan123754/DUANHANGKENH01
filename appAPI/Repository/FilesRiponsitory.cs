@@ -75,7 +75,7 @@ namespace appAPI.Repository
         {
             return await _context.Files
                 .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)))
-                .OrderBy(p => p.Name)
+                .OrderByDescending(p => p.Created_at)
                 .Select(x => new Files
                 {
                     Id = x.Id,

@@ -45,7 +45,7 @@
                 </div>
                 <div class="col-auto ms-auto d-print-none">
                     <div class="btn-list">
-                        <button class="btn btn-primary d-none d-sm-inline-block" @onclick="CreateOrder">
+                        <button class="btn btn-outline-primary d-none d-sm-inline-block" @onclick="CreateOrder">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M12 5l0 14" />
@@ -67,7 +67,7 @@
                         <div class="card-header d-flex align-items-center justify-content-between">
                             <h2 class="card-title">MÃ HÓA ĐƠN :  @selectedOrderId</h2>
                             <!-- Nút thêm sản phẩm -->
-                            <button class="btn btn-secondary" @onclick="ShowAddProductModal">
+                            <button class="btn btn-outline-success" @onclick="ShowAddProductModal">
                                 Thêm sản phẩm
                             </button>
                         </div>
@@ -172,7 +172,7 @@
                                                                 }
                                                             </td>
                                                             <td>
-                                                                <button class="btn btn-sm btn-primary ms-2"
+                                                                <button class="btn btn-sm btn-outline-primary ms-2"
                                                                         @onclick="() => AddProduct(order_Details, product.Id)">
                                                                     Chọn
                                                                 </button>
@@ -188,7 +188,7 @@
                                         </div>
 
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" @onclick="CloseAddProductModal">Đóng</button>
+                                            <button type="button" class="btn btn-outline-secondary" @onclick="CloseAddProductModal">Đóng</button>
                                         </div>
                                     </div>
                                 </div>
@@ -204,7 +204,7 @@
                                          style="background-color: @(order.Id == selectedOrderId ? "#5985f7" : "#edf0f5")"
                                          @onclick="async () => await SelectOrder(order.Id)">
 
-                                        <button type="button" class="btn-close position-absolute top-0 end-0"
+                                        <button type="button" class=" btn-close position-absolute top-0 end-0"
                                                 style="width: 0.8rem; height: 0.8rem; margin: 0.25rem;"
                                                 title="Xóa hóa đơn"
                                         @onclick:stopPropagation
@@ -291,7 +291,7 @@
                                             </td>
                                             <td>
 
-                                                <button class="btn btn-danger" @onclick="() => DeleteOrderDetail(item.Id)">
+                                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteOrderDetail(item.Id)">
                                                     <i class="bi bi-trash3"></i>
                                                 </button>
                                             </td>
@@ -316,7 +316,7 @@
                                 </div>
                             </div>
 
-                            <button class="btn btn-primary" @onclick="ShowListCustomerModal">
+                            <button class="btn  btn-outline-primary" @onclick="ShowListCustomerModal">
                                 Chọn khách hàng
                             </button>
                             @if (isAddCustomerModalVisible)
@@ -334,7 +334,7 @@
                                                         <label for="searchCustomer" class="me-2">Tìm kiếm:</label>
                                                         <input type="text" id="searchCustomer" class="form-control" style="width: 250px;" placeholder="Nhập SĐT hoặc Email khách hàng">
                                                     </div>
-                                                    <button class="btn btn-success" @onclick="OpenModalCreateCustomer">Thêm mới khách hàng</button>
+                                                    <button class="btn btn-outline-success" @onclick="OpenModalCreateCustomer">Thêm mới khách hàng</button>
 
                                                 </div>
                                                 @if (isCreateCustomerModalVisible)
@@ -361,8 +361,8 @@
                                                                             <input type="email" class="form-control" id="exampleInputEmail1" @bind="@Customer.Email" aria-describedby="emailHelp">
                                                                         </div>
                                                                         <div class="modal-footer d-flex justify-content-between">
-                                                                            <button type="button" class="btn btn-primary" @onclick="CreateCustomer">Xác nhận</button>
-                                                                            <button type="button" class="btn btn-secondary" @onclick="CloseModalCreateCustomer">Hủy</button>
+                                                                            <button type="button" class="btn btn-sm btn-outline-primary" @onclick="CreateCustomer">Xác nhận</button>
+                                                                            <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="CloseModalCreateCustomer">Hủy</button>
                                                                         </div>
                                                                     </form>
                                                                 </div>
@@ -394,7 +394,7 @@
                                                                 <td>@item.Phone</td>
                                                                 <td>@item.Email</td>
                                                                 <td>
-                                                                    <button class="btn btn-primary mt-2" @onclick="() => AddCustomer(item)">Chọn</button>
+                                                                    <button class="btn btn-sm btn-outline-primary mt-2" @onclick="() => AddCustomer(item)">Chọn</button>
                                                                 </td>
                                                             </tr>
                                                             index++;
@@ -416,7 +416,7 @@
                                 <div class="container px-4 text-center">
                                     <div class="row gx-2 justify-content-center">
                                         <h1> Thông tin địa chỉ</h1>
-                                        <button class="btn btn-success" @onclick="ShowAddress">Chọn địa chỉ</button>
+                                        <button class="btn btn-sm btn-outline-success" @onclick="ShowAddress">Chọn địa chỉ</button>
                                         <!-- table  address -->
                                         @if (isChooseAddress)
                                         {
@@ -429,7 +429,7 @@
                                                         </div>
                                                         <div class="modal-body">
                                                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                                                <button class="btn btn-success" @onclick="OpenCreateAddressModal">Thêm mới địa chỉ</button>
+                                                                <button class="btn btn-sm btn-outline-success" @onclick="OpenCreateAddressModal">Thêm mới địa chỉ</button>
                                                             </div>
                                                             <!-- model create address -->
                                                             @if (isCreateAddress)
@@ -501,8 +501,8 @@
                                                                                 </div>
 
                                                                                 <div class="modal-footer d-flex justify-content-between">
-                                                                                    <button type="button" class="btn btn-primary" @onclick="CreateAddress">Xác nhận</button>
-                                                                                    <button type="button" class="btn btn-secondary" @onclick="CloseCreateAddress">Hủy</button>
+                                                                                    <button type="button" class="btn btn-sm btn-outline-primary" @onclick="CreateAddress">Xác nhận</button>
+                                                                                    <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="CloseCreateAddress">Hủy</button>
                                                                                 </div>
                                                                             </form>
                                                                         </div>
@@ -801,8 +801,8 @@
 
                             </div>
                             <div class="d-flex justify-content-center my-3">
-                                <button type="button" class="btn btn-primary me-2" @onclick="PayByCash">Thanh toán tiền mặt</button>
-                                <button type="button" class="btn btn-success" @onclick="PayByMomo">Thanh toán qua MoMo</button>
+                                <button type="button" class="btn btn-outline-primary me-2" @onclick="PayByCash">Thanh toán tiền mặt</button>
+                                <button type="button" class="btn btn-outline-success" @onclick="PayByMomo">Thanh toán qua MoMo</button>
                               
 
                             </div>

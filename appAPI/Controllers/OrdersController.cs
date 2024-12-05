@@ -123,5 +123,11 @@ namespace appAPI.Controllers
             var totalCount = await _repo.GetTotalPiceWeek();
             return Ok(totalCount);
         }
+        [HttpGet("Get-Total-Pice-Month")]
+        public async Task<IActionResult> GetTotalPiceMonth()
+        {
+            var totalCount = await _repo.GetTotalPiceMonth();
+            return Ok(totalCount);
+        }
     }
 }

@@ -24,6 +24,7 @@ builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddHttpClient();
 builder.Services.AddOptions();
 builder.Services.AddBlazoredLocalStorage();
+
 builder.Services.AddAuthorizationCore(config =>
 {
     config.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")); // cấu hình xác thực cho Blazor 
