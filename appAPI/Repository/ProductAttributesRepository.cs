@@ -58,6 +58,10 @@ namespace appAPI.Repository
                                                                     .Include(p => p.Color)
                                                                     .Include(p => p.Size)
                                                                     .Include(p => p.Product_Variant)
+                                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Style)
+                                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Material)
+                                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Textile_Technology)
+                                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Posts)
                                                                     .FirstOrDefaultAsync();
             if (productAttribute != null)
             {
@@ -77,6 +81,10 @@ namespace appAPI.Repository
                                 .Include(p => p.Color)
                                 .Include(p => p.Size)
                                 .Include(p => p.Product_Variant)
+                                .Include(p => p.Product_Variant).ThenInclude(p => p.Style)
+                                .Include(p => p.Product_Variant).ThenInclude(p => p.Material)
+                                .Include(p => p.Product_Variant).ThenInclude(p => p.Textile_Technology)
+                                .Include(p => p.Product_Variant).ThenInclude(p => p.Posts)
                                 .ToListAsync();
         }
         public async Task<List<Product_Attributes>> GetProductAttributesByProductVarianIdClient(long id)
@@ -87,6 +95,10 @@ namespace appAPI.Repository
                               .Include(p => p.Size)
                               .Include(p => p.Product_Variant).ThenInclude(pt => pt.Posts).ThenInclude(pc=> pc.Post_categories).ThenInclude(pd => pd.Categories)
                               .Include(p => p.Product_Variant).ThenInclude(pt => pt.Posts).ThenInclude(pc=> pc.Post_tags).ThenInclude(pd => pd.Tag)
+                              .Include(p => p.Product_Variant).ThenInclude(p => p.Style)
+                              .Include(p => p.Product_Variant).ThenInclude(p => p.Material)
+                              .Include(p => p.Product_Variant).ThenInclude(p => p.Textile_Technology)
+                              .Include(p => p.Product_Variant).ThenInclude(p => p.Posts)
                               .ToListAsync();
         }
 

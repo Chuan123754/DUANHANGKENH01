@@ -54,7 +54,7 @@ namespace appAPI.Controllers
         {
             try
             {
-                var existingUser = _userRepository.GetById(cart.UserId); // Sử dụng UserId thay vì đối tượng Users
+                var existingUser = _userRepository.GetById(cart.UserId??0); // Sử dụng UserId thay vì đối tượng Users
                 if (existingUser == null)
                 {
                     return NotFound(new { message = "Người dùng không tồn tại" });

@@ -24,6 +24,9 @@ namespace appAPI.Controllers
             var cartDetails = _context.Cart_Details
                 .Include(cd => cd.Carts)
                 .Include(cd => cd.Product_Attributes)
+                .Include(cd => cd.Product_Attributes).ThenInclude(cd=>cd.Color)
+                .Include(cd => cd.Product_Attributes).ThenInclude(cd=>cd.Size)
+                .Include(cd => cd.Product_Attributes).ThenInclude(cd=>cd.Size)               
                 .ToList();
             return Ok(cartDetails);
         }
@@ -62,7 +65,7 @@ namespace appAPI.Controllers
                 _context.Cart_Details.Add(cartDetail);
                 _context.SaveChanges();
 
-                return Ok(new { message = "Thêm chi tiết giỏ hàng thành công" });
+                return Ok();
             }
             catch (Exception ex)
             {

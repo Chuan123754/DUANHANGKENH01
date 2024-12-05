@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Http.Json;
 
 namespace ViewsFE.Services
 {
@@ -16,7 +17,7 @@ namespace ViewsFE.Services
         public UserService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-        } 
+        }
 
         public async Task<List<Users>> GetAll()
         {
@@ -130,5 +131,57 @@ namespace ViewsFE.Services
                 return false;
             }
         }
+
+        public async Task Register(Users user)
+        {
+            var response = await _httpClient.PostAsJsonAsync("https://localhost:7011/api/Users/register", user);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Đăng ký thất bại: {errorMessage}");
+            }
+        }
+
+
+        public async Task<Users> Login(Users user)
+        {
+            var response = await _httpClient.PostAsJsonAsync("https://localhost:7011/api/Users/login", user);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Đăng nhập thất bại: {errorMessage}");
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<ResponseLogin>();
+
+            if (result != null && result.User != null)
+            {
+                return result.User;
+            }
+
+            return null;
+        }
+
+
+
+        public async Task Logout(long idUser)
+        {
+            var response = await _httpClient.PostAsJsonAsync($"https://localhost:7011/api/Users/logout?userId={idUser}", new { });
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Đăng xuất thất bại: {errorMessage}");
+            }
+        }
+        public class ResponseLogin
+        {
+            public string Message { get; set; }
+            public Users User { get; set; }
+        }
+
+
     }
 }

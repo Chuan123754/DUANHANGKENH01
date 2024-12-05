@@ -72,6 +72,7 @@ namespace appAPI.Repository
                 updateItem.TotalPrincipal = orders.TotalPrincipal;
                 updateItem.FeeShipping = orders.FeeShipping;
                 updateItem.Update_at = DateTime.Now;
+                updateItem.TypePayment = orders.TypePayment;
 
                 _context.Orders.Update(updateItem);
                 await _context.SaveChangesAsync();

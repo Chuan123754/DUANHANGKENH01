@@ -116,7 +116,8 @@
 
                                 <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                     <div class="accordion-body pt-0">
-                                        <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center">
+                                        <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
+                                             onclick="openMediaModal()">
                                             @if (product_Variant?.Posts?.Feature_image != null && !string.IsNullOrEmpty(product_Variant.Posts.Feature_image))
                                             {
                                                 <img src="@product_Variant.Posts.Feature_image" class="w-100 h-100 object-cover" />
@@ -162,7 +163,9 @@
                                                                                     <span class="color-box" style="background-color:@color.Color_code; width: 20px; height: 20px; margin-right: 10px; border-radius: 50%;"></span>
                                                                                     @color.Title
                                                                                 </label>
+
                                                                                 <input type="checkbox" style="margin-right: 15px" id="color-@color.Id" @onchange="(e) => OnColorSelectionChanged(color.Id, e.Value)" />
+
                                                                             </div>
                                                                         </li>
                                                                     }
@@ -188,6 +191,7 @@
                                                                                 <label class="form-check-label d-flex align-items-center" for="size-@size.Id">
                                                                                     @size.Title
                                                                                 </label>
+
                                                                                 <input type="checkbox" style="margin-right: 15px" id="size-@size.Id" @onchange="(e) => OnSizeSelectionChanged(size.Id, e.Value)" />
                                                                             </div>
                                                                         </li>
@@ -241,6 +245,7 @@
                                         <td>
                                             <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                                 <div class="accordion-body pt-0">
+
                                                     <div style="width: 80px; height: 80px; aspect-ratio: 1 / 1; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
                                                          id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
                                                          data-multiple="false" data-refer-id="#feature_image" @onclick="() => openMediaModal(item.Id)">
@@ -418,14 +423,15 @@
 }
 
 
+
 <MediaModal_Product OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></MediaModal_Product>
+
 
 @code {
     private string search_query = string.Empty;
     private int page_number = 1;
     private int total_pages = 1;
     private int page_size = 10;
-    private MediaModal_Product mediaModalRef;
     private Product_variants product_Variant = new Product_variants();
     private List<Product_Posts> product_posts_list = new List<Product_Posts>();
     private Product_Attributes product_Attributes = new Product_Attributes();
@@ -441,7 +447,9 @@
     private bool isProductVariantCreated = false;
     private long IdProductVariantCreated; // biến lưu id sản phẩm vừa tạo được
     private bool isProductAttributesCreated = false;
+
     private long selectedItemId; // Biến để lưu ID của sản phẩm đang được chỉnh sửa
+
     [Parameter]
     public bool IsVisible { get; set; } // Thuộc tính được truyền từ component cha
 
@@ -610,13 +618,11 @@
     }
     private async Task HandleImageSelected(string imagePath)
     {
-        // Đảm bảo bạn xác định phần tử cần cập nhật
-        var itemToUpdate = LST_ProductAttributes.FirstOrDefault(x => x.Id == selectedItemId);
-        if (itemToUpdate != null)
+        if (SelectedProductAttribute != null)
         {
-            itemToUpdate.Image = imagePath;
+            SelectedProductAttribute.Image = imagePath ?? string.Empty;
             StateHasChanged();
-            await JS.InvokeVoidAsync("closeMediaModalProduct");
+            await JS.InvokeVoidAsync("closeMediaModal");
         }
     }
     private async Task SelectProductAttribute(Product_Attributes attribute)

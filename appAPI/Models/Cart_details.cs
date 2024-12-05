@@ -14,15 +14,14 @@ namespace appAPI.Models
     {
         [Key]
         public long Id { get; set; }
-        public long Product_id { get; set; }
-        public long Cart_id { get; set; }
-        public int Quantity { get; set; }
+        public long? Product_id { get; set; }
+        public long? Cart_id { get; set; }
+        public int? Quantity { get; set; }
         [StringLength(20)]
         public string? Status {  get; set; }
         [ForeignKey("Cart_id")]
         public virtual Carts? Carts { get; set; }
         [ForeignKey("Product_id")]
-        [JsonIgnore]
         public virtual Product_Attributes? Product_Attributes { get; set; }
     }
 }
