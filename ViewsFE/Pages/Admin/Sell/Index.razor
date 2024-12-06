@@ -879,6 +879,7 @@
     private int total_pages = 1;
     private int page_size = 10;
     private int totalItems;
+    private Users selectedCustomer;
 
     private string momoError = null; // Lỗi từ phía MoMo
     private string? ErrorCode;
@@ -1206,6 +1207,7 @@
             if (isDeliveryVisible != value)
             {
                 isDeliveryVisible = value;
+                orders.Address_Id = selectedAddress.Id;
                 orders.Note = isDeliveryVisible ? "Giao hàng" : "Tại quầy";
                 _ = UpdateOrderNote();
                 if (isDeliveryVisible)
@@ -1314,9 +1316,9 @@
         isAddCustomerModalVisible = false;
     }
 
-    private async Task AddCustomer(Users selectedCustomer)
+    private async Task AddCustomer(Users user)
     {
-
+        selectedCustomer = user;
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate != null)
         {
@@ -1596,6 +1598,10 @@
             address.User_Id = order.User_id.Value; // Gắn User_Id từ Order
             if (address.Type == null) address.Type = "";
             if (address.Status == null) address.Status = "";
+
+            address.Name = selectedCustomer?.Name ?? "";
+            address.Phone = selectedCustomer?.Phone ?? "";
+            address.Email = selectedCustomer?.Email ?? "";
             var province = provinces.FirstOrDefault(p => p.Id == address.Province_city);
             var district = districts.FirstOrDefault(d => d.Id == address.District);
             var ward = wards.FirstOrDefault(w => w.Id == address.Ward_commune);

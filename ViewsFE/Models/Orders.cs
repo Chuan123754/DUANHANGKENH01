@@ -41,6 +41,9 @@ namespace ViewsFE.Models
         public virtual Account? Admin { get; set; }
         [ForeignKey("User_id")]
         public virtual Users? Users { get; set; }
+        public long? Address_Id { get; set; }
+        [ForeignKey("Address_Id")]
+        public virtual Address? Address { get; set; }
     }
 }
 
