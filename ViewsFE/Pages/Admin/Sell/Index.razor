@@ -1483,10 +1483,11 @@
             {
                 // Tiếp tục logic thanh toán khác (nếu có)
                 orderToUpdate.TypePayment = "Thanh toán tiền mặt";
+                await orderService.Update(orderToUpdate, orderToUpdate.Id);
                 await ResetViewState();
-
                 await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
             }
+
             var newOrderTracking = new order_trackings
                 {
                     OrderId = orderToUpdate.Id,
@@ -1494,9 +1495,9 @@
                     Note = "Đã xác nhận đơn hàng Tại quầy",
                     Created_at = DateTime.Now,
                     Created_by = 1 // ID tạm
-                };
-            await orderService.Update(orderToUpdate, orderToUpdate.Id);
+            };
             await orderTrackingService.AddOrderTracking(newOrderTracking);
+
         }
     }
     private async Task DownloadInvoice(long orderId)

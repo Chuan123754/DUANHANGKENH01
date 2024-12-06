@@ -433,7 +433,7 @@
         lst_ProductAtribites = await productAttributeService.GetAllProductAttributes();
         lst_attributeDiscount = await AttributeDiscountService.GetAll();
         discounts = await DiscountService.GetAll();
-        totalPages = (int)Math.Ceiling((double)discounts.Count / pageSize);
+        totalPages = Math.Max(1, (int)Math.Ceiling((double)discounts.Count / pageSize));
         LoadPagedDiscounts();
         LoadProductAttribute();
     }
@@ -444,13 +444,24 @@
 
         // Nếu currentPage vượt quá tổng số trang, đặt currentPage bằng totalPages
         if (currentPage > totalPages)
-        {   
+        {
             currentPage = totalPages;
         }
+        if (currentPage < 1)
+        {
+            currentPage = 1;
+        }
+
 
         discount.Start_date = DateTime.Now;
         discount.End_date = DateTime.Now.AddDays(1);
         discount.Status = "Hoạt động";
+        if (discounts.Count == 0)
+        {
+            pagedDiscounts = new List<Discount>();
+            return;
+        }
+
         pagedDiscounts = discounts.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
     }
 
