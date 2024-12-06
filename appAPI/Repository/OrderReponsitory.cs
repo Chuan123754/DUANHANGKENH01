@@ -130,6 +130,49 @@ namespace appAPI.Repository
                             p.Created_at.Value.Date <= endOfMonth) // Lọc hóa đơn trong tháng hiện tại
                 .SumAsync(p => p.TotalAmount ?? 0); // Tổng giá trị TotalAmount, mặc định là 0 nếu null
         }
+        public async Task<Dictionary<int, decimal>> GetTotalRevenuePerYear()
+        {
+            // Lấy tất cả các hóa đơn từ cơ sở dữ liệu mà không giới hạn theo năm hiện tại
+            var orders = await _context.Orders
+                .Where(p => p.Status != "Hóa đơn treo" && p.Created_at.HasValue) // Lọc theo trạng thái và chắc chắn có giá trị ngày tạo
+                .GroupBy(p => p.Created_at.Value.Year) // Nhóm theo năm của ngày tạo
+                .Select(g => new
+                {
+                    Year = g.Key,
+                    TotalRevenue = g.Sum(p => p.TotalAmount ?? 0) // Tính tổng doanh thu cho từng năm
+                })
+                .ToListAsync();
+
+            // Tạo dictionary để lưu doanh thu theo từng năm
+            var revenuePerYear = new Dictionary<int, decimal>();
+
+            foreach (var order in orders)
+            {
+                revenuePerYear[order.Year] = order.TotalRevenue; // Lưu doanh thu vào dictionary
+            }
+
+            return revenuePerYear;
+        }
+
+        public async Task<Dictionary<string, int>> GetTotalMonth()
+        {
+            var currentYear = DateTime.Now.Year;
+
+            var orders = await _context.Orders
+                .Where(o => o.Created_at != null && o.Created_at.Value.Year == currentYear)
+                .ToListAsync();
+
+            var result = orders
+                .GroupBy(o => new { Year = o.Created_at.Value.Year, Month = o.Created_at.Value.Month })
+                .Select(g => new
+                {
+                    YearMonth = $"{g.Key.Year}-{g.Key.Month:D2}",
+                    TotalOrders = g.Count()
+                })
+                .ToDictionary(x => x.YearMonth, x => x.TotalOrders);
+
+            return result;
+        }
 
     }
 }

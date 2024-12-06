@@ -21,6 +21,8 @@ namespace ViewsFE.IServices
         Task<decimal> GetTotalPiceToday();
         Task<decimal> GetTotalPiceWeek();
         Task<decimal> GetTotalPiceMonth();
+        public Task<Dictionary<int, decimal>> GetTotalRevenuePerYear();
+        public Task<Dictionary<string, int>> GetTotalMonth();
 
     }
 }

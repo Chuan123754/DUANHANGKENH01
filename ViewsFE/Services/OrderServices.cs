@@ -195,5 +195,38 @@ namespace ViewsFE.Services
             var count = await response.Content.ReadFromJsonAsync<decimal>();
             return count;
         }
+
+        public async Task<Dictionary<int, decimal>> GetTotalRevenuePerYear()
+        {
+            // Địa chỉ URL của API lấy doanh thu theo từng năm
+            var url = $"{_baseUrl}/api/Orders/Get-Total-Revenue-Per-Year";
+
+            // Gửi yêu cầu GET tới API
+            var response = await _client.GetAsync(url);
+
+            // Kiểm tra kết quả trả về từ API
+            response.EnsureSuccessStatusCode();
+
+            // Đọc dữ liệu trả về dưới dạng Dictionary<int, decimal>
+            var revenueData = await response.Content.ReadFromJsonAsync<Dictionary<int, decimal>>();
+
+            return revenueData;
+        }
+
+        public async Task<Dictionary<string, int>> GetTotalMonth()
+        {
+            var url = $"{_baseUrl}/api/Orders/Get-Total-Orders-Per-Month";
+
+            // Gửi yêu cầu GET tới API
+            var response = await _client.GetAsync(url);
+
+            // Kiểm tra kết quả trả về từ API
+            response.EnsureSuccessStatusCode();
+
+            // Đọc dữ liệu trả về dưới dạng Dictionary<int, decimal>
+            var revenueData = await response.Content.ReadFromJsonAsync<Dictionary<string, int>>();
+
+            return revenueData;
+        }
     }
 }
