@@ -39,7 +39,7 @@
 
                             </div>
                             <div class="ms-auto lh-1">
-                                <div class="dropdown">
+                                <div class="dropdown" id="dropdown-revenue">
                                     <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         Doanh số
                                     </a>
@@ -66,12 +66,14 @@
                                 @GetSubheaderTitleUser()
                             </div>
                             <div class="ms-auto lh-1">
-                                <div class="dropdown">
+                                <div class="dropdown" id="dropdown-users">
                                     <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                       Khách hàng
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-end">
-                                        <a class="dropdown-item @(selectedModeUser == "dayUser" ? "active" : "")" href="#" @onclick='() => SetModeUser("dayUser")'>Khách hàng mới theo ngày</a>
+                                        <a class="dropdown-item @(selectedModeUser == "dayUser" ? "active" : "")" href="#" @onclick='() => SetModeUser("dayUser")'>
+                                            Khách hàng mới theo ngày
+                                        </a>
                                         <a class="dropdown-item @(selectedModeUser == "monthUser" ? "active" : "")" href="#" @onclick='() => SetModeUser("monthUser")'>Khách hàng mới theo tháng</a>
                                         <a class="dropdown-item @(selectedModeUser == "yearUser" ? "active" : "")" href="#" @onclick='() => SetModeUser("yearUser")'>Khách hàng mới theo năm</a>
                                         <a class="dropdown-item @(selectedModeUser == "totalUser" ? "active" : "")" href="#" @onclick='() => SetModeUser("totalUser")'>Tổng số khách hàng mới</a>
@@ -867,6 +869,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        selectedMode = "day";
+        selectedModeUser = "dayUser";
         await LoadPosts();
     }
 }
