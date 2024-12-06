@@ -865,7 +865,6 @@
     private bool isChooseAddress = false; // model danh sách địa chỉ của khách hàng
     private bool isCreateAddress = false; // model tạo mới địa chỉ
     private bool isDeliveryVisible = false;
-    private Dictionary<long, int> productQuantities = new Dictionary<long, int>();
     private decimal totalAmount = 0; // tổng tiền hàng đã giảm
     private decimal totalPrincipal = 0; // tổng tiền hàng chưa giảm
     decimal discountAmount = 0; // tiền được giảm
@@ -950,7 +949,6 @@
         discountAmount = 0;
         isCustomerAdded = false;
         lst_OrderDetail.Clear();
-        productQuantities.Clear();
         isAddProductModalVisible = false;
         isAddCustomerModalVisible = false;
         isCreateCustomerModalVisible = false;
@@ -966,20 +964,6 @@
     private async void PayByCash()
     {
         CheckOut("cash");
-        foreach (var item in lst_OrderDetail)
-        {
-            var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
-            if (product != null)
-            {
-                if (item.Quantity > product.Stock || product.Stock == 0)
-                {
-                    await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.SKU} trong kho không đủ.");
-                    return;
-                }
-                product.Stock -= item.Quantity;
-                await productAttributeService.Update(product, product.Id);
-            }
-        }
     }
 
     private async void PayByMomo()
@@ -1066,27 +1050,6 @@
         }
         await LoadOrderDetails();
     }
-    private async Task UpdateQuantity(long productId, int quantity)
-    {
-        if (quantity <= 0)
-        {
-            await JS.InvokeVoidAsync("toastr.error", "Số lượng phải lớn hơn 0.");
-            return;
-        }
-        if (productQuantities.ContainsKey(productId))
-        {
-            productQuantities[productId] = quantity;
-        }
-        else
-        {
-            productQuantities.Add(productId, quantity);
-        }
-    } // thay đổi số lượng trong modal sản phẩm
-
-    private int GetQuantity(long productId)
-    {
-        return productQuantities.ContainsKey(productId) ? productQuantities[productId] : 1;
-    } // lấy số lượng
 
     private void ShowAddProductDetailModal()
     {
@@ -1144,16 +1107,60 @@
 
     private async Task DeleteOrder(long id)
     {
+        var orderDetails = await orderDetailService.GetOrderDetailsByOrderId(id);
+        if (orderDetails == null || !orderDetails.Any())
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Không tìm thấy chi tiết đơn hàng.");
+            return;
+        }
+
+        foreach (var orderDetail in orderDetails)
+        {
+            var productAttribute = await productAttributeService.GetProductAttributesById(orderDetail.Product_Attribute_Id);
+            if (productAttribute != null)
+            {
+                productAttribute.Stock += orderDetail.Quantity;
+                await productAttributeService.Update(productAttribute, productAttribute.Id);
+            }
+
+            await orderDetailService.Delete(orderDetail.Id);
+        }
+
         await orderService.Delete(id);
         selectedOrderId = 0;
+
+        // Làm mới danh sách Orders
         await LoadOrders();
-    }// xóa order
+
+        await JS.InvokeVoidAsync("toastr.success", "Xóa đơn hàng và cập nhật kho thành công.");
+    }
+
 
     private async Task DeleteOrderDetail(long id) // xóa orderdetail
     {
+        var orderDetail = await orderDetailService.GetByIdOrderdetails(id);
+        if (orderDetail == null)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Không tìm thấy sản phẩm trong đơn hàng.");
+            return;
+        }
+
+        // Lấy thông tin sản phẩm (ProductAttribute)
+        var productAttribute = await productAttributeService.GetProductAttributesById(orderDetail.Product_Attribute_Id);
+        if (productAttribute != null)
+        {
+            // Cộng lại số lượng vào kho
+            productAttribute.Stock += orderDetail.Quantity;
+            await productAttributeService.Update(productAttribute, productAttribute.Id);
+        }
+
         await orderDetailService.Delete(id);
         CalculateTotalMoney();
         await LoadOrderDetails();
+        await LoadProducts();
+        await JS.InvokeVoidAsync("toastr.success", "Xóa sản phẩm khỏi đơn hàng thành công.");
+        StateHasChanged();
+
     }
 
     private async Task UpdateQuantityView(long itemId, int newQuantity)
@@ -1163,21 +1170,31 @@
         var orderDetail = lst_OrderDetail.FirstOrDefault(x => x.Id == itemId);
         if (orderDetail != null)
         {
-            var productVariant = orderDetail.ProductAttributes;
+            var productVariant = orderDetail.ProductAttributes; // Lấy thông tin sản phẩm
             var stock = productVariant.Stock;
-            if(newQuantity > stock)
+
+            // Tính toán số lượng thay đổi
+            int quantityChange = newQuantity - orderDetail.Quantity;
+
+            // Kiểm tra nếu số lượng cần tăng vượt quá tồn kho
+            if (quantityChange > 0 && quantityChange > stock)
             {
                 await JS.InvokeVoidAsync("toastr.error", "Số lượng trong kho không đủ");
                 return;
             }
-            // Cập nhật số lượng
+            productVariant.Stock -= quantityChange;
             orderDetail.Quantity = newQuantity;
 
+            await productAttributeService.Update(productVariant, productVariant.Id);
             await UpdateOrderDetail(orderDetail);
+
+            // Tính lại tổng tiền và cập nhật giao diện
+            await LoadProducts();
             CalculateTotalMoney();
             StateHasChanged();
         }
     }
+
 
     private async Task UpdateOrderDetail(Order_details orderDetail)
     {
@@ -1212,17 +1229,31 @@
             if (isDeliveryVisible != value)
             {
                 isDeliveryVisible = value;
-                orders.Address_Id = selectedAddress.Id;
-                orders.Note = isDeliveryVisible ? "Giao hàng" : "Tại quầy";
-                _ = UpdateOrderNote();
+
                 if (isDeliveryVisible)
                 {
+                    // Nếu selectedAddress là null, chờ người dùng chọn địa chỉ
+                    if (selectedAddress == null)
+                    {
+                        orders.Note = "Vui lòng chọn địa chỉ giao hàng";
+                        orders.Address_Id = null;
+                    }
+                    else
+                    {
+                        orders.Address_Id = selectedAddress.Id;
+                        orders.Note = "Giao hàng";
+                    }
+
                     totalMoney = feeShipping + totalAmount;
                 }
                 else
                 {
+                    orders.Address_Id = null;
+                    orders.Note = "Tại quầy";
                     totalMoney = totalAmount;
                 }
+
+                _ = UpdateOrderNote();
                 StateHasChanged();
             }
         }
@@ -1250,23 +1281,16 @@
 
     private async Task AddProduct(Order_details orderDetails, long productAttributeId)
     {
-        int quantity = productQuantities.ContainsKey(productAttributeId) ? productQuantities[productAttributeId] : 1;
-
-        // Kiểm tra số lượng hợp lệ
-        if (quantity <= 0)
-        {
-            await JS.InvokeVoidAsync("toastr.error", "Số lượng phải lớn hơn 0.");
-            return;
-        }
+        int quantity = 1;
 
         var productAttribute = await productAttributeService.GetProductAttributesById(productAttributeId);
-        if (productAttribute.Stock == null || productAttribute.Stock == 0)
+
+        if (productAttribute == null || productAttribute.Stock == null || productAttribute.Stock == 0)
         {
             await JS.InvokeVoidAsync("toastr.error", "Sản phẩm hiện không có trong kho.");
             return;
         }
 
-        // Kiểm tra số lượng tồn kho
         if (quantity > productAttribute.Stock)
         {
             await JS.InvokeVoidAsync("toastr.error", "Sản phẩm trong kho không đủ.");
@@ -1276,12 +1300,6 @@
         var existingOrderDetail = await orderDetailService.GetByOrderIdAndProductAttributeId(selectedOrderId, productAttributeId);
         if (existingOrderDetail != null)
         {
-            if (existingOrderDetail.Quantity + quantity > productAttribute.Stock)
-            {
-                await JS.InvokeVoidAsync("toastr.error", "Số lượng trong kho không đủ.");
-                return;
-            }
-            // Cộng dồn số lượng nếu sản phẩm đã tồn tại
             existingOrderDetail.Quantity += quantity;
             await orderDetailService.Update(existingOrderDetail, existingOrderDetail.Id);
         }
@@ -1297,9 +1315,15 @@
             await orderDetailService.Create(orderDetails);
         }
 
+        productAttribute.Stock -= quantity;
+        await productAttributeService.Update(productAttribute, productAttributeId);
+
         await LoadOrderDetails();
-        productQuantities[productAttributeId] = 1;
+        await LoadProducts();
         CalculateTotalMoney();
+        StateHasChanged();
+
+        await JS.InvokeVoidAsync("toastr.success", "Thêm sản phẩm vào đơn hàng thành công.");
     }
 
     private async void ShowListCustomerModal()
@@ -1424,7 +1448,6 @@
 
     private async void CheckOut(string paymentMethod)
     {
-        await LoadOrderDetails();
         if (isDeliveryVisible && selectedAddress == null)
         {
             await JS.InvokeVoidAsync("toastr.warning", "Vui lòng chọn địa chỉ giao hàng!");
@@ -1435,23 +1458,7 @@
             await JS.InvokeVoidAsync("toastr.warning", "Đơn hàng chưa có sản phẩm nào.");
             return;
         }
-        foreach (var item in lst_OrderDetail)
-        {
-            var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
-            if (product != null)
-            {
-                if (item.Quantity > product.Stock || product.Stock == 0)
-                {
-                    await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.SKU} trong kho không đủ.");
-                    return;
-                }
-            }
-            else
-            {
-                await JS.InvokeVoidAsync("toastr.error", $"Không tìm thấy sản phẩm {item.Product_Attribute_Id}.");
-                return;
-            }
-        }
+
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate != null)
         {
@@ -1483,7 +1490,7 @@
                         orderToUpdate.TypePayment = "Chuyển khoản MoMo";
                         ShowMomoModal(momoResponse.PayUrl);
                         await orderService.Update(orderToUpdate, orderToUpdate.Id);
-                        
+
                     }
                     else
                     {
@@ -1512,8 +1519,10 @@
                     Created_by = 1 // ID tạm
             };
             await orderTrackingService.AddOrderTracking(newOrderTracking);
-
         }
+        await LoadOrderDetails();
+        await LoadOrders();
+        StateHasChanged();
     }
     private async Task DownloadInvoice(long orderId)
     {
