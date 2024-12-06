@@ -57,15 +57,16 @@
                             @if (OrderTracking.Status == "Đang vận chuyển")
                             {
                                 <button class="btn btn-sm btn-success" @onclick="OpenSussStatusModal">Giao thành công</button>
-                                <button class="btn btn-sm btn-danger" @onclick="() => OpenFailureReasonModal()">Giao thất bại</button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => OpenFailTransactionModal()">Giao thất bại</button>
                             }
                             else if (OrderTracking.Status == "Đã chuẩn bị hàng")
                             {
-                                <button class="btn btn-sm btn-dark" @onclick="() => OpenFailureReasonModal()">Đơn hủy</button>
+                                <button class="btn btn-sm btn-dark" @onclick="() => OpenFailureReasonModal()">Hủy Đơn</button>
                             }
-                            else if (OrderTracking.Status == "Đơn hủy" || OrderTracking.Status == "Giao thất bại")
+                            else if (OrderTracking.Status == "Giao thất bại")
                             {
                                 <button class="btn btn-sm btn-warning" @onclick="() => OpenRestoreStatusModal()">Khôi phục</button>
+                                <button class="btn btn-sm btn-dark" @onclick="() => OpenFailureReasonModal()">Hủy Đơn</button>
                             }
 
                         }
@@ -136,7 +137,7 @@
                             <tr>
                                 <td>@OrderTracking.TotalMoney.ToString("N0") VND</td>
                                 <td>@tracking.CreatedAt?.ToString("dd-MM-yyyy HH:mm:ss")</td>
-                                <td>Thanh toán</td>
+                                <td>@OrderTracking.Note</td>
                                 <td>@OrderTracking.TypePayment</td>
                                 <td><span class="@GetStatusClass(tracking.Status)">@tracking.Status</span></td>
                                 <td>@tracking.Note</td>
@@ -221,6 +222,10 @@
                 <div class="modal-body">
                     @if (currentModalId == "FailureReason")
                     {
+                        <textarea class="form-control" @bind="failureReason" rows="4" placeholder="Nhập lý do hủy đơn"></textarea>
+                    }
+                    else if (currentModalId == "FailTransaction")
+                    {
                         <textarea class="form-control" @bind="failureReason" rows="4" placeholder="Nhập lý do giao thất bại"></textarea>
                     }
                     else if (currentModalId == "RestoreStatus")
@@ -273,12 +278,13 @@
 
     private bool isFailureModalVisible = false;
     private string failureReason = string.Empty;
+    private string failTransaction = string.Empty;
 
     private string currentModalId = string.Empty;
     private string currentModalTitle = string.Empty;
     private bool isModalOpen = false;
 
-    
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -391,7 +397,11 @@
 
     private void OpenFailureReasonModal()
     {
-        OpenModal("FailureReason", "Lý do giao thất bại");
+        OpenModal("FailureReason", "Lý do Hủy đơn");
+    }
+    private void OpenFailTransactionModal()
+    {
+        OpenModal("FailTransaction", "Lý do giao thất bại");
     }
 
     private void OpenRestoreStatusModal()
@@ -417,6 +427,7 @@
     {
         isFailureModalVisible = false;
         failureReason = string.Empty;
+        failTransaction = string.Empty;
     }
 
     private async Task HandleModalConfirm()
@@ -426,8 +437,9 @@
             // Xác định trạng thái và ghi chú dựa trên modal hiện tại
             var status = currentModalId switch
             {
-                "FailureReason" => "Giao thất bại",
-                "RestoreStatus" => "Chờ xác nhận",
+                "FailureReason" => "Đơn hủy",
+                "FailTransaction" => "Giao thất bại",
+                "RestoreStatus" => "Đang vận chuyển",
                 "SuccessPayment" => enteredAmount < OrderTracking.TotalMoney
                     ? "Giao dịch thất bại"
                     : "Giao thành công",
@@ -438,6 +450,7 @@
             var note = currentModalId switch
             {
                 "FailureReason" => failureReason,
+                "FailTransaction" => failTransaction,
                 "RestoreStatus" => restoreNote,
                 "SuccessPayment" => enteredAmount < OrderTracking.TotalMoney
                     ? $"Khách trả: {enteredAmount:N0} VND, Còn thiếu: {(OrderTracking.TotalMoney - enteredAmount):N0} VND"
@@ -493,14 +506,27 @@
     {
         if (string.IsNullOrWhiteSpace(failureReason))
         {
-            await JS.InvokeVoidAsync("toastr.error", "Vui lòng nhập lý do giao thất bại.");
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng nhập lý do Hủy đơn.");
             return;
+        } else
+        {
+            await UpdateStatus(selectedTrackingId, "Giao thất bại", currentStatus, failureReason);
         }
 
-        await UpdateStatus(selectedTrackingId, "Giao thất bại", currentStatus, failureReason);
+        if (string.IsNullOrWhiteSpace(failTransaction))
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Vui lòng nhập lý do giao thất bại.");
+            return;
+        } else
+        {
+            await UpdateStatus(selectedTrackingId, "Giao thất bại", currentStatus, failTransaction);
+
+        }
+
 
         isFailureModalVisible = false;
         failureReason = string.Empty;
+        failTransaction = string.Empty;
     }
 
 
@@ -603,7 +629,7 @@
         "Chờ xác nhận" => "badge bg-warning",
         "Đã xác nhận" => "badge bg-primary",
         "Đã chuẩn bị hàng" => "badge bg-info",
-        "Đã lấy hàng" => "badge bg-secondary",
+            "Đã lấy hàng" => "badge bg-info",
         "Đang vận chuyển" => "badge bg-info",
         "Giao thành công" => "badge bg-success",
         "Giao thất bại" => "badge bg-danger",
@@ -623,11 +649,12 @@
             "Chờ xác nhận" => "btn-warning",
             "Đã xác nhận" => "btn-primary",
             "Đã chuẩn bị hàng" => "btn-info",
-            "Đã lấy hàng" => "btn-secondary",
+            "Đã lấy hàng" => "btn-info",
             "Đang vận chuyển" => "btn-info",
             "Giao thành công" => "btn-success",
             "Hoàn tất đơn" => "btn-success",
-            "Đơn hủy" => "btn-dark",
+            "Khôi phục đơn" => "btn-warning",
+            "Đơn hủy" => "btn-warning",
             _ => "btn-warning"
         };
     }
@@ -685,6 +712,7 @@
             "Đã lấy hàng" => "Đang vận chuyển",
             "Đang vận chuyển" => "Giao thành công",
             "Giao thành công" => "Hoàn tất đơn",
+            "Đơn hủy" => "Đã chuẩn bị hàng",
             _ => "Không rõ"
         };
 
