@@ -112,7 +112,7 @@ namespace appAPI.Controllers
                 {
                     if (errorCode == "0") // Thanh toán thành công
                     {
-                        order.Status = "Đã thanh toán";
+                        order.Status = "Đã xác nhận ";
                         
                     }
                     else
