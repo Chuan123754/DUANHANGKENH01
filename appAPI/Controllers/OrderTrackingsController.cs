@@ -54,6 +54,7 @@ namespace appAPI.Controllers
                 SellerName = order.CreatedByAdminId,
                 BuyerName = order.Users?.Name,
                 Address = order.Users?.Address,
+                Note = order.Note,
                 OrderTrackings = orderTrackings.Select(ot => new OrderTrackingItem
                 {
                     Id = ot.Id, // Thêm Id của OrderTracking
