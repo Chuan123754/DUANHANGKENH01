@@ -132,7 +132,6 @@ namespace appAPI.Repository
         }
         public async Task<Dictionary<int, decimal>> GetTotalRevenuePerYear()
         {
-            // Lấy tất cả các hóa đơn từ cơ sở dữ liệu mà không giới hạn theo năm hiện tại
             var orders = await _context.Orders
                 .Where(p => p.Status != "Hóa đơn treo" && p.Created_at.HasValue) // Lọc theo trạng thái và chắc chắn có giá trị ngày tạo
                 .GroupBy(p => p.Created_at.Value.Year) // Nhóm theo năm của ngày tạo

@@ -13,22 +13,23 @@ namespace ViewsFE.Services
     public class UserService : IUserService
     {
         private readonly HttpClient _httpClient;
-
-        public UserService(HttpClient httpClient)
+        private readonly string _baseUrl;
+        public UserService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl"); // Lấy URL từ appsettings.json
         }
 
         public async Task<List<Users>> GetAll()
         {
-            string requestURL = "https://localhost:7011/api/Users/Users-get";
+            string requestURL = $"{_baseUrl}/api/Users/Users-get";
             var response = await _httpClient.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Users>>(response);
         }
 
         public async Task<Users> GetById(long id)
         {
-            string requestURL = $"https://localhost:7011/api/Users/Users-get-id?id={id}";
+            string requestURL = $"{_baseUrl}/api/Users/Users-get-id?id={id}";
             var response = await _httpClient.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<Users>(response);
         }
@@ -43,7 +44,7 @@ namespace ViewsFE.Services
             {
                 throw new Exception("Email đã tồn tại.");
             }
-            string userRequestURL = "https://localhost:7011/api/Users/Users-post";
+            string userRequestURL = $"{_baseUrl}/api/Users/Users-post";
             var userJsonContent = JsonConvert.SerializeObject(user);
             var userContent = new StringContent(userJsonContent, Encoding.UTF8, "application/json");
             var userResponse = await _httpClient.PostAsync(userRequestURL, userContent);
@@ -71,7 +72,7 @@ namespace ViewsFE.Services
                 Description = "Giỏ hàng mặc định"
             };
 
-            string cartRequestURL = "https://localhost:7011/api/Carts/carts-post";
+            string cartRequestURL = $"{_baseUrl}/api/Carts/carts-post";
             var cartJsonContent = JsonConvert.SerializeObject(cart);
             var cartContent = new StringContent(cartJsonContent, Encoding.UTF8, "application/json");
             var cartResponse = await _httpClient.PostAsync(cartRequestURL, cartContent);
@@ -89,7 +90,7 @@ namespace ViewsFE.Services
 
         public async Task Update(Users user)
         {
-            string requestURL = "https://localhost:7011/api/Users/Users-put";
+            string requestURL = $"{_baseUrl}/api/Users/Users-put";
             var jsonContent = JsonConvert.SerializeObject(user);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
             await _httpClient.PutAsync(requestURL, content);
@@ -97,7 +98,7 @@ namespace ViewsFE.Services
 
         public async Task Delete(long id)
         {
-            string requestURL = $"https://localhost:7011/api/Users/Users-delete?id={id}";
+            string requestURL = $"{_baseUrl}/api/Users/Users-delete?id={id}";
             await _httpClient.DeleteAsync(requestURL);
         }
 
@@ -106,7 +107,7 @@ namespace ViewsFE.Services
         {
             try
             {
-                string requestURL = $"https://localhost:7011/api/Users/Users-get-email?email={email}";
+                string requestURL = $"{_baseUrl}/api/Users/Users-get-email?email={email}";
                 var response = await _httpClient.GetStringAsync(requestURL);
                 var user = JsonConvert.DeserializeObject<Users>(response);
                 return user != null;
@@ -121,7 +122,7 @@ namespace ViewsFE.Services
         {
             try
             {
-                string requestURL = $"https://localhost:7011/api/Users/Users-get-phone?phone={phone}";
+                string requestURL = $"{_baseUrl}/api/Users/Users-get-phone?phone={phone}";
                 var response = await _httpClient.GetStringAsync(requestURL);
                 var user = JsonConvert.DeserializeObject<Users>(response);
                 return user != null;
@@ -134,7 +135,7 @@ namespace ViewsFE.Services
 
         public async Task Register(Users user)
         {
-            var response = await _httpClient.PostAsJsonAsync("https://localhost:7011/api/Users/register", user);
+            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/Users/register", user);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -146,7 +147,7 @@ namespace ViewsFE.Services
 
         public async Task<Users> Login(Users user)
         {
-            var response = await _httpClient.PostAsJsonAsync("https://localhost:7011/api/Users/login", user);
+            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/Users/login", user);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -164,11 +165,9 @@ namespace ViewsFE.Services
             return null;
         }
 
-
-
         public async Task Logout(long idUser)
         {
-            var response = await _httpClient.PostAsJsonAsync($"https://localhost:7011/api/Users/logout?userId={idUser}", new { });
+            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/Users/logout?userId={idUser}", new { });
 
             if (!response.IsSuccessStatusCode)
             {
@@ -176,6 +175,47 @@ namespace ViewsFE.Services
                 throw new Exception($"Đăng xuất thất bại: {errorMessage}");
             }
         }
+
+        public async Task<int> GetTotalUsersByDayAsync()
+        {
+            var url = $"{_baseUrl}/api/Users/GetTotalUsersByDay";
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var count = await response.Content.ReadFromJsonAsync<int>();
+            return count;
+        }
+
+        public async Task<int> GetTotalUsersByMonthAsync()
+        {
+            var url = $"{_baseUrl}/api/Users/GetTotalUsersByMonth";
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var count = await response.Content.ReadFromJsonAsync<int>();
+            return count;
+        }
+
+        public async Task<int> GetTotalUsersByYearAsync()
+        {
+            var url = $"{_baseUrl}/api/Users/GetTotalUsersByYear";
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var count = await response.Content.ReadFromJsonAsync<int>();
+            return count;
+        }
+
+        public async Task<int> GetTotalUsersAsync()
+        {
+            var url = $"{_baseUrl}/api/Users/GetTotalUsers";
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var count = await response.Content.ReadFromJsonAsync<int>();
+            return count;
+        }
+
         public class ResponseLogin
         {
             public string Message { get; set; }

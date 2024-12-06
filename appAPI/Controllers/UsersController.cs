@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Crypto.Generators;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace appAPI.Controllers
 {
@@ -159,6 +161,75 @@ namespace appAPI.Controllers
             return Ok(new { message = "Đăng xuất thành công." });
         }
 
+
+        [HttpGet("GetTotalUsersByDay")]
+        public async Task<IActionResult> GetTotalUsersByDay()
+        {
+            try
+            {
+                var today = DateTime.Today; // Ngày hiện tại
+                var totalUsers = await context.Users
+                    .Where(u => u.Created_at.HasValue && u.Created_at.Value.Date == today)
+                    .CountAsync();
+                return Ok(totalUsers);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        [HttpGet("GetTotalUsersByMonth")]
+        public async Task<IActionResult> GetTotalUsersByMonth()
+        {
+            try
+            {
+                var today = DateTime.Today;
+                var startOfMonth = new DateTime(today.Year, today.Month, 1); // Đầu tháng
+                var totalUsers = await context.Users
+                    .Where(u => u.Created_at.HasValue && u.Created_at.Value >= startOfMonth)
+                    .CountAsync();
+                return Ok(totalUsers);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        // Lấy tổng khách hàng theo năm
+        [HttpGet("GetTotalUsersByYear")]
+        public async Task<IActionResult> GetTotalUsersByYear()
+        {
+            try
+            {
+                var today = DateTime.Today;
+                var startOfYear = new DateTime(today.Year, 1, 1); // Đầu năm
+                var totalUsers = await context.Users
+                    .Where(u => u.Created_at.HasValue && u.Created_at.Value >= startOfYear)
+                    .CountAsync();
+                return Ok( totalUsers );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
+        // Lấy tổng tất cả khách hàng
+        [HttpGet("GetTotalUsers")]
+        public async Task<IActionResult> GetTotalUsers()
+        {
+            try
+            {
+                var totalUsers = await context.Users.CountAsync();
+                return Ok( totalUsers );
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
         // *** Helpers ***
         private static string HashPassword(string password)
         {
