@@ -879,6 +879,7 @@
     private int total_pages = 1;
     private int page_size = 10;
     private int totalItems;
+    private Users selectedCustomer;
 
     private string momoError = null; // Lỗi từ phía MoMo
     private string? ErrorCode;
@@ -906,7 +907,7 @@
     private async Task ConfirmMomoPayment()
     {
         var updateitem = await orderService.GetByIdOrders(selectedOrderId);
-        if(updateitem.Status == "Đã thanh toán")
+        if(updateitem.Status == "Đã xác nhận ")
         {
             var orderDetailsCopy = lst_OrderDetail.ToList();
             foreach (var item in orderDetailsCopy)
@@ -1206,6 +1207,7 @@
             if (isDeliveryVisible != value)
             {
                 isDeliveryVisible = value;
+                orders.Address_Id = selectedAddress.Id;
                 orders.Note = isDeliveryVisible ? "Giao hàng" : "Tại quầy";
                 _ = UpdateOrderNote();
                 if (isDeliveryVisible)
@@ -1240,6 +1242,7 @@
             Console.WriteLine($"Error updating order note: {ex.Message}");
         }
     }
+
     private async Task AddProduct(Order_details orderDetails, long productAttributeId)
     {
         int quantity = productQuantities.ContainsKey(productAttributeId) ? productQuantities[productAttributeId] : 1;
@@ -1293,6 +1296,7 @@
         productQuantities[productAttributeId] = 1;
         CalculateTotalMoney();
     }
+
     private async void ShowListCustomerModal()
     {
         if (selectedOrderId == 0)
@@ -1306,13 +1310,15 @@
             lst_Customer = await userService.GetAll();
         }
     } // mở modal khách hàng
+
     private async void CloseModalAddCustomer()
     {
         isAddCustomerModalVisible = false;
     }
-    private async Task AddCustomer(Users selectedCustomer)
-    {
 
+    private async Task AddCustomer(Users user)
+    {
+        selectedCustomer = user;
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         if (orderToUpdate != null)
         {
@@ -1359,6 +1365,7 @@
 
         totalMoney = isDeliveryVisible ? (feeShipping + totalAmount) : totalAmount;
     }
+
     private async void CreateCustomer()
     {
         var phoneRegex = new System.Text.RegularExpressions.Regex(@"^0\d{9}$");
@@ -1399,10 +1406,12 @@
         customerName = createdCustomer.Name;
         await JS.InvokeVoidAsync("toastr.success", "Thêm khách hàng thành công");
     }
+
     private async void OpenModalCreateCustomer()
     {
         isCreateCustomerModalVisible = true;
     }
+
     private async void CloseModalCreateCustomer()
     {
         isCreateCustomerModalVisible = false;
@@ -1467,6 +1476,7 @@
                         // Hiển thị modal QR code MoMo
                         orderToUpdate.TypePayment = "Chuyển khoản MoMo";
                         ShowMomoModal(momoResponse.PayUrl);
+                        await orderService.Update(orderToUpdate, orderToUpdate.Id);
                         
                     }
                     else
@@ -1483,8 +1493,8 @@
             {
                 // Tiếp tục logic thanh toán khác (nếu có)
                 orderToUpdate.TypePayment = "Thanh toán tiền mặt";
-                await orderService.Update(orderToUpdate, orderToUpdate.Id);
                 await ResetViewState();
+                await orderService.Update(orderToUpdate, orderToUpdate.Id);
                 await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
             }
 
@@ -1544,6 +1554,7 @@
 
         return feeShipping;
     }
+
     private async Task ShowAddress()
     {
         if (selectedOrderId == null)
@@ -1563,14 +1574,17 @@
             return;
         }
     }
+
     private void CloseAddressModal()
     {
         isChooseAddress = false;
     }
+
     private void OpenCreateAddressModal()
     {
         isCreateAddress = true;
     }
+
     private async Task CreateAddress()
     {
         if (string.IsNullOrEmpty(address.Ward_commune) || string.IsNullOrEmpty(address.Province_city) || string.IsNullOrEmpty(address.District))
@@ -1584,6 +1598,10 @@
             address.User_Id = order.User_id.Value; // Gắn User_Id từ Order
             if (address.Type == null) address.Type = "";
             if (address.Status == null) address.Status = "";
+
+            address.Name = selectedCustomer?.Name ?? "";
+            address.Phone = selectedCustomer?.Phone ?? "";
+            address.Email = selectedCustomer?.Email ?? "";
             var province = provinces.FirstOrDefault(p => p.Id == address.Province_city);
             var district = districts.FirstOrDefault(d => d.Id == address.District);
             var ward = wards.FirstOrDefault(w => w.Id == address.Ward_commune);
@@ -1608,10 +1626,12 @@
             await JS.InvokeVoidAsync("toastr.error", "Không tìm thấy người dùng liên kết với đơn hàng.");
         }
     }
+
     private void CloseCreateAddress()
     {
         isCreateAddress = false;
     }
+
     // tách được đoạn code này ra chỗ khác thì càng tốt
     private List<Province> provinces = new List<Province>();
     private List<Districted> districts = new List<Districted>();
