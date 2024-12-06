@@ -129,5 +129,21 @@ namespace appAPI.Controllers
             var totalCount = await _repo.GetTotalPiceMonth();
             return Ok(totalCount);
         }
+        [HttpGet("Get-Total-Revenue-Per-Year")]
+        public async Task<IActionResult> GetTotalRevenuePerYear()
+        {
+
+            var revenuePerYear = await _repo.GetTotalRevenuePerYear();
+
+            return Ok(revenuePerYear);
+        }
+        [HttpGet("Get-Total-Orders-Per-Month")]
+        public async Task<IActionResult> GetTotalOrdersPerMonth()
+        {
+            var totalOrdersPerMonth = await _repo.GetTotalMonth();
+            return Ok(totalOrdersPerMonth);
+        }
+
+
     }
 }

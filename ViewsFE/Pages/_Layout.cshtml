@@ -35,6 +35,7 @@
     <!-- Custom styles --> 
     <link href="assets/css/admin-style.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+
     <style>
         :root {
             --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
@@ -61,47 +62,30 @@
     <script src="assets/js/demo-theme.min.js?1692870487"></script>
 
         @RenderBody()
- 
 
+    <script src="_framework/blazor.server.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" defer></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.9.2/min/dropzone.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.tiny.cloud/1/r9r9nm98dlxxdpsb1c0doz57qoiny05ey9cbxq2lb1kgqqu8/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@3.0.0/dist/js/jsvectormap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+
+
+
     <script src="assets/libs/tabler/js/tabler.min.js" defer></script>
-    <script src="assets/libs/tabler/js/demo.min.js" defer></script>
     <script src="assets/js/tinymce-init.js"></script>
     <script src="assets/js/tinymce-custom.js" defer></script>
     <script src="assets/js/http.js" defer></script>
     <script src="assets/js/dom.js" defer></script>
     <script src="assets/js/site.js" defer></script>
     <script src="assets/js/Custom.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@3.0.0/dist/js/jsvectormap.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@3.0.0/dist/maps/world.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/jsvectormap@3.0.0/dist/maps/world-merc.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script>   
-            document.addEventListener("DOMContentLoaded", function () {
-                var map = new jsVectorMap({
-                    selector: "#map",
-                    map: "world",
-                });
-            });
-    </script>
-    <script src="_framework/blazor.server.js"></script>
-    @RenderSection("Scripts", required: false)
-    <script>
-        window.onload = function () {
-            console.log("Tất cả tài nguyên đã được tải!");
-            loadData(); // Hàm bạn muốn thực hiện sau khi mọi thứ đã load xong
-        };
 
-        function loadData() {
-            // Logic load dữ liệu
-            console.log("Đang tải dữ liệu...");
-        }
-    </script>
+    @RenderSection("Scripts", required: false)
 
 </body>
 </html>
