@@ -48,6 +48,7 @@ namespace appAPI.Models
         public DbSet<Payment> Payment { get; set; }
         public DbSet<UserVouchers> userVouchers { get; set; }
         public DbSet<Contact> Contacts { get; set; }
+        public DbSet<AccessView> AccessViews { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

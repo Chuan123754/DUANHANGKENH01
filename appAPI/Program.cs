@@ -84,7 +84,7 @@ builder.Services.AddScoped<IProductVariantsRepository, ProductVariantsRepository
 builder.Services.AddScoped<IProductAttributeDiscountRepository, ProductAttributeDiscount>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
-
+builder.Services.AddScoped<IAccsessViewsRepon,  AccsessViewsRepon>();  
 builder.Services.AddScoped<IMomoRepository, MomoRepository>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
 
@@ -159,8 +159,8 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
-    //FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
+   // FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
+    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
     RequestPath = "/FileMedia"
 });
 

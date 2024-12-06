@@ -3,6 +3,7 @@
  @inject IPostSer sev
  @inject IProductVariantServices varian
  @inject IOrderIServices orde
+ @inject IUserService usesv
  @inject NavigationManager nav
  @inject IJSRuntime JS
  @using System.Text.Json
@@ -33,25 +34,27 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <div class="subheader">Doanh số hôm nay</div>
+                            <div class="subheader">
+                                @GetSubheaderTitle()
+
+                            </div>
+                            <div class="ms-auto lh-1">
+                                <div class="dropdown" id="dropdown-revenue">
+                                    <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Doanh số
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a class="dropdown-item @(selectedMode == "day" ? "active" : "")" href="#" @onclick='() => SetMode("day")'>Doanh số ngày</a>
+                                        <a class="dropdown-item @(selectedMode == "week" ? "active" : "")" href="#" @onclick='() => SetMode("week")'>Doanh số tuần</a>
+                                        <a class="dropdown-item @(selectedMode == "month" ? "active" : "")" href="#" @onclick='() => SetMode("month")'>Doanh số tháng</a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        <div class="mb-3"></div>
                         <div class="h1 mb-3">
-                            @totalPiceToday.ToString("N0") VND
-                        </div>
-                        <div class="d-flex mb-2">
-                            <div>Conversion rate</div>
-                            <div class="ms-auto">
-                                <span class="text-green d-inline-flex align-items-center lh-1">
-                                    7% <!-- Download SVG icon from http://tabler-icons.io/i/trending-up -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 17l6 -6l4 4l8 -8" /><path d="M14 7l7 0l0 7" /></svg>
-                                </span>
-                            </div>
-                        </div>
-                        <div class="progress progress-sm">
-                            <div class="progress-bar bg-primary" style="width: 75%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="95% Complete">
-                                <span class="visually-hidden">95% Complete</span>
-                            </div>
-                        </div>
+                            @DisplayRevenue()
+                        </div>                 
                     </div>
                 </div>
             </div>
@@ -59,21 +62,33 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <div class="subheader">Doanh số tuần</div>
+                            <div class="subheader">
+                                @GetSubheaderTitleUser()
+                            </div>
+                            <div class="ms-auto lh-1">
+                                <div class="dropdown" id="dropdown-users">
+                                    <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                      Khách hàng
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a class="dropdown-item @(selectedModeUser == "dayUser" ? "active" : "")" href="#" @onclick='() => SetModeUser("dayUser")'>
+                                            Khách hàng mới theo ngày
+                                        </a>
+                                        <a class="dropdown-item @(selectedModeUser == "monthUser" ? "active" : "")" href="#" @onclick='() => SetModeUser("monthUser")'>Khách hàng mới theo tháng</a>
+                                        <a class="dropdown-item @(selectedModeUser == "yearUser" ? "active" : "")" href="#" @onclick='() => SetModeUser("yearUser")'>Khách hàng mới theo năm</a>
+                                        <a class="dropdown-item @(selectedModeUser == "totalUser" ? "active" : "")" href="#" @onclick='() => SetModeUser("totalUser")'>Tổng số khách hàng mới</a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                        <div class="mb-3"></div>
                         <div class="d-flex align-items-baseline">
                             <div class="h1 mb-0 me-2">
-                                @totalPiceWeek.ToString("N0") VND
-                            </div>
-                            <div class="me-auto">
-                                <span class="text-green d-inline-flex align-items-center lh-1">
-                                    8% <!-- Download SVG icon from http://tabler-icons.io/i/trending-up -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 17l6 -6l4 4l8 -8" /><path d="M14 7l7 0l0 7" /></svg>
-                                </span>
-                            </div>
+                                @DisplayRevenueUser()
+                            </div>                      
                         </div>
                     </div>
-                    <div id="chart-revenue-bg" class="chart-sm"></div>
+          
                 </div>
             </div>
             <div class="col-sm-6 col-lg-3">
@@ -82,16 +97,12 @@
                         <div class="d-flex align-items-center">
                             <div class="subheader">Doanh số tháng</div>
                         </div>
+                        <div class="mb-3"></div>
                         <div class="d-flex align-items-baseline">
                             <div class="h1 mb-3 me-2">@totalPiceMonth.ToString("N0") VND</div>
-                            <div class="me-auto">
-                                <span class="text-yellow d-inline-flex align-items-center lh-1">
-                                    0% <!-- Download SVG icon from http://tabler-icons.io/i/minus -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M5 12l14 0" /></svg>
-                                </span>
-                            </div>
+                                                   
                         </div>
-                        <div id="chart-new-clients" class="chart-sm"></div>
+                   
                     </div>
                 </div>
             </div>
@@ -111,16 +122,12 @@
                             </div>
                             </div> *@
                         </div>
+                        <div class="mb-3"></div>
                         <div class="d-flex align-items-baseline">
                             <div class="h1 mb-3 me-2">@totalOrder</div>
-                            <div class="me-auto">
-                                <span class="text-green d-inline-flex align-items-center lh-1">
-                                    0% <!-- Download SVG icon from http://tabler-icons.io/i/trending-up -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M3 17l6 -6l4 4l8 -8" /><path d="M14 7l7 0l0 7" /></svg>
-                                </span>
-                            </div>
+                 
                         </div>
-                        <div id="chart-active-users" class="chart-sm"></div>
+                       
                     </div>
                 </div>
             </div>
@@ -688,6 +695,7 @@
 
 @code
 {
+    private string selectedMode = "day";
     private Dictionary<int, decimal> totalRevenuePerYear = new Dictionary<int, decimal>();
     private Dictionary<string, int> totalOrdersPerMonth = new Dictionary<string, int>();
     private int totalPost;
@@ -698,6 +706,11 @@
     private decimal totalPiceToday;
     private decimal totalPiceWeek;
     private decimal totalPiceMonth;
+    private string selectedModeUser = "day";
+    private int totalUserToday;
+    private int totalUserToMonth;
+    private int totalUserToYear;
+    private int totalUser;
 
 
     private async Task LoadPosts()
@@ -712,10 +725,70 @@
         totalPiceMonth = await orde.GetTotalPiceMonth();
         totalRevenuePerYear = await orde.GetTotalRevenuePerYear();
         totalOrdersPerMonth = await orde.GetTotalMonth();
-        DrawChart();
+        totalUserToday = await usesv.GetTotalUsersByDayAsync();
+        totalUserToMonth = await usesv.GetTotalUsersByMonthAsync();
+        totalUserToYear = await usesv.GetTotalUsersByYearAsync();
+        totalUser = await usesv.GetTotalUsersAsync();
+        await DrawChart();
         StateHasChanged();
     }
-    private void DrawChart()
+    private void SetMode(string mode)
+    {
+        selectedMode = mode;
+        StateHasChanged();
+    }
+    private void SetModeUser(string mode)
+    {
+        selectedModeUser = mode;
+        StateHasChanged();  // Đảm bảo rằng sau khi thay đổi giá trị, trang sẽ được render lại
+    }
+
+    private string DisplayRevenue()
+    {
+        return selectedMode switch
+        {
+            "day" => $"{totalPiceToday.ToString("N0")} VND",
+            "week" => $"{totalPiceWeek.ToString("N0")} VND",
+            "month" => $"{totalPiceMonth.ToString("N0")} VND",
+            _ => "0 VND"
+        };
+    }
+
+    private string GetSubheaderTitle()
+    {
+        return selectedMode switch
+        {
+            "day" => "Doanh số hôm nay",
+            "week" => "Doanh số tuần này",
+            "month" => "Doanh số tháng này",
+            _ => "Doanh số"
+        };
+    }
+
+    private string DisplayRevenueUser()
+    {
+        return selectedModeUser switch
+        {
+            "dayUser" => $"{totalUserToday} Người",
+            "monthUser" => $"{totalUserToMonth} Người",
+            "yearUser" => $"{totalUserToYear} Người",
+            "totalUser" => $"{totalUser} Người",
+            _ => "0 Người"
+        };
+    }
+
+    private string GetSubheaderTitleUser()
+    {
+        return selectedModeUser switch
+        {
+            "dayUser" => "Khách mới hôm nay",
+            "monthUser" => "Khách mới tháng này",
+            "yearUser" => "Khách mới năm nay",
+            "totalUser" => "Tổng số khách hàng",
+            _ => "Khách hàng"
+        };
+    }
+    private async Task DrawChart()
     {
         // Tạo danh sách các năm và doanh thu tương ứng từ dữ liệu
         var years = totalRevenuePerYear.Keys.ToArray();
@@ -771,7 +844,7 @@
                     hoverBackgroundColor = new[] { "#FFA500",  "#FF4500", "#FF6347", "#556B2F", "#20B2AA", "#DFFF00", "#8B008B" }
                 }
             }
-            },     
+            },
             options = new
             {
                 responsive = true,
@@ -796,6 +869,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        selectedMode = "day";
+        selectedModeUser = "dayUser";
         await LoadPosts();
     }
 }

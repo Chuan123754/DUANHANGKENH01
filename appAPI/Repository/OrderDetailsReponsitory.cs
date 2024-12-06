@@ -45,6 +45,7 @@ namespace appAPI.Repository
         {
             return await _context.Order_Details
                 .Where(o=>o.OrderId == idOrder)
+                .Include(o => o.Orders).ThenInclude(od => od.Users)
                 .Include(o=>o.ProductAttributes).ThenInclude(o=>o.Color)
                 .Include(o=>o.ProductAttributes).ThenInclude(o=>o.Size)
                 .Include(o=>o.ProductAttributes).ThenInclude(o=>o.Product_Variant.Material)

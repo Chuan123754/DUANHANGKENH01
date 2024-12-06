@@ -16,5 +16,9 @@ namespace ViewsFE.IServices
         Task Delete(long id);
         Task<bool> IsEmailExists(string email); // Kiểm tra email
         Task<bool> IsPhoneExists(string phone); // Kiểm tra số điện thoại
+        Task<int> GetTotalUsersByDayAsync();
+        Task<int> GetTotalUsersByMonthAsync();
+        Task<int> GetTotalUsersByYearAsync();
+        Task<int> GetTotalUsersAsync();
     }
 }
