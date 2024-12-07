@@ -11,6 +11,7 @@ namespace ViewsFE.IServices
         Task<Orders> GetByIdOrders(long id);
         Task Create(Orders orders);
         Task Update(Orders orders , long id);
+        Task UpdateStatus(Orders orders, long id);
         Task Delete(long id);
         Task<byte[]> ExportInvoice(long orderId);
 

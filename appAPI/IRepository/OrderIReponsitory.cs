@@ -10,6 +10,7 @@ namespace appAPI.IRepository
         Task<List<Orders>> GetOrderByIdUser(long  idUser);
         Task Create(Orders orders);
         Task Update(Orders orders , long id);
+        Task UpdateStatus(Orders orders, long id);
         Task Delete(long id);
         Task<int> GetTotal();
         Task<int> GetTotalToday();
@@ -18,5 +19,6 @@ namespace appAPI.IRepository
         Task<decimal> GetTotalPiceMonth();
         public Task<Dictionary<int, decimal>> GetTotalRevenuePerYear();
         public Task<Dictionary<string, int>> GetTotalMonth();
+
     }
 }
