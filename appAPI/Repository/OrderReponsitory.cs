@@ -1,5 +1,6 @@
 ﻿using appAPI.IRepository;
 using appAPI.Models;
+using iText.StyledXmlParser.Jsoup.Nodes;
 using Microsoft.EntityFrameworkCore;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
@@ -73,6 +74,21 @@ namespace appAPI.Repository
                 updateItem.FeeShipping = orders.FeeShipping;
                 updateItem.Update_at = DateTime.Now;
                 updateItem.TypePayment = orders.TypePayment;
+
+                _context.Orders.Update(updateItem);
+                await _context.SaveChangesAsync();
+
+            }
+        }
+
+        public async Task UpdateStatus(Orders orders, long id)
+        {
+            var updateItem = await _context.Orders.FindAsync(id);
+            if (updateItem != null)
+            {
+               
+                updateItem.Status = orders.Status;           
+                updateItem.Update_at = DateTime.Now;
 
                 _context.Orders.Update(updateItem);
                 await _context.SaveChangesAsync();
@@ -171,7 +187,7 @@ namespace appAPI.Repository
                 .ToDictionary(x => x.YearMonth, x => x.TotalOrders);
 
             return result;
-        }
+        }     
 
     }
 }
