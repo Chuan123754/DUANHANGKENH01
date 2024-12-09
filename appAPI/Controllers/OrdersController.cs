@@ -84,6 +84,20 @@ namespace appAPI.Controllers
             }
         }
 
+        [HttpPut("UpdateStatus")]
+        public async Task<IActionResult> PutStatus(Orders orders, long id)
+        {
+            try
+            {
+                await _repo.UpdateStatus(orders, id);
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         // DELETE api/<OrdersController>/5
         [HttpDelete("Delete")]
         public async Task<IActionResult> Delete(long id)

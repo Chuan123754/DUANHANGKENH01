@@ -17,6 +17,7 @@ namespace appAPI.Repository
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entities);
         IEnumerable<T> Find(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includeProperties);
+        void UpdateStatus(long id, string status, DateTime updateAt);
 
     }
 }

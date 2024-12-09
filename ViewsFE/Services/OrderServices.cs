@@ -61,6 +61,10 @@ namespace ViewsFE.Services
             await _client.PutAsJsonAsync($"{_baseUrl}/api/Orders/Update?id={id}", orders);
         }
 
+        public async Task UpdateStatus(Orders orders, long id)
+        {
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/Orders/UpdateStatus?id={id}", orders);
+        }
         public async Task<byte[]> ExportInvoice(long orderId)
         {
             var response = await _client.GetAsync($"{_baseUrl}/api/PDF/generate?orderId={orderId}");
