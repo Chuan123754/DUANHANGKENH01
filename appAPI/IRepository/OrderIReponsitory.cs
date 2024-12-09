@@ -6,6 +6,7 @@ namespace appAPI.IRepository
     {
         Task<List<Orders>> GetAll();
         Task<Orders> GetByIdOrders(long id);
+        Task<object> GetByIdOrdersAddress(long id);
         Task<List<Orders>> GetOrderByIdAdmin(string idAdmin);
         Task<List<Orders>> GetOrderByIdUser(long  idUser);
         Task Create(Orders orders);

@@ -59,6 +59,36 @@ namespace appAPI.Repository
                 .FirstOrDefaultAsync(o => o.Id == id); // Trả về null nếu không tìm thấy
         }
 
+        public async Task<object> GetByIdOrdersAddress(long id)
+        {
+            return await _context.Orders
+                .Where(o => o.Id == id)
+                .Select(o => new
+                {
+                    OrderId = o.Id,
+                    TotalAmount = o.TotalAmount,
+                    TotalMoney = o.Totalmoney,
+                    Status = o.Status,
+                    CreatedAt = o.Created_at,
+                    Address = new
+                    {
+                        AddressId = o.Address.Id,
+                        Name = o.Address.Name,
+                        Phone = o.Address.Phone,
+                        Email = o.Address.Email,
+                        Street = o.Address.Street,
+                        WardCommune = o.Address.Ward_commune,
+                        District = o.Address.District,
+                        ProvinceCity = o.Address.Province_city,
+                        Type = o.Address.Type,
+                        SetAsDefault = o.Address.Set_as_default,
+                        Status = o.Address.Status
+                    }
+                })
+                .FirstOrDefaultAsync();
+        }
+
+
 
         public async Task Update(Orders orders, long id)
         {

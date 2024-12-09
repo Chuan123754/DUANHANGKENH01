@@ -42,6 +42,13 @@ namespace ViewsFE.Services
             return JsonConvert.DeserializeObject<Orders> (response);
         }
 
+        public async Task<Orders> OrdersAddress(long id)
+        {
+            string requestURL = $"{_baseUrl}/api/Orders/OrdersAddress?id={id}";
+            var response = await _client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<Orders>(response);
+        }
+
         public async Task<List<Orders>> GetOrderByIdAdmin(string idAdmin)
         {
             string requestURL = $"{_baseUrl}/api/Orders/GetOrderByIdAdmin?idAdmin={idAdmin}";

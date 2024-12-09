@@ -33,6 +33,18 @@ namespace appAPI.Controllers
             }
             return Ok(order);
         }
+
+        [HttpGet("OrdersAddress")]
+        public async Task<IActionResult> OrdersAddress(long id)
+        {
+            var orderAdd = await _repo.GetByIdOrdersAddress(id);
+            if (orderAdd == null)
+            {
+                return NotFound(new { message = "Order not found" });
+            }
+            return Ok(orderAdd);
+        }
+
         [HttpGet("GetOrderByIdAdmin")]
         public async Task<IActionResult> GetOrderByIdAdmin(string idAdmin)
         {

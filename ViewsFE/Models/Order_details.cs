@@ -23,5 +23,14 @@ namespace ViewsFE.Models
         [ForeignKey("Product_Attribute_Id")]
         [JsonIgnore]
         public virtual Product_Attributes? ProductAttributes { get; set; }
+        public virtual Products_Returned ProductsReturned { get; set; } = new Products_Returned();
+
+        [NotMapped]
+        public bool IsSelected { get; set; } = false; //tích
+
+        [NotMapped]
+        public int ReturnQuantity { get; set; } = 1;// Số lượng muốn đổi
+
+
     }
 }
