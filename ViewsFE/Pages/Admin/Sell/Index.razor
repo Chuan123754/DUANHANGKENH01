@@ -238,9 +238,9 @@
                                             <td>@item.ProductAttributes.SKU </td>
                                             <td class="sort-city">
                                                 <div class="d-flex align-items-center">
-                                                    <span>@item.ProductAttributes.Color.Title</span>
+                                                    <span class="me-2">@item.ProductAttributes.Color.Title</span>
                                                     <div class="color-preview"
-                                                         style="width: 24px; height: 24px; background-color: @item.ProductAttributes.Color.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
+                                                         style="width: 24px; height: 24px; background-color: @item.ProductAttributes.Color.Color_code; border-radius: 50%; border: 1px solid #ddd;">
                                                     </div>
                                                 </div>
                                             </td>
@@ -802,9 +802,7 @@
                             </div>
                             <div class="d-flex justify-content-center my-3">
                                 <button type="button" class="btn btn-outline-primary me-2" @onclick="PayByCash">Thanh toán tiền mặt</button>
-                                <button type="button" class="btn btn-outline-success" @onclick="PayByMomo">Thanh toán qua MoMo</button>
-                              
-
+                                <button type="button" class="btn btn-outline-success" @onclick="PayByMomo">Thanh toán qua MoMo</button>  
                             </div>
 
                         </div>
@@ -1135,7 +1133,6 @@
         await JS.InvokeVoidAsync("toastr.success", "Xóa đơn hàng và cập nhật kho thành công.");
     }
 
-
     private async Task DeleteOrderDetail(long id) // xóa orderdetail
     {
         var orderDetail = await orderDetailService.GetByIdOrderdetails(id);
@@ -1194,7 +1191,6 @@
             StateHasChanged();
         }
     }
-
 
     private async Task UpdateOrderDetail(Order_details orderDetail)
     {
