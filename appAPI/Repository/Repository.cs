@@ -80,5 +80,33 @@ namespace appAPI.Repository
 
             return query.ToList();
         }
+
+        public void UpdateStatus(long id, string status, DateTime updateAt)
+        {
+            var entity = _entities.Find(id);
+
+            if (entity == null)
+            {
+                throw new Exception("Entity không tồn tại.");
+            }
+
+            // Cập nhật các trường cụ thể
+            var propertyStatus = typeof(T).GetProperty("Status");
+            var propertyUpdateAt = typeof(T).GetProperty("Update_at");
+
+            if (propertyStatus != null)
+            {
+                propertyStatus.SetValue(entity, status);
+            }
+
+            if (propertyUpdateAt != null)
+            {
+                propertyUpdateAt.SetValue(entity, updateAt);
+            }
+
+            // Lưu thay đổi
+            _context.SaveChanges();
+        }
+
     }
 }

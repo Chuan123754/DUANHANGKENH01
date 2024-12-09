@@ -33,6 +33,18 @@ namespace appAPI.Controllers
             }
             return Ok(order);
         }
+
+        [HttpGet("OrdersAddress")]
+        public async Task<IActionResult> OrdersAddress(long id)
+        {
+            var orderAdd = await _repo.GetByIdOrdersAddress(id);
+            if (orderAdd == null)
+            {
+                return NotFound(new { message = "Order not found" });
+            }
+            return Ok(orderAdd);
+        }
+
         [HttpGet("GetOrderByIdAdmin")]
         public async Task<IActionResult> GetOrderByIdAdmin(string idAdmin)
         {
@@ -76,6 +88,20 @@ namespace appAPI.Controllers
             try
             {
                 await _repo.Update(orders, id);
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("UpdateStatus")]
+        public async Task<IActionResult> PutStatus(Orders orders, long id)
+        {
+            try
+            {
+                await _repo.UpdateStatus(orders, id);
                 return Ok(orders);
             }
             catch (Exception ex)

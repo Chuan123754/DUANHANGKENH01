@@ -21,6 +21,7 @@ namespace appAPI.Models
         public string? Status { get; set; }
         [ForeignKey("User_Id")]
         public virtual Users? User { get; set; }
-        public virtual Orders? Order { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Orders> Orders { get; set; } = new List<Orders>();
     }
 }

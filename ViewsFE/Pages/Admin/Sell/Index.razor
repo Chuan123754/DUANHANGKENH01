@@ -896,13 +896,15 @@
         isMomoModalVisible = true;
         StateHasChanged();
     }
+
     // Xử lý khi nhấn nút "Hủy"
     private async Task CancelMomoPayment()
     {
         isMomoModalVisible = false;
-        await LoadOrders(); // Reload lại danh sách Order
+        await LoadOrders(); 
         StateHasChanged();
     }
+
     // Xử lý khi nhấn nút "Xác nhận thanh toán"
     private async Task ConfirmMomoPayment()
     {
@@ -974,7 +976,7 @@
                     await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.SKU} trong kho không đủ.");
                     return;
                 }
-                product.Stock -= item.Quantity; // trừ số lượng trong kho
+                product.Stock -= item.Quantity;
                 await productAttributeService.Update(product, product.Id);
             }
         }
@@ -987,7 +989,6 @@
 
     private async Task OnSearch()
     {
-        // Ngăn ngừa load lại trang
         lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
     }
 
@@ -1081,14 +1082,17 @@
             productQuantities.Add(productId, quantity);
         }
     } // thay đổi số lượng trong modal sản phẩm
+
     private int GetQuantity(long productId)
     {
         return productQuantities.ContainsKey(productId) ? productQuantities[productId] : 1;
     } // lấy số lượng
+
     private void ShowAddProductDetailModal()
     {
         isAddProductModalVisible = true;
     } // mở modal sản phẩm
+
     private async void ShowAddProductModal()
     {
         if (selectedOrderId == 0)
@@ -1103,14 +1107,17 @@
         }
 
     }// danh sách sản phẩm trong modal
+
     private void CloseAddProductModal()
     {
         isAddProductModalVisible = false;
     }
+
     private async Task LoadProducts()
     {
         lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
     }
+
     private async Task LoadOrderDetails() // danh sách đơn hàng chi tiết của đơn hàng được chọn
     {
         lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
@@ -1168,14 +1175,12 @@
 
             await UpdateOrderDetail(orderDetail);
             CalculateTotalMoney();
-            // Cập nhật lại giao diện
             StateHasChanged();
         }
     }
 
     private async Task UpdateOrderDetail(Order_details orderDetail)
     {
-        // Ví dụ gọi API để lưu thay đổi
         await orderDetailService.Update(orderDetail,orderDetail.Id);
     }
 
@@ -1457,14 +1462,15 @@
             orderToUpdate.Totalmoney = totalMoney; // tổng cần thanh toán ( nếu có ship )
             if (isDeliveryVisible)
             {
-                orderToUpdate.Status = "Đã xác nhận";
+                orderToUpdate.Status = "Đã Thanh Toán";
                 orderToUpdate.FeeShipping = feeShipping;
             }
             else
             {
-                orderToUpdate.Status = "Hoàn thành";
+                orderToUpdate.Status = "Hoàn thành Đơn";
                 orderToUpdate.FeeShipping = 0;
             }
+
             if (paymentMethod == "momo")
             {
                 try
@@ -1491,17 +1497,17 @@
             }
             else
             {
-                // Tiếp tục logic thanh toán khác (nếu có)
                 orderToUpdate.TypePayment = "Thanh toán tiền mặt";
-                await ResetViewState();
+                orderToUpdate.Address_Id = null;
                 await orderService.Update(orderToUpdate, orderToUpdate.Id);
                 await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
+                await ResetViewState();
             }
 
             var newOrderTracking = new order_trackings
                 {
                     OrderId = orderToUpdate.Id,
-                    Status = isDeliveryVisible ? "Đã xác nhận" : "Tại quầy",
+                    Status = isDeliveryVisible ? "Đã thanh toán" : "Hoàn Thành Đơn",
                     Note = "Đã xác nhận đơn hàng Tại quầy",
                     Created_at = DateTime.Now,
                     Created_by = 1 // ID tạm
@@ -1526,6 +1532,7 @@
             Console.WriteLine($"Lỗi khi xuất hóa đơn: {ex.Message}");
         }
     }
+
     // tính tiền vận chuyển
     private decimal CalculateShippingFee()
     {
@@ -1631,6 +1638,7 @@
     {
         isCreateAddress = false;
     }
+
 
     // tách được đoạn code này ra chỗ khác thì càng tốt
     private List<Province> provinces = new List<Province>();

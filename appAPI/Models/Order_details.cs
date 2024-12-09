@@ -21,5 +21,7 @@ namespace appAPI.Models
         public virtual Orders? Orders { get; set; }
         [ForeignKey("Product_Attribute_Id")]
         public virtual Product_Attributes? ProductAttributes { get; set; }
+        [JsonIgnore]
+        public virtual Products_Returned? ProductsReturned { get; set; }
     }
 }

@@ -51,7 +51,7 @@ namespace ViewsFE.Services
             var responseContent = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<Order_details>(responseContent);
         }
-
+        
         public async Task<List<Order_details>> GetByTypeAsync(int pageNumber, int pageSize)
         {
             var uri = $"{_baseUrl}/api/OrderDetails/get-by-type?pageNumber={pageNumber}&pageSize={pageSize}";
@@ -70,9 +70,8 @@ namespace ViewsFE.Services
         {
             var url = $"{_baseUrl}/api/OrderDetails/Get-Total-Count";
 
-            // Gọi API và nhận tổng số lượng bài viết
             var response = await _client.GetAsync(url);
-            response.EnsureSuccessStatusCode(); // Kiểm tra xem phản hồi có thành công hay không
+            response.EnsureSuccessStatusCode(); 
 
             var count = await response.Content.ReadFromJsonAsync<int>();
             return count;

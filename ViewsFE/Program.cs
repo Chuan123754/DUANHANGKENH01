@@ -105,6 +105,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddServerSideBlazor(options => options.DetailedErrors = true);
 builder.Services.AddScoped<IContacServices, ContacServices>();
 builder.Services.AddScoped<IAccsessViewscsServices, AccsessViewsServices>();
+builder.Services.AddScoped<IProductsReturnedService, ProductsReturnedService>();
 
 
 var app = builder.Build();

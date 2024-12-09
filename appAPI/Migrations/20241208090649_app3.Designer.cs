@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using appAPI.Models;
 
@@ -11,9 +12,10 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    partial class APP_DATA_DATNModelSnapshot : ModelSnapshot
+    [Migration("20241208090649_app3")]
+    partial class app3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -894,7 +896,9 @@ namespace appAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Address_Id");
+                    b.HasIndex("Address_Id")
+                        .IsUnique()
+                        .HasFilter("[Address_Id] IS NOT NULL");
 
                     b.HasIndex("CreatedByAdminId");
 
@@ -1648,21 +1652,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "cecbd315-cf66-4448-a75d-e6b4735569b4",
+                            ConcurrencyStamp = "a6a20e27-5063-4002-b143-f7e93a6d9c5c",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "1fb1fdd6-a258-4a43-9dbc-846fee364a94",
+                            ConcurrencyStamp = "b53d398a-7bc0-43a2-8312-ee098ead2a50",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "a4210228-05e9-4f07-bb35-3c6ae0055372",
+                            ConcurrencyStamp = "61fe8e22-4582-4f03-9964-e00195e34198",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -1915,8 +1919,8 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Orders", b =>
                 {
                     b.HasOne("appAPI.Models.Address", "Address")
-                        .WithMany("Orders")
-                        .HasForeignKey("Address_Id");
+                        .WithOne("Order")
+                        .HasForeignKey("appAPI.Models.Orders", "Address_Id");
 
                     b.HasOne("appAPI.Models.Account", "Admin")
                         .WithMany("CreatedOrders")
@@ -2179,7 +2183,7 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Address", b =>
                 {
-                    b.Navigation("Orders");
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("appAPI.Models.Carts", b =>

@@ -1,5 +1,6 @@
 ﻿using appAPI.IRepository;
 using appAPI.Models;
+using iText.StyledXmlParser.Jsoup.Nodes;
 using Microsoft.EntityFrameworkCore;
 using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 
@@ -58,6 +59,36 @@ namespace appAPI.Repository
                 .FirstOrDefaultAsync(o => o.Id == id); // Trả về null nếu không tìm thấy
         }
 
+        public async Task<object> GetByIdOrdersAddress(long id)
+        {
+            return await _context.Orders
+                .Where(o => o.Id == id)
+                .Select(o => new
+                {
+                    OrderId = o.Id,
+                    TotalAmount = o.TotalAmount,
+                    TotalMoney = o.Totalmoney,
+                    Status = o.Status,
+                    CreatedAt = o.Created_at,
+                    Address = new
+                    {
+                        AddressId = o.Address.Id,
+                        Name = o.Address.Name,
+                        Phone = o.Address.Phone,
+                        Email = o.Address.Email,
+                        Street = o.Address.Street,
+                        WardCommune = o.Address.Ward_commune,
+                        District = o.Address.District,
+                        ProvinceCity = o.Address.Province_city,
+                        Type = o.Address.Type,
+                        SetAsDefault = o.Address.Set_as_default,
+                        Status = o.Address.Status
+                    }
+                })
+                .FirstOrDefaultAsync();
+        }
+
+
 
         public async Task Update(Orders orders, long id)
         {
@@ -73,6 +104,21 @@ namespace appAPI.Repository
                 updateItem.FeeShipping = orders.FeeShipping;
                 updateItem.Update_at = DateTime.Now;
                 updateItem.TypePayment = orders.TypePayment;
+
+                _context.Orders.Update(updateItem);
+                await _context.SaveChangesAsync();
+
+            }
+        }
+
+        public async Task UpdateStatus(Orders orders, long id)
+        {
+            var updateItem = await _context.Orders.FindAsync(id);
+            if (updateItem != null)
+            {
+               
+                updateItem.Status = orders.Status;           
+                updateItem.Update_at = DateTime.Now;
 
                 _context.Orders.Update(updateItem);
                 await _context.SaveChangesAsync();
@@ -171,7 +217,7 @@ namespace appAPI.Repository
                 .ToDictionary(x => x.YearMonth, x => x.TotalOrders);
 
             return result;
-        }
+        }     
 
     }
 }
