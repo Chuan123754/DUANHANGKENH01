@@ -137,13 +137,14 @@
                                             <!-- #region tác giả -->
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Nhà thiết kế<span class="text-danger">*</span></label>
-                                                <InputSelect @bind-Value="Posts.AuthorId" class="form-control">
+                                                <select @bind="Posts.AuthorId" class="form-control">
                                                     <option value="" disabled selected>Chọn nhà thiết kế</option>
                                                     @foreach (var desi in designersList)
                                                     {
                                                         <option value="@desi.id_Designer">@desi.Name</option>
                                                     }
-                                                </InputSelect>
+                                                </select>
+                                              
                                             </div>
                                             <!-- #endregion -->
                                             <button type="submit" class="btn btn-primary" style="float: right">Tạo sản phẩm</button>
@@ -321,7 +322,7 @@
 </EditForm>
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
-<Modal OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal>
+<Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
 
 
 @code {
@@ -334,7 +335,7 @@
     private List<long> SelectedCategories = new List<long>();
     private List<long> SelectedTags = new List<long>();
     private Media_modal mediaModalRef;
-    private Modal mediaLibraryModal;
+    private Modal_NImg mediaLibraryModal;
     private Media_manager media_ManagerRef;
     private bool tinyMCEInitialized = false;
     private long postId;
@@ -373,7 +374,7 @@
                 Status = Product_Posts.STATUS_PUBLISH // Thiết lập giá trị mặc định
             };
         TagsList = await stag.GetAll();
-        CategoriesList = await cate.GetAll();
+        CategoriesList = await cate.GetAllType("product");
         designersList = await des.GetAll();
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)

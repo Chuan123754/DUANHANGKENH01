@@ -253,7 +253,7 @@
 
             <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
             <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
-            <Modal OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal>
+            <Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
 
         </div>
     </div>
@@ -261,7 +261,7 @@
 
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
-<Modal OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal>
+<Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
 
 @code {
     private Designer designer = new Designer();
@@ -269,7 +269,7 @@
     private Banner banner = new Banner();
     private Dictionary<string, string> statuses = new Dictionary<string, string>();
     private Media_modal mediaModalRef;
-    private Modal mediaLibraryModal;
+    private Modal_NImg mediaLibraryModal;
     private Media_manager media_ManagerRef;
     private bool tinyMCEInitialized = false;
     private long postId;

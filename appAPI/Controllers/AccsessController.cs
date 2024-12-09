@@ -19,5 +19,11 @@ namespace appAPI.Controllers
         {
            await _repo.CountViewsAccsess();         
         }
+        [HttpGet("GetTotal")]
+        public async Task<IActionResult> GetTotal()
+        {
+            var total = await _repo.GetTotal();
+            return Ok(total);
+        }
     }
 }

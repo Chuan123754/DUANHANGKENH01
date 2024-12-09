@@ -4,6 +4,8 @@ namespace appAPI.IRepository
 {
     public interface IAccsessViewsRepon
     {
-        Task CountViewsAccsess ( );
+        Task CountViewsAccsess ();
+        Task<long> GetTotal();
     }
+   
 }

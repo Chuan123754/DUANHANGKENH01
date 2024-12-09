@@ -49,6 +49,7 @@ namespace appAPI.Models
         public DbSet<UserVouchers> userVouchers { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<AccessView> AccessViews { get; set; }
+        public DbSet<Products_Returned> Products_Returned { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

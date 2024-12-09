@@ -27,7 +27,6 @@ namespace ViewsFE.Models
         [StringLength(20)]
         [Required(ErrorMessage = "Trạng thái là bắt buộc.")]
         public string? Status { get; set; }
-        [Required(ErrorMessage = "Không được để trống.")]
         public long? AuthorId { get; set; }
         public bool? Deleted { get; set; }
 
@@ -71,7 +70,7 @@ namespace ViewsFE.Models
         public static readonly Dictionary<string, string> STATUSES = new Dictionary<string, string>
         {
             { STATUS_DRAFT, "Nháp" },
-            { STATUS_PENDING, "Chờ duyệt" },
+            { STATUS_PENDING, "Hạ xuống" },
              { STATUS_PUBLISH, "Công khai" }
         };
 

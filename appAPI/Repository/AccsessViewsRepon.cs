@@ -1,5 +1,6 @@
 ﻿using appAPI.IRepository;
 using appAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace appAPI.Repository
 {
@@ -18,7 +19,6 @@ namespace appAPI.Repository
             AccessView? accessView = _context.AccessViews.AsEnumerable()
                                                          .Where(ac => ac.AccessDate != null && ac.AccessDate.Date == DateTime.Now.Date)
                                                          .FirstOrDefault();
-
             bool isNew = false;
             if (accessView == null)
             {
@@ -31,6 +31,11 @@ namespace appAPI.Repository
             if (isNew)
                 _context.AccessViews.Add(accessView);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<long> GetTotal()
+        {
+            return await _context.AccessViews.SumAsync(a => a.TotalViews);
         }
     }
 }

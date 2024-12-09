@@ -9,6 +9,7 @@ namespace ViewsFE.IServices
         Task<List<Orders>> GetOrderByIdAdmin(string idAdmin);
         Task<List<Orders>> GetOrderByIdUser(long idUser);
         Task<Orders> GetByIdOrders(long id);
+        Task<Orders> OrdersAddress(long id);
         Task Create(Orders orders);
         Task Update(Orders orders , long id);
         Task UpdateStatus(Orders orders, long id);
