@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using appAPI.Models;
 
@@ -11,9 +12,10 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    partial class APP_DATA_DATNModelSnapshot : ModelSnapshot
+    [Migration("20241208074450_app2")]
+    partial class app2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -894,7 +896,9 @@ namespace appAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Address_Id");
+                    b.HasIndex("Address_Id")
+                        .IsUnique()
+                        .HasFilter("[Address_Id] IS NOT NULL");
 
                     b.HasIndex("CreatedByAdminId");
 
@@ -1236,9 +1240,6 @@ namespace appAPI.Migrations
                     b.Property<long>("OrderDetailId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("ReturnDate")
                         .HasColumnType("datetime2");
 
@@ -1252,8 +1253,7 @@ namespace appAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderDetailId")
-                        .IsUnique();
+                    b.HasIndex("OrderDetailId");
 
                     b.ToTable("products_returned");
                 });
@@ -1648,21 +1648,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "cecbd315-cf66-4448-a75d-e6b4735569b4",
+                            ConcurrencyStamp = "28842d89-e2b2-444d-9ec6-872d7754b7ef",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "1fb1fdd6-a258-4a43-9dbc-846fee364a94",
+                            ConcurrencyStamp = "2a04ff59-f58f-4b09-acde-42c75c8df2ef",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "a4210228-05e9-4f07-bb35-3c6ae0055372",
+                            ConcurrencyStamp = "16c38269-fe17-4799-9190-5d8f44527e92",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -1915,8 +1915,8 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Orders", b =>
                 {
                     b.HasOne("appAPI.Models.Address", "Address")
-                        .WithMany("Orders")
-                        .HasForeignKey("Address_Id");
+                        .WithOne("Order")
+                        .HasForeignKey("appAPI.Models.Orders", "Address_Id");
 
                     b.HasOne("appAPI.Models.Account", "Admin")
                         .WithMany("CreatedOrders")
@@ -2079,8 +2079,8 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Products_Returned", b =>
                 {
                     b.HasOne("appAPI.Models.Order_details", "OrderDetails")
-                        .WithOne("ProductsReturned")
-                        .HasForeignKey("appAPI.Models.Products_Returned", "OrderDetailId")
+                        .WithMany()
+                        .HasForeignKey("OrderDetailId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -2179,7 +2179,7 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Address", b =>
                 {
-                    b.Navigation("Orders");
+                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("appAPI.Models.Carts", b =>
@@ -2212,11 +2212,6 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Menus", b =>
                 {
                     b.Navigation("Menu_Items");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Order_details", b =>
-                {
-                    b.Navigation("ProductsReturned");
                 });
 
             modelBuilder.Entity("appAPI.Models.Orders", b =>

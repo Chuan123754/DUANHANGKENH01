@@ -1497,7 +1497,8 @@
             }
             else
             {
-                orderToUpdate.TypePayment = "Thanh toán tiền mặt";             
+                orderToUpdate.TypePayment = "Thanh toán tiền mặt";
+                orderToUpdate.Address_Id = null;
                 await orderService.Update(orderToUpdate, orderToUpdate.Id);
                 await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
                 await ResetViewState();
