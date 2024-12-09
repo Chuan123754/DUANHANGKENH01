@@ -284,9 +284,17 @@
                                                                             </span>
                                                                         </td>
                                                                         <td  rowspan="@lst_OrderDetails.Count" style="vertical-align: middle;">
-                                                                            <span>
-                                                                                @item.Orders.Users.Name
-                                                                            </span>
+@*                                                                             <span>
+                                                                                @if( @item.Orders.Users.Name == null)
+                                                                                {
+                                                                                    <p>Khách lẻ</p>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    @item.Orders.Users.Name
+                                                                                }
+                                                                                
+                                                                            </span> *@
                                                                         </td>
                                                                         isFirstRow = false;
                                                                     }
