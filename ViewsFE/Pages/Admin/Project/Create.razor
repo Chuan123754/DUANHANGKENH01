@@ -108,7 +108,7 @@
                                     <h2 class="accordion-header">
                                         <button class="accordion-button " type="button" data-bs-toggle="collapse"
                                                 data-bs-target="#action-1" aria-expanded="true">
-                                           Khởi tạo
+                                            Khởi tạo
                                         </button>
                                     </h2>
                                     <div class="accordion-collapse collapse show" id="action-1">
@@ -128,18 +128,16 @@
                                             </div>
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Nhà thiết kế<span class="text-danger">*</span></label>
-                                                <InputSelect @bind-Value="Posts.AuthorId" class="form-control" multiple>
-                                                    <option value="" disabled selected>Chọn nhà thiết kế</option>
+                                                <select @bind="Posts.AuthorId" class="form-control">
                                                     @foreach (var desi in designersList)
                                                     {
                                                         <option value="@desi.id_Designer">@desi.Name</option>
                                                     }
-                                                </InputSelect>
-                                                <ValidationMessage For="@(() => Posts.AuthorId)" />
+                                                </select>
                                             </div>
                                             <!-- Nút Đăng -->
                                             <button type="submit" class="btn btn-primary" style="float: right">
-                                               Tạo dự án
+                                                Tạo dự án
                                             </button>
                                             <div class="clearfix"></div>
                                         </div>
@@ -315,7 +313,7 @@
 
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
-<Modal OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal>
+<Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
 
 @code {
     private Product_Posts Posts = new Product_Posts();
@@ -328,11 +326,9 @@
     private List<long> SelectedTags = new List<long>();
     private bool tinyMCEInitialized = false;
     private Media_modal mediaModalRef;
-    private Modal mediaLibraryModal;
+    private Modal_NImg mediaLibraryModal;
     private Media_manager media_ManagerRef;
     private long postId;
-
-
     private async Task HandleImageSelectedN(List<string> imagePaths)
     {
         Posts.Image_library = string.Join(",", imagePaths);
@@ -364,15 +360,19 @@
         Posts = new Product_Posts
             {
                 Status = Product_Posts.STATUS_PUBLISH // Thiết lập giá trị mặc định
+                
+
             };
-        if (designersList.Count == 1)
+       
+
+        // Tải danh sách tags và categories
+        TagsList = await stag.GetAll();
+        CategoriesList = await cate.GetAllType("project");
+        designersList = await des.GetAll();
+        if (designersList != null && designersList.Any())
         {
             Posts.AuthorId = designersList.First().id_Designer;
         }
-        // Tải danh sách tags và categories
-        TagsList = await stag.GetAll();
-        CategoriesList = await cate.GetAll();
-        designersList = await des.GetAll();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

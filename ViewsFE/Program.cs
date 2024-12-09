@@ -104,6 +104,7 @@ builder.Services.AddHttpClient<MomoService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddServerSideBlazor(options => options.DetailedErrors = true);
 builder.Services.AddScoped<IContacServices, ContacServices>();
+builder.Services.AddScoped<IAccsessViewscsServices, AccsessViewsServices>();
 
 
 var app = builder.Build();

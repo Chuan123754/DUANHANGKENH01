@@ -128,15 +128,15 @@
                                                 <ValidationMessage For="@(() => Posts.Status)" />
                                             </div>
                                             <div class="form-group mb-3">
-                                                <label class="form-label">Nhà thiết kế</label>
-                                                <InputSelect @bind-Value="Posts.AuthorId" class="form-control" multiple>
+                                                <label class="form-label">Nhà thiết kế<span class="text-danger">*</span></label>
+                                                <select @bind="Posts.AuthorId" class="form-control">
                                                     <option value="" disabled selected>Chọn nhà thiết kế</option>
                                                     @foreach (var desi in designersList)
                                                     {
                                                         <option value="@desi.id_Designer">@desi.Name</option>
                                                     }
-                                                </InputSelect>
-                                                <ValidationMessage For="@(() => Posts.AuthorId)" />
+                                                </select>
+                                              
                                             </div>
                                             <!-- Nút Đăng -->
                                             <button type="submit" class="btn btn-primary" style="float: right">
@@ -314,7 +314,7 @@
 
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
-<Modal OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal>
+<Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
 @code {
     [Parameter]
     public long Id { get; set; }
@@ -328,10 +328,9 @@
     private List<long> SelectedTags = new List<long>();
     private bool tinyMCEInitialized = false;
     private Media_modal mediaModalRef;
-    private Modal mediaLibraryModal;
+    private Modal_NImg mediaLibraryModal;
     private Media_manager media_ManagerRef;
     private long postId;
-
 
     private async Task HandleImageSelectedN(List<string> imagePaths)
     {
@@ -361,7 +360,7 @@
     {
         Posts = await sev.GetByIdType(Id, "project");
         TagsList = await stag.GetAll();
-        CategoriesList = await cate.GetAll();
+        CategoriesList = await cate.GetAllType("project");
         designersList = await des.GetAll();
         banner = await bnser.GetBannerByProductPostId(Id);
         SelectedCategories = (await cate.GetCategoryByPosstId(Id))
