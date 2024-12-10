@@ -1,78 +1,78 @@
-﻿@page "/admin/login"
-@layout LoginLayout
-@inject NavigationManager Navigation
-@inject HttpClient Http
-@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
-@inject CustomAuthenticationStateProvider CustomAuthStateProvider
-@inject IAccountService accountService
-@inject IJSRuntime _jsRuntime
+﻿    @page "/admin/login"
+    @layout LoginLayout
+    @inject NavigationManager Navigation
+    @inject HttpClient Http
+    @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+    @inject CustomAuthenticationStateProvider CustomAuthStateProvider
+    @inject IAccountService accountService
+    @inject IJSRuntime _jsRuntime
 
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>HangKenh - Dashboard - Đăng nhập</title>
-    <link href="assets/libs/tabler/css/tabler.min.css" rel="stylesheet" />
-    <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
-    <base href="/"/>
-</head>
-<body class="d-flex flex-column">
-    <div class="login-container">
-        <div class="container container-tight py-4">
-            <div class="text-center mb-4">
-                <h1>ThamLenHangKenh</h1>
-            </div>
-            <div class="card card-md">
-                <div class="card-body">
-                    <h2 class="h2 text-center mb-4">Đăng nhập vào hệ thống</h2>
+    <!doctype html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport"
+              content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>HangKenh - Dashboard - Đăng nhập</title>
+        <link href="assets/libs/tabler/css/tabler.min.css" rel="stylesheet" />
+        <link href="https://rsms.me/inter/inter.css" rel="stylesheet">
+        <base href="/"/>
+    </head>
+    <body class="d-flex flex-column">
+        <div class="login-container">
+            <div class="container container-tight py-4">
+                <div class="text-center mb-4">
+                    <h1>ThamLenHangKenh</h1>
+                </div>
+                <div class="card card-md">
+                    <div class="card-body">
+                        <h2 class="h2 text-center mb-4">Đăng nhập vào hệ thống</h2>
 
-                    <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary />
+                        <EditForm Model="@loginModel" OnValidSubmit="@HandleLogin">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
 
-                        @if (!string.IsNullOrEmpty(errorMessage))
-                        {
-                            <p class="text-danger text-center">@errorMessage</p>
-                        }
+                            @if (!string.IsNullOrEmpty(errorMessage))
+                            {
+                                <p class="text-danger text-center">@errorMessage</p>
+                            }
 
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <InputText type="email" class="form-control" @bind-Value="loginModel.Email" required placeholder="your@email.com" />
-                        </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email</label>
+                                <InputText type="email" class="form-control" @bind-Value="loginModel.Email" required placeholder="your@email.com" />
+                            </div>
 
-                        <div class="mb-2">
-                            <label class="form-label">
-                                Mật khẩu
-                                <span class="form-label-description">
-                                    <a href="./forgot-password.html">Quên mật khẩu</a>
-                                </span>
-                            </label>
-                            <InputText type="password" class="form-control" @bind-Value="loginModel.Password" required placeholder="Nhập mật khẩu" />
-                        </div>
+                            <div class="mb-2">
+                                <label class="form-label">
+                                    Mật khẩu
+                                    <span class="form-label-description">
+                                        <a href="./forgot-password.html">Quên mật khẩu</a>
+                                    </span>
+                                </label>
+                                <InputText type="password" class="form-control" @bind-Value="loginModel.Password" required placeholder="Nhập mật khẩu" />
+                            </div>
 
-                        <div class="mb-2">
-                            <label class="form-check">
-                                <input type="checkbox" class="form-check-input" />
-                                <span class="form-check-label">Ghi nhớ tài khoản</span>
-                            </label>
-                        </div>
+                            <div class="mb-2">
+                                <label class="form-check">
+                                    <input type="checkbox" class="form-check-input" />
+                                    <span class="form-check-label">Ghi nhớ tài khoản</span>
+                                </label>
+                            </div>
 
-                        <div class="form-footer">
-                            <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
-                        </div>
-                    </EditForm>
+                            <div class="form-footer">
+                                <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+                <div class="text-center text-secondary mt-3">
+                    Không có account hãy liên hệ admin.
                 </div>
             </div>
-            <div class="text-center text-secondary mt-3">
-                Không có account hãy liên hệ admin.
-            </div>
         </div>
-    </div>
-</body>
-</html>
+    </body>
+    </html>
 @code {
     private SignInModel loginModel = new SignInModel();
     private string? errorMessage;
@@ -83,21 +83,30 @@
         if (firstRender && !isInitialized)
         {
             await CustomAuthStateProvider.InitializeAuthenticationState();
-            isInitialized = true;
-            StateHasChanged();
+            isInitialized = true; 
+            StateHasChanged(); 
         }
     }
+
     private async Task HandleLogin()
     {
         try
         {
-            await CustomAuthStateProvider.LoginAsync(loginModel);
-            await CustomAuthStateProvider.InitializeAuthenticationState();
-            Navigation.NavigateTo("/");
+            var token = await accountService.SignInAsync(loginModel);
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                await CustomAuthStateProvider.LoginAsync(token);
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                errorMessage = "Thông tin đăng nhập không chính xác.";
+            }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Lỗi xảy ra khi đăng nhập: {ex.Message}";
+            errorMessage = ex.Message; // Hiển thị thông điệp lỗi nếu có ngoại lệ
         }
     }
 }

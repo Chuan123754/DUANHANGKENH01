@@ -524,6 +524,7 @@
         textileTechnologyList = await tech.GetAll();
         newTextileTechnology = new Textile_technology();
         isModalOpen = false;
+        await JS.InvokeVoidAsync("toastr.success", "Thêm mới công nghệ dệt thành công!");
         StateHasChanged();
     }
 
@@ -532,6 +533,8 @@
         await style.Create(newStyle);
         styleList = await style.GetAll();
         newStyle = new Style();
+        await JS.InvokeVoidAsync("toastr.success", "Thêm mới phong cách thành công!");
+        StateHasChanged();
         isModalOpen = false;
     }
 
@@ -541,6 +544,8 @@
         sizeList = await size.GetAll();
         newSize = new Size();
         isModalOpen = false;
+        await JS.InvokeVoidAsync("toastr.success", "Thêm kích thước thành công!");
+        StateHasChanged();
     }
 
     private async Task CreateMaterial()
@@ -549,6 +554,8 @@
         materialList = await material.GetAll();
         newMaterial = new Material();
         isModalOpen = false;
+        await JS.InvokeVoidAsync("toastr.success", "Thêm mới chất liệu thành công!");
+        StateHasChanged();
     }
 
     private async Task CreateColor()
@@ -557,6 +564,8 @@
         colorList = await color.GetAll();
         newColor = new Color();
         isModalOpen = false;
+        await JS.InvokeVoidAsync("toastr.success", "Thêm mới màu sắc thành công!");
+        StateHasChanged();
     }
 
 
@@ -724,9 +733,9 @@
                     .Select(word => word[0].ToString().ToUpper()));
 
                 // Lấy 3 ký tự đầu của các tiêu đề
-                string textileAbbreviation = textileTechnology?.Length >= 3 ? textileTechnology.Substring(0, 3).ToUpper() : textileTechnology.ToUpper();
-                string styleAbbreviation = style?.Length >= 3 ? style.Substring(0, 3).ToUpper() : style.ToUpper();
-                string materialAbbreviation = material?.Length >= 3 ? material.Substring(0, 3).ToUpper() : material.ToUpper();
+                string textileAbbreviation = textileTechnology?.ToUpper() ?? string.Empty;
+                string styleAbbreviation = style?.ToUpper() ?? string.Empty;
+                string materialAbbreviation = material?.ToUpper() ?? string.Empty;
 
                 // Tạo mã SKU
                 string sku = $"{productAbbreviation}-{textileAbbreviation}-{styleAbbreviation}-{materialAbbreviation}";
@@ -741,11 +750,10 @@
 
                     };
                 await productAttributes.Create(productAttribute);
-                await JS.InvokeVoidAsync("toastr.success", "Tạo thành công các biến thể");
                 isProductAttributesCreated = true;
             }
         }
-
+        await JS.InvokeVoidAsync("toastr.success", "Tạo thành công các biến thể");
         LST_ProductAttributes = await productAttributes.GetProductAttributesByProductVarianId(IdProductVariantCreated);
         IdProductVariantCreated = 0;
     }
@@ -783,8 +791,8 @@
             item.Status = item.Stock == 0 ? "Hết hàng" : "Còn hàng";
             await productAttributes.Update(item, item.Id);
         }
-
-        nav.NavigateTo("/admin/product");
+        await JS.InvokeVoidAsync("toastr.success", "Thêm thông tin cho các biến thể thành công");
+        nav.NavigateTo("/admin/productVarians");
     }
 
     private async Task DeleteProductAttribute(long id)

@@ -3,14 +3,14 @@ using Microsoft.JSInterop;
 using System.Security.Claims;
 using System.Net.Http.Headers;
 using ViewsFE.IServices;
-using ViewsFE.Models;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
 
 public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
     private readonly IAccountService _accountService;
     private readonly HttpClient _httpClient;
     private readonly IJSRuntime _jsRuntime;
-    private bool _hasInitialized;
 
     public CustomAuthenticationStateProvider(IAccountService accountService, HttpClient httpClient, IJSRuntime jsRuntime)
     {
@@ -18,64 +18,75 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         _httpClient = httpClient;
         _jsRuntime = jsRuntime;
     }
+    public async Task<string> GetCurrentUserId()
+    {
+        var authState = await GetAuthenticationStateAsync();
+        var user = authState.User;
 
+        if (user.Identity.IsAuthenticated)
+        {
+            // Giả sử bạn đã lưu ID người dùng trong claims  
+            return user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
+
+        return null; // Trả về null nếu không tìm thấy  
+    }
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        if (!_hasInitialized)
-        {
-            await InitializeAuthenticationState();
-        }
-
-        // Nếu chưa có token, trả về trạng thái không xác thực
         var token = await GetTokenFromSessionStorageAsync();
 
-        if (string.IsNullOrEmpty(token))
-        {
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-        }
+        var identity = string.IsNullOrEmpty(token) ? new ClaimsIdentity() : new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+        var user = new ClaimsPrincipal(identity);
 
-        // Tạo ClaimsPrincipal từ token
-        var claims = new List<Claim> { new Claim(ClaimTypes.Name, "UserFromToken") }; // Giải mã thêm claims nếu cần
-        var identity = new ClaimsIdentity(claims, "jwt");
-        return new AuthenticationState(new ClaimsPrincipal(identity));
+        return new AuthenticationState(user);
     }
 
+    private IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
+    {
+        var claims = new List<Claim>();
+        var payload = jwt.Split('.')[1];
+        var jsonBytes = ParseBase64WithoutPadding(payload);
+        var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
+
+        foreach (var kvp in keyValuePairs)
+        {
+            claims.Add(new Claim(kvp.Key, kvp.Value.ToString()));
+        }
+
+        return claims;
+    }
+
+    private byte[] ParseBase64WithoutPadding(string base64)
+    {
+        switch (base64.Length % 4)
+        {
+            case 2: base64 += "=="; break;
+            case 3: base64 += "="; break;
+        }
+        return Convert.FromBase64String(base64);
+    }
     public async Task InitializeAuthenticationState()
     {
-        if (!_hasInitialized)
-        {
-            if (!IsPrerendering())
-            {
-                var token = await GetTokenFromSessionStorageAsync();
+        var token = await GetTokenFromSessionStorageAsync();
+        var identity = string.IsNullOrEmpty(token) ? new ClaimsIdentity() : new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+        var user = new ClaimsPrincipal(identity);
 
-                if (!string.IsNullOrEmpty(token))
-                {
-                    _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                }
-
-                _hasInitialized = true;
-                NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
-            }
-        }
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
     }
-
-    public async Task LoginAsync(SignInModel model)
+    public async Task LoginAsync(string token)
     {
-        var token = await _accountService.SignInAsync(model);
+        await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "authToken", token);
 
-        if (!string.IsNullOrEmpty(token))
-        {
-            await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "authToken", token);
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        // Thiết lập header Authorization cho HttpClient  
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var claims = new[] { new Claim(ClaimTypes.Name, model.Email) };
-            var identity = new ClaimsIdentity(claims, "jwt");
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new ClaimsPrincipal(identity))));
-        }
-        else
-        {
-            throw new Exception("Thông tin đăng nhập không chính xác.");
-        }
+        // Giải mã token để lấy claims  
+        var handler = new JwtSecurityTokenHandler();
+        var jwtToken = handler.ReadJwtToken(token);
+        var claims = jwtToken.Claims.ToList();
+
+        var identity = new ClaimsIdentity(claims, "jwt");
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new ClaimsPrincipal(identity))));
     }
 
     public async Task LogoutAsync()
@@ -93,7 +104,7 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
             return await _jsRuntime.InvokeAsync<string>("sessionStorage.getItem", "authToken");
         }
         catch
-        { 
+        {
             return string.Empty;
         }
     }

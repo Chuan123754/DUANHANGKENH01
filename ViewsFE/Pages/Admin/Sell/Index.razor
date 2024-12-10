@@ -9,6 +9,7 @@
 @inject MomoService momoService
 @inject IOrderTrackingService orderTrackingService
 @inject IJSRuntime JS
+@inject CustomAuthenticationStateProvider _authStateProvider;
 
 
 <style>
@@ -276,17 +277,22 @@
                                             <td class="text-start">
                                                 @if (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
                                                 {
-                                                    <span>
-                                                        @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Sale_price)).Replace(".", ",") VNĐ
-                                                    </span>
+                                                     <div>
+                                                        <span style="text-decoration: line-through; color: gray;">
+                                                            @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Regular_price)).Replace(".", ",") VNĐ
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span style="font-weight: bold; color: red;">
+                                                            @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Sale_price)).Replace(".", ",") VNĐ
+                                                        </span>
+                                                    </div>
                                                 }
                                                 else
                                                 {
                                                     <span>
                                                         @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Regular_price)).Replace(".", ",") VNĐ
                                                     </span>
-
-
                                                 }
                                             </td>
                                             <td>
@@ -1194,7 +1200,9 @@
 
     private async Task UpdateOrderDetail(Order_details orderDetail)
     {
-        await orderDetailService.Update(orderDetail,orderDetail.Id);
+        var orderDetailUpdate = orderDetail;
+        orderDetailUpdate.TotalDiscount = (orderDetail.ProductAttributes.Sale_price);
+        await orderDetailService.Update(orderDetailUpdate, orderDetailUpdate.Id);
     }
 
     private async Task CreateOrder()
@@ -1206,10 +1214,11 @@
             await JS.InvokeVoidAsync("toastr.error", "Chỉ có thể tạo tối đa 7 hóa đơn treo");
             return;
         }
+        var currentUserId = await _authStateProvider.GetCurrentUserId();
         var newOrder = new Orders
             {
                 Note = "Tại quầy",
-                CreatedByAdminId = null,
+                CreatedByAdminId = currentUserId,
                 Status = "Hóa đơn treo"
             };
         await orderService.Create(newOrder);
@@ -1297,6 +1306,7 @@
         if (existingOrderDetail != null)
         {
             existingOrderDetail.Quantity += quantity;
+            existingOrderDetail.TotalDiscount = productAttribute.Sale_price;
             await orderDetailService.Update(existingOrderDetail, existingOrderDetail.Id);
         }
         else
@@ -1305,7 +1315,8 @@
                 {
                     Quantity = quantity,
                     OrderId = selectedOrderId,
-                    Product_Attribute_Id = productAttributeId
+                    Product_Attribute_Id = productAttributeId,
+                    TotalDiscount = productAttribute.Sale_price
                 };
 
             await orderDetailService.Create(orderDetails);
@@ -1511,7 +1522,7 @@
                 {
                     OrderId = orderToUpdate.Id,
                     Status = isDeliveryVisible ? "Đã thanh toán" : "Hoàn Thành Đơn",
-                    Note = "Đã xác nhận đơn hàng Tại quầy",
+                    Note = "Đã xác nhận đơn hàng Tại , Khách hàng đã thanh toán",
                     Created_at = DateTime.Now,
                     Created_by = 1 // ID tạm
             };

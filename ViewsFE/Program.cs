@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using ViewsFE.Models;
 using appAPI.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<APP_DATA_DATN>(options =>
@@ -25,10 +27,19 @@ builder.Services.AddHttpClient();
 builder.Services.AddOptions();
 builder.Services.AddBlazoredLocalStorage();
 
-builder.Services.AddAuthorizationCore(config =>
-{
-    config.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin")); // cấu hình xác thực cho Blazor 
-});
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+       .AddJwtBearer(options =>
+       {
+           options.TokenValidationParameters = new TokenValidationParameters
+           {
+               ValidateIssuer = true,
+               ValidateAudience = true,
+               ValidateLifetime = true,
+               ValidateIssuerSigningKey = true,
+               // Các thông số khác  
+           };
+       });
+
 // Thêm cấu hình session
 builder.Services.AddSession(options =>
 {

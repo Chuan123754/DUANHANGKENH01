@@ -11,6 +11,7 @@
 @inject IColorServices colorService
 @inject ISizeServices sizeService
 @inject IJSRuntime JS
+@inject CustomAuthenticationStateProvider _authStateProvider;
 
 <div class="page-wrapper">
     <!-- Page header -->
@@ -396,11 +397,13 @@
     private int page_size = 10;
     private int totalItems;
 
+    private bool isAuthenticated;
+
     protected override async Task OnInitializedAsync()
     {
-        await LoadPosts();
-        colorList = await colorService.GetAll();
-        sizeList = await sizeService.GetAll();
+            await LoadPosts();
+            colorList = await colorService.GetAll();
+            sizeList = await sizeService.GetAll();
     }
     private async Task HandleImageSelected(string imagePath)
     {
@@ -656,6 +659,9 @@
             Console.WriteLine($"Lỗi khi xóa sản phẩm: {ex.Message}");
         }
     }
+
+
+
 }
 @* <script>
     function openMediaModal() {
