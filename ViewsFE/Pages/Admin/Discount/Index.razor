@@ -159,14 +159,16 @@
                     <div class="card">
                         <div class="card-body">
                             <!-- Search Box -->
-                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
-                                <EditForm Model="discount" OnValidSubmit="@SearchDiscounts">
+                            <div class="d-flex gap-2" style="width: 60%;">
+                                <EditForm EditContext="editContext" OnValidSubmit="@SearchDiscounts">
                                     <div class="form-group d-flex gap-2">
-                                        <InputText id="searchInput" class="form-control" @bind-Value="searchText" placeholder="Nhập từ khóa tìm kiếm" />
+                                        <InputText id="searchInputDiscount" class="form-control" @bind-Value="searchDiscountText" placeholder="Tìm kiếm khuyến mãi theo Code" />
                                         <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
                                     </div>
                                 </EditForm>
                             </div>
+
+
                             <h3>Danh Sách Khuyến Mãi</h3>
                             <table class="table ">
                                 <thead>
@@ -234,15 +236,17 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-body">
-                            <!-- Search Box -->
-                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
-                                <EditForm Model="discount" OnValidSubmit="@SearchDiscounts">
+                            <div class="d-flex gap-2" style="width: 60%;">
+                                <EditForm EditContext="editContext" OnValidSubmit="@SearchProducts">
                                     <div class="form-group d-flex gap-2">
-                                        <InputText id="searchInput" class="form-control" @bind-Value="searchText" placeholder="Nhập từ khóa tìm kiếm" />
+                                        <InputText id="searchInputProduct" class="form-control" @bind-Value="searchProductText" placeholder="Tìm kiếm sản phẩm theo SKU, Color, Size" />
                                         <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
                                     </div>
                                 </EditForm>
                             </div>
+
+
+
                             <h3>Danh Sách Sản Phẩm</h3>
                             <table class="table table-striped">
                                 <thead>
@@ -288,10 +292,10 @@
                                 </tbody>
                             </table>
 
-                            <!-- Phân trang -->
-@*                             <div class="mt-4">
-                                <Pagination TItem="Discount" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="discounts.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
-                            </div> *@
+                            <div class="mt-4">
+                                <Pagination TItem="Product_Attributes" PageNumber="currentProductPage" TotalPages="totalProductPages" PageSize="productPageSize" TotalItems="lst_ProductAtribites.Count" OnPageChanged="GoToProductPage" OnPageSizeChanged="OnProductPageSizeChanged" />
+                            </div>
+
 
                         </div>
                     </div>
@@ -318,6 +322,19 @@
     private int currentPage = 1;
     private int pageSize = 5;
     private int totalPages = 1;
+
+    private string searchDiscountText = string.Empty; // Tìm kiếm khuyến mãi
+    private string searchProductText = string.Empty; // Tìm kiếm sản phẩm
+    private int currentProductPage = 1;
+    private int productPageSize = 5;
+    private int totalProductPages = 1;
+
+    private EditContext editContext;
+
+    protected override void OnInitialized()
+    {
+        editContext = new EditContext(discount);
+    }
 
     private void OnTypeOfPromotionChange(ChangeEventArgs e)
     {
@@ -854,18 +871,77 @@
 
     private async Task SearchDiscounts()
     {
-        if (string.IsNullOrEmpty(searchText))
+        // Load lại toàn bộ danh sách khuyến mãi trước khi tìm kiếm
+        discounts = await DiscountService.GetAll();
+
+        if (!string.IsNullOrEmpty(searchDiscountText))
         {
-            discounts = await DiscountService.GetAll();
-        }
-        else
-        {
+            // Thực hiện tìm kiếm dựa trên danh sách đã được làm mới
             discounts = discounts
-                .Where(d => d.Code.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                .Where(d => d.Code.Contains(searchDiscountText, StringComparison.OrdinalIgnoreCase) ||
+                            d.Name.Contains(searchDiscountText, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
+
+        // Đặt lại phân trang
         currentPage = 1;
         LoadPagedDiscounts();
+    }
+
+
+
+    private async Task SearchProducts()
+    {
+        // Load lại toàn bộ danh sách sản phẩm trước khi tìm kiếm
+        lst_ProductAtribites = await productAttributeService.GetAllProductAttributes();
+
+        if (!string.IsNullOrEmpty(searchProductText))
+        {
+            // Thực hiện tìm kiếm dựa trên danh sách đã được làm mới
+            lst_ProductAtribites = lst_ProductAtribites
+                .Where(p => p.SKU.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) ||
+                            p.Color?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true ||
+                            p.Size?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true)
+                .ToList();
+        }
+
+        // Đặt lại phân trang
+        currentProductPage = 1;
+        LoadPagedProducts();
+    }
+
+
+    private void LoadPagedProducts()
+    {
+        totalProductPages = (int)Math.Ceiling((double)lst_ProductAtribites.Count / productPageSize);
+
+        if (currentProductPage > totalProductPages)
+        {
+            currentProductPage = totalProductPages;
+        }
+
+        if (currentProductPage < 1)
+        {
+            currentProductPage = 1;
+        }
+
+        lst_ProductAtribites = lst_ProductAtribites
+            .Skip((currentProductPage - 1) * productPageSize)
+            .Take(productPageSize)
+            .ToList();
+    }
+
+    private async Task GoToProductPage(int page)
+    {
+        currentProductPage = page;
+        LoadPagedProducts();
+    }
+
+    private async Task OnProductPageSizeChanged(int newPageSize)
+    {
+        productPageSize = newPageSize;
+        currentProductPage = 1;
+        LoadPagedProducts();
     }
 
     private async Task LoadDiscounts()
