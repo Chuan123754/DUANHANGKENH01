@@ -83,9 +83,30 @@ namespace ViewsFE.Services
                 throw new Exception($"API call failed with status code {cartResponse.StatusCode} and message: {errorContent}");
             }
 
+            // Tạo wishlist cho người dùng mới
+            var wishlist = new Wishlist
+            {
+                Id = 0,
+                User_id = createdUser.Id,
+                Create_at = DateTime.Now,
+                Updated_at = DateTime.Now
+            };
+
+            string wishlistRequestURL = $"{_baseUrl}/api/Wishlist/wishlist-post";
+            var wishlistJsonContent = JsonConvert.SerializeObject(wishlist);
+            var wishlistContent = new StringContent(wishlistJsonContent, Encoding.UTF8, "application/json");
+            var wishlistResponse = await _httpClient.PostAsync(wishlistRequestURL, wishlistContent);
+
+            if (!wishlistResponse.IsSuccessStatusCode)
+            {
+                var errorContent = await wishlistResponse.Content.ReadAsStringAsync();
+                throw new Exception($"API call failed with status code {wishlistResponse.StatusCode} and message: {errorContent}");
+            }
+
             // Trả về đối tượng người dùng vừa được tạo
             return createdUser;
         }
+
 
 
         public async Task Update(Users user)
