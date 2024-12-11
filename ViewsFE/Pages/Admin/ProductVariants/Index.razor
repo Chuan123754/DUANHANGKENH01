@@ -34,14 +34,22 @@
                 <div class="card-body">
                     <!-- Search form -->
                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
-                        <div></div>
-                        <EditForm Model="product_posts" OnValidSubmit="@OnSearch">
+                        <form onsubmit="@OnSearch">
                             <div class="form-group d-flex gap-2">
-                                <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
+                                <select id="search_filter" class="form-select" @bind="searchFilter">
+                                    <option value="product_name">Tên sản phẩm</option>
+                                    <option value="textile_technology">Công nghệ dệt</option>
+                                    <option value="material">Chất liệu</option>
+                                    <option value="style">Phong cách</option>
+                                </select>
+                                <input id="search_input" class="form-control" @bind="search_query" placeholder="Nhập từ khóa tìm kiếm" />
                                 <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
                             </div>
-                        </EditForm>
+                        </form>
                     </div>
+
+
+
                     <!-- Product Table -->
                     <div id="table-default" class="table-responsive">
                         @if (product_Varians_list != null && product_Varians_list.Any())
@@ -396,11 +404,16 @@
     private int page_size = 10;
     private int totalItems;
 
+    private string searchFilter = "product_name";
+
     protected override async Task OnInitializedAsync()
     {
         await LoadPosts();
         colorList = await colorService.GetAll();
         sizeList = await sizeService.GetAll();
+        Material_list = await MaterialService.GetAll();
+        TextileTechnology_list = await Textile_technologyServices.GetAll();
+        Style_list = await StyleServices.GetAll();
     }
     private async Task HandleImageSelected(string imagePath)
     {
@@ -589,10 +602,39 @@
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
     }
+
     private async Task OnSearch()
     {
-        // product_Varians_list = await productVarians.GetByTypeAsync("product", page_number, page_size, search_query);
+        product_Varians_list = await productVariansService.GetAllProductVarians();
+
+        if (string.IsNullOrWhiteSpace(search_query))
+        {
+            return;
+        }
+
+        product_Varians_list = product_Varians_list.Where(post =>
+        {
+            switch (searchFilter)
+            {
+                case "product_name":
+                    return post.Posts.Title.Contains(search_query, StringComparison.OrdinalIgnoreCase);
+                case "textile_technology":
+                    return TextileTechnology_list.Any(t => t.Id == post.Textile_technology_id &&
+                                                            t.Title.Contains(search_query, StringComparison.OrdinalIgnoreCase));
+                case "material":
+                    return Material_list.Any(m => m.Id == post.Material_id &&
+                                                  m.Title.Contains(search_query, StringComparison.OrdinalIgnoreCase));
+                case "style":
+                    return Style_list.Any(s => s.Id == post.Style_id &&
+                                               s.Title.Contains(search_query, StringComparison.OrdinalIgnoreCase));
+                default:
+                    return false;
+            }
+        }).ToList();
+        StateHasChanged();
     }
+
+
     private async Task NavEditCtgr(long id)
     {
         Navigation.NavigateTo($"/Admin/productVariant/Update/{id}");
