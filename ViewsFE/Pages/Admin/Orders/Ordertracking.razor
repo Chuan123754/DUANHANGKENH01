@@ -500,7 +500,7 @@
             // Nếu trạng thái cần thay đổi cả Order
             if (status == "Hoàn Thành đơn")
             {
-                Order.Note = "Khách đã thanh toán tại quầy"; 
+                Order.Note = "Khách đã thanh toán"; 
                 await orderService.Update(Order, OrderId);
             }
 
@@ -526,6 +526,8 @@
         try
         {
             // Lấy trạng thái "Đã xác nhận" và "Đã thanh toán" từ các bản ghi OrderTracking
+            var confirmTracking = OrderTracking.OrderTrackings
+                 .FirstOrDefault(t => t.Status == "Chờ xác nhận");
             var confirmedTracking = OrderTracking.OrderTrackings
                 .FirstOrDefault(t => t.Status == "Đã xác nhận");
             var paidTracking = OrderTracking.OrderTrackings
@@ -537,7 +539,7 @@
                 if (paidTracking != null) // Nếu đã thanh toán
                 {
                     var modalStatus = "Hoàn tất đơn";
-                    var modalNote = "Khách đã thanh toán tại quầy.";
+                    var modalNote = "Khách đã thanh toán qua hình thức chuyển khoản MOMO.";
                     await AddNewTracking(modalStatus, modalNote);
                     await UpdateOrderStatus(modalStatus);
                     await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã hoàn tất, khách đã thanh toán tại quầy.");

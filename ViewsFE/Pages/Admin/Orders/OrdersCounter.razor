@@ -205,9 +205,9 @@
                                                                 <th>Kích thước</th>
                                                                 <th>Số lượng</th>
                                                                 <th>Đơn giá</th>
+                                                                <th>Gía chiết khấu </th>
                                                                 <th>Tổng tiền</th>
-                                                                <th>Tổng tiền sản phẩm</th>
-                                                                <th>Tổng thanh toán</th>
+                                                                <th>Tổng tiền hóa đơn</th>
                                                                 <th>Tên khách hàng</th>
                                                             </tr>
                                                         </thead>
@@ -231,44 +231,50 @@
                                                                     <td>@item.ProductAttributes.Size.Title</td>
                                                                     <td>@item.Quantity </td>
                                                                     <td class="text-end">
-                                                                        @if (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
+                                                                        <div>
+                                                                            <span>
+                                                                                @string.Format("{0:N0}", item.ProductAttributes.Regular_price).Replace(".", ",") VNĐ
+                                                                            </span>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        @if (item.TotalDiscount == null || item.TotalDiscount == 0)
+                                                                        {
+                                                                            <div>
+                                                                                <span>
+                                                                                  Không
+                                                                                </span>
+                                                                            </div>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <div>
+                                                                                <span style="font-weight: bold; color: red;">
+                                                                                    @string.Format("{0:N0}", (item.TotalDiscount)).Replace(".", ",") VNĐ
+                                                                                </span>
+                                                                            </div>
+                                                                        }
+
+                                                                    </td>
+                                                                    <td >
+                                                                        @if (item.TotalDiscount != null && item.TotalDiscount > 0)
                                                                         {
                                                                             <div>
                                                                                 <span style="text-decoration: line-through; color: gray;">
-                                                                                    @string.Format("{0:N0}", item.ProductAttributes.Regular_price).Replace(".", ",") VNĐ
+                                                                                    @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Regular_price)).Replace(".", ",") VNĐ
                                                                                 </span>
                                                                             </div>
                                                                             <div>
                                                                                 <span style="font-weight: bold; color: red;">
-                                                                                    @string.Format("{0:N0}", item.ProductAttributes.Sale_price).Replace(".", ",") VNĐ
+                                                                                    @string.Format("{0:N0}", (item.Quantity * item.TotalDiscount)).Replace(".", ",") VNĐ
                                                                                 </span>
                                                                             </div>
                                                                         }
                                                                         else
                                                                         {
-                                                                            <div>
-                                                                                <span>
-                                                                                    @string.Format("{0:N0}", item.ProductAttributes.Regular_price).Replace(".", ",") VNĐ
-                                                                                </span>
-                                                                            </div>
-                                                                        }
-                                                                    </td>
-                                                                    <td >
-                                                                        @if (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
-                                                                        {
-                                                                              <div>
-                                                                            <span>
-                                                                                @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Sale_price)).Replace(".", ",") VNĐ
-                                                                            </span>
-                                                                            </div>
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                              <div>
                                                                             <span>
                                                                                 @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Regular_price)).Replace(".", ",") VNĐ
                                                                             </span>
-                                                                            </div>
                                                                         }
                                                                     </td>
                                                                     @if (isFirstRow)

@@ -49,6 +49,7 @@ namespace appAPI.Models
         public DbSet<UserVouchers> userVouchers { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<AccessView> AccessViews { get; set; }
+        public DbSet<Admin> Admins { get; set; }
         public DbSet<Products_Returned> Products_Returned { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -60,7 +61,24 @@ namespace appAPI.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity("appAPI.Models.AccessView", b =>
+            {
+                b.Property<long>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint");
 
+                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                b.Property<DateTime>("AccessDate")
+                    .HasColumnType("datetime2");
+
+                b.Property<long>("TotalViews")
+                    .HasColumnType("bigint");
+
+                b.HasKey("Id");
+
+                b.ToTable("AccessViews");
+            });
             modelBuilder.Entity<Payment>().HasData(
                   new Payment
                   {

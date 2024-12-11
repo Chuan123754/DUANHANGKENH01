@@ -62,7 +62,7 @@ namespace appAPI.Repository
             if (updateItem != null)
             {
                 updateItem.Quantity = orderdetails.Quantity;
-
+                updateItem.TotalDiscount = orderdetails.TotalDiscount;
                 _context.Order_Details.Update(updateItem);
                 await _context.SaveChangesAsync();
             }

@@ -6,6 +6,7 @@ using System.Text;
 using ViewsFE.Models.DTO;
 using System.Net.Http.Headers;
 using Blazored.SessionStorage;
+using System.Text.Json;
 
 namespace ViewsFE.Services
 {
@@ -30,16 +31,48 @@ namespace ViewsFE.Services
         {
             string requestURL = "https://localhost:7011/api/Account/Login";
             var response = await _client.PostAsJsonAsync(requestURL, model);
+
+            // Đọc nội dung phản hồi  
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Response Content: {content}"); // Ghi lại nội dung phản hồi để kiểm tra  
+
             if (response.IsSuccessStatusCode)
             {
-                var token = await response.Content.ReadAsStringAsync();
-                if (!string.IsNullOrEmpty(token))
+                try
                 {
-                    return token;
-                    
+                    // Xóa ký tự dấu ngoặc kép bên ngoài nếu chúng có  
+                    if (content.StartsWith("\"") && content.EndsWith("\""))
+                    {
+                        content = content[1..^1]; // Loại bỏ ký tự đầu và cuối  
+                    }
+
+                    // Phân tích nội dung JSON  
+                    var result = System.Text.Json.JsonSerializer.Deserialize<TokenResponse>(content); // Sử dụng System.Text.Json  
+
+                    if (result != null && !string.IsNullOrEmpty(result.token))
+                    {
+                        return result.token;
+                    }
+                    else
+                    {
+                        // Nếu không có token  
+                        throw new Exception("Token không hợp lệ hoặc không tìm thấy.");
+                    }
+                }
+                catch (System.Text.Json.JsonException jsonEx)
+                {
+                    // Xử lý ngoại lệ phân tích JSON  
+                    Console.WriteLine($"Lỗi phân tích JSON: {jsonEx.Message}\nNội dung phản hồi: {content}");
+                    throw new Exception("Lỗi phân tích phần phản hồi của API.");
                 }
             }
-            throw new Exception("Đăng nhập không hợp lệ");
+
+            throw new Exception("Đăng nhập không hợp lệ.");
+        }
+
+        public class TokenResponse
+        {
+            public string token { get; set; }
         }
 
         public async Task<IdentityResult> SignUpAsync(SignUpModel model)

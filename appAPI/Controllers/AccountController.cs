@@ -55,12 +55,12 @@ namespace appAPI.Controllers
         [HttpPost("Login")]
         public async Task<IActionResult> SignIn(SignInModel model)
         {
-            var result = await _repo.SignInAsync(model);
-            if (string.IsNullOrEmpty(result))
+            var token = await _repo.SignInAsync(model);
+            if (string.IsNullOrEmpty(token))
             {
                 return Unauthorized();
             }
-            return Ok(result);
+            return Ok(new { Token = token });
         }
         [HttpPost("SignOut")]
         public async Task<IActionResult> SignOutAsync()

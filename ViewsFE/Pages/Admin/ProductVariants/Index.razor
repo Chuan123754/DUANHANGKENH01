@@ -11,6 +11,7 @@
 @inject IColorServices colorService
 @inject ISizeServices sizeService
 @inject IJSRuntime JS
+@inject CustomAuthenticationStateProvider _authStateProvider;
 
 <div class="page-wrapper">
     <!-- Page header -->
@@ -403,11 +404,11 @@
     private int total_pages = 1;
     private int page_size = 10;
     private int totalItems;
-
-    private string searchFilter = "product_name";
-
+    private bool isAuthenticated;
+ private string searchFilter = "product_name";
     protected override async Task OnInitializedAsync()
     {
+
         await LoadPosts();
         colorList = await colorService.GetAll();
         sizeList = await sizeService.GetAll();
@@ -698,6 +699,9 @@
             Console.WriteLine($"Lỗi khi xóa sản phẩm: {ex.Message}");
         }
     }
+
+
+
 }
 @* <script>
     function openMediaModal() {

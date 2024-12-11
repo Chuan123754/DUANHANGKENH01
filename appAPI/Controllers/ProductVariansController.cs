@@ -1,6 +1,7 @@
 ﻿using appAPI.DTO;
 using appAPI.IRepository;
 using appAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

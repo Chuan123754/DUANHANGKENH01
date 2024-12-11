@@ -17,6 +17,8 @@ namespace appAPI.Models
         public long OrderId { get; set; }
         public long Product_Attribute_Id { get; set; }
         public int Quantity { get; set; }
+        public decimal? UnitPrice { get; set; }
+        public long? TotalDiscount {  get; set; }
         [ForeignKey("OrderId")]
         public virtual Orders? Orders { get; set; }
         [ForeignKey("Product_Attribute_Id")]

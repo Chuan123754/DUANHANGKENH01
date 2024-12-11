@@ -9,6 +9,7 @@
 @inject MomoService momoService
 @inject IOrderTrackingService orderTrackingService
 @inject IJSRuntime JS
+@inject CustomAuthenticationStateProvider _authStateProvider;
 
 
 <style>
@@ -276,17 +277,22 @@
                                             <td class="text-start">
                                                 @if (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
                                                 {
-                                                    <span>
-                                                        @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Sale_price)).Replace(".", ",") VNĐ
-                                                    </span>
+                                                     <div>
+                                                        <span style="text-decoration: line-through; color: gray;">
+                                                            @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Regular_price)).Replace(".", ",") VNĐ
+                                                        </span>
+                                                    </div>
+                                                    <div>
+                                                        <span style="font-weight: bold; color: red;">
+                                                            @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Sale_price)).Replace(".", ",") VNĐ
+                                                        </span>
+                                                    </div>
                                                 }
                                                 else
                                                 {
                                                     <span>
                                                         @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Regular_price)).Replace(".", ",") VNĐ
                                                     </span>
-
-
                                                 }
                                             </td>
                                             <td>
@@ -443,8 +449,12 @@
                                                                             <form class="p-4 bg-light rounded shadow">
                                                                                 <div class="row mb-3">
                                                                                     <div class="col-md-6">
-                                                                                        <label for="name" class="form-label">Tên địa chỉ</label>
-                                                                                        <input type="text" @bind="address.Name" class="form-control" placeholder="Nhập tên địa chỉ">
+                                                                                        <label for="name" class="form-label">Tên người nhận</label>
+                                                                                        <input type="text" @bind="address.Name" class="form-control" placeholder="Nhập tên người nhận ">
+                                                                                    </div>
+                                                                                         <div class="col-md-6">
+                                                                                        <label for="name" class="form-label">Số điện thoại</label>
+                                                                                        <input type="text" @bind="address.Phone" class="form-control" placeholder="Nhập SĐT người nhận ">
                                                                                     </div>
 
                                                                                 </div>
@@ -496,7 +506,7 @@
                                                                                     </div>
                                                                                     <div class="col-md-4">
                                                                                         <label for="note" class="form-label">Ghi chú</label>
-                                                                                        <input type="text" id="note" class="form-control" placeholder="Nhập ghi chú">
+                                                                                        <input type="text" @bind="address.Status" class="form-control" placeholder="Nhập ghi chú">
                                                                                     </div>
                                                                                 </div>
 
@@ -529,8 +539,8 @@
                                                                         {
                                                                             <tr>
                                                                                 <td>@index</td>
-                                                                                <td>@item.User?.Name</td>
-                                                                                <td>@item.User?.Phone</td>
+                                                                                <td>@item.Name</td>
+                                                                                <td>@item.Phone</td>
                                                                                 <td>@($"{item.Street}, {item.Ward_commune}, {item.District}, {item.Province_city}")</td>
                                                                                 <td>
                                                                                     <button class="btn btn-primary mt-2" @onclick="() => SelectAddress(item)">Chọn</button>
@@ -562,7 +572,7 @@
                                                             <strong>
                                                                 @if (selectedAddress != null && selectedAddress.User != null)
                                                                 {
-                                                                    @selectedAddress?.User?.Name
+                                                                    @selectedAddress?.Name
                                                                 }
                                                                 else if (selectedAddress == null)
                                                                 {
@@ -583,7 +593,7 @@
                                                             <strong>
                                                                 @if (selectedAddress != null && selectedAddress.User != null)
                                                                 {
-                                                                    @selectedAddress?.User?.Phone
+                                                                    @selectedAddress?.Phone
                                                                 }
                                                                 else if (selectedAddress == null)
                                                                 {
@@ -689,7 +699,7 @@
                                             </div>
                                             <div class="mb-3">
                                                 <div class="d-flex justify-content-between">
-                                                    <span><strong>Thời gian nhận hàng dự kiến:</strong> 23-12-2023</span>
+                                                    <span><strong>Thời gian nhận hàng dự kiến:</strong></span>
                                                 </div>
                                             </div>
                                         </form>
@@ -802,7 +812,7 @@
                             </div>
                             <div class="d-flex justify-content-center my-3">
                                 <button type="button" class="btn btn-outline-primary me-2" @onclick="PayByCash">Thanh toán tiền mặt</button>
-                                <button type="button" class="btn btn-outline-success" @onclick="PayByMomo">Thanh toán qua MoMo</button>  
+                                <button type="button" class="btn btn-outline-success" @onclick="PayByMomo">Thanh toán qua MoMo</button>
                             </div>
 
                         </div>
@@ -908,24 +918,9 @@
         var updateitem = await orderService.GetByIdOrders(selectedOrderId);
         if(updateitem.Status == "Đã xác nhận ")
         {
-            var orderDetailsCopy = lst_OrderDetail.ToList();
-            foreach (var item in orderDetailsCopy)
-            {
-                var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
-                if (product != null)
-                {
-                    if (item.Quantity > product.Stock || product.Stock == 0)
-                    {
-                        await JS.InvokeVoidAsync("toastr.error", $"Số lượng sản phẩm {product.SKU} trong kho không đủ.");
-                        return;
-                    }
-                    product.Stock -= item.Quantity; // trừ số lượng trong kho
-                    await productAttributeService.Update(product, product.Id);
-                    await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
-                    isMomoModalVisible = false;
-                    await ResetViewState();
-                }
-            }
+            await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
+            isMomoModalVisible = false;
+            await ResetViewState();
         }
         else
         {
@@ -959,14 +954,22 @@
         StateHasChanged();
     }
 
-    private async void PayByCash()
+    private async Task PayByCash()
     {
-        CheckOut("cash");
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận khách hàng thanh toán bằng tiền mặt?");
+        if (confirmed)
+        {
+            CheckOut("cash");
+        }
     }
 
-    private async void PayByMomo()
+    private async Task PayByMomo()
     {
-        CheckOut("momo");
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận khách hàng thanh toán qua MoMo?");
+        if (confirmed)
+        {
+            CheckOut("momo");
+        }
     }
 
     private async Task OnSearch()
@@ -1108,8 +1111,8 @@
         var orderDetails = await orderDetailService.GetOrderDetailsByOrderId(id);
         if (orderDetails == null || !orderDetails.Any())
         {
-            await JS.InvokeVoidAsync("toastr.error", "Không tìm thấy chi tiết đơn hàng.");
-            return;
+            await JS.InvokeVoidAsync("toastr.success", "Xóa thành công.");
+            await orderService.Delete(id);
         }
 
         foreach (var orderDetail in orderDetails)
@@ -1120,17 +1123,16 @@
                 productAttribute.Stock += orderDetail.Quantity;
                 await productAttributeService.Update(productAttribute, productAttribute.Id);
             }
-
             await orderDetailService.Delete(orderDetail.Id);
+            await orderService.Delete(id);
+            await JS.InvokeVoidAsync("toastr.success", "Xóa đơn hàng và cập nhật kho thành công.");
         }
-
-        await orderService.Delete(id);
         selectedOrderId = 0;
-
         // Làm mới danh sách Orders
         await LoadOrders();
+        await LoadOrderDetails();
+        await LoadProducts();
 
-        await JS.InvokeVoidAsync("toastr.success", "Xóa đơn hàng và cập nhật kho thành công.");
     }
 
     private async Task DeleteOrderDetail(long id) // xóa orderdetail
@@ -1194,7 +1196,9 @@
 
     private async Task UpdateOrderDetail(Order_details orderDetail)
     {
-        await orderDetailService.Update(orderDetail,orderDetail.Id);
+        var orderDetailUpdate = orderDetail;
+        orderDetailUpdate.TotalDiscount = (orderDetail.ProductAttributes.Sale_price);
+        await orderDetailService.Update(orderDetailUpdate, orderDetailUpdate.Id);
     }
 
     private async Task CreateOrder()
@@ -1206,10 +1210,11 @@
             await JS.InvokeVoidAsync("toastr.error", "Chỉ có thể tạo tối đa 7 hóa đơn treo");
             return;
         }
+        var currentUserId = await _authStateProvider.GetCurrentUserId();
         var newOrder = new Orders
             {
                 Note = "Tại quầy",
-                CreatedByAdminId = null,
+                CreatedByAdminId = currentUserId,
                 Status = "Hóa đơn treo"
             };
         await orderService.Create(newOrder);
@@ -1297,6 +1302,7 @@
         if (existingOrderDetail != null)
         {
             existingOrderDetail.Quantity += quantity;
+            existingOrderDetail.TotalDiscount = productAttribute.Sale_price;
             await orderDetailService.Update(existingOrderDetail, existingOrderDetail.Id);
         }
         else
@@ -1305,7 +1311,8 @@
                 {
                     Quantity = quantity,
                     OrderId = selectedOrderId,
-                    Product_Attribute_Id = productAttributeId
+                    Product_Attribute_Id = productAttributeId,
+                    TotalDiscount = productAttribute.Sale_price
                 };
 
             await orderDetailService.Create(orderDetails);
@@ -1465,14 +1472,15 @@
             orderToUpdate.Totalmoney = totalMoney; // tổng cần thanh toán ( nếu có ship )
             if (isDeliveryVisible)
             {
-                orderToUpdate.Status = "Đã Thanh Toán";
+                orderToUpdate.Status = "Đã xác nhận";
                 orderToUpdate.FeeShipping = feeShipping;
             }
             else
             {
-                orderToUpdate.Status = "Hoàn thành Đơn";
+                orderToUpdate.Status = "Hóa đơn treo";
                 orderToUpdate.FeeShipping = 0;
             }
+            await orderService.Update(orderToUpdate,orderToUpdate.Id);
 
             if (paymentMethod == "momo")
             {
@@ -1501,6 +1509,7 @@
             else
             {
                 orderToUpdate.TypePayment = "Thanh toán tiền mặt";
+                orderToUpdate.Status = "Đã thanh toán";
                 orderToUpdate.Address_Id = null;
                 await orderService.Update(orderToUpdate, orderToUpdate.Id);
                 await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
@@ -1510,8 +1519,8 @@
             var newOrderTracking = new order_trackings
                 {
                     OrderId = orderToUpdate.Id,
-                    Status = isDeliveryVisible ? "Đã thanh toán" : "Hoàn Thành Đơn",
-                    Note = "Đã xác nhận đơn hàng Tại quầy",
+                    Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
+                    Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" :" Đã xác nhận",
                     Created_at = DateTime.Now,
                     Created_by = 1 // ID tạm
             };

@@ -334,20 +334,25 @@
     }
     private async Task SubmitForm()
     {
-        designer.description = await JS.InvokeAsync<string>("getTinyMCEContent");
-        try
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận thêm nhà thiết kế ?");
+        if (confirmed)
         {
-            designer.SetMetaData(metaData);
-            postId = await sev.Create(designer);
-            banner.Type = "designer";
-            await bnser.AddBannerDesiner(postId, banner);
-            await JS.InvokeVoidAsync("toastr.success", "Thêm nhà thiết kế thành công");
-            nav.NavigateTo("/admin/designer");
+            designer.description = await JS.InvokeAsync<string>("getTinyMCEContent");
+            try
+            {
+                designer.SetMetaData(metaData);
+                postId = await sev.Create(designer);
+                banner.Type = "designer";
+                await bnser.AddBannerDesiner(postId, banner);
+                await JS.InvokeVoidAsync("toastr.success", "Thêm nhà thiết kế thành công");
+                nav.NavigateTo("/admin/designer");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                await JS.InvokeVoidAsync("toastr.error", "Không thể thêm nhà thiết kế. Vui lòng thử lại.");
+            }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm nhà thiết kế. Vui lòng thử lại.");
-        }
+
     }
 }

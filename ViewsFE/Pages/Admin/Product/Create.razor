@@ -410,7 +410,10 @@
 
     private async void HandleValidSubmit()
     {
-        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận thêm mới sản phẩm ?");
+        if (confirmed)
+        {
+             Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
         var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
         if (!string.IsNullOrEmpty(tags))
         {
@@ -441,6 +444,9 @@
         {
             Console.WriteLine($"Error: {ex.Message}");
             await JS.InvokeVoidAsync("toastr.error", "Không thể thêm sản phẩm. Vui lòng thử lại.");
+        }            
         }
+
+       
     }
 }

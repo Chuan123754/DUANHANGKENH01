@@ -1,4 +1,7 @@
 ﻿@namespace ViewsFE.Pages
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager navigationManager
 <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
     <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
@@ -189,6 +192,7 @@
                         </span>
                     </a>
                 </li>
+                
                 <li class="nav-item  ">
                     <a class="nav-link " href="/admin/sell">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -381,45 +385,49 @@
                             Sản phẩm
                         </span>
                     </a>
-                    <div class="dropdown-menu ">
-                        <div class="dropdown-menu-columns">
-                            <div class="dropdown-menu-column">
-                                <a class="dropdown-item " href="/admin/product">
-                                    Tất cả sản phẩm
-                                </a>
-                                <a class="dropdown-item " href="/admin/productVarians">
-                                    Sản phẩm chi tiết
-                                </a>
-                                <a class="dropdown-item "
-                                   href="/admin/product-delete">
-                                    Sản phẩm đã xoá
-                                </a>
-                                <a class="dropdown-item "
-                                   href="/admin/product/create">
-                                    Thêm mới sản phẩm
-                                </a>
-                                <a class="dropdown-item "
-                                   href="/admin/product/categorie">
-                                    Chuyên mục
-                                </a>
-                                <a class="dropdown-item " href="/admin/color">
-                                    Màu sắc
-                                </a>
-                                <a class="dropdown-item " href="/admin/size">
-                                    Kích thước
-                                </a>
-                                <a class="dropdown-item " href="/admin/style">
-                                    Phong cách
-                                </a>
-                                <a class="dropdown-item " href="/admin/material">
-                                    Chất liệu
-                                </a>
-                                <a class="dropdown-item " href="/admin/textiletechnology">
-                                    Công nghệ dệt
-                                </a>
+                    @if(isAuthenticated)
+                    {
+                        <div class="dropdown-menu ">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item " href="/admin/product">
+                                        Tất cả sản phẩm
+                                    </a>
+                                    <a class="dropdown-item " href="/admin/productVarians">
+                                        Sản phẩm chi tiết
+                                    </a>
+                                    <a class="dropdown-item "
+                                       href="/admin/product-delete">
+                                        Sản phẩm đã xoá
+                                    </a>
+                                    <a class="dropdown-item "
+                                       href="/admin/product/create">
+                                        Thêm mới sản phẩm
+                                    </a>
+                                    <a class="dropdown-item "
+                                       href="/admin/product/categorie">
+                                        Chuyên mục
+                                    </a>
+                                    <a class="dropdown-item " href="/admin/color">
+                                        Màu sắc
+                                    </a>
+                                    <a class="dropdown-item " href="/admin/size">
+                                        Kích thước
+                                    </a>
+                                    <a class="dropdown-item " href="/admin/style">
+                                        Phong cách
+                                    </a>
+                                    <a class="dropdown-item " href="/admin/material">
+                                        Chất liệu
+                                    </a>
+                                    <a class="dropdown-item " href="/admin/textiletechnology">
+                                        Công nghệ dệt
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
+  
                 </li>
                 <li class="nav-item  dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
@@ -606,4 +614,25 @@
     </div>
 
 </aside>
+@code {
+    private bool isAuthenticated;
+    private string userName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        isAuthenticated = authState.User.Identity.IsAuthenticated;
+
+        if (isAuthenticated)
+        {
+            userName = authState.User.Identity.Name;
+        }
+    }
+
+    private async Task Logout()
+    {
+        await ((CustomAuthenticationStateProvider)AuthenticationStateProvider).LogoutAsync();
+        navigationManager.NavigateTo("/admin/login");
+    }
+}
 

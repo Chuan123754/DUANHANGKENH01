@@ -524,6 +524,7 @@
         textileTechnologyList = await tech.GetAll();
         newTextileTechnology = new Textile_technology();
         isModalOpen = false;
+        await JS.InvokeVoidAsync("toastr.success", "Thêm mới công nghệ dệt thành công!");
         StateHasChanged();
     }
 
@@ -532,6 +533,8 @@
         await style.Create(newStyle);
         styleList = await style.GetAll();
         newStyle = new Style();
+        await JS.InvokeVoidAsync("toastr.success", "Thêm mới phong cách thành công!");
+        StateHasChanged();
         isModalOpen = false;
     }
 
@@ -541,6 +544,8 @@
         sizeList = await size.GetAll();
         newSize = new Size();
         isModalOpen = false;
+        await JS.InvokeVoidAsync("toastr.success", "Thêm kích thước thành công!");
+        StateHasChanged();
     }
 
     private async Task CreateMaterial()
@@ -549,6 +554,8 @@
         materialList = await material.GetAll();
         newMaterial = new Material();
         isModalOpen = false;
+        await JS.InvokeVoidAsync("toastr.success", "Thêm mới chất liệu thành công!");
+        StateHasChanged();
     }
 
     private async Task CreateColor()
@@ -557,6 +564,8 @@
         colorList = await color.GetAll();
         newColor = new Color();
         isModalOpen = false;
+        await JS.InvokeVoidAsync("toastr.success", "Thêm mới màu sắc thành công!");
+        StateHasChanged();
     }
 
 
@@ -660,94 +669,103 @@
     }
     private async Task CreateProductVariant()
     {
-        try
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận tạo sản phẩm chi tiết ?");
+        if (confirmed)
         {
-            // Kiểm tra trường rỗng
-            if (product_Variant.Post_Id == null ||
-                product_Variant.Textile_technology_id == null ||
-                product_Variant.Style_id == null ||
-                product_Variant.Material_id == null)
+            try
             {
-                await JS.InvokeVoidAsync("toastr.error", "Vui lòng không để trống các thông tin bắt buộc");
-                return;
+                // Kiểm tra trường rỗng
+                if (product_Variant.Post_Id == null ||
+                    product_Variant.Textile_technology_id == null ||
+                    product_Variant.Style_id == null ||
+                    product_Variant.Material_id == null)
+                {
+                    await JS.InvokeVoidAsync("toastr.error", "Vui lòng không để trống các thông tin bắt buộc");
+                    return;
+                }
+
+                // Kiểm tra biến thể đã tồn tại
+                var existingVariant = await productVariant.FindVariant(
+                    product_Variant.Post_Id,
+                    (byte)product_Variant.Textile_technology_id,
+                    (byte)product_Variant.Style_id,
+                    (byte)product_Variant.Material_id);
+
+                if (existingVariant != null)
+                {
+                    await JS.InvokeVoidAsync("toastr.warning", "Sản phẩm với các thuộc tính này đã tồn tại");
+                    return;
+                }
+
+                // Tạo biến thể sản phẩm
+                product_Variant.Status = "Hoạt động";
+                IdProductVariantCreated = await productVariant.Create(product_Variant);
+                isProductVariantCreated = true;
+
+                await JS.InvokeVoidAsync("toastr.success", "Tạo sản phẩm thành công!");
             }
-
-            // Kiểm tra biến thể đã tồn tại
-            var existingVariant = await productVariant.FindVariant(
-                product_Variant.Post_Id,
-                (byte)product_Variant.Textile_technology_id,
-                (byte)product_Variant.Style_id,
-                (byte)product_Variant.Material_id);
-
-            if (existingVariant != null)
+            catch (Exception ex)
             {
-                await JS.InvokeVoidAsync("toastr.warning", "Sản phẩm với các thuộc tính này đã tồn tại");
-                return;
+                Console.WriteLine(ex.Message);
             }
-
-            // Tạo biến thể sản phẩm
-            product_Variant.Status = "Hoạt động";
-            IdProductVariantCreated = await productVariant.Create(product_Variant);
-            isProductVariantCreated = true;
-
-            await JS.InvokeVoidAsync("toastr.success", "Tạo sản phẩm thành công!");
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
+
     }
     private async Task CreateProductAttributes()
     {
-        var selectedColors = colorSelections.Where(c => c.Value).Select(c => c.Key).ToList();
-        var selectedSizes = sizeSelections.Where(s => s.Value).Select(s => s.Key).ToList();
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Xác nhận tạo các biến thể của sản phẩm {product_Variant.Posts.Title} ?");
+        if (confirmed)
+        {
+            var selectedColors = colorSelections.Where(c => c.Value).Select(c => c.Key).ToList();
+            var selectedSizes = sizeSelections.Where(s => s.Value).Select(s => s.Key).ToList();
 
-        // Kiểm tra nếu không có màu hoặc kích thước được chọn
-        if (!selectedColors.Any() || !selectedSizes.Any())
-        {
-            await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn ít nhất một màu và một kích thước.");
-            return;
-        }
-        foreach (var colorId in selectedColors)
-        {
-            foreach (var sizeId in selectedSizes)
+            // Kiểm tra nếu không có màu hoặc kích thước được chọn
+            if (!selectedColors.Any() || !selectedSizes.Any())
             {
-                var productCreated = await productVariant.GetProductVariantsById(IdProductVariantCreated);
-                string productName = productCreated.Posts.Title;
-                string textileTechnology = productCreated.Textile_Technology.Slug;
-                string style = productCreated.Style.Slug;
-                string material = productCreated.Material.Slug;
-
-                // Tạo tên viết tắt của sản phẩm
-                string productAbbreviation = string.Concat(productName
-                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(word => word[0].ToString().ToUpper()));
-
-                // Lấy 3 ký tự đầu của các tiêu đề
-                string textileAbbreviation = textileTechnology?.Length >= 3 ? textileTechnology.Substring(0, 3).ToUpper() : textileTechnology.ToUpper();
-                string styleAbbreviation = style?.Length >= 3 ? style.Substring(0, 3).ToUpper() : style.ToUpper();
-                string materialAbbreviation = material?.Length >= 3 ? material.Substring(0, 3).ToUpper() : material.ToUpper();
-
-                // Tạo mã SKU
-                string sku = $"{productAbbreviation}-{textileAbbreviation}-{styleAbbreviation}-{materialAbbreviation}";
-
-                var productAttribute = new Product_Attributes
-                    {
-                        Product_Variant_Id = IdProductVariantCreated,
-                        Color_Id = colorId,
-                        Size_Id = sizeId,
-                        Status = product_Attributes.Stock == 0 ? "Hết hàng" : "Còn hàng",
-                        SKU = sku,
-
-                    };
-                await productAttributes.Create(productAttribute);
-                await JS.InvokeVoidAsync("toastr.success", "Tạo thành công các biến thể");
-                isProductAttributesCreated = true;
+                await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn ít nhất một màu và một kích thước.");
+                return;
             }
+            foreach (var colorId in selectedColors)
+            {
+                foreach (var sizeId in selectedSizes)
+                {
+                    var productCreated = await productVariant.GetProductVariantsById(IdProductVariantCreated);
+                    string productName = productCreated.Posts.Title;
+                    string textileTechnology = productCreated.Textile_Technology.Slug;
+                    string style = productCreated.Style.Slug;
+                    string material = productCreated.Material.Slug;
+
+                    // Tạo tên viết tắt của sản phẩm
+                    string productAbbreviation = string.Concat(productName
+                        .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(word => word[0].ToString().ToUpper()));
+
+                    // Lấy 3 ký tự đầu của các tiêu đề
+                    string textileAbbreviation = textileTechnology?.ToUpper() ?? string.Empty;
+                    string styleAbbreviation = style?.ToUpper() ?? string.Empty;
+                    string materialAbbreviation = material?.ToUpper() ?? string.Empty;
+
+                    // Tạo mã SKU
+                    string sku = $"{productAbbreviation}-{textileAbbreviation}-{styleAbbreviation}-{materialAbbreviation}";
+
+                    var productAttribute = new Product_Attributes
+                        {
+                            Product_Variant_Id = IdProductVariantCreated,
+                            Color_Id = colorId,
+                            Size_Id = sizeId,
+                            Status = product_Attributes.Stock == 0 ? "Hết hàng" : "Còn hàng",
+                            SKU = sku,
+
+                        };
+                    await productAttributes.Create(productAttribute);
+                    isProductAttributesCreated = true;
+                }
+            }
+            await JS.InvokeVoidAsync("toastr.success", "Tạo thành công các biến thể");
+            LST_ProductAttributes = await productAttributes.GetProductAttributesByProductVarianId(IdProductVariantCreated);
+            IdProductVariantCreated = 0;
         }
 
-        LST_ProductAttributes = await productAttributes.GetProductAttributesByProductVarianId(IdProductVariantCreated);
-        IdProductVariantCreated = 0;
     }
 
 
@@ -783,8 +801,8 @@
             item.Status = item.Stock == 0 ? "Hết hàng" : "Còn hàng";
             await productAttributes.Update(item, item.Id);
         }
-
-        nav.NavigateTo("/admin/product");
+        await JS.InvokeVoidAsync("toastr.success", "Thêm thông tin cho các biến thể thành công");
+        nav.NavigateTo("/admin/productVarians");
     }
 
     private async Task DeleteProductAttribute(long id)

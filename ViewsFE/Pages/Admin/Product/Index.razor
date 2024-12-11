@@ -60,9 +60,9 @@
                                         <th>
                                             <button class="table-sort">Ngày tạo</button>
                                         </th>
-                                        <th>
+                  @*                       <th>
                                             <button class="table-sort">Action</button>
-                                        </th>
+                                        </th> *@
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -110,11 +110,11 @@
                                                 <span class="@post.StatusClass">@post.StatusLabel</span>
                                             </td>
                                             <td class="sort-date">
-                                                @post.Created_at?.ToString("dd/MM/yyyy HH:mm:ss") ?? "N/A"
+                                                @post.Created_at?.ToString("dd/MM/yyyy HH:mm:ss")
                                             </td>
-                                            <td>
+@*                                             <td>
                                                 <button class="btn btn-sm btn-outline-primary">DS Sản phẩm chi tiết</button>
-                                            </td>
+                                            </td> *@
                                         </tr>
                                         stt++;
                                     }

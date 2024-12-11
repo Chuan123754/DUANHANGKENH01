@@ -6,6 +6,7 @@
 @inject IAccountService accountService
 @inject ILogActivityHistoryService LogActivityHistoryService
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IJSRuntime JS
 
 <div class="container mt-5">
     <!-- Nút Quay Lại -->
@@ -79,36 +80,38 @@
     {
         try
         {
-            var identityResult = await accountService.SignUpAsync(sigupModel);
-            if (identityResult.Succeeded)
-            {
-                var token = await sessionStorage.GetItemAsync<string>("authToken");
-                var userInfo = GetUserInfoFromToken(token);
+            // var identityResult = await accountService.SignUpAsync(sigupModel);
+            // if (identityResult.Succeeded)
+            // {
+            //     var token = await sessionStorage.GetItemAsync<string>("authToken");
+            //     var userInfo = GetUserInfoFromToken(token);
 
-                // Lưu trữ các thông tin
-                var accountId = userInfo.accountId;
-                var firstName = userInfo.firstName;
-                var lastName = userInfo.lastName;
-                var email = userInfo.email;
+            //     // Lưu trữ các thông tin
+            //     var accountId = userInfo.accountId;
+            //     var firstName = userInfo.firstName;
+            //     var lastName = userInfo.lastName;
+            //     var email = userInfo.email;
 
-                await LogActivityHistoryService.LogActivityAsync(
+            //     await LogActivityHistoryService.LogActivityAsync(
 
-                    logName: "Tạo mới tài khoản",
-                    description: $"Tài khoản được tạo là : {sigupModel.Email}",
-                    subjectType: "Tài khoản",
-                    accountId: accountId
+            //         logName: "Tạo mới tài khoản",
+            //         description: $"Tài khoản được tạo là : {sigupModel.Email}",
+            //         subjectType: "Tài khoản",
+            //         accountId: accountId
 
-                );
+            //     );
+                await JS.InvokeVoidAsync("toastr.success", "Tạo tài khoản thành công!");
                 Navigation.NavigateTo("/account/allaccount");
-            }
-            else
-            {
-                var errorMessages = identityResult.Errors.Select(error => error.Description);
-                foreach (var errorMessage in errorMessages)
-                {
-                    Console.WriteLine($"Lỗi: {errorMessage}");
-                }
-            }
+
+            // }
+            // else
+            // {
+            //     var errorMessages = identityResult.Errors.Select(error => error.Description);
+            //     foreach (var errorMessage in errorMessages)
+            //     {
+            //         Console.WriteLine($"Lỗi: {errorMessage}");
+            //     }
+            // }
         }
         catch(Exception ex)
         {

@@ -38,7 +38,7 @@ namespace appAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AccessViews");
+                    b.ToTable("AccessViews", (string)null);
                 });
 
             modelBuilder.Entity("appAPI.Models.Account", b =>
@@ -124,6 +124,9 @@ namespace appAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<long?>("AdminId")
+                        .HasColumnType("bigint");
+
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -142,6 +145,8 @@ namespace appAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
+
+                    b.HasIndex("AdminId");
 
                     b.ToTable("Activity_history");
                 });
@@ -192,6 +197,47 @@ namespace appAPI.Migrations
                     b.HasIndex("User_Id");
 
                     b.ToTable("Address");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Admin", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Admins");
                 });
 
             modelBuilder.Entity("appAPI.Models.Banner", b =>
@@ -769,6 +815,12 @@ namespace appAPI.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<long?>("TotalDiscount")
+                        .HasColumnType("bigint");
+
+                    b.Property<decimal?>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
@@ -849,6 +901,9 @@ namespace appAPI.Migrations
                     b.Property<long?>("Address_Id")
                         .HasColumnType("bigint");
 
+                    b.Property<long?>("AdminId")
+                        .HasColumnType("bigint");
+
                     b.Property<DateTime?>("Approved_at")
                         .HasColumnType("datetime2");
 
@@ -895,6 +950,8 @@ namespace appAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("Address_Id");
+
+                    b.HasIndex("AdminId");
 
                     b.HasIndex("CreatedByAdminId");
 
@@ -1070,6 +1127,9 @@ namespace appAPI.Migrations
                     b.Property<string>("AccountId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<long?>("AdminId")
+                        .HasColumnType("bigint");
+
                     b.Property<long?>("AuthorId")
                         .HasColumnType("bigint");
 
@@ -1129,6 +1189,8 @@ namespace appAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
+
+                    b.HasIndex("AdminId");
 
                     b.HasIndex("AuthorId");
 
@@ -1648,21 +1710,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "908a921b-38fc-450e-a535-d789ee6ccefe",
+                            ConcurrencyStamp = "818b7fa8-91f9-4a3e-bb58-eecdd2361ea2",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "b4029f9c-87aa-4e63-9713-0464b9b6ab6e",
+                            ConcurrencyStamp = "a79e337c-e740-4a10-94dd-35129f4376a3",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "bbccaac5-17c1-42fb-a676-e41449b0e095",
+                            ConcurrencyStamp = "c302c5b4-3722-4664-9bbc-11e08c8ac0bd",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -1781,6 +1843,10 @@ namespace appAPI.Migrations
                         .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("appAPI.Models.Admin", null)
+                        .WithMany("Activity_history")
+                        .HasForeignKey("AdminId");
 
                     b.Navigation("Account");
                 });
@@ -1918,6 +1984,10 @@ namespace appAPI.Migrations
                         .WithMany("Orders")
                         .HasForeignKey("Address_Id");
 
+                    b.HasOne("appAPI.Models.Admin", null)
+                        .WithMany("CreatedOrders")
+                        .HasForeignKey("AdminId");
+
                     b.HasOne("appAPI.Models.Account", "Admin")
                         .WithMany("CreatedOrders")
                         .HasForeignKey("CreatedByAdminId");
@@ -2020,6 +2090,10 @@ namespace appAPI.Migrations
                     b.HasOne("appAPI.Models.Account", null)
                         .WithMany("Posts")
                         .HasForeignKey("AccountId");
+
+                    b.HasOne("appAPI.Models.Admin", null)
+                        .WithMany("Posts")
+                        .HasForeignKey("AdminId");
 
                     b.HasOne("appAPI.Models.Designer", "Designer")
                         .WithMany("Product_Posts")
@@ -2180,6 +2254,15 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Address", b =>
                 {
                     b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Admin", b =>
+                {
+                    b.Navigation("Activity_history");
+
+                    b.Navigation("CreatedOrders");
+
+                    b.Navigation("Posts");
                 });
 
             modelBuilder.Entity("appAPI.Models.Carts", b =>

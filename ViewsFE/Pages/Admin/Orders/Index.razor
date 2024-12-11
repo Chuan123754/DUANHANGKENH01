@@ -120,7 +120,17 @@
                                         {
                                             <tr>
                                                 <td>@item.Id</td>
-                                                <td> đây là ngươi tạo @* @(item.Admin.LastName + " " + item.Admin.FirstName) *@</td>
+                                                <td>
+                                                    @if(item.CreatedByAdminId == null )
+                                                    {
+                                                        <span>Hệ thống</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @(item.Admin.FirstName + " " + item.Admin.LastName)
+                                                    }
+                                              
+                                                </td>
                                                 <td>
                                                     @if (item.Users == null)
                                                     {
