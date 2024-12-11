@@ -137,7 +137,7 @@
                                 }
                                 else
                                 {
-                                    <span class="text-danger">Hết hàng</span>
+                                    <span class="text-danger">Hết</span>
                                 }
                             </td>
                             <td>@detail.Id</td>
@@ -347,7 +347,7 @@
             }
             else
             {
-                Addresses = new List<Address>(); 
+                Addresses = new List<Address>();
             }
 
             // Lấy chi tiết hóa đơn
@@ -359,15 +359,24 @@
                 return;
             }
 
-            // Lấy danh sách sản phẩm đổi trả
+            // Cập nhật lại danh sách sản phẩm đổi trả trước
+            ProductsReturned = new List<Products_Returned>();
             foreach (var detail in OrderDetails)
             {
                 var returnedProducts = await ProductsReturnedService.GetByOrderDetailIdAsync(detail.Id);
-                ProductsReturned.AddRange(returnedProducts);
-
                 if (returnedProducts != null && returnedProducts.Any())
                 {
-                    detail.ProductsReturned = returnedProducts.First();
+                    ProductsReturned.AddRange(returnedProducts);
+                }
+            }
+
+            // Gắn sản phẩm đổi trả đầu tiên vào từng chi tiết hóa đơn (nếu có)
+            foreach (var detail in OrderDetails)
+            {
+                var returnedProduct = ProductsReturned.FirstOrDefault(rp => rp.OrderDetailId == detail.Id);
+                if (returnedProduct != null)
+                {
+                    detail.ProductsReturned = returnedProduct;
                 }
             }
         }
@@ -376,6 +385,7 @@
             ErrorMessage = $"Đã xảy ra lỗi: {ex.Message}";
         }
     }
+
 
     private void ShowReturnModal()
     {
@@ -528,7 +538,6 @@
             }
         }
 
-        await LoadProductsReturned();
         ErrorMessage = null;
         isModalVisible = false;
         await LoadOrderDetails();
@@ -539,14 +548,29 @@
 
     private async Task LoadProductsReturned()
     {
-        ProductsReturned = new List<Products_Returned>();
-
-        foreach (var detail in OrderDetails)
+        try
         {
-            var returnedProducts = await ProductsReturnedService.GetByOrderDetailIdAsync(detail.Id);
-            ProductsReturned.AddRange(returnedProducts);
+            // Tạo danh sách tạm để tránh vấn đề bất đồng bộ
+            var tempProductsReturned = new List<Products_Returned>();
+
+            foreach (var detail in OrderDetails)
+            {
+                var returnedProducts = await ProductsReturnedService.GetByOrderDetailIdAsync(detail.Id);
+                if (returnedProducts != null && returnedProducts.Any())
+                {
+                    tempProductsReturned.AddRange(returnedProducts);
+                }
+            }
+
+            // Chỉ cập nhật lại danh sách sau khi hoàn tất vòng lặp
+            ProductsReturned = tempProductsReturned;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Lỗi khi tải danh sách đổi trả: {ex.Message}";
         }
     }
+
 
 
 
