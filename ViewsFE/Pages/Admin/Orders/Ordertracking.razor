@@ -539,7 +539,7 @@
                 if (paidTracking != null) // Nếu đã thanh toán
                 {
                     var modalStatus = "Hoàn tất đơn";
-                    var modalNote = "Khách đã thanh toán tại quầy.";
+                    var modalNote = "Khách đã thanh toán qua hình thức chuyển khoản MOMO.";
                     await AddNewTracking(modalStatus, modalNote);
                     await UpdateOrderStatus(modalStatus);
                     await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã hoàn tất, khách đã thanh toán tại quầy.");

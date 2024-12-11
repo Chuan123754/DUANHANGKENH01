@@ -61,7 +61,7 @@ namespace appAPI.Controllers
                 }
 
                 _cartRepository.Add(cart);
-                return Ok(new { message = "Thêm giỏ hàng thành công" });
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -90,7 +90,7 @@ namespace appAPI.Controllers
             }
 
             _cartRepository.Update(item);
-            return Ok(new { message = "Cập nhật giỏ hàng thành công" });
+            return Ok();
         }
 
         // DELETE: api/carts-delete/{id}

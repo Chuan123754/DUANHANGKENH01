@@ -497,37 +497,42 @@
     }
     private async void HandleValidSubmit()
     {
-        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
-        var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
-        if (!string.IsNullOrEmpty(tags))
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận tạo bài viết ?");
+        if (confirmed)
         {
-            SelectedTags = tags.Split(',')
-                .Select(id => long.TryParse(id, out long result) ? result : 0)
-                .Where(id => id > 0)
-                .ToList();
+            Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
+            var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
+            if (!string.IsNullOrEmpty(tags))
+            {
+                SelectedTags = tags.Split(',')
+                    .Select(id => long.TryParse(id, out long result) ? result : 0)
+                    .Where(id => id > 0)
+                    .ToList();
+            }
+
+            var categories = await JS.InvokeAsync<string>("getSelectedValues", "#categories");
+            if (!string.IsNullOrEmpty(categories))
+            {
+                SelectedCategories = categories.Split(',')
+                    .Select(id => long.TryParse(id, out long result) ? result : 0)
+                    .Where(id => id > 0)
+                    .ToList();
+            }
+
+            try
+            {
+                postId = await sev.CreatePost(Posts, SelectedTags, SelectedCategories);
+                banner.Type = "post";
+                await bnser.AddBannerToPost(postId, banner);
+                await JS.InvokeVoidAsync("toastr.success", "Thêm bài viết thành công");
+                nav.NavigateTo("/admin/post");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                await JS.InvokeVoidAsync("toastr.error", "Không thể thêm bài viết. Vui lòng thử lại.");
+            }
         }
 
-        var categories = await JS.InvokeAsync<string>("getSelectedValues", "#categories");
-        if (!string.IsNullOrEmpty(categories))
-        {
-            SelectedCategories = categories.Split(',')
-                .Select(id => long.TryParse(id, out long result) ? result : 0)
-                .Where(id => id > 0)
-                .ToList();
-        }
-
-        try
-        {
-            postId =  await sev.CreatePost(Posts, SelectedTags, SelectedCategories);
-            banner.Type = "post";
-            await bnser.AddBannerToPost(postId, banner);
-            await JS.InvokeVoidAsync("toastr.success", "Thêm bài viết thành công");
-            nav.NavigateTo("/admin/post");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm bài viết. Vui lòng thử lại.");
-        }
     }
 }

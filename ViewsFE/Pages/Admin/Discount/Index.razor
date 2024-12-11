@@ -515,242 +515,253 @@
 
     private async Task CreateDiscount()
     {
-        try
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận tạo mới đợt giảm giá ?");
+        if (confirmed)
         {
-            // Kiểm tra nếu trùng "Code"
-            var isDuplicateCode = discounts.Any(d => d.Code.Equals(discount.Code, StringComparison.OrdinalIgnoreCase));
-            if (isDuplicateCode)
+            try
             {
-                await JS.InvokeVoidAsync("toastr.warning", "Mã khuyến mãi đã tồn tại!");
-                return;
-            }
-            if (discount.End_date <= discount.Start_date)
-            {
-                await JS.InvokeVoidAsync("toastr.warning", "Ngày kết thúc phải lớn hơn ngày bắt đầu!");
-                return;
-            }
-            if (string.IsNullOrWhiteSpace(discount.Code) || string.IsNullOrWhiteSpace(discount.Name))
-            {
-                await JS.InvokeVoidAsync("toastr.warning", "Các trường không được để trống hoặc chỉ chứa khoảng trắng!");
-                return;
-            }
-            if (selectedType == "Percentage" && (discountValue < 1 || discountValue > 100))
-            {
-                await JS.InvokeVoidAsync("toastr.warning", "Giảm theo phần trăm phải từ 1% đến 100%!");
-                return;
-            }
-
-            if (selectedType == "Fixed" && discountValue < 1)
-            {
-                await JS.InvokeVoidAsync("toastr.warning", "Giảm giá cố định phải lớn hơn 0!");
-                return;
-            }
-
-            var today = DateTime.Today;
-            if (discount.End_date < today)
-            {
-                discount.Status = "Đã kết thúc";
-            }
-            else if (discount.Start_date > today)
-            {
-                discount.Status = "Sắp diễn ra";
-            }
-            else
-            {
-                discount.Status = "Đang diễn ra";
-            }
-
-            if (selectedProductIds.Any())
-            {
-                var productDiscount = new Discount
-                    {
-                        Code = discount.Code,
-                        Name = discount.Name,
-                        Type_of_promotion = selectedType,
-                        Discount_value = discountValue,
-                        Start_date = discount.Start_date,
-                        End_date = discount.End_date,
-                        Status = discount.Status,
-                        IsGlobal=false,
-                        Create_at = DateTime.Now,
-                    };
-                // Tạo khuyến mãi
-                var createdDiscount = await DiscountService.Create(productDiscount);
-                foreach (var productId in selectedProductIds)
+                // Kiểm tra nếu trùng "Code"
+                var isDuplicateCode = discounts.Any(d => d.Code.Equals(discount.Code, StringComparison.OrdinalIgnoreCase));
+                if (isDuplicateCode)
                 {
-                    // update giá
-                    if (discount.Status == "Đang diễn ra")
-                    {
-                        var product = await productAttributeService.GetProductAttributesById(productId);
-                        product.Sale_price = CalculateSalePrice(
-                            product.Regular_price ?? 0,
-                            discountValue,
-                            selectedType
-                        );
-                        await productAttributeService.Update(product,productId);
-                    }
-                    var productDiscountEntry = new Models.P_attribute_discount
+                    await JS.InvokeVoidAsync("toastr.warning", "Mã khuyến mãi đã tồn tại!");
+                    return;
+                }
+                if (discount.End_date <= discount.Start_date)
+                {
+                    await JS.InvokeVoidAsync("toastr.warning", "Ngày kết thúc phải lớn hơn ngày bắt đầu!");
+                    return;
+                }
+                if (string.IsNullOrWhiteSpace(discount.Code) || string.IsNullOrWhiteSpace(discount.Name))
+                {
+                    await JS.InvokeVoidAsync("toastr.warning", "Các trường không được để trống hoặc chỉ chứa khoảng trắng!");
+                    return;
+                }
+                if (selectedType == "Percentage" && (discountValue < 1 || discountValue > 100))
+                {
+                    await JS.InvokeVoidAsync("toastr.warning", "Giảm theo phần trăm phải từ 1% đến 100%!");
+                    return;
+                }
+
+                if (selectedType == "Fixed" && discountValue < 1)
+                {
+                    await JS.InvokeVoidAsync("toastr.warning", "Giảm giá cố định phải lớn hơn 0!");
+                    return;
+                }
+
+                var today = DateTime.Today;
+                if (discount.End_date < today)
+                {
+                    discount.Status = "Đã kết thúc";
+                }
+                else if (discount.Start_date > today)
+                {
+                    discount.Status = "Sắp diễn ra";
+                }
+                else
+                {
+                    discount.Status = "Đang diễn ra";
+                }
+
+                if (selectedProductIds.Any())
+                {
+                    var productDiscount = new Discount
                         {
-                            P_attribute_Id = productId,
-                            Discount_Id = createdDiscount.Id
+                            Code = discount.Code,
+                            Name = discount.Name,
+                            Type_of_promotion = selectedType,
+                            Discount_value = discountValue,
+                            Start_date = discount.Start_date,
+                            End_date = discount.End_date,
+                            Status = discount.Status,
+                            IsGlobal = false,
+                            Create_at = DateTime.Now,
+                        };
+                    // Tạo khuyến mãi
+                    var createdDiscount = await DiscountService.Create(productDiscount);
+                    foreach (var productId in selectedProductIds)
+                    {
+                        // update giá
+                        if (discount.Status == "Đang diễn ra")
+                        {
+                            var product = await productAttributeService.GetProductAttributesById(productId);
+                            product.Sale_price = CalculateSalePrice(
+                                product.Regular_price ?? 0,
+                                discountValue,
+                                selectedType
+                            );
+                            await productAttributeService.Update(product, productId);
+                        }
+                        var productDiscountEntry = new Models.P_attribute_discount
+                            {
+                                P_attribute_Id = productId,
+                                Discount_Id = createdDiscount.Id
+                            };
+
+                        await AttributeDiscountService.Create(productDiscountEntry);
+                    }
+                }
+                else
+                {
+                    var newDiscount = new Discount
+                        {
+                            Code = discount.Code,
+                            Name = discount.Name,
+                            Type_of_promotion = selectedType, // Số lượng chỉ có thể nhập nếu không có khách hàng riêng
+                            Discount_value = discountValue,
+                            Start_date = discount.Start_date,
+                            End_date = discount.End_date,
+                            Status = discount.Status,
+                            Create_at = DateTime.Now,
                         };
 
-                    await AttributeDiscountService.Create(productDiscountEntry);
+                    await DiscountService.Create(newDiscount);
                 }
+
+
+                await LoadDiscounts();
+                LoadPagedDiscounts();
+                await JS.InvokeVoidAsync("toastr.success", "Đã tạo mới khuyến mãi thành công!");
             }
-            else
+            catch (Exception ex)
             {
-                var newDiscount = new Discount
-                    {
-                        Code = discount.Code,
-                        Name = discount.Name,
-                        Type_of_promotion = selectedType, // Số lượng chỉ có thể nhập nếu không có khách hàng riêng
-                        Discount_value = discountValue,
-                        Start_date = discount.Start_date,
-                        End_date = discount.End_date,
-                        Status = discount.Status,
-                        Create_at = DateTime.Now,
-                    };
-
-                await DiscountService.Create(newDiscount);
+                errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
             }
-   
+        }
 
-            await LoadDiscounts();
-            LoadPagedDiscounts();
-            await JS.InvokeVoidAsync("toastr.success", "Đã tạo mới khuyến mãi thành công!");
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
-        }
     }
 
     private async Task UpdateDiscount(long id)
     {
-        try
+
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận cập nhật đợt giảm giá ?");
+        if (confirmed)
         {
-            // Kiểm tra nếu trùng "Code" (loại trừ chính mã đang được cập nhật)
-            var isDuplicateCode = discounts.Any(d => d.Code.Equals(discount.Code, StringComparison.OrdinalIgnoreCase) && d.Id != discount.Id);
-            if (isDuplicateCode)
+            try
             {
-                await JS.InvokeVoidAsync("toastr.warning", "Mã khuyến mãi đã tồn tại!");
-                return;
-            }
+                // Kiểm tra nếu trùng "Code" (loại trừ chính mã đang được cập nhật)
+                var isDuplicateCode = discounts.Any(d => d.Code.Equals(discount.Code, StringComparison.OrdinalIgnoreCase) && d.Id != discount.Id);
+                if (isDuplicateCode)
+                {
+                    await JS.InvokeVoidAsync("toastr.warning", "Mã khuyến mãi đã tồn tại!");
+                    return;
+                }
 
-            if (discount.End_date <= discount.Start_date)
-            {
-                errorMessage = "Ngày kết thúc phải lớn hơn ngày bắt đầu!";
-                return;
-            }
+                if (discount.End_date <= discount.Start_date)
+                {
+                    errorMessage = "Ngày kết thúc phải lớn hơn ngày bắt đầu!";
+                    return;
+                }
 
-            if (string.IsNullOrWhiteSpace(discount.Code) || string.IsNullOrWhiteSpace(discount.Name))
-            {
-                errorMessage = "Các trường không được để trống hoặc chỉ chứa khoảng trắng!";
-                return;
-            }
-            if (selectedType == "Percentage" && (discountValue < 1 || discountValue > 100))
-            {
-                await JS.InvokeVoidAsync("toastr.warning", "Giảm theo phần trăm phải từ 1% đến 100%!");
-                return;
-            }
+                if (string.IsNullOrWhiteSpace(discount.Code) || string.IsNullOrWhiteSpace(discount.Name))
+                {
+                    errorMessage = "Các trường không được để trống hoặc chỉ chứa khoảng trắng!";
+                    return;
+                }
+                if (selectedType == "Percentage" && (discountValue < 1 || discountValue > 100))
+                {
+                    await JS.InvokeVoidAsync("toastr.warning", "Giảm theo phần trăm phải từ 1% đến 100%!");
+                    return;
+                }
 
-            if (selectedType == "Fixed" && discountValue < 1)
-            {
-                await JS.InvokeVoidAsync("toastr.warning", "Giảm giá cố định phải lớn hơn 0!");
-                return;
-            }
+                if (selectedType == "Fixed" && discountValue < 1)
+                {
+                    await JS.InvokeVoidAsync("toastr.warning", "Giảm giá cố định phải lớn hơn 0!");
+                    return;
+                }
 
 
-            // Tính trạng thái khuyến mãi
-            var today = DateTime.Today;
-            if (discount.End_date < today)
-            {
-                discount.Status = "Đã kết thúc";
-            }
-            else if (discount.Start_date > today)
-            {
-                discount.Status = "Sắp diễn ra";
-            }
-            else
-            {
-                discount.Status = "Đang diễn ra";
-            }
+                // Tính trạng thái khuyến mãi
+                var today = DateTime.Today;
+                if (discount.End_date < today)
+                {
+                    discount.Status = "Đã kết thúc";
+                }
+                else if (discount.Start_date > today)
+                {
+                    discount.Status = "Sắp diễn ra";
+                }
+                else
+                {
+                    discount.Status = "Đang diễn ra";
+                }
 
-            selectedProductIds = selectedProductIds.Distinct().ToList();
-            initialProductIds = initialProductIds.Distinct().ToList();
-            discount.Discount_value = discountValue;
-            discount.Type_of_promotion = selectedType;
-            await DiscountService.Update(discount);
-            foreach (var productId in selectedProductIds)
-            {
-                if (!initialProductIds.Contains(productId)) // Nếu sản phẩm mới được tích
+                selectedProductIds = selectedProductIds.Distinct().ToList();
+                initialProductIds = initialProductIds.Distinct().ToList();
+                discount.Discount_value = discountValue;
+                discount.Type_of_promotion = selectedType;
+                await DiscountService.Update(discount);
+                foreach (var productId in selectedProductIds)
+                {
+                    if (!initialProductIds.Contains(productId)) // Nếu sản phẩm mới được tích
+                    {
+                        if (discount.Status == "Đang diễn ra")
+                        {
+                            var product = await productAttributeService.GetProductAttributesById(productId);
+                            product.Sale_price = CalculateSalePrice(
+                                product.Regular_price ?? 0,
+                                discountValue,
+                                selectedType
+                            );
+                            await productAttributeService.Update(product, productId);
+                        }
+                        var productDiscount = new Models.P_attribute_discount
+                            {
+                                P_attribute_Id = productId,
+                                Discount_Id = discount.Id
+                            };
+
+                        await AttributeDiscountService.Create(productDiscount);
+                    }
+                }
+
+                foreach (var product in initialProductIds)
                 {
                     if (discount.Status == "Đang diễn ra")
                     {
-                        var product = await productAttributeService.GetProductAttributesById(productId);
-                        product.Sale_price = CalculateSalePrice(
-                            product.Regular_price ?? 0,
+                        var product2 = await productAttributeService.GetProductAttributesById(product);
+                        product2.Sale_price = CalculateSalePrice(
+                            product2.Regular_price ?? 0,
                             discountValue,
                             selectedType
                         );
-                        await productAttributeService.Update(product, productId);
+                        await productAttributeService.Update(product2, product);
                     }
-                    var productDiscount = new Models.P_attribute_discount
+                    if (!selectedProductIds.Contains(product))
+                    {
+                        var productDiscount = await AttributeDiscountService.GetByIdDiscount(discount.Id);
+                        var remoteItem = productDiscount.Where(p => p.P_attribute_Id == product).FirstOrDefault();
+                        if (remoteItem != null)
                         {
-                            P_attribute_Id = productId,
-                            Discount_Id = discount.Id
-                        };
+                            await AttributeDiscountService.Delete(remoteItem.Id);
+                        }
+                        var productToUpdate = await productAttributeService.GetProductAttributesById(product);
+                        if (productToUpdate == null)
+                        {
+                            continue; // Bỏ qua sản phẩm này
+                        }
 
-                    await AttributeDiscountService.Create(productDiscount);
+                        productToUpdate.Sale_price = null;
+                        await productAttributeService.Update(productToUpdate, product);
+                    }
                 }
-            }
 
-            foreach (var product in initialProductIds)
+                await LoadDiscounts();
+                LoadPagedDiscounts();
+                selectedProductIds.Clear();
+                initialProductIds.Clear();
+                selectedProductCount = 0;
+                errorMessage = string.Empty;
+                selectedType = "";
+                discountValue = 0;
+                await JS.InvokeVoidAsync("toastr.success", "Cập nhật khuyến mãi thành công!");
+            }
+            catch (Exception ex)
             {
-                if (discount.Status == "Đang diễn ra")
-                {
-                    var product2 = await productAttributeService.GetProductAttributesById(product);
-                    product2.Sale_price = CalculateSalePrice(
-                        product2.Regular_price ?? 0,
-                        discountValue,
-                        selectedType
-                    );
-                    await productAttributeService.Update(product2, product);
-                }
-                if (!selectedProductIds.Contains(product))
-                {
-                    var productDiscount = await AttributeDiscountService.GetByIdDiscount(discount.Id);
-                    var remoteItem = productDiscount.Where(p => p.P_attribute_Id == product).FirstOrDefault();
-                    if (remoteItem != null)
-                    {
-                        await AttributeDiscountService.Delete(remoteItem.Id);
-                    }
-                    var productToUpdate = await productAttributeService.GetProductAttributesById(product);
-                    if (productToUpdate == null)
-                    {
-                        continue; // Bỏ qua sản phẩm này
-                    }
-
-                    productToUpdate.Sale_price = null;
-                    await productAttributeService.Update(productToUpdate, product);
-                }
+                errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
             }
-        
-            await LoadDiscounts();
-            LoadPagedDiscounts();
-            selectedProductIds.Clear();
-            initialProductIds.Clear();
-            selectedProductCount = 0;
-            errorMessage = string.Empty;
-            selectedType = "";
-            discountValue = 0;
-            await JS.InvokeVoidAsync("toastr.success", "Cập nhật khuyến mãi thành công!");
         }
-        catch (Exception ex)
-        {
-            errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
-        }
+    
     }
 
     private async Task EditDiscount(long id)
