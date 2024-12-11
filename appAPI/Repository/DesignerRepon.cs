@@ -30,7 +30,7 @@ namespace appAPI.Repository
 
         public async Task<List<Designer>> GetAll()
         {
-          return await _context.Designer.Where(p => p.Deleted == false).ToListAsync();
+          return await _context.Designer.Where(p => p.Deleted == false && p.status == "ACTIVE").ToListAsync();
         }
 
         public async Task<Designer> GetById(long id)
