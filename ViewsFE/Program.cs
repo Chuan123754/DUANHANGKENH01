@@ -13,6 +13,8 @@ using ViewsFE.Models;
 using appAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using ViewsFE.BackgroundServices;
+//using ViewsFE.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<APP_DATA_DATN>(options =>
@@ -86,7 +88,7 @@ builder.Services.AddScoped<ITagsServices, TagsServices>();
 //builder.Services.AddScoped<IPostMetaService, PostMetaService>();
 builder.Services.AddScoped<IQaService, QaService>();
 builder.Services.AddScoped<IDiscountServices, DiscountServices>();
-
+builder.Services.AddHostedService<DiscountProduct>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<IUserVoucherService, UserVoucherService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

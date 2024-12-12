@@ -17,6 +17,7 @@ namespace ViewsFE.Models
         public long OrderId { get; set; }
         public long Product_Attribute_Id { get; set; }
         public int Quantity { get; set; }
+        public decimal? UnitPrice { get; set; }
         public long? TotalDiscount { get; set; }
         [ForeignKey("OrderId")]
         [JsonIgnore]

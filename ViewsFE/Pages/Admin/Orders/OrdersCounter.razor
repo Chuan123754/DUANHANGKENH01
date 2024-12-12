@@ -130,7 +130,17 @@
                                         {
                                             <tr>
                                                 <td>@item.Id</td>
-                                                <td> đây là ngươi tạo @* @(item.Admin.LastName + " " + item.Admin.FirstName) *@</td>
+                                                <td>
+                                                    @if (item.CreatedByAdminId == null)
+                                                    {
+                                                        <span>Hệ thống</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @(item.Admin.FirstName + " " + item.Admin.LastName)
+                                                    }
+
+                                                </td>
                                                 <td>
                                                     @if (item.Users == null)
                                                     {
@@ -189,6 +199,64 @@
                                                 <h5 class="modal-title">Chi tiết đơn hàng </h5>
                                                 <button type="button" class="btn-close" @onclick="CloseOrderDetailsModal" aria-label="Close"></button>
                                             </div>
+
+                                            <div class="container">
+                                                <div class="row">
+                                                    <div class="col-6 text-start">
+                                                        <div class="border p-3 mb-3">
+                                                            <!-- Khung thông tin đơn hàng -->
+                                                            <h3 class="text-center">Thông tin đơn hàng</h3>
+                                                            <div class="d-flex justify-content-between">
+                                                                <span>Tổng tiền hàng:</span>
+                                                                <span>@string.Format("{0:N0}", orders.TotalPrincipal) VNĐ</span>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between">
+                                                                <span>Tổng tiền chiết khấu:</span>
+                                                                <span style="color: red;">- @string.Format("{0:N0}", orders.TotalPrincipal - orders.TotalAmount) VNĐ</span>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between">
+                                                                <span>Phí giao hàng:</span>
+                                                                <span>@string.Format("{0:N0}", orders.FeeShipping) VNĐ</span>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between fw-bold">
+                                                                <span>Tổng tiền thanh toán:</span>
+                                                                <span style="color: green;">@string.Format("{0:N0}", orders.Totalmoney) VNĐ</span>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between fw-bold">
+                                                                <span>Phương thức thanh toán:</span>
+                                                                <span> @orders.TypePayment</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-6 text-start">
+                                                        <div class="border p-3">
+                                                            <!-- Khung thông tin người dùng -->
+                                                            <h4 class="text-center">Thông tin khách hàng</h4>
+                                                            @if(orders.Users != null)
+                                                            {
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span>Tên khách hàng:</span>
+                                                                    <span>@orders.Users.Name</span>
+                                                                </div>
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span>Email:</span>
+                                                                    <span>@orders.Users.Email</span>
+                                                                </div>
+                                                                <div class="d-flex justify-content-between">
+                                                                    <span>Số điện thoại:</span>
+                                                                    <span>@orders.Users.Phone</span>
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span> KHÁCH LẺ</span>
+                                                            }
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             @if (lst_OrderDetails != null && lst_OrderDetails.Any())
                                             {
                                                 var isFirstRow = true;
@@ -207,8 +275,6 @@
                                                                 <th>Đơn giá</th>
                                                                 <th>Gía chiết khấu </th>
                                                                 <th>Tổng tiền</th>
-                                                                <th>Tổng tiền hóa đơn</th>
-                                                                <th>Tên khách hàng</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -233,7 +299,7 @@
                                                                     <td class="text-end">
                                                                         <div>
                                                                             <span>
-                                                                                @string.Format("{0:N0}", item.ProductAttributes.Regular_price).Replace(".", ",") VNĐ
+                                                                                @string.Format("{0:N0}", item.UnitPrice).Replace(".", ",") VNĐ
                                                                             </span>
                                                                         </div>
                                                                     </td>
@@ -261,7 +327,7 @@
                                                                         {
                                                                             <div>
                                                                                 <span style="text-decoration: line-through; color: gray;">
-                                                                                    @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Regular_price)).Replace(".", ",") VNĐ
+                                                                                    @string.Format("{0:N0}", (item.Quantity * item.UnitPrice)).Replace(".", ",") VNĐ
                                                                                 </span>
                                                                             </div>
                                                                             <div>
@@ -273,38 +339,10 @@
                                                                         else
                                                                         {
                                                                             <span>
-                                                                                @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Regular_price)).Replace(".", ",") VNĐ
+                                                                                @string.Format("{0:N0}", (item.Quantity * item.UnitPrice)).Replace(".", ",") VNĐ
                                                                             </span>
                                                                         }
                                                                     </td>
-                                                                    @if (isFirstRow)
-                                                                    {
-                                                                        <td rowspan="@lst_OrderDetails.Count" style="vertical-align: middle;">
-                                                                            <span>
-                                                                                @string.Format("{0:N0}", item.Orders.TotalAmount).Replace(".", ",") VNĐ
-                                                                            </span>
-                                                                        </td>
-                                                                        <td rowspan="@lst_OrderDetails.Count" style="vertical-align: middle;">
-                                                                            <span>
-                                                                                @string.Format("{0:N0}", item.Orders.Totalmoney).Replace(".", ",") VNĐ
-                                                                            </span>
-                                                                        </td>
-                                                                        <td  rowspan="@lst_OrderDetails.Count" style="vertical-align: middle;">
-@*                                                                             <span>
-                                                                                @if( @item.Orders.Users.Name == null)
-                                                                                {
-                                                                                    <p>Khách lẻ</p>
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    @item.Orders.Users.Name
-                                                                                }
-                                                                                
-                                                                            </span> *@
-                                                                        </td>
-                                                                        isFirstRow = false;
-                                                                    }
-                                                                
                                                                 </tr>
                                                             }
                                                         </tbody>
@@ -333,6 +371,7 @@
 
 @code {
     private List<Orders> lst_Orders = new List<Orders>();
+    private Orders orders = new();
     private List<Orders> pagedOrders = new List<Orders>();
     private List<Order_details> lst_OrderDetails = new List<Order_details>();
     private bool isOrdelDetailsModal = false;
@@ -437,6 +476,7 @@
     }
     private async Task OpenOrderDetailsModal(long orderId)
     {
+        orders = await orderService.GetByIdOrders(orderId);
         isOrdelDetailsModal = true;
         lst_OrderDetails = await orderDetailsService.GetOrderDetailsByOrderId(orderId);
 

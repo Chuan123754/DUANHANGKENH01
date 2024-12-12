@@ -61,7 +61,7 @@ namespace appAPI.Repository
 
         public async Task<object> GetByIdOrdersAddress(long id)
         {
-            return await _context.Orders
+            var result = await _context.Orders
                 .Where(o => o.Id == id)
                 .Select(o => new
                 {
@@ -86,6 +86,7 @@ namespace appAPI.Repository
                     }
                 })
                 .FirstOrDefaultAsync();
+            return result;
         }
 
 
@@ -96,6 +97,7 @@ namespace appAPI.Repository
             if (updateItem != null)
             {
                 updateItem.User_id = orders.User_id;
+                updateItem.Address_Id = orders.Address_Id;
                 updateItem.Status = orders.Status;
                 updateItem.Note = orders.Note;
                 updateItem.TotalAmount = orders.TotalAmount;

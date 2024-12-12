@@ -48,8 +48,8 @@ namespace ViewsFE.Services
                     Size = p.Size,
                     Quantity = p.Quantity,
                     UnitPrice = p.UnitPrice,
-                    Regular_price = p.Regular_price,
-                    Image_library = p.Image_library
+                    TotalDiscount = p.TotalDiscount,
+                    Image = p.Image
                 }).ToList(),
                 TypePayment=tracking.TypePayment,
                 TotalPrincipal = tracking.TotalPrincipal,

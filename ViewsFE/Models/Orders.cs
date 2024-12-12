@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using appAPI.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -44,6 +45,10 @@ namespace ViewsFE.Models
         public long? Address_Id { get; set; }
         [ForeignKey("Address_Id")]
         public virtual Address? Address { get; set; }
+        public long? Payment_Id { get; set; }
+        [ForeignKey("Payment_Id")]
+        [JsonIgnore]
+        public virtual Payment? Payment { get; set; }
     }
 }
 
