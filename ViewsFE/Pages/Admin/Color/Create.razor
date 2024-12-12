@@ -26,7 +26,7 @@
 
                                 <div class="form-group mb-3">
                                     <label for="color-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
-                                    <InputText id="color-title" class="form-control" @bind-Value="color.Title" />
+                                    <InputText id="color-title" class="form-control" @bind-Value="color.Title" @oninput="GenerateSlug" />
                                     <ValidationMessage For="@(() => color.Title)" />
                                 </div>
 
@@ -46,18 +46,20 @@
                                     <InputText id="attribute-color_code" class="form-control" @bind-Value="color.Color_code" />
                                     <ValidationMessage For="@(() => color.Color_code)" />
                                 </div>
+
+
+
+                                <div class="form-group mb-3">
+                                    <label for="attribute-color" class="form-label">Mô tả</label>
+                                    <InputText id="attribute-color" class="form-control" @bind-Value="color.Description" />
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary" style="float: right">
+                                        Thêm màu sắc
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="attribute-color" class="form-label">Mô tả</label>
-                            <InputText id="attribute-color" class="form-control" @bind-Value="color.Description" />
-                        </div>
-
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary" style="float: right">
-                                Thêm màu sắc
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -68,7 +70,43 @@
 
 @code {
     private Color color = new Color();
+    private void GenerateSlug(ChangeEventArgs e)
+    {
+        if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
+        {
+            color.Slug = CreateSlug(title);
+        }
+    }
 
+    private string CreateSlug(string input)
+    {
+        // Chuyển sang chữ thường
+        string result = input.ToLowerInvariant();
+
+        // Loại bỏ dấu tiếng Việt
+        result = RemoveDiacritics(result);
+
+        // Loại bỏ ký tự không phải chữ/số và thay thế khoảng trắng bằng dấu gạch ngang
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"[^a-z0-9\s-]", "");
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", "-").Trim('-');
+
+        return result;
+    }
+
+    private string RemoveDiacritics(string text)
+    {
+        var normalized = text.Normalize(System.Text.NormalizationForm.FormD);
+        var stringBuilder = new System.Text.StringBuilder();
+        foreach (var c in normalized)
+        {
+            var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                stringBuilder.Append(c);
+            }
+        }
+        return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
+    }
     private async Task SubmitFormMau()
     {
         try

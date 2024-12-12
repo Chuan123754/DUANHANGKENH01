@@ -8,6 +8,7 @@ namespace appAPI.IRepository
     {
         public Task<List<Account>> GetAllAsync();
         public Task<IdentityResult> SignUpAsync(SignUpModel model);
+        //public Task<UsersWithRoles> SignInAsync(SignInModel model);
         public Task<string> SignInAsync(SignInModel model); // trả về True / False hoặc chuỗi Token
         public Task SignOutAsync();
         public Task<IdentityResult> UpdateAccountAsync(Account account , string id);

@@ -27,7 +27,7 @@
 
                                 <div class="form-group mb-3">
                                     <label for="material-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
-                                    <InputText id="material-title" class="form-control" @bind-Value="technology.Title"  />
+                                    <InputText id="material-title" class="form-control" @bind-Value="technology.Title" @oninput="GenerateSlug" />
                                     <ValidationMessage For="@(() => technology.Title)" />
                                 </div>
 
@@ -58,6 +58,43 @@
 
 @code {
     private Textile_technology technology = new Textile_technology();
+    private void GenerateSlug(ChangeEventArgs e)
+    {
+        if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
+        {
+            technology.Slug = CreateSlug(title);
+        }
+    }
+
+    private string CreateSlug(string input)
+    {
+        // Chuyển sang chữ thường
+        string result = input.ToLowerInvariant();
+
+        // Loại bỏ dấu tiếng Việt
+        result = RemoveDiacritics(result);
+
+        // Loại bỏ ký tự không phải chữ/số và thay thế khoảng trắng bằng dấu gạch ngang
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"[^a-z0-9\s-]", "");
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", "-").Trim('-');
+
+        return result;
+    }
+
+    private string RemoveDiacritics(string text)
+    {
+        var normalized = text.Normalize(System.Text.NormalizationForm.FormD);
+        var stringBuilder = new System.Text.StringBuilder();
+        foreach (var c in normalized)
+        {
+            var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                stringBuilder.Append(c);
+            }
+        }
+        return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
+    }
     private async Task SubmitForm()
     {
         technology.Create_at = DateTime.Now;

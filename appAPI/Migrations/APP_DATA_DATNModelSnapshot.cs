@@ -1546,6 +1546,9 @@ namespace appAPI.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<bool>("OTPCheck")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Password")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
@@ -1710,21 +1713,33 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "818b7fa8-91f9-4a3e-bb58-eecdd2361ea2",
+<<<<<<< Updated upstream
+                            ConcurrencyStamp = "00a6b6b2-67a9-4517-a92b-84f7fa1d4b1f",
+=======
+                            ConcurrencyStamp = "99f6fd57-a194-4dbb-903c-01ab11accd00",
+>>>>>>> Stashed changes
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "a79e337c-e740-4a10-94dd-35129f4376a3",
+<<<<<<< Updated upstream
+                            ConcurrencyStamp = "9580d91b-b2db-4316-96b6-ded90fc4e6a2",
+=======
+                            ConcurrencyStamp = "bfc76402-2aa9-41d2-94fb-aa618542467c",
+>>>>>>> Stashed changes
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "c302c5b4-3722-4664-9bbc-11e08c8ac0bd",
+<<<<<<< Updated upstream
+                            ConcurrencyStamp = "dbc8c59b-d63f-4474-bd54-c799fd97b2ca",
+=======
+                            ConcurrencyStamp = "f53b93e2-b20b-4fd7-b9e4-b7709de40526",
+>>>>>>> Stashed changes
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });

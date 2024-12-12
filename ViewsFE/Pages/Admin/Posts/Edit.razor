@@ -6,6 +6,7 @@
 @inject IDesignerServices des
 @inject IBannerServices bnser
 @inject IJSRuntime JS
+@using BlazorBootstrap
 
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -29,8 +30,8 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <label for="title" class="form-label">Tên trang<span class="text-danger">*</span></label>
-                                    <InputText id="title" class="form-control" @bind-Value="Posts.Title" placeholder="Tên trang" required />
+                                    <label for="title" class="form-label">Tên bài viết<span class="text-danger">*</span></label>
+                                    <InputText id="title" class="form-control" @bind-Value="Posts.Title" placeholder="Tên bài viết" @oninput="GenerateSlug" />
                                     <div id="title_error" class="validate-error"></div>
                                 </div>
 
@@ -223,7 +224,7 @@
                                                 </select>
                                                 <div id="category_ids_error" class="validate-error">
                                                 </div>
-                                                <a href="javascript:void(0)" id="add_category"
+                                                <a @onclick="OnShowModalClick"
                                                    class="mt-2 mb-2 d-block d-flex gap-1">
                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                          class="icon icon-tabler icon-tabler-plus" width="10"
@@ -235,34 +236,7 @@
                                                         <path d="M5 12l14 0" />
                                                     </svg>
                                                     <span> Thêm danh mục</span>
-                                                </a>
-                                                <div class="category-add mt-2 d-none">
-                                                    <div class="form-group mb-2">
-                                                        <label for="category_title" class="form-label">
-                                                            Tiêu
-                                                            đề
-                                                        </label>
-                                                        <input id="category_title" type="text"
-                                                               class="form-control" placeholder="Nhập tên danh mục">
-                                                    </div>
-                                                    <div class="form-group mb-2">
-                                                        <label for="category_parent_id" class="form-label">
-                                                            Danh mục
-                                                            cha
-                                                        </label>
-                                                        <select id="category_parent_id"
-                                                                class="form-control">
-                                                            <option value="">Chọn danh mục cha</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <button type="button" id="save_category"
-                                                                data-action="{{ route('admin.api.categories.store') }}"
-                                                                class="btn btn-primary">
-                                                            Lưu
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                                </a>                                             
                                             </div>
                                         </div>
                                     </div>
@@ -302,10 +276,51 @@
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 <Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
+
+
+
+<Modal @ref="modal" title="Thêm chuyên mục" IsVerticallyCentered="true">
+    <BodyTemplate>
+        <div class="category-add mt-2">
+            <div class="form-group mb-2">
+                <label for="categories-short-title" class="form-label">
+                    Tiêu
+                    đề ngắn <span class="text-danger">*</span>
+                </label>
+                <input id="categories-short-title" type="text"
+                       class="form-control" @bind="categories.Short_title" placeholder="Nhập tên ngắn danh mục">
+            </div>
+            <div class="form-group mb-2">
+                <label for="category_title" class="form-label">
+                    Tiêu
+                    đề
+                    <span class="text-danger">*</span>
+                </label>
+                <input id="category_title" type="text"
+                       class="form-control" @bind="categories.Title" placeholder="Nhập tên danh mục" @oninput="GenerateSlugCate">
+            </div>
+            <div class="form-group mb-3">
+                <label for="categories-slug" class="form-label">Đường dẫn</label>
+                <input id="categories-slug" class="form-control" @bind="categories.Slug" />
+                <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
+            </div>
+            <div class="form-group mb-3">
+                <label for="categories-description" class="form-label">Mô tả</label>
+                <textarea id="categories-description" class="form-control" @bind="categories.Description" rows="3" />
+            </div>
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button  class="btn btn-outline-secondary" @onclick="OnHideModalClick">Close</Button>
+        <Button class="btn btn-outline-primary" @onclick="Sumbit">Tạo chuyên mục</Button>
+    </FooterTemplate>
+</Modal>
+
 @code {
     [Parameter]
     public long Id { get; set; }
     private Product_Posts Posts = new Product_Posts();
+    private Categories categories = new Categories();
     private Banner banner = new Banner();
     private List<Categories> CategoriesList = new List<Categories>();
     private List<Tags> TagsList = new List<Tags>();
@@ -318,6 +333,33 @@
     private Media_manager media_ManagerRef;
     private long postId;
 
+
+    private Modal modal = default!;
+
+    private async Task OnShowModalClick()
+    {
+        await modal.ShowAsync();
+    }
+
+    private async Task OnHideModalClick()
+    {
+        await modal.HideAsync();
+    }
+    private async void Sumbit()
+    {
+        try
+        {
+            await cate.CreateTypePost(categories);
+            await JS.InvokeVoidAsync("toastr.success", "Thêm danh mục thành công");
+            await modal.HideAsync();
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm danh mục. Vui lòng thử lại.");
+        }
+    }
     private async Task HandleImageSelectedN(List<string> imagePaths)
     {
         Posts.Image_library = string.Join(",", imagePaths);
@@ -387,7 +429,64 @@
             await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
         }
     }
+    private void GenerateSlug(ChangeEventArgs e)
+    {
+        if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
+        {
+            Posts.Slug = CreateSlug(title);
+        }
+    }
 
+    private string CreateSlug(string input)
+    {
+        // Chuyển sang chữ thường
+        string result = input.ToLowerInvariant();
+
+        // Loại bỏ dấu tiếng Việt
+        result = RemoveDiacritics(result);
+
+        // Loại bỏ ký tự không phải chữ/số và thay thế khoảng trắng bằng dấu gạch ngang
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"[^a-z0-9\s-]", "");
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", "-").Trim('-');
+
+        return result;
+    }
+    private void GenerateSlugCate(ChangeEventArgs e)
+    {
+        if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
+        {
+            categories.Slug = CreateSlugCate(title);
+        }
+    }
+
+    private string CreateSlugCate(string input)
+    {
+        // Chuyển sang chữ thường
+        string result = input.ToLowerInvariant();
+
+        // Loại bỏ dấu tiếng Việt
+        result = RemoveDiacritics(result);
+
+        // Loại bỏ ký tự không phải chữ/số và thay thế khoảng trắng bằng dấu gạch ngang
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"[^a-z0-9\s-]", "");
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", "-").Trim('-');
+
+        return result;
+    }
+    private string RemoveDiacritics(string text)
+    {
+        var normalized = text.Normalize(System.Text.NormalizationForm.FormD);
+        var stringBuilder = new System.Text.StringBuilder();
+        foreach (var c in normalized)
+        {
+            var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                stringBuilder.Append(c);
+            }
+        }
+        return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
+    }
     private async void HandleValidSubmit()
     {
         bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận cập nhật bài viết ?");

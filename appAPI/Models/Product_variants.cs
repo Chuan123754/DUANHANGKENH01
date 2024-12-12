@@ -41,6 +41,7 @@ namespace appAPI.Models
         public virtual Material? Material { get; set; } 
         [ForeignKey("Textile_technology_id")]
         public virtual Textile_technology? Textile_Technology { get; set; }
+        [JsonIgnore]
         public virtual ICollection<Product_variants_wishlist> Product_Variants_Wishlists { get; set; } = new List<Product_variants_wishlist>();
         [JsonIgnore]
         public virtual ICollection<Product_Attributes>? Product_Attributes { get; set; } = new List<Product_Attributes>();

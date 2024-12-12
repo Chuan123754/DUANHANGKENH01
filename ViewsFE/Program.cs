@@ -19,6 +19,8 @@ builder.Services.AddDbContext<APP_DATA_DATN>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddAuthorizationCore();
 // Add services to the container.
+builder.Services.AddServerSideBlazor();
+builder.Services.AddBlazorBootstrap();
 builder.Services.AddRazorPages();
 builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddServerSideBlazor();

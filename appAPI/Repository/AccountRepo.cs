@@ -33,11 +33,47 @@ namespace appAPI.Repository
             return await userManager.Users.ToListAsync();
         }
 
+        //public async Task<UsersWithRoles> SignInAsync(SignInModel model)
+        //{
+        //    // Tìm người dùng theo email
+        //    var user = await context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+        //    if (user == null)
+        //    {
+        //        throw new Exception("Người dùng không tồn tại.");
+        //    }
+
+        //    // Kiểm tra mật khẩu
+        //    var passwordHasher = new PasswordHasher<object>();
+        //    var verificationResult = passwordHasher.VerifyHashedPassword(null, user.Password, model.Password);
+        //    if (verificationResult != PasswordVerificationResult.Success)
+        //    {
+        //        throw new Exception("Mật khẩu không hợp lệ.");
+        //    }
+
+        //    // Lấy danh sách vai trò (roles)
+        //    var account = await userManager.FindByEmailAsync(model.Email);
+        //    if (account == null)
+        //    {
+        //        throw new Exception("Không thể tìm thấy tài khoản tương ứng.");
+        //    }
+
+        //    var roles = await userManager.GetRolesAsync(account);
+
+        //    // Nếu xác thực thành công, trả về đối tượng Users cùng vai trò
+        //    return new UsersWithRoles
+        //    {
+        //        User = user,
+        //        Roles = roles.ToList()
+        //    };
+        //}
+
+
+
         public async Task<string> SignInAsync(SignInModel model)
         {
             var user = await userManager.FindByEmailAsync(model.Email);
             var passwordValid = await userManager.CheckPasswordAsync(user, model.Password);
-            if (user == null || (user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.UtcNow) || !passwordValid )
+            if (user == null || (user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.UtcNow) || !passwordValid)
             {
                 return string.Empty;
             }
@@ -46,9 +82,9 @@ namespace appAPI.Repository
             {
                 new Claim(ClaimTypes.Email , model.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id), 
-                new Claim("FirstName", user.FirstName), 
-                new Claim("LastName", user.LastName)   
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim("FirstName", user.FirstName),
+                new Claim("LastName", user.LastName)
             };
 
             var userRoles = await userManager.GetRolesAsync(user);

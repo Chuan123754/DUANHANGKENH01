@@ -1,7 +1,7 @@
 ﻿@page "/admin/UserDetails/{userId:long}"
 @inject IUserService UserService
-@inject IAccountService accountService
 @inject NavigationManager Navigation
+@inject AddressService address_Service
 
 <h3>Chi tiết Người dùng</h3>
 
@@ -17,15 +17,18 @@ else
 
         <div class="form-group">
             <label for="Name">Tên</label>
-            <InputText id="Name" class="form-control" @bind-Value="user.Name" />
+            <InputText id="Name" class="form-control" @bind-Value="user.Name" Disabled="@user.OTPCheck" />
         </div>
 
         <div class="form-group">
             <label for="Phone">Số điện thoại</label>
-            <InputText id="Phone" class="form-control" @bind-Value="user.Phone" Disabled="@otpSent" />
-            <button type="button" class="btn btn-secondary mt-2" @onclick="SendOtp" Disabled="@otpSent">
-                Gửi OTP
-            </button>
+            <InputText id="Phone" class="form-control" @bind-Value="user.Phone" Disabled="@(user.OTPCheck || otpSent)" />
+            @if (!user.OTPCheck)
+            {
+                <button type="button" class="btn btn-secondary mt-2" @onclick="SendOtp" Disabled="@otpSent">
+                    Gửi OTP
+                </button>
+            }
             @if (otpSent)
             {
                 <div class="form-group mt-2">
@@ -50,8 +53,39 @@ else
         </div>
 
         <div class="form-group">
-            <label for="Address">Địa chỉ</label>
-            <InputText id="Address" class="form-control" @bind-Value="user.Address" />
+            <label for="Address">Chọn Địa chỉ</label>
+            <select class="form-control" @onchange="OnProvinceChange">
+                <option value="">Chọn tỉnh/thành phố</option>
+                @foreach (var province in provinces)
+                {
+                    <option value="@province.Id">@province.Name</option>
+                }
+            </select>
+            @if (hasDistricts)
+            {
+                <select class="form-control mt-2" @onchange="OnDistrictChange">
+                    <option value="">Chọn quận/huyện</option>
+                    @foreach (var district in districts)
+                    {
+                        <option value="@district.Id">@district.Name</option>
+                    }
+                </select>
+            }
+            @if (hasWards)
+            {
+                <select class="form-control mt-2" @onchange="OnWardChange">
+                    <option value="">Chọn phường/xã</option>
+                    @foreach (var ward in wards)
+                    {
+                        <option value="@ward.Id">@ward.Name</option>
+                    }
+                </select>
+            }
+        </div>
+
+        <div class="form-group">
+            <label for="Street">Địa chỉ cụ thể</label>
+            <InputText id="Street" class="form-control" @bind-Value="address.Street" />
         </div>
 
         <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
@@ -83,6 +117,14 @@ else
     private DateTime? otpExpiryTime;
     private string otpError;
 
+
+    private List<Province> provinces = new List<Province>();
+    private List<Districted> districts = new List<Districted>();
+    private List<Ward> wards = new List<Ward>();
+    private Address address = new Address();
+    private bool hasDistricts = false;
+    private bool hasWards = false;
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -93,12 +135,48 @@ else
                 errorMessage = "Người dùng không tồn tại.";
                 Navigation.NavigateTo("/admin/users");
             }
+            provinces = await address_Service.GetProvincesAsync();
+
         }
         catch (Exception ex)
         {
             errorMessage = $"Lỗi: {ex.Message}";
         }
     }
+
+    private async Task OnProvinceChange(ChangeEventArgs e)
+    {
+        var selectedProvinceId = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedProvinceId))
+        {
+            address.Province_city = selectedProvinceId;
+            districts = await address_Service.GetDistrictsAsync(int.Parse(selectedProvinceId));
+            hasDistricts = districts.Count > 0;
+            wards.Clear();
+            hasWards = false;
+        }
+    }
+
+    private async Task OnDistrictChange(ChangeEventArgs e)
+    {
+        var selectedDistrictId = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedDistrictId))
+        {
+            address.District = selectedDistrictId;
+            wards = await address_Service.GetWardsAsync(int.Parse(selectedDistrictId));
+            hasWards = wards.Count > 0;
+        }
+    }
+
+    private async Task OnWardChange(ChangeEventArgs e)
+    {
+        var selectedWardId = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedWardId))
+        {
+            address.Ward_commune = selectedWardId;
+        }
+    }
+
 
     protected override void OnInitialized()
     {
@@ -124,8 +202,7 @@ else
         message = $"OTP của bạn là: {generatedOtp} (Giả lập, chỉ dành cho thử nghiệm)";
         StateHasChanged();
 
-        // Có thể gọi service gửi OTP thực tế tại đây
-        await Task.Delay(500); // Giả lập thời gian gửi OTP
+        await Task.Delay(500);
     }
 
     private async Task VerifyOtp()
@@ -153,18 +230,15 @@ else
 
         var allUsers = await UserService.GetAll();
         var existingUser = allUsers.FirstOrDefault(u => u.Phone == user.Phone);
-        var emailUser = allUsers.FirstOrDefault(u => u.Email == user.Email);
 
         if (existingUser != null)
         {
-            // Lấy PasswordHash từ AccountService
-            var passwordHash = await accountService.GetPasswordHashByEmail(emailUser.Email);
-
             // Cập nhật thông tin từ bản ghi hiện tại vào bản ghi tìm thấy
             existingUser.Name = user.Name;
             existingUser.Phone = user.Phone;
             existingUser.Email = user.Email;
-            existingUser.Password = passwordHash; // Sử dụng PasswordHash
+            existingUser.Password = user.Password;
+            existingUser.OTPCheck = true;
             existingUser.Address = user.Address;
             existingUser.Updated_at = DateTime.Now;
 
@@ -172,8 +246,6 @@ else
 
             // Xóa bản ghi hiện tại sau khi cập nhật bản ghi tìm thấy
             await UserService.Delete(user.Id);
-
-            // Gán bản ghi hiện tại sang bản ghi tìm thấy
             user = existingUser;
 
             message = "Cập nhật thông tin thành công! Số điện thoại đã được liên kết.";
@@ -187,9 +259,6 @@ else
         StateHasChanged();
     }
 
-
-
-
     private async Task HandleSubmit()
     {
         if (otpSent)
@@ -198,12 +267,27 @@ else
             return;
         }
 
+        if (string.IsNullOrEmpty(address.Province_city) || string.IsNullOrEmpty(address.District) || string.IsNullOrEmpty(address.Ward_commune))
+        {
+            errorMessage = "Vui lòng nhập đầy đủ thông tin địa chỉ trước khi lưu.";
+            return;
+        }
+
         try
         {
-            await UserService.Update(user);
-            message = "Lưu thay đổi thành công!";
-            Navigation.NavigateTo("/admin/users");
-            errorMessage = null;
+            address.User_Id = user.Id;
+            var createdAddress = await address_Service.CreateAddressAndReturn(address);
+            if (createdAddress != null)
+            {
+                user.Address = createdAddress.Id.ToString();
+                await UserService.Update(user);
+                message = "Lưu thay đổi thành công!";
+                Navigation.NavigateTo("/admin/users");
+            }
+            else
+            {
+                errorMessage = "Không thể tạo địa chỉ mới.";
+            }
 
             StateHasChanged();
         }
@@ -212,6 +296,4 @@ else
             errorMessage = $"Lỗi khi cập nhật thông tin: {ex.Message}";
         }
     }
-
-    
 }
