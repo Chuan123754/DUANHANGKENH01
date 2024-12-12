@@ -11,10 +11,10 @@ namespace appAPI.Models
         public long Product_variants_id { get; set; }
         public long Wishlist_id { get; set; }
         [ForeignKey("Product_variants_id")]
-        [JsonIgnore]
+  
         public virtual Product_variants? Product_Variants { get; set; }
         [ForeignKey("Wishlist_id")]
-        [JsonIgnore]
+
         public virtual Wishlist? Wishlist {  get; set; }
 
     }

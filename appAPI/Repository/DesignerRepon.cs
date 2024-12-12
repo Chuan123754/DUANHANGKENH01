@@ -65,6 +65,7 @@ namespace appAPI.Repository
                 return null;
             }
             item.Name = at.Name;
+            item.ShortName = at.ShortName;
             item.slug = at.slug;
             item.short_description = at.short_description;
             item.description = at.description;  

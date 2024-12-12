@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace appAPI.Migrations
 {
-    public partial class project : Migration
+    public partial class ducchuannguyeb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -1183,9 +1183,9 @@ namespace appAPI.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "ADMIN_ROLE_ID", "818b7fa8-91f9-4a3e-bb58-eecdd2361ea2", "Admin", "ADMIN" },
-                    { "DESIGNER_ROLE_ID", "c302c5b4-3722-4664-9bbc-11e08c8ac0bd", "Designer", "DESIGNER" },
-                    { "EMPLOYEE_ROLE_ID", "a79e337c-e740-4a10-94dd-35129f4376a3", "Employee", "EMPLOYEE" }
+                    { "ADMIN_ROLE_ID", "00a6b6b2-67a9-4517-a92b-84f7fa1d4b1f", "Admin", "ADMIN" },
+                    { "DESIGNER_ROLE_ID", "dbc8c59b-d63f-4474-bd54-c799fd97b2ca", "Designer", "DESIGNER" },
+                    { "EMPLOYEE_ROLE_ID", "9580d91b-b2db-4316-96b6-ded90fc4e6a2", "Employee", "EMPLOYEE" }
                 });
 
             migrationBuilder.InsertData(

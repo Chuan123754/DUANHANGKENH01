@@ -31,7 +31,7 @@
                                 <!-- Tên sản phẩm -->
                                 <div class="mb-3">
                                     <label for="title" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
-                                    <InputText @bind-Value="Posts.Title" class="form-control" placeholder="Tên sản phẩm" required />
+                                    <InputText @bind-Value="Posts.Title" class="form-control" placeholder="Tên sản phẩm" @oninput="GenerateSlug" />
                                 </div>
 
                                 <!-- Đường dẫn -->
@@ -405,6 +405,43 @@
         {
             await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
         }
+    }
+    private void GenerateSlug(ChangeEventArgs e)
+    {
+        if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
+        {
+            Posts.Slug = CreateSlug(title);
+        }
+    }
+
+    private string CreateSlug(string input)
+    {
+        // Chuyển sang chữ thường
+        string result = input.ToLowerInvariant();
+
+        // Loại bỏ dấu tiếng Việt
+        result = RemoveDiacritics(result);
+
+        // Loại bỏ ký tự không phải chữ/số và thay thế khoảng trắng bằng dấu gạch ngang
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"[^a-z0-9\s-]", "");
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", "-").Trim('-');
+
+        return result;
+    }
+
+    private string RemoveDiacritics(string text)
+    {
+        var normalized = text.Normalize(System.Text.NormalizationForm.FormD);
+        var stringBuilder = new System.Text.StringBuilder();
+        foreach (var c in normalized)
+        {
+            var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                stringBuilder.Append(c);
+            }
+        }
+        return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
     private async void HandleValidSubmit()
     {

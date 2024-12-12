@@ -88,6 +88,7 @@ builder.Services.AddScoped<IAccsessViewsRepon,  AccsessViewsRepon>();
 builder.Services.AddScoped<IMomoRepository, MomoRepository>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
 builder.Services.AddScoped<IAdminRepo, AdminRep>();
+builder.Services.AddScoped<IProduct_variants_wishlist_Reponsitory, Product_variants_wishlist_Reponsitory>();
 
 builder.Services.AddControllers(options =>
 {

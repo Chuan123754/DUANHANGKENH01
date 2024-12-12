@@ -23,10 +23,9 @@
                     <div class="col-md-12 col-12">
                         <div class="card">
                             <div class="card-body">
-
                                 <div class="form-group mb-3">
                                     <label for="material-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
-                                    <InputText id="material-title" class="form-control" @bind-Value="style.Title" />
+                                    <InputText id="material-title" class="form-control" @bind-Value="style.Title" @oninput="GenerateSlug" />
                                     <ValidationMessage For="@(() => style.Title)" />
                                 </div>
 
@@ -63,18 +62,50 @@
     {
         style = await sev.Details(Id);
     }
+    private void GenerateSlug(ChangeEventArgs e)
+    {
+        if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
+        {
+            style.Slug = CreateSlug(title);
+        }
+    }
+
+    private string CreateSlug(string input)
+    {
+        string result = input.ToLowerInvariant();
+        result = RemoveDiacritics(result);
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"[^a-z0-9\s-]", "");
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", "-").Trim('-');
+        return result;
+    }
+
+    private string RemoveDiacritics(string text)
+    {
+        var normalized = text.Normalize(System.Text.NormalizationForm.FormD);
+        var stringBuilder = new System.Text.StringBuilder();
+        foreach (var c in normalized)
+        {
+            var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                stringBuilder.Append(c);
+            }
+        }
+        return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
+    }
+
     private async Task SubmitForm()
     {
         try
         {
-            await sev.Update(style); // Gọi API để tạo thuộc tính
-            await JS.InvokeVoidAsync("toastr.success", "Phong cách đã được sửa thành công"); // Hiển thị thông báo thành công
-            nav.NavigateTo("/admin/style"); // Điều hướng sau khi thành công
+            await sev.Update(style); 
+            await JS.InvokeVoidAsync("toastr.success", "Phong cách đã được sửa thành công"); 
+            nav.NavigateTo("/admin/style");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể sửa phong cách. Vui lòng thử lại."); // Hiển thị thông báo lỗi
+            await JS.InvokeVoidAsync("toastr.error", "Không thể sửa phong cách. Vui lòng thử lại."); 
         }
     }
 }

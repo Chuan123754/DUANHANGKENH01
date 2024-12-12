@@ -30,8 +30,8 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <label for="title" class="form-label">Tên trang<span class="text-danger">*</span></label>
-                                    <InputText id="title" class="form-control" @bind-Value="Posts.Title" placeholder="Tên trang" required />
+                                    <label for="title" class="form-label">Tên bài viết<span class="text-danger">*</span></label>
+                                    <InputText id="title" class="form-control" @bind-Value="Posts.Title" placeholder="Tên bài viết" @oninput="GenerateSlug" />
                                     <div id="title_error" class="validate-error"></div>
                                 </div>
 
@@ -225,7 +225,7 @@
                                                         <option value="@cate.Id" selected="@SelectedCategories.Contains(cate.Id)">@cate.Title</option>
                                                     }
                                                 </select>
-                                                <a href=""
+                                                <a @onclick="OnShowModalClick"
                                                    class="mt-2 mb-2 d-block d-flex gap-1">
                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                          class="icon icon-tabler icon-tabler-plus" width="10"
@@ -238,33 +238,7 @@
                                                     </svg>
                                                     <span> Thêm danh mục</span>
                                                 </a>
-                                                <div class="category-add mt-2 d-none">
-                                                    <div class="form-group mb-2">
-                                                        <label for="category_title" class="form-label">
-                                                            Tiêu
-                                                            đề
-                                                        </label>
-                                                        <input id="category_title" type="text"
-                                                               class="form-control" placeholder="Nhập tên danh mục">
-                                                    </div>
-                                                    <div class="form-group mb-2">
-                                                        <label for="category_parent_id" class="form-label">
-                                                            Danh mục
-                                                            cha
-                                                        </label>
-                                                        <select id="category_parent_id"
-                                                                class="form-control">
-                                                            <option value="">Chọn danh mục cha</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <button type="button" id="save_category"
-                                                                data-action="{{ route('admin.api.categories.store') }}"
-                                                                class="btn btn-primary">
-                                                            Lưu
-                                                        </button>
-                                                    </div>
-                                                </div>
+                                             
 
                                             </div>
                                         </div>
@@ -306,119 +280,47 @@
 <Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
 
 
-
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-    Launch modal with form
-</button>
-
-<div class="modal" id="exampleModal" tabindex="-1">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">New report</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<Modal @ref="modal" title="Thêm chuyên mục" IsVerticallyCentered="true">
+    <BodyTemplate>
+        <div class="category-add mt-2">
+            <div class="form-group mb-2">
+                <label for="categories-short-title" class="form-label">
+                    Tiêu
+                    đề ngắn <span class="text-danger">*</span>
+                </label>
+                <input id="categories-short-title" type="text"
+                       class="form-control" @bind="categories.Short_title" placeholder="Nhập tên ngắn danh mục">
             </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">Name</label>
-                    <input type="text" class="form-control" name="example-text-input" placeholder="Your report name" />
-                </div>
-                <label class="form-label">Report type</label>
-                <div class="form-selectgroup-boxes row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-selectgroup-item">
-                            <input type="radio" name="report-type" value="1" class="form-selectgroup-input" checked />
-                            <span class="form-selectgroup-label d-flex align-items-center p-3">
-                                <span class="me-3">
-                                    <span class="form-selectgroup-check"></span>
-                                </span>
-                                <span class="form-selectgroup-label-content">
-                                    <span class="form-selectgroup-title strong mb-1">Simple</span>
-                                    <span class="d-block text-secondary">Provide only basic data needed for the report</span>
-                                </span>
-                            </span>
-                        </label>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-selectgroup-item">
-                            <input type="radio" name="report-type" value="1" class="form-selectgroup-input" />
-                            <span class="form-selectgroup-label d-flex align-items-center p-3">
-                                <span class="me-3">
-                                    <span class="form-selectgroup-check"></span>
-                                </span>
-                                <span class="form-selectgroup-label-content">
-                                    <span class="form-selectgroup-title strong mb-1">Advanced</span>
-                                    <span class="d-block text-secondary">Insert charts and additional advanced analyses to be inserted in the report</span>
-                                </span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="mb-3">
-                            <label class="form-label">Report url</label>
-                            <div class="input-group input-group-flat">
-                                <span class="input-group-text">
-                                    https://tabler.io/reports/
-                                </span>
-                                <input type="text" class="form-control ps-0" value="report-01" autocomplete="off" />
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="mb-3">
-                            <label class="form-label">Visibility</label>
-                            <select class="form-select">
-                                <option value="1" selected>Private</option>
-                                <option value="2">Public</option>
-                                <option value="3">Hidden</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+            <div class="form-group mb-2">
+                <label for="category_title" class="form-label">
+                    Tiêu
+                    đề
+                    <span class="text-danger">*</span>
+                </label>
+                <input id="category_title" type="text"
+                       class="form-control" @bind="categories.Title" placeholder="Nhập tên danh mục" @oninput="GenerateSlugCate">
             </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="mb-3">
-                            <label class="form-label">Client name</label>
-                            <input type="text" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="col-lg-6">
-                        <div class="mb-3">
-                            <label class="form-label">Reporting period</label>
-                            <input type="date" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="col-lg-12">
-                        <div>
-                            <label class="form-label">Additional information</label>
-                            <textarea class="form-control" rows="3"></textarea>
-                        </div>
-                    </div>
-                </div>
+            <div class="form-group mb-3">
+                <label for="categories-slug" class="form-label">Đường dẫn</label>
+                <input id="categories-slug" class="form-control" @bind="categories.Slug" />
+                <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
             </div>
-            <div class="modal-footer">
-                <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-                    Cancel
-                </a>
-                <a href="#" class="btn btn-primary ms-auto" data-bs-dismiss="modal">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M12 5l0 14"></path>
-                        <path d="M5 12l14 0"></path>
-                    </svg>
-                    Create new report
-                </a>
+            <div class="form-group mb-3">
+                <label for="categories-description" class="form-label">Mô tả</label>
+                <textarea id="categories-description" class="form-control" @bind="categories.Description" rows="3" />
             </div>
         </div>
-    </div>
-</div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button  class="btn btn-outline-secondary" @onclick="OnHideModalClick">Close</Button>
+        <Button class="btn btn-outline-primary" @onclick="Sumbit">Tạo chuyên mục</Button>
+    </FooterTemplate>
+</Modal>
+
 
 @code {
     private Product_Posts Posts = new Product_Posts();
+    private Categories categories = new Categories();
     private Banner banner = new Banner();
     private List<Categories> CategoriesList = new List<Categories>();
     private List<Tags> TagsList = new List<Tags>();
@@ -431,6 +333,33 @@
     private Media_manager media_ManagerRef;
     private long postId;
 
+
+    private Modal modal = default!;
+
+    private async Task OnShowModalClick()
+    {
+        await modal.ShowAsync();
+    }
+
+    private async Task OnHideModalClick()
+    {
+        await modal.HideAsync();
+    }
+    private async void Sumbit()
+    {
+        try
+        {
+            await cate.CreateTypePost(categories);
+            await JS.InvokeVoidAsync("toastr.success", "Thêm danh mục thành công");
+            await modal.HideAsync();
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm danh mục. Vui lòng thử lại.");
+        }
+    }
     private async Task HandleImageSelectedN(List<string> imagePaths)
     {
         Posts.Image_library = string.Join(",", imagePaths);
@@ -494,6 +423,64 @@
         {
             await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
         }
+    }
+    private void GenerateSlug(ChangeEventArgs e)
+    {
+        if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
+        {
+            Posts.Slug = CreateSlug(title);
+        }
+    }
+
+    private string CreateSlug(string input)
+    {
+        // Chuyển sang chữ thường
+        string result = input.ToLowerInvariant();
+
+        // Loại bỏ dấu tiếng Việt
+        result = RemoveDiacritics(result);
+
+        // Loại bỏ ký tự không phải chữ/số và thay thế khoảng trắng bằng dấu gạch ngang
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"[^a-z0-9\s-]", "");
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", "-").Trim('-');
+
+        return result;
+    }
+    private void GenerateSlugCate(ChangeEventArgs e)
+    {
+        if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
+        {
+            categories.Slug = CreateSlugCate(title);
+        }
+    }
+
+    private string CreateSlugCate(string input)
+    {
+        // Chuyển sang chữ thường
+        string result = input.ToLowerInvariant();
+
+        // Loại bỏ dấu tiếng Việt
+        result = RemoveDiacritics(result);
+
+        // Loại bỏ ký tự không phải chữ/số và thay thế khoảng trắng bằng dấu gạch ngang
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"[^a-z0-9\s-]", "");
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", "-").Trim('-');
+
+        return result;
+    }
+    private string RemoveDiacritics(string text)
+    {
+        var normalized = text.Normalize(System.Text.NormalizationForm.FormD);
+        var stringBuilder = new System.Text.StringBuilder();
+        foreach (var c in normalized)
+        {
+            var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                stringBuilder.Append(c);
+            }
+        }
+        return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
     private async void HandleValidSubmit()
     {

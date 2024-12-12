@@ -37,7 +37,7 @@
 
                                 <div class="mb-3">
                                     <label for="Name" class="form-label">Tên nhà thiết kế <span class="text-danger">*</span></label>
-                                    <InputText @bind-Value="designer.Name" class="form-control" id="Name" placeholder="Tên nhà thiết kế"  />
+                                    <InputText @bind-Value="designer.Name" class="form-control" id="Name" placeholder="Tên nhà thiết kế" @oninput="GenerateSlug" />
                                     <ValidationMessage For="@(() => designer.Name)" />
                                 </div>
 
@@ -322,6 +322,43 @@
         {
             await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
         }
+    }
+    private void GenerateSlug(ChangeEventArgs e)
+    {
+        if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
+        {
+            designer.slug = CreateSlug(title);
+        }
+    }
+
+    private string CreateSlug(string input)
+    {
+        // Chuyển sang chữ thường
+        string result = input.ToLowerInvariant();
+
+        // Loại bỏ dấu tiếng Việt
+        result = RemoveDiacritics(result);
+
+        // Loại bỏ ký tự không phải chữ/số và thay thế khoảng trắng bằng dấu gạch ngang
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"[^a-z0-9\s-]", "");
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", "-").Trim('-');
+
+        return result;
+    }
+
+    private string RemoveDiacritics(string text)
+    {
+        var normalized = text.Normalize(System.Text.NormalizationForm.FormD);
+        var stringBuilder = new System.Text.StringBuilder();
+        foreach (var c in normalized)
+        {
+            var unicodeCategory = System.Globalization.CharUnicodeInfo.GetUnicodeCategory(c);
+            if (unicodeCategory != System.Globalization.UnicodeCategory.NonSpacingMark)
+            {
+                stringBuilder.Append(c);
+            }
+        }
+        return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
     private async Task SubmitForm()
     {
