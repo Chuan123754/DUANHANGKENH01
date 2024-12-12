@@ -59,6 +59,21 @@ namespace appAPI.Controllers
             }
 
         }
+
+        [HttpPost("CreateAddressAndReturn")]
+        public async Task<IActionResult> CreateAndReturn(Address address)
+        {
+            try
+            {
+                var result = await _repo.CreateAddressAndReturn(address);
+                return Ok(result); // Trả về địa chỉ vừa được thêm
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPut("UpdateAddress")]
         public async Task<IActionResult> Update(long id, Address address)
         {

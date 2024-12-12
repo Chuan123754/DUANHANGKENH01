@@ -9,8 +9,9 @@ namespace ViewsFE.IServices
         Task<List<Users>> GetAll();
         Task<Users> GetById(long id);
         Task<Users> Create(Users user);
-        Task Register(Users user);  
-        Task<Users> Login(Users user);  
+        Task Register(Users user);
+        Task<Users> Login(Users user, bool rememberMe);
+        Task<Users> AutoLogin(string rememberToken);
         Task Logout(long idUser);  
         Task Update(Users user);
         Task Delete(long id);

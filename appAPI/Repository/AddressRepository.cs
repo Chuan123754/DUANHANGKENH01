@@ -49,6 +49,15 @@ namespace appAPI.Repository
             await _context.SaveChangesAsync();
         }
 
+        public async Task<Address> CreateAddressAndReturn(Address address)
+        {
+            address.Set_as_default = 1;
+            _context.Address.Add(address);
+            await _context.SaveChangesAsync();
+            return address; // Trả về địa chỉ vừa được thêm
+        }
+
+
         public async Task DeleteAddress(long id)
         {
             var deleteItem = await _context.Address.FindAsync(id);

@@ -59,6 +59,31 @@ namespace ViewsFE.Services
             }
 
         }
+
+        public async Task<Address> CreateAddressAndReturn(Address address)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("https://localhost:7011/api/Address/CreateAddressAndReturn", address);
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<Address>(); // Trả về đối tượng Address vừa được tạo
+                }
+                else
+                {
+                    var errorMessage = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"Error: {errorMessage}");
+                    return null; // Trả về null nếu có lỗi
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+                return null;
+            }
+        }
+
+
         public async Task UpdateAddress( Address address, long id)
         {
             await _httpClient.PutAsJsonAsync($"https://localhost:7011/api/Address/UpdateAddress?id={id}", address);

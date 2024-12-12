@@ -30,6 +30,7 @@ namespace ViewsFE.Models
         public string? Password { get; set; }
         [StringLength(int.MaxValue)]
         public string? RememberToken { get; set; }
+        public bool OTPCheck { get; set; } = false;
         public string? Address { get; set; }
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set; }

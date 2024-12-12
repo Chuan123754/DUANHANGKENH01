@@ -166,9 +166,10 @@ namespace ViewsFE.Services
         }
 
 
-        public async Task<Users> Login(Users user)
+        public async Task<Users> Login(Users user, bool rememberMe)
         {
-            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/Users/login", user);
+            var requestPayload = new { user.Email, user.Password, RememberMe = rememberMe };
+            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/Users/login", requestPayload);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -176,14 +177,26 @@ namespace ViewsFE.Services
                 throw new Exception($"Đăng nhập thất bại: {errorMessage}");
             }
 
-            var result = await response.Content.ReadFromJsonAsync<ResponseLogin>();
+            var result = await response.Content.ReadFromJsonAsync<Users>();
+            return result;
+        }
 
-            if (result != null && result.User != null)
+
+        public async Task<Users> AutoLogin(string rememberToken)
+        {
+            string requestURL = $"{_baseUrl}/api/Users/auto-login?rememberToken={rememberToken}";
+            var response = await _httpClient.GetAsync(requestURL);
+
+            if (response.IsSuccessStatusCode)
             {
-                return result.User;
+                var user = await response.Content.ReadFromJsonAsync<Users>();
+                return user;
             }
-
-            return null;
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Đăng nhập tự động thất bại: {errorMessage}");
+            }
         }
 
         public async Task Logout(long idUser)
