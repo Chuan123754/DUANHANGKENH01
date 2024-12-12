@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace appAPI.Migrations
 {
-    public partial class ducchuannguyeb : Migration
+    public partial class updatedataa : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -400,7 +400,8 @@ namespace appAPI.Migrations
                     Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Phone = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: true),
                     Email = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    Password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    OTPCheck = table.Column<bool>(type: "bit", maxLength: 255, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RememberToken = table.Column<string>(type: "nvarchar(max)", maxLength: 2147483647, nullable: true),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -575,7 +576,8 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    STT = table.Column<int>(type: "int", maxLength: 255, nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Slug = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
                     Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     AuthorId = table.Column<long>(type: "bigint", nullable: true),
@@ -1183,9 +1185,9 @@ namespace appAPI.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "ADMIN_ROLE_ID", "00a6b6b2-67a9-4517-a92b-84f7fa1d4b1f", "Admin", "ADMIN" },
-                    { "DESIGNER_ROLE_ID", "dbc8c59b-d63f-4474-bd54-c799fd97b2ca", "Designer", "DESIGNER" },
-                    { "EMPLOYEE_ROLE_ID", "9580d91b-b2db-4316-96b6-ded90fc4e6a2", "Employee", "EMPLOYEE" }
+                    { "ADMIN_ROLE_ID", "e02eef52-f5d0-494e-8caa-e427f56ad19f", "Admin", "ADMIN" },
+                    { "DESIGNER_ROLE_ID", "a5c68552-ec83-4bcf-a6cb-0e8826a7d588", "Designer", "DESIGNER" },
+                    { "EMPLOYEE_ROLE_ID", "e3cfb096-082c-49e5-b6bf-3e5c08cce07c", "Employee", "EMPLOYEE" }
                 });
 
             migrationBuilder.InsertData(

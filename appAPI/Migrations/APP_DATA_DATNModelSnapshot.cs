@@ -1157,6 +1157,10 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Post_date")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("STT")
+                        .HasMaxLength(255)
+                        .HasColumnType("int");
+
                     b.Property<string>("Short_description")
                         .HasColumnType("nvarchar(max)");
 
@@ -1170,8 +1174,7 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Title")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
                         .HasMaxLength(255)
@@ -1547,11 +1550,11 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("OTPCheck")
+                        .HasMaxLength(255)
                         .HasColumnType("bit");
 
                     b.Property<string>("Password")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
@@ -1713,33 +1716,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-<<<<<<< Updated upstream
-                            ConcurrencyStamp = "00a6b6b2-67a9-4517-a92b-84f7fa1d4b1f",
-=======
-                            ConcurrencyStamp = "99f6fd57-a194-4dbb-903c-01ab11accd00",
->>>>>>> Stashed changes
+                            ConcurrencyStamp = "e02eef52-f5d0-494e-8caa-e427f56ad19f",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-<<<<<<< Updated upstream
-                            ConcurrencyStamp = "9580d91b-b2db-4316-96b6-ded90fc4e6a2",
-=======
-                            ConcurrencyStamp = "bfc76402-2aa9-41d2-94fb-aa618542467c",
->>>>>>> Stashed changes
+                            ConcurrencyStamp = "e3cfb096-082c-49e5-b6bf-3e5c08cce07c",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-<<<<<<< Updated upstream
-                            ConcurrencyStamp = "dbc8c59b-d63f-4474-bd54-c799fd97b2ca",
-=======
-                            ConcurrencyStamp = "f53b93e2-b20b-4fd7-b9e4-b7709de40526",
->>>>>>> Stashed changes
+                            ConcurrencyStamp = "a5c68552-ec83-4bcf-a6cb-0e8826a7d588",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -2155,7 +2146,7 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Wishlist", "Wishlist")
-                        .WithMany()
+                        .WithMany("Product_variants")
                         .HasForeignKey("Wishlist_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2378,6 +2369,11 @@ namespace appAPI.Migrations
                     b.Navigation("UserVouchers");
 
                     b.Navigation("Wishlist");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Wishlist", b =>
+                {
+                    b.Navigation("Product_variants");
                 });
 #pragma warning restore 612, 618
         }
