@@ -5,6 +5,7 @@ using Org.BouncyCastle.Crypto.Generators;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 
 namespace appAPI.Controllers
@@ -87,6 +88,7 @@ namespace appAPI.Controllers
             item.Password = user.Password;
             item.RememberToken = user.RememberToken;
             item.Address = user.Address;
+            item.OTPCheck = user.OTPCheck;
             item.Created_at = user.Created_at;
             item.Updated_at = user.Updated_at;
             context.SaveChanges();
@@ -102,10 +104,22 @@ namespace appAPI.Controllers
                 return NotFound("User not found");
             }
 
-            context.Remove(delete);
+            // Xóa giỏ hàng liên kết với user
+            var carts = context.Carts.Where(c => c.UserId == id).ToList();
+            context.Carts.RemoveRange(carts);
+
+            // Xóa wishlist liên kết với user
+            var wishlists = context.Wishlist.Where(w => w.User_id == id).ToList();
+            context.Wishlist.RemoveRange(wishlists);
+
+            // Xóa user
+            context.Users.Remove(delete);
             context.SaveChanges();
+
             return Ok(new { message = "Xóa thành công" });
         }
+
+
         [HttpPost("register")]
         public IActionResult Register([FromBody] Users user)
         {
@@ -121,27 +135,88 @@ namespace appAPI.Controllers
 
             return Ok(new { message = "Đăng ký thành công", user });
         }
-        [HttpPost("login")]
-        public IActionResult Login([FromBody] Users loginUser)
+
+        [HttpGet("check-cookie")]
+        public IActionResult CheckCookie()
         {
-            if (loginUser == null)
+            if (Request.Cookies.TryGetValue("RememberToken", out var token))
+            {
+                return Ok(new { message = "Cookie tồn tại", token });
+            }
+            return NotFound(new { message = "Cookie không tồn tại" });
+        }
+
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginRequest loginRequest)
+        {
+            if (loginRequest == null)
             {
                 return BadRequest(new { message = "Dữ liệu đầu vào không hợp lệ." });
             }
 
-            var user = context.Users.FirstOrDefault(u => u.Email == loginUser.Email);
-
+            var user = context.Users.FirstOrDefault(u => u.Email == loginRequest.Email);
             if (user == null)
             {
                 return Unauthorized(new { message = "Email không tồn tại." });
             }
 
-            if (user.Password != loginUser.Password)
+            var passwordHasher = new PasswordHasher<object>();
+            var verificationResult = passwordHasher.VerifyHashedPassword(null, user.Password, loginRequest.Password);
+
+            if (verificationResult == PasswordVerificationResult.Failed)
             {
                 return Unauthorized(new { message = "Mật khẩu không đúng." });
             }
 
+            if (loginRequest.RememberMe)
+            {
+                // Tạo RememberToken
+                user.RememberToken = Guid.NewGuid().ToString();
+                context.SaveChanges();
+
+                // Lưu RememberToken vào Cookie
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Expires = DateTime.Now.AddDays(30),
+                    Path = "/",
+                    SameSite = SameSiteMode.None, // Cho phép cookie hoạt động trên nhiều site
+                    Secure = false // Không yêu cầu HTTPS
+                };
+
+                Response.Cookies.Append("RememberToken", user.RememberToken, cookieOptions);
+
+            }
+
             return Ok(user);
+        }
+
+        [HttpGet("auto-login")]
+        public IActionResult AutoLogin()
+        {
+            if (Request.Cookies.TryGetValue("RememberToken", out var token))
+            {
+                var user = context.Users.FirstOrDefault(u => u.RememberToken == token);
+                if (user != null)
+                {
+                    return Ok(user); // Trả về thông tin người dùng
+                }
+            }
+            return Unauthorized(new { message = "Không tìm thấy token hợp lệ" });
+        }
+
+        [HttpGet("test-cookie")]
+        public IActionResult TestCookie()
+        {
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTime.Now.AddDays(30),
+                SameSite = SameSiteMode.None,
+                Secure = false
+            };
+            Response.Cookies.Append("TestCookie", "TestValue", cookieOptions);
+            return Ok(new { message = "Cookie set successfully" });
         }
 
 
@@ -245,5 +320,13 @@ namespace appAPI.Controllers
         {
             return HashPassword(password) == hashedPassword;
         }
+
+        public class LoginRequest
+        {
+            public string Email { get; set; }
+            public string Password { get; set; }
+            public bool RememberMe { get; set; }
+        }
+
     }
 }

@@ -52,6 +52,37 @@ namespace appAPI.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        //[HttpPost("Login")]
+        //public async Task<IActionResult> SignIn(SignInModel model)
+        //{
+        //    try
+        //    {
+        //        var userWithRoles = await _repo.SignInAsync(model);
+
+        //        if (userWithRoles == null)
+        //        {
+        //            return Unauthorized(new { Message = "Tên đăng nhập hoặc mật khẩu không đúng!" });
+        //        }
+
+        //        return Ok(new
+        //        {
+        //            UserId = userWithRoles.User.Id,
+        //            Name = userWithRoles.User.Name,
+        //            Email = userWithRoles.User.Email,
+        //            Phone = userWithRoles.User.Phone,
+        //            Address = userWithRoles.User.Address,
+        //            Roles = userWithRoles.Roles // Trả về danh sách vai trò
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { Message = ex.Message });
+        //    }
+        //}
+
+
+
         [HttpPost("Login")]
         public async Task<IActionResult> SignIn(SignInModel model)
         {
@@ -62,6 +93,7 @@ namespace appAPI.Controllers
             }
             return Ok(new { Token = token });
         }
+
         [HttpPost("SignOut")]
         public async Task<IActionResult> SignOutAsync()
         {

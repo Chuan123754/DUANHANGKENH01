@@ -8,6 +8,7 @@ namespace appAPI.IRepository
         public Task<List<Address>> GetAddressByUserId(long userId);
         public Task<Address> GetAddressById(long id);
         public Task CreateAddress(Address address);
+        public Task<Address> CreateAddressAndReturn(Address address);
         public Task UpdateAddress(Address address, long id);
         public Task DeleteAddress(long id);
         public Task SetAsDefault(long id , Address address);

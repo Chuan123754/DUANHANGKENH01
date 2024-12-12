@@ -16,6 +16,20 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Thêm cấu hình Cookie
+builder.Services.AddAuthentication("CookieAuth")
+    .AddCookie("CookieAuth", options =>
+    {
+        options.Cookie.Name = "MyAppAuthCookie"; // Tên cookie
+        options.Cookie.HttpOnly = true; // Cookie chỉ có thể được truy cập từ server
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Chỉ gửi qua HTTPS nếu có
+        options.Cookie.SameSite = SameSiteMode.Lax; // Ngăn chặn CSRF
+        options.ExpireTimeSpan = TimeSpan.FromDays(30); // Thời gian sống của cookie
+        options.LoginPath = "/admin/Loginclient"; // Đường dẫn đến trang đăng nhập
+        options.LogoutPath = "/admin/Loginclient"; // Đường dẫn đến trang đăng xuất
+    });
+
+
 // Add services to the container.
 // Đăng ký DbContext và cấu hình chuỗi kết nối từ appsettings.json
 builder.Services.AddDbContext<APP_DATA_DATN>(options =>
@@ -108,7 +122,8 @@ builder.Services.AddCors(options =>
         {
             policyBuilder.WithOrigins("https://localhost:7277", "https://localhost:7032") // Đảm bảo đây là URL đúng
                          .AllowAnyHeader()
-                         .AllowAnyMethod();
+                         .AllowAnyMethod()
+                        .AllowCredentials();
         });
 });
 
@@ -148,6 +163,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    MinimumSameSitePolicy = SameSiteMode.None, // Cho phép tất cả SameSite
+});
+
+
 app.UseHttpsRedirection();
 
 app.UseRouting(); // Cần thiết cho routing
@@ -162,8 +183,8 @@ app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
     //FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
-    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
-    //FileProvider = new PhysicalFileProvider(@"I:\VIs Stu fille\DATN\DATN-Blazon\appAPI\FileMedia"),
+    //FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
+    FileProvider = new PhysicalFileProvider(@"I:\VIs Stu fille\DATN\DATN-Blazon\appAPI\FileMedia"),
 
     RequestPath = "/FileMedia"
 });
