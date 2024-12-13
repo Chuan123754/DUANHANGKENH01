@@ -250,6 +250,11 @@ namespace ViewsFE.Services
             return count;
         }
 
+        public Task<Users> Login(Users user)
+        {
+            throw new NotImplementedException();
+        }
+
         public class ResponseLogin
         {
             public string Message { get; set; }

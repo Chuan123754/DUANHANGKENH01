@@ -116,7 +116,7 @@ namespace ViewsFE.BackgroundServices
                     }
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken); // kiểm tra mỗi phút  
+                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); // kiểm tra mỗi phút  
             }
         }
 
