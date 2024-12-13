@@ -249,447 +249,76 @@
                 </div>
             </div>
 
-            <div class="col-md-12 col-lg-8">
+
+            <div class="col-md-12 col-lg-6">
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Most Visited Pages</h3>
+                        <div class="subheader">
+                            <h3>@GetSubheaderUserTop5()</h3>
+                        </div>
+                        <div class="ms-auto lh-1">
+                            <div class="dropdown" id="dropdown-users">
+                                <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Top 5 khách hàng 
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end">
+                                    <a class="dropdown-item @(selectedTop5User == "top5all" ? "active" : "")" href="#" @onclick='() => SetModeUserTop5("top5all")'>
+                                        Top 5 khách hàng mua nhiều đơn
+                                    </a>
+                                    <a class="dropdown-item @(selectedTop5User == "top5week" ? "active" : "")" href="#" @onclick='() => SetModeUserTop5("top5week")'>
+                                        Top 5 khách hàng mua nhiều đơn tuần này
+                                    </a>
+                                    <a class="dropdown-item @(selectedTop5User == "top5month" ? "active" : "")" href="#" @onclick='() => SetModeUserTop5("top5month")'>
+                                        Top 5 khách hàng mua nhiều đơn tháng này
+                                    </a>
+                                    <a class="dropdown-item @(selectedTop5User == "top5year" ? "active" : "")" href="#" @onclick='() => SetModeUserTop5("top5year")'>
+                                        Top 5 khách hàng mua nhiều đơn năm nay
+                                    </a>                     
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-table table-responsive">
                         <table class="table table-vcenter">
                             <thead>
                                 <tr>
-                                    <th>Page name</th>
-                                    <th>Visitors</th>
-                                    <th>Unique</th>
-                                    <th colspan="2">Bounce rate</th>
+                                    <th>Tên khách hàng</th>
+                                    <th>Tổng số đơn hàng</th>
+                                    <th>Tổng số tiền</th>
                                 </tr>
                             </thead>
-                            <tr>
-                                <td>
-                                    /
-                                    <a href="#" class="ms-1" aria-label="Open website">
-                                        <!-- Download SVG icon from http://tabler-icons.io/i/link -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M9 15l6 -6" /><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" /><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" /></svg>
-                                    </a>
-                                </td>
-                                <td class="text-secondary">4,896</td>
-                                <td class="text-secondary">3,654</td>
-                                <td class="text-secondary">82.54%</td>
-                                <td class="text-end w-1">
-                                    <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-1"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    /form-elements.html
-                                    <a href="#" class="ms-1" aria-label="Open website">
-                                        <!-- Download SVG icon from http://tabler-icons.io/i/link -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M9 15l6 -6" /><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" /><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" /></svg>
-                                    </a>
-                                </td>
-                                <td class="text-secondary">3,652</td>
-                                <td class="text-secondary">3,215</td>
-                                <td class="text-secondary">76.29%</td>
-                                <td class="text-end w-1">
-                                    <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-2"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    /index.html
-                                    <a href="#" class="ms-1" aria-label="Open website">
-                                        <!-- Download SVG icon from http://tabler-icons.io/i/link -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M9 15l6 -6" /><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" /><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" /></svg>
-                                    </a>
-                                </td>
-                                <td class="text-secondary">3,256</td>
-                                <td class="text-secondary">2,865</td>
-                                <td class="text-secondary">72.65%</td>
-                                <td class="text-end w-1">
-                                    <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-3"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    /icons.html
-                                    <a href="#" class="ms-1" aria-label="Open website">
-                                        <!-- Download SVG icon from http://tabler-icons.io/i/link -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M9 15l6 -6" /><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" /><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" /></svg>
-                                    </a>
-                                </td>
-                                <td class="text-secondary">986</td>
-                                <td class="text-secondary">865</td>
-                                <td class="text-secondary">44.89%</td>
-                                <td class="text-end w-1">
-                                    <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-4"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    /docs/
-                                    <a href="#" class="ms-1" aria-label="Open website">
-                                        <!-- Download SVG icon from http://tabler-icons.io/i/link -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M9 15l6 -6" /><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" /><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" /></svg>
-                                    </a>
-                                </td>
-                                <td class="text-secondary">912</td>
-                                <td class="text-secondary">822</td>
-                                <td class="text-secondary">41.12%</td>
-                                <td class="text-end w-1">
-                                    <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-5"></div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    /accordion.html
-                                    <a href="#" class="ms-1" aria-label="Open website">
-                                        <!-- Download SVG icon from http://tabler-icons.io/i/link -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M9 15l6 -6" /><path d="M11 6l.463 -.536a5 5 0 0 1 7.071 7.072l-.534 .464" /><path d="M13 18l-.397 .534a5.068 5.068 0 0 1 -7.127 0a4.972 4.972 0 0 1 0 -7.071l.524 -.463" /></svg>
-                                    </a>
-                                </td>
-                                <td class="text-secondary">855</td>
-                                <td class="text-secondary">798</td>
-                                <td class="text-secondary">32.65%</td>
-                                <td class="text-end w-1">
-                                    <div class="chart-sparkline chart-sparkline-sm" id="sparkline-bounce-rate-6"></div>
-                                </td>
-                            </tr>
+                            <tbody>
+                                @if (top5Customers != null && top5Customers.Any())
+                                {
+                                    @foreach (var customer in top5Customers)
+                                    {
+                                        <tr>
+                                            <td>@customer.Name</td>
+                                            <td class="text-secondary">@customer.TotalOrders</td>
+
+                                            <td> @string.Format("{0:N0}", customer?.TtotalMoneySpent).Replace(".", ",") VNĐ</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="2" class="text-center">Không có dữ liệu</td>
+                                    </tr>
+                                }
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 col-lg-4">
-                <a href="https://github.com/sponsors/codecalm" class="card card-sponsor" target="_blank" rel="noopener" style="background-image: url(./static/sponsor-banner-homepage.svg)" aria-label="Sponsor Tabler!">
+            <div class="col-md-6 col-lg-6">
+                <a href="https://github.com/sponsors/codecalm" class="card card-sponsor" target="_blank" rel="noopener" style="background-image: url(./static/anhlogohangkenh.png)" aria-label="Sponsor Tabler!">
                     <div class="card-body"></div>
                 </a>
             </div>
 
 
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Invoices</h3>
-                    </div>
-                    <div class="card-body border-bottom py-3">
-                        <div class="d-flex">
-                            <div class="text-secondary">
-                                Show
-                                <div class="mx-2 d-inline-block">
-                                    <input type="text" class="form-control form-control-sm" value="8" size="3" aria-label="Invoices count">
-                                </div>
-                                entries
-                            </div>
-                            <div class="ms-auto text-secondary">
-                                Search:
-                                <div class="ms-2 d-inline-block">
-                                    <input type="text" class="form-control form-control-sm" aria-label="Search invoice">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <table class="table card-table table-vcenter text-nowrap datatable">
-                            <thead>
-                                <tr>
-                                    <th class="w-1"><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices"></th>
-                                    <th class="w-1">
-                                        No. <!-- Download SVG icon from http://tabler-icons.io/i/chevron-up -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-sm icon-thick" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M6 15l6 -6l6 6" /></svg>
-                                    </th>
-                                    <th>Invoice Subject</th>
-                                    <th>Client</th>
-                                    <th>VAT No.</th>
-                                    <th>Created</th>
-                                    <th>Status</th>
-                                    <th>Price</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
-                                    <td><span class="text-secondary">001401</span></td>
-                                    <td><a href="invoice.html" class="text-reset" tabindex="-1">Design Works</a></td>
-                                    <td>
-                                        <span class="flag flag-xs flag-country-us me-2"></span>
-                                        Carlson Limited
-                                    </td>
-                                    <td>
-                                        87956621
-                                    </td>
-                                    <td>
-                                        15 Dec 2017
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-success me-1"></span> Paid
-                                    </td>
-                                    <td>$887</td>
-                                    <td class="text-end">
-                                        <span class="dropdown">
-                                            <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Actions</button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#">
-                                                    Action
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    Another action
-                                                </a>
-                                            </div>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
-                                    <td><span class="text-secondary">001402</span></td>
-                                    <td><a href="invoice.html" class="text-reset" tabindex="-1">UX Wireframes</a></td>
-                                    <td>
-                                        <span class="flag flag-xs flag-country-gb me-2"></span>
-                                        Adobe
-                                    </td>
-                                    <td>
-                                        87956421
-                                    </td>
-                                    <td>
-                                        12 Apr 2017
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-warning me-1"></span> Pending
-                                    </td>
-                                    <td>$1200</td>
-                                    <td class="text-end">
-                                        <span class="dropdown">
-                                            <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Actions</button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#">
-                                                    Action
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    Another action
-                                                </a>
-                                            </div>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
-                                    <td><span class="text-secondary">001403</span></td>
-                                    <td><a href="invoice.html" class="text-reset" tabindex="-1">New Dashboard</a></td>
-                                    <td>
-                                        <span class="flag flag-xs flag-country-de me-2"></span>
-                                        Bluewolf
-                                    </td>
-                                    <td>
-                                        87952621
-                                    </td>
-                                    <td>
-                                        23 Oct 2017
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-warning me-1"></span> Pending
-                                    </td>
-                                    <td>$534</td>
-                                    <td class="text-end">
-                                        <span class="dropdown">
-                                            <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Actions</button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#">
-                                                    Action
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    Another action
-                                                </a>
-                                            </div>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
-                                    <td><span class="text-secondary">001404</span></td>
-                                    <td><a href="invoice.html" class="text-reset" tabindex="-1">Landing Page</a></td>
-                                    <td>
-                                        <span class="flag flag-xs flag-country-br me-2"></span>
-                                        Salesforce
-                                    </td>
-                                    <td>
-                                        87953421
-                                    </td>
-                                    <td>
-                                        2 Sep 2017
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-secondary me-1"></span> Due in 2 Weeks
-                                    </td>
-                                    <td>$1500</td>
-                                    <td class="text-end">
-                                        <span class="dropdown">
-                                            <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Actions</button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#">
-                                                    Action
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    Another action
-                                                </a>
-                                            </div>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
-                                    <td><span class="text-secondary">001405</span></td>
-                                    <td><a href="invoice.html" class="text-reset" tabindex="-1">Marketing Templates</a></td>
-                                    <td>
-                                        <span class="flag flag-xs flag-country-pl me-2"></span>
-                                        Printic
-                                    </td>
-                                    <td>
-                                        87956621
-                                    </td>
-                                    <td>
-                                        29 Jan 2018
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-danger me-1"></span> Paid Today
-                                    </td>
-                                    <td>$648</td>
-                                    <td class="text-end">
-                                        <span class="dropdown">
-                                            <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Actions</button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#">
-                                                    Action
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    Another action
-                                                </a>
-                                            </div>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
-                                    <td><span class="text-secondary">001406</span></td>
-                                    <td><a href="invoice.html" class="text-reset" tabindex="-1">Sales Presentation</a></td>
-                                    <td>
-                                        <span class="flag flag-xs flag-country-br me-2"></span>
-                                        Tabdaq
-                                    </td>
-                                    <td>
-                                        87956621
-                                    </td>
-                                    <td>
-                                        4 Feb 2018
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-secondary me-1"></span> Due in 3 Weeks
-                                    </td>
-                                    <td>$300</td>
-                                    <td class="text-end">
-                                        <span class="dropdown">
-                                            <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Actions</button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#">
-                                                    Action
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    Another action
-                                                </a>
-                                            </div>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
-                                    <td><span class="text-secondary">001407</span></td>
-                                    <td><a href="invoice.html" class="text-reset" tabindex="-1">Logo & Print</a></td>
-                                    <td>
-                                        <span class="flag flag-xs flag-country-us me-2"></span>
-                                        Apple
-                                    </td>
-                                    <td>
-                                        87956621
-                                    </td>
-                                    <td>
-                                        22 Mar 2018
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-success me-1"></span> Paid Today
-                                    </td>
-                                    <td>$2500</td>
-                                    <td class="text-end">
-                                        <span class="dropdown">
-                                            <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Actions</button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#">
-                                                    Action
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    Another action
-                                                </a>
-                                            </div>
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select invoice"></td>
-                                    <td><span class="text-secondary">001408</span></td>
-                                    <td><a href="invoice.html" class="text-reset" tabindex="-1">Icons</a></td>
-                                    <td>
-                                        <span class="flag flag-xs flag-country-pl me-2"></span>
-                                        Tookapic
-                                    </td>
-                                    <td>
-                                        87956621
-                                    </td>
-                                    <td>
-                                        13 May 2018
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-success me-1"></span> Paid Today
-                                    </td>
-                                    <td>$940</td>
-                                    <td class="text-end">
-                                        <span class="dropdown">
-                                            <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Actions</button>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#">
-                                                    Action
-                                                </a>
-                                                <a class="dropdown-item" href="#">
-                                                    Another action
-                                                </a>
-                                            </div>
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="card-footer d-flex align-items-center">
-                        <p class="m-0 text-secondary">Showing <span>1</span> to <span>8</span> of <span>16</span> entries</p>
-                        <ul class="pagination m-0 ms-auto">
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
-                                    <!-- Download SVG icon from http://tabler-icons.io/i/chevron-left -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M15 6l-6 6l6 6" /></svg>
-                                    prev
-                                </a>
-                            </li>
-                            <li class="page-item"><a class="page-link" href="#">1</a></li>
-                            <li class="page-item active"><a class="page-link" href="#">2</a></li>
-                            <li class="page-item"><a class="page-link" href="#">3</a></li>
-                            <li class="page-item"><a class="page-link" href="#">4</a></li>
-                            <li class="page-item"><a class="page-link" href="#">5</a></li>
-                            <li class="page-item">
-                                <a class="page-link" href="#">
-                                    next <!-- Download SVG icon from http://tabler-icons.io/i/chevron-right -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none" /><path d="M9 6l6 6l-6 6" /></svg>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+        
         </div>
     </div>
 </div>
@@ -713,6 +342,8 @@
     private int totalUserToYear;
     private int totalUser;
     private long totalViews;
+    private string selectedTop5User = "top5all";
+    private List<CustomerDto> top5Customers = new List<CustomerDto>();
 
 
     private async Task LoadPosts()
@@ -745,7 +376,6 @@
         selectedModeUser = mode;
         StateHasChanged();  // Đảm bảo rằng sau khi thay đổi giá trị, trang sẽ được render lại
     }
-
     private string DisplayRevenue()
     {
         return selectedMode switch
@@ -791,6 +421,52 @@
             _ => "Khách hàng"
         };
     }
+
+    private string GetSubheaderUserTop5()
+    {
+        return selectedTop5User switch
+        {
+            "top5week" => "Top 5 khách hàng mua nhiều đơn tuần này",
+            "top5month" => "Top 5 khách hàng mua nhiều đơn tháng này",
+            "top5year" => "Top 5 khách hàng mua nhiều đơn năm nay",
+            "top5all" => "Top 5 khách hàng mua nhiều đơn",
+            _ => "Khách hàng mua nhiều đơn hàng"
+        };
+    }
+    private async Task LoadTop5CustomersAsync()
+    {
+        Console.WriteLine($"Loading data for {selectedTop5User}");
+
+        var customers = selectedTop5User switch
+        {
+            "top5week" => await usesv.GetTop5CustomersWeeklyAsync(),
+            "top5month" => await usesv.GetTop5CustomersMonthlyAsync(),
+            "top5year" => await usesv.GetTop5CustomersYearlyAsync(),
+            _ => await usesv.GetTop5CustomersAsync(),
+        };
+
+        if (customers == null || !customers.Any())
+        {
+            Console.WriteLine("No data found for selected mode");
+        }
+
+        top5Customers = customers.Select(c => new CustomerDto
+            {
+                Name = c.Name,
+                TotalOrders = c.TotalOrders,
+                TtotalMoneySpent = c.TtotalMoneySpent
+            }).ToList();
+    }
+
+
+    private async void SetModeUserTop5(string mode)
+    {
+        selectedTop5User = mode;
+        Console.WriteLine($"selectedTop5User: {selectedTop5User}");
+        await LoadTop5CustomersAsync();
+        StateHasChanged();
+    }
+
     private async Task DrawChart()
     {
         // Tạo danh sách các năm và doanh thu tương ứng từ dữ liệu
@@ -875,5 +551,12 @@
         selectedMode = "day";
         selectedModeUser = "dayUser";
         await LoadPosts();
+        await LoadTop5CustomersAsync();
+    }
+    public class CustomerDto
+    {
+        public string Name { get; set; }
+        public int? TotalOrders { get; set; }
+        public decimal? TtotalMoneySpent { get; set; }
     }
 }

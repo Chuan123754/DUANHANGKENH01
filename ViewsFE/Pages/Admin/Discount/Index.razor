@@ -163,10 +163,11 @@
                     <div class="card">
                         <div class="card-body">
                             <!-- Search Box -->
-                            <div class="d-flex gap-2" style="width: 60%;">
+                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                <div></div>
                                 <EditForm EditContext="editContext" OnValidSubmit="@SearchDiscounts">
                                     <div class="form-group d-flex gap-2">
-                                        <InputText id="searchInputDiscount" class="form-control" @bind-Value="searchDiscountText" placeholder="Tìm kiếm khuyến mãi theo Code" />
+                                        <InputText id="searchInputDiscount" class="form-control" @bind-Value="searchDiscountText" placeholder="Tìm khuyến mãi theo Code" />
                                         <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
                                     </div>
                                 </EditForm>
@@ -237,20 +238,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-12">
+                <div class="col-12 mt-3">
                     <div class="card">
                         <div class="card-body">
-                            <div class="d-flex gap-2" style="width: 60%;">
+                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                                <div></div>
                                 <EditForm EditContext="editContext" OnValidSubmit="@SearchProducts">
                                     <div class="form-group d-flex gap-2">
-                                        <InputText id="searchInputProduct" class="form-control" @bind-Value="searchProductText" placeholder="Tìm kiếm sản phẩm theo SKU, Color, Size" />
+                                        <InputText id="searchInputProduct" class="form-control" style="width: 300px" @bind-Value="searchProductText" placeholder="Tìm kiếm sản phẩm theo SKU, Color, Size" />
                                         <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
                                     </div>
                                 </EditForm>
                             </div>
-
-
-
                             <h3>Danh Sách Sản Phẩm</h3>
                             <table class="table table-striped">
                                 <thead>
@@ -279,7 +278,7 @@
                                             <td>@item.Id</td>
                                             <td>@item.SKU</td>
                                             <td class="text-center">
-                                                <div class="d-flex align-items-center justify-content-center">
+                                                <div class="d-flex ">
                                                     <span class="text-truncate">@item.Color?.Title</span>
                                                     <div class="color-preview"
                                                          style="width: 16px; height: 16px; background-color: @item.Color?.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
@@ -322,7 +321,7 @@
     private string searchText = string.Empty;
     private string errorMessage = string.Empty;
     private int currentPage = 1;
-    private int pageSize = 5;
+    private int pageSize = 10;
     private int totalPages = 1;
 
     private DateTime? startDate
@@ -340,7 +339,7 @@
     private string searchDiscountText = string.Empty; // Tìm kiếm khuyến mãi
     private string searchProductText = string.Empty; // Tìm kiếm sản phẩm
     private int currentProductPage = 1;
-    private int productPageSize = 5;
+    private int productPageSize = 10;
     private int totalProductPages = 1;
 
     private EditContext editContext;

@@ -305,6 +305,130 @@ namespace appAPI.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+        // Top 5 khách hàng mua nhiều hóa đơn nhất (Tổng quan)
+        [HttpGet("GetTop5Customers")]
+        public async Task<IActionResult> GetTop5Customers()
+        {
+            try
+            {
+                var topCustomers = await context.Users
+                    .Include(u => u.Orders)  // Bao gồm các đơn hàng của khách hàng
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.Name,
+                        TotalOrders = u.Orders.Count,  // Đếm số đơn hàng của khách hàng
+                        TotalMoneySpent = u.Orders
+                            .Sum(o => o.Totalmoney ?? 0)  // Tính tổng tiền đã chi (Totalmoney), xử lý trường hợp null
+                    })
+                    .OrderByDescending(u => u.TotalOrders)  // Sắp xếp theo số đơn hàng
+                    .Take(5)  // Lấy 5 khách hàng có số lượng đơn hàng cao nhất
+                    .ToListAsync();
+
+                return Ok(topCustomers);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+
+        }
+
+        // Top 5 khách hàng mua nhiều hóa đơn nhất trong tuần
+        [HttpGet("GetTop5CustomersWeekly")]
+        public async Task<IActionResult> GetTop5CustomersWeekly()
+        {
+            try
+            {
+                var startOfWeek = DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.DayOfWeek);
+
+                var topCustomers = await context.Users
+                    .Include(u => u.Orders)  // Bao gồm các đơn hàng của khách hàng
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.Name,
+                        TotalOrders = u.Orders.Count(o => o.Created_at >= startOfWeek),  // Đếm số đơn hàng trong tuần
+                        TotalMoneySpent = u.Orders
+                            .Where(o => o.Created_at >= startOfWeek)  // Chỉ tính đơn hàng trong tuần
+                            .Sum(o => o.Totalmoney)  // Tính tổng tiền đã chi (Totalmoney)
+                    })
+                    .OrderByDescending(u => u.TotalOrders)  // Sắp xếp theo số đơn hàng
+                    .Take(5)  // Lấy 5 khách hàng có số lượng đơn hàng cao nhất
+                    .ToListAsync();
+
+                return Ok(topCustomers);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+
+        }
+
+        // Top 5 khách hàng mua nhiều hóa đơn nhất trong tháng
+        [HttpGet("GetTop5CustomersMonthly")]
+        public async Task<IActionResult> GetTop5CustomersMonthly()
+        {
+            try
+            {
+                var startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1); // Lấy ngày đầu tháng hiện tại
+
+                var topCustomers = await context.Users
+                    .Include(u => u.Orders)
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.Name,
+                        TotalOrders = u.Orders.Count(o => o.Created_at >= startOfMonth), // Đếm số đơn hàng trong tháng này
+                        TotalMoneySpent = u.Orders
+                            .Where(o => o.Created_at >= startOfMonth)  // Lọc các đơn hàng trong tháng này
+                            .Sum(o => o.Totalmoney ?? 0)  // Tính tổng tiền đã chi, xử lý trường hợp null
+                    })
+                    .OrderByDescending(u => u.TotalOrders)  // Sắp xếp theo số đơn hàng
+                    .Take(5)  // Lấy 5 khách hàng có số lượng đơn hàng cao nhất
+                    .ToListAsync();
+
+                return Ok(topCustomers);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+
+        }
+
+        // Top 5 khách hàng mua nhiều hóa đơn nhất trong năm
+        [HttpGet("GetTop5CustomersYearly")]
+        public async Task<IActionResult> GetTop5CustomersYearly()
+        {
+            try
+            {
+                var startOfYear = new DateTime(DateTime.UtcNow.Year, 1, 1); // Lấy ngày đầu năm hiện tại
+
+                var topCustomers = await context.Users
+                    .Include(u => u.Orders)
+                    .Select(u => new
+                    {
+                        u.Id,
+                        u.Name,
+                        TotalOrders = u.Orders.Count(o => o.Created_at >= startOfYear), // Đếm số đơn hàng trong năm này
+                        TotalMoneySpent = u.Orders
+                            .Where(o => o.Created_at >= startOfYear)  // Lọc các đơn hàng trong năm này
+                            .Sum(o => o.Totalmoney ?? 0)  // Tính tổng tiền đã chi, xử lý trường hợp null
+                    })
+                    .OrderByDescending(u => u.TotalOrders)  // Sắp xếp theo số đơn hàng
+                    .Take(5)  // Lấy 5 khách hàng có số lượng đơn hàng cao nhất
+                    .ToListAsync();
+
+                return Ok(topCustomers);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+
+        }
         // *** Helpers ***
         private static string HashPassword(string password)
         {
