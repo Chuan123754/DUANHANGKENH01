@@ -12,6 +12,7 @@ using iText.Layout.Borders;
 using appAPI.Repository;
 using appAPI.Models;
 using appAPI.IRepository;
+using iText.IO.Image;
 
 namespace appAPI.Controllers
 {
@@ -54,18 +55,31 @@ namespace appAPI.Controllers
                 Document document = new Document(pdf, PageSize.A4);
                 document.SetMargins(30, 25, 30, 25);
 
-                // Load font
+                // Load font  
                 string fontPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "Roboto-Regular.ttf");
                 if (!System.IO.File.Exists(fontPath)) return BadRequest("Font không tồn tại tại đường dẫn: " + fontPath);
 
                 PdfFont fontNormal = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
                 PdfFont fontBold = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
 
-                // Thông tin Header
-                Table headerTable = new Table(3).UseAllAvailableWidth();
-                headerTable.AddCell(new Cell().Add(new Paragraph("HangKenh").SetFont(fontBold).SetFontSize(12)).SetBorder(Border.NO_BORDER));
+                string imagePath = @"E:\HangKenh\appAPI\FileMedia\Logohk.jpg";
+                if (!System.IO.File.Exists(imagePath)) return BadRequest("Hình ảnh không tồn tại tại đường dẫn: " + imagePath);
+
+                Image logoImage = new Image(ImageDataFactory.Create(imagePath)).SetWidth(50).SetHeight(50);
+
+                // Thông tin Header  
+                Table headerTable = new Table(3).UseAllAvailableWidth(); // Sử dụng 3 cột  
+
+                // Thêm ô chứa logo   
+                headerTable.AddCell(new Cell().Add(logoImage).SetBorder(Border.NO_BORDER).SetVerticalAlignment(VerticalAlignment.MIDDLE));
+
+                // Thêm ô chứa tiêu đề "HÓA ĐƠN BÁN HÀNG"  
                 headerTable.AddCell(new Cell().Add(new Paragraph("HÓA ĐƠN BÁN HÀNG").SetFont(fontBold).SetFontSize(12).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER));
+
+                // Thêm ô chứa số hóa đơn  
                 headerTable.AddCell(new Cell().Add(new Paragraph($"Số (No.): {order.Id}").SetFont(fontNormal).SetFontSize(9).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
+
+                // Thêm bảng header vào tài liệu  
                 document.Add(headerTable);
 
                 document.Add(new Paragraph("VAT INVOICE").SetFont(fontNormal).SetFontSize(9).SetTextAlignment(TextAlignment.CENTER));
@@ -122,8 +136,8 @@ namespace appAPI.Controllers
                     var product = await _productAttrubuteRepo.GetProductAttributesById(detail.Product_Attribute_Id);
                     if (product != null)
                     {
-                        decimal unitPrice = product.Regular_price ?? 0; // giá gốc
-                        decimal discountPrice = product.Sale_price ?? 0; // giá giảm
+                        decimal unitPrice = detail.UnitPrice?? 0; // giá gốc
+                        decimal discountPrice = detail.TotalDiscount ?? 0; // giá giảm
                         string discountPriceText = discountPrice > 0 ? $"{discountPrice:0,0}" : "#N/A"; // giá giảm null
                         decimal appliedPrice = discountPrice > 0 ? discountPrice : unitPrice; // nếu giá giảm null thì giá giảm = giá gốc
 

@@ -69,9 +69,9 @@ namespace appAPI.Controllers
                     Color = d.ProductAttributes?.Color?.Title,
                     Size = d.ProductAttributes?.Size?.Title,
                     Quantity = d.Quantity,
-                    UnitPrice = d.ProductAttributes?.Sale_price ?? 0 , // giá giảm 
-                    Regular_price = d.ProductAttributes?.Regular_price ?? 0,// giá gốc
-                    Image_library = d.ProductAttributes?.Product_Variant?.Posts?.Image_library // Lấy ảnh từ Product_Posts
+                    TotalDiscount = d.TotalDiscount ?? 0 , // giá giảm 
+                    UnitPrice = d.UnitPrice ?? 0,// giá gốc
+                    Image = d.ProductAttributes.Image // Lấy ảnh từ Product_Posts
                 }).ToList(),
                 TotalPrincipal = order.TotalPrincipal ?? 0,
                 TotalAmount = order.TotalAmount ?? 0,

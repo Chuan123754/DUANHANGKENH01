@@ -39,9 +39,9 @@
         public string Color { get; set; }
         public string Size { get; set; }
         public int Quantity { get; set; }
-        public decimal UnitPrice { get; set; }
-        public decimal? Regular_price { get; set; }
-        public string? Image_library { get; set; }
+        public decimal? UnitPrice { get; set; }
+        public decimal? TotalDiscount { get; set; }
+        public string? Image { get; set; }
 
     }
 }
