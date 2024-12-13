@@ -60,6 +60,9 @@
                                     <tr>
                                         <th>ID sản phẩm</th>
                                         <th>
+                                            <button class="table-sort">Hình ảnh</button>
+                                        </th>
+                                        <th>
                                             <button class="table-sort">Tên sản phẩm</button>
                                         </th>
                                         <th>
@@ -87,6 +90,7 @@
                                     {
                                         <tr class="post-row">
                                             <td>@post.Id</td>
+                                            <td><img src="@post.Posts.Feature_image" alt="Hình ảnh" style="width: 80px; height: 80px;" /></td>
                                             <td>
                                                 @post.Posts.Title
                                                 <br />
@@ -288,7 +292,7 @@
                                 <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 80%; width: auto;">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title">Cập nhật biến thể của @productPostTitle</h5>
+                                            <h5 class="modal-title">Cập nhật thông tin biến thể của @productPostTitle</h5>
                                         </div>
                                         <div class="modal-body">
                                             <table class="table table-bordered table-striped align-middle">
@@ -329,7 +333,14 @@
                                                             <input type="text" @bind="@selectedAttribute.SKU" class="form-control" readonly />
                                                         </td>
                                      
-                                                        <td>@selectedAttribute.Color?.Title</td>
+                                                        <td>
+                                                            <div class="d-flex align-items-center justify-content-center">
+                                                                <span class="text-truncate">@selectedAttribute.Color?.Title</span>
+                                                                <div class="color-preview"
+                                                                     style="width: 16px; height: 16px; background-color: @selectedAttribute.Color?.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
+                                                                </div>
+                                                            </div>
+                                                        </td>
                                                         <td>
                                                             <div style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
                                                                 @selectedAttribute.Size?.Title
@@ -340,8 +351,8 @@
                                                                 <input type="text"
                                                                        class="form-control"
                                                                        value="@string.Format("{0:N0}", selectedAttribute.Regular_price).Replace(".", ",")"
-                                                                       @oninput="FormatCurrency"
-                                                                       @onchange="UpdatePrice" />
+                                                                       @oninput="FormatCurrencyRegular"
+                                                                       @onchange="UpdatePriceRegular" />
                                                                 <span class="input-group-text">VNĐ</span>
                                                             </div>
                                                         </td>
@@ -350,8 +361,8 @@
                                                                 <input type="text"
                                                                        class="form-control"
                                                                        value="@string.Format("{0:N0}", selectedAttribute.Sale_price).Replace(".", ",")"
-                                                                       @oninput="FormatCurrency"
-                                                                       @onchange="UpdatePrice" />
+                                                                       @oninput="FormatCurrencySale"
+                                                                       @onchange="UpdatePriceSale" />
                                                                 <span class="input-group-text">VNĐ</span>
                                                             </div>
                                                         </td>
@@ -541,7 +552,29 @@
         }
     }
 
-    private void FormatCurrency(ChangeEventArgs e)
+    private void UpdatePriceRegular(ChangeEventArgs e)
+    {
+        // Cập nhật giá gốc
+        var input = e.Value?.ToString().Replace(",", "").Replace(".", "");
+
+        if (decimal.TryParse(input, out var parsedPrice))
+        {
+            selectedAttribute.Regular_price = (long?)Convert.ToInt64(parsedPrice);
+        }
+    }
+
+    private void UpdatePriceSale(ChangeEventArgs e)
+    {
+        // Cập nhật giá giảm
+        var input = e.Value?.ToString().Replace(",", "").Replace(".", "");
+
+        if (decimal.TryParse(input, out var parsedPrice))
+        {
+            selectedAttribute.Sale_price = (long?)Convert.ToInt64(parsedPrice);
+        }
+    }
+
+    private void FormatCurrencyRegular(ChangeEventArgs e)
     {
         var input = e.Value?.ToString() ?? string.Empty;
         input = new string(input.Where(char.IsDigit).ToArray());
@@ -550,6 +583,17 @@
             selectedAttribute.Regular_price = parsedValue;
         }
     }
+
+    private void FormatCurrencySale(ChangeEventArgs e)
+    {
+        var input = e.Value?.ToString() ?? string.Empty;
+        input = new string(input.Where(char.IsDigit).ToArray());
+        if (long.TryParse(input, out var parsedValue))
+        {
+            selectedAttribute.Sale_price = parsedValue;
+        }
+    }
+
     private void OpenModalAddAttribute(long postId)
     {
         selectedPostId = postId;
@@ -667,6 +711,11 @@
         if (selectedAttribute.Regular_price <= 0)
         {
             await JS.InvokeVoidAsync("toastr.error", "Giá bán phải lớn hơn 0");
+            return;
+        }
+        if (selectedAttribute.Regular_price <= selectedAttribute.Sale_price)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Gía giảm không được lớn hơn hoặc bằng giá bán");
             return;
         }
         if (selectedAttribute != null)
