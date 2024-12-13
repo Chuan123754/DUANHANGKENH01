@@ -2,6 +2,7 @@
 @inject IOrderIServices orderService
 @inject IOrderTrackingService orderTrackingService
 @inject NavigationManager NavigationManager
+@inject IAddressServices addressService
 @inject HttpClient HttpClient
 @inject IJSRuntime JS
 
@@ -249,16 +250,12 @@
                         <p><strong>Tên khách hàng:</strong>@Order.Users.Name</p>
                         <p><strong>Số điện thoại:</strong> @Order.Users.Phone</p>
 
-                        @if (OrderAddress != null && OrderAddress.Address != null)
+                        @if (Address != null)
                         {
-                            <p><strong>Tên Người nhận hàng:</strong>@OrderAddress.Address.Name</p>
-                            <p><strong>Địa chỉ nhận hàng :</strong>@OrderAddress.Address.Street  </p>
-                            <p><strong>Địa chỉ nhận hàng :</strong>  @OrderAddress.Address.Ward_commune  </p>
-                            <p><strong>Địa chỉ nhận hàng :</strong> @OrderAddress.Address.District </p>
-                            <p><strong>Địa chỉ nhận hàng :</strong>  @OrderAddress.Address.Province_city</p>
-                            <p><strong>Số điện thoại người nhận:</strong>@OrderAddress.Address.Phone</p>
+                            <p><strong>Tên Người nhận hàng:</strong>@Address.Name </p>
+                            <p><strong>Địa chỉ nhận hàng :</strong>  @Address.Street -  @Address.Ward_commune - @Address.District - @Address.Province_city </p>
+                            <p><strong>Số điện thoại người nhận:</strong>@Address.Phone</p>
                         }
-
                     }
                    else
                    {
@@ -351,7 +348,7 @@
     private OrderTrackingDTO? OrderTracking { get; set; }
     private Orders? Order { get; set; }
     private Orders? OrderAddress { get; set; }
-
+    private Address Address = new Address();
     private string currentStatus;
     private string previousStatus;
     private string restoreNote;
@@ -374,9 +371,11 @@
     {
         try
         {
+
             Order = await orderService.GetByIdOrders(OrderId);
             OrderTracking = await orderTrackingService.GetBy(OrderId);
             OrderAddress = await orderService.OrdersAddress(OrderId);
+            Address = await addressService.GetAddressById(Order.Address_Id ?? 0);
 
             if (OrderTracking != null && OrderTracking.OrderTrackings.Any())
             {
