@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241212171145_updatedataa")]
-    partial class updatedataa
+    [Migration("20241213025147_duccjhua")]
+    partial class duccjhua
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1160,7 +1160,6 @@ namespace appAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("STT")
-                        .HasMaxLength(255)
                         .HasColumnType("int");
 
                     b.Property<string>("Short_description")
@@ -1176,7 +1175,8 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Type")
                         .HasMaxLength(255)
@@ -1718,21 +1718,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "e02eef52-f5d0-494e-8caa-e427f56ad19f",
+                            ConcurrencyStamp = "cedd4fb5-7d05-4c84-a9cc-8261ebdeab5e",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "e3cfb096-082c-49e5-b6bf-3e5c08cce07c",
+                            ConcurrencyStamp = "d8135c58-3ab7-41fa-a51c-90e8117eb1cf",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "a5c68552-ec83-4bcf-a6cb-0e8826a7d588",
+                            ConcurrencyStamp = "3abacdba-dffb-4447-84cd-b6ff448c2e17",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });

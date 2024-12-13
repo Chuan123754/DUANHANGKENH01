@@ -31,13 +31,13 @@
                             <div class="card-body">
                                 <div class="mb-3">
                                     <label for="title" class="form-label">Tên bài viết<span class="text-danger">*</span></label>
-                                    <InputText id="title" class="form-control" @bind-Value="Posts.Title" placeholder="Tên bài viết" @oninput="GenerateSlug" />
+                                    <input id="title" class="form-control" @bind="Posts.Title" placeholder="Tên bài viết" @oninput="GenerateSlug" />
                                     <div id="title_error" class="validate-error"></div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="seoSlug" class="form-label">Đường dẫn<span class="text-danger">*</span></label>
-                                    <InputText id="seoSlug" class="form-control" @bind-Value="Posts.Slug" />
+                                    <input id="seoSlug" class="form-control" @bind="Posts.Slug" />
                                 </div>
 
                                 <div class="mb-3">
@@ -261,6 +261,20 @@
                                                     <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
                                                 }
                                             </select>
+                                            <a @onclick="OnShowModalClick"
+                                               class="mt-2 mb-2 d-block d-flex gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="icon icon-tabler icon-tabler-plus" width="10"
+                                                     height="10" viewBox="0 0 26 26" stroke-width="1"
+                                                     stroke="currentColor" fill="none" stroke-linecap="round"
+                                                     stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M12 5l0 14" />
+                                                    <path d="M5 12l14 0" />
+                                                </svg>
+                                                <span> Thêm từ khoá</span>
+                                            </a>
+
                                         </div>
                                     </div>
                                 </div>
@@ -299,6 +313,7 @@
                 </label>
                 <input id="category_title" type="text"
                        class="form-control" @bind="categories.Title" placeholder="Nhập tên danh mục" @oninput="GenerateSlugCate">
+
             </div>
             <div class="form-group mb-3">
                 <label for="categories-slug" class="form-label">Đường dẫn</label>
@@ -432,29 +447,14 @@
         }
     }
 
-    private string CreateSlug(string input)
-    {
-        // Chuyển sang chữ thường
-        string result = input.ToLowerInvariant();
-
-        // Loại bỏ dấu tiếng Việt
-        result = RemoveDiacritics(result);
-
-        // Loại bỏ ký tự không phải chữ/số và thay thế khoảng trắng bằng dấu gạch ngang
-        result = System.Text.RegularExpressions.Regex.Replace(result, @"[^a-z0-9\s-]", "");
-        result = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", "-").Trim('-');
-
-        return result;
-    }
     private void GenerateSlugCate(ChangeEventArgs e)
     {
         if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
         {
-            categories.Slug = CreateSlugCate(title);
+            categories.Slug = CreateSlug(title);
         }
     }
-
-    private string CreateSlugCate(string input)
+    private string CreateSlug(string input)
     {
         // Chuyển sang chữ thường
         string result = input.ToLowerInvariant();
