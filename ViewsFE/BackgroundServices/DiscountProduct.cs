@@ -102,7 +102,7 @@ namespace ViewsFE.BackgroundServices
             {
                 return regularPrice - discountValue;
             }
-            return regularPrice; // Nếu không có giảm giá  
+            return regularPrice; 
         }
     }
 }
