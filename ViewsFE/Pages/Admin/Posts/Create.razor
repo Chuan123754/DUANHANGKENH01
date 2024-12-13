@@ -51,51 +51,51 @@
                                 </div>
                             </div>
                         </div>
-                            @*  Banner *@
-                            <div class="accordion bg-white mt-3">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                                                data-bs-target="#banner_block" aria-expanded="true">
+                        @*  Banner *@
+                        <div class="accordion bg-white mt-3">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#banner_block" aria-expanded="true">
                                         Cấu hình banner<span class="text-danger">*</span>
-                                        </button>
-                                    </h2>
-                                    <div id="banner_block" class="accordion-collapse collapse show">
-                                        <div class="card-body pb-4 px-4" style="height: 300px">
-                                            <div class="mb-3">
+                                    </button>
+                                </h2>
+                                <div id="banner_block" class="accordion-collapse collapse show">
+                                    <div class="card-body pb-4 px-4" style="height: 300px">
+                                        <div class="mb-3">
                                             <label for="title" class="form-label">Tiêu đề<span class="text-danger">*</span></label>
-                                                <input type="text" class="form-control" @bind-value="banner.Name"
-                                                       placeholder="Tiêu đề">
-                                            </div>
-                                            <div>
+                                            <input type="text" class="form-control" @bind-value="banner.Name"
+                                                   placeholder="Tiêu đề">
+                                        </div>
+                                        <div>
 
-                                                <div id="banner_image"
-                                                     class="image-post-box d-flex align-items-center justify-content-center open-media-modal"
-                                                     data-multiple="false"
-                                                     data-refer-id="#banner_image" onclick="openMediaBannerModal()">
-                                                    @if (!string.IsNullOrEmpty(banner.Meta_data))
-                                                    {
-                                                        <img src="@banner.Meta_data" class="object-cover" />
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="icon d-flex align-items-center justify-content-center">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1"
-                                                                 stroke="currentColor" fill="none" stroke-linecap="round"
-                                                                 stroke-linejoin="round">
-                                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                <path d="M12 5l0 14" />
-                                                                <path d="M5 12l14 0" />
-                                                            </svg>
-                                                        </div>
-                                                    }
-                                                </div>
+                                            <div id="banner_image"
+                                                 class="image-post-box d-flex align-items-center justify-content-center open-media-modal"
+                                                 data-multiple="false"
+                                                 data-refer-id="#banner_image" onclick="openMediaBannerModal()">
+                                                @if (!string.IsNullOrEmpty(banner.Meta_data))
+                                                {
+                                                    <img src="@banner.Meta_data" class="object-cover" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="icon d-flex align-items-center justify-content-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1"
+                                                             stroke="currentColor" fill="none" stroke-linecap="round"
+                                                             stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M12 5l0 14" />
+                                                            <path d="M5 12l14 0" />
+                                                        </svg>
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            @*    End banner *@
+                        </div>
+                        @*    End banner *@
 
                     </div>
                     <!-- #region Form right -->
@@ -107,7 +107,7 @@
                                     <h2 class="accordion-header">
                                         <button class="accordion-button " type="button" data-bs-toggle="collapse"
                                                 data-bs-target="#action-1" aria-expanded="true">
-                                           Khởi tạo
+                                            Khởi tạo
                                         </button>
                                     </h2>
                                     <div class="accordion-collapse collapse show" id="action-1" data-bs-parent="#accordion-example">
@@ -125,10 +125,10 @@
                                                     }
                                                 </select>
                                             </div>
-                                            <!-- #endregion -->                                    
+                                            <!-- #endregion -->
                                             <!-- Nút gửi -->
                                             <button type="submit" class="btn btn-primary" style="float: right">
-                                              Tạo bài viết
+                                                Tạo bài viết
                                             </button>
                                             <div class="clearfix"></div>
                                         </div>
@@ -238,7 +238,7 @@
                                                     </svg>
                                                     <span> Thêm danh mục</span>
                                                 </a>
-                                             
+
 
                                             </div>
                                         </div>
@@ -261,7 +261,7 @@
                                                     <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
                                                 }
                                             </select>
-                                            <a @onclick="OnShowModalClick"
+                                            <a @onclick="OnShowModalClickTags"
                                                class="mt-2 mb-2 d-block d-flex gap-1">
                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                      class="icon icon-tabler icon-tabler-plus" width="10"
@@ -294,7 +294,7 @@
 <Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
 
 
-<Modal @ref="modal" title="Thêm chuyên mục" IsVerticallyCentered="true">
+<Modal @ref="modalcate" title="Thêm chuyên mục" IsVerticallyCentered="true">
     <BodyTemplate>
         <div class="category-add mt-2">
             <div class="form-group mb-2">
@@ -327,15 +327,39 @@
         </div>
     </BodyTemplate>
     <FooterTemplate>
-        <Button  class="btn btn-outline-secondary" @onclick="OnHideModalClick">Close</Button>
-        <Button class="btn btn-outline-primary" @onclick="Sumbit">Tạo chuyên mục</Button>
+        <Button class="btn btn-outline-secondary" @onclick="OnHideModalClick">Close</Button>
+        <Button class="btn btn-outline-primary" @onclick="SumbitCate">Tạo chuyên mục</Button>
     </FooterTemplate>
 </Modal>
+<Modal @ref="modaltags" title="Thêm thẻ tags" IsVerticallyCentered="true">
+    <BodyTemplate>
+        <div class="category-add mt-2">
+            <div class="form-group mb-2">
+                <label for="category_title" class="form-label">
+                    Tiêu
+                    đề
+                    <span class="text-danger">*</span>
+                </label>
+                <input id="category_title" type="text"
+                       class="form-control" @bind="tags.Title" placeholder="Nhập tên tags">
 
+            </div>
+            <div class="form-group mb-3">
+                <label for="categories-description" class="form-label">Mô tả</label>
+                <textarea id="categories-description" class="form-control" @bind="tags.Description" rows="3" />
+            </div>
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button class="btn btn-outline-secondary" @onclick="OnHideModalClickTags">Close</Button>
+        <Button class="btn btn-outline-primary" @onclick="SumbitTag">Tạo thẻ tags</Button>
+    </FooterTemplate>
+</Modal>
 
 @code {
     private Product_Posts Posts = new Product_Posts();
     private Categories categories = new Categories();
+    private Tags tags = new Tags();
     private Banner banner = new Banner();
     private List<Categories> CategoriesList = new List<Categories>();
     private List<Tags> TagsList = new List<Tags>();
@@ -349,30 +373,56 @@
     private long postId;
 
 
-    private Modal modal = default!;
+    private Modal modalcate = default!;
+    private Modal modaltags = default!;
 
     private async Task OnShowModalClick()
     {
-        await modal.ShowAsync();
+        await modalcate.ShowAsync();
+    }
+    private async Task OnShowModalClickTags()
+    {
+        await modaltags.ShowAsync();
     }
 
     private async Task OnHideModalClick()
     {
-        await modal.HideAsync();
+        await modalcate.HideAsync();
     }
-    private async void Sumbit()
+    private async Task OnHideModalClickTags()
+    {
+        await modaltags.HideAsync();
+    }
+    private async void SumbitCate()
     {
         try
         {
             await cate.CreateTypePost(categories);
             await JS.InvokeVoidAsync("toastr.success", "Thêm danh mục thành công");
-            await modal.HideAsync();
+            await LoadPosts();
+            await modalcate.HideAsync();
 
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error: {ex.Message}");
             await JS.InvokeVoidAsync("toastr.error", "Không thể thêm danh mục. Vui lòng thử lại.");
+        }
+    }
+    private async void SumbitTag()
+    {
+        try
+        {
+            await stag.Create(tags);
+            await JS.InvokeVoidAsync("toastr.success", "Thêm tags thành công");
+            await LoadPosts();
+            await modaltags.HideAsync();
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm tags. Vui lòng thử lại.");
         }
     }
     private async Task HandleImageSelectedN(List<string> imagePaths)
@@ -400,21 +450,27 @@
     {
         await JS.InvokeVoidAsync("openMediaModalN", isMultiple, referId);
     }
+    private async Task LoadPosts()
+    {
+        TagsList = await stag.GetAll();
+        CategoriesList = await cate.GetAllType("post");
+        StateHasChanged();
+    }
     protected override async Task OnInitializedAsync()
     {
+
         statuses = Product_Posts.STATUSES.ToDictionary(k => k.Key, v => v.Value);
         Posts = new Product_Posts
             {
                 Status = Product_Posts.STATUS_PUBLISH
             };
-        TagsList = await stag.GetAll();
-        CategoriesList = await cate.GetAllType("post");
+        await LoadPosts();
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            if (!tinyMCEInitialized)    
+            if (!tinyMCEInitialized)
             {
                 await JS.InvokeVoidAsync("initTinyMCE");
                 tinyMCEInitialized = true;
