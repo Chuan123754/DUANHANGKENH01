@@ -60,7 +60,7 @@ namespace appAPI.Controllers
         }
 
         [HttpPost("Users-post")]
-        public ActionResult Post(Users user)
+        public IActionResult Post(Users user)
         {
             try
             {

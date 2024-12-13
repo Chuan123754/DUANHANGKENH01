@@ -35,13 +35,10 @@ namespace ViewsFE.BackgroundServices
 
                     foreach (var discount in discounts)
                     {
-                        // Kiểm tra xem discount có null hay không 
                         if (discount != null)
                         {
-                            // Kiểm tra xem discount.Discount có null hay không  
                             if (discount.Discount != null)
                             {
-                                // Kiểm tra Start_date và End_date có null không  
                                 if (discount.Discount.Start_date != null && discount.Discount.End_date != null)
                                 {
 
@@ -97,26 +94,23 @@ namespace ViewsFE.BackgroundServices
                                     }
                                 }
                                 else
-                                {
-                                    // Nếu Start_date hoặc End_date là null  
-                                    discount.Discount.Status = "Không xác định"; // Hoặc một trạng thái khác phù hợp  
+                                { 
+                                    discount.Discount.Status = "Không xác định"; 
                                 }
                             }
                             else
                             {
-                                // Nếu discount.Discount là null  
-                                discount.Discount.Status = "Không xác định"; // Hoặc một trạng thái khác phù hợp  
+                                discount.Discount.Status = "Không xác định";  
                             }
                         }
                         else
                         {
-                            // Nếu discount là null  
-                            continue; // Hoặc xử lý như bạn muốn  
+                            continue; 
                         }
                     }
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken); // kiểm tra mỗi phút  
+                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);  
             }
         }
 
@@ -130,7 +124,7 @@ namespace ViewsFE.BackgroundServices
             {
                 return regularPrice - discountValue;
             }
-            return regularPrice; // Nếu không có giảm giá  
+            return regularPrice; 
         }
     }
 }

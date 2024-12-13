@@ -17,8 +17,8 @@ namespace ViewsFE.Models
         public long Id { get; set; }
         [StringLength(255)]
         [Required(ErrorMessage = "Tên là bắt buộc.")]
-        public int? STT { get; set; }
         public string? Title { get; set; }
+        public int? STT { get; set; }
 
         [StringLength(255)]
         [Unicode(false)]
