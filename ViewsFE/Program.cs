@@ -13,6 +13,8 @@ using ViewsFE.Models;
 using appAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using ViewsFE.BackgroundServices;
+//using ViewsFE.BackgroundServices;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<APP_DATA_DATN>(options =>
@@ -42,21 +44,25 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
            };
        });
 
+// Thêm cấu hình cache phân tán cho session
+builder.Services.AddDistributedMemoryCache();
+
 // Thêm cấu hình session
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // thời gian timeout của session
-    options.Cookie.HttpOnly = true;
-    options.Cookie.IsEssential = true;
+    options.IdleTimeout = TimeSpan.FromMinutes(15); // Thời gian timeout của session (giảm xuống nếu không cần thiết)
+    options.Cookie.HttpOnly = true; // Chỉ cho phép truy cập cookie từ phía máy chủ
+    options.Cookie.IsEssential = true; // Cookie cần thiết cho ứng dụng
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Chỉ gửi cookie qua HTTPS
 });
+
+// Cấu hình Blazor Server
 builder.Services.AddServerSideBlazor()
     .AddHubOptions(options =>
     {
-        options.ClientTimeoutInterval = TimeSpan.FromMinutes(2); // Tăng thời gian timeout
-        options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+        options.ClientTimeoutInterval = TimeSpan.FromSeconds(90); // Tăng thời gian timeout cho client
+        options.HandshakeTimeout = TimeSpan.FromSeconds(15); // Giảm thời gian timeout cho handshake
     });
-
-
 // Thêm CORS nếu cần
 builder.Services.AddCors(options =>
 {
@@ -86,7 +92,7 @@ builder.Services.AddScoped<ITagsServices, TagsServices>();
 //builder.Services.AddScoped<IPostMetaService, PostMetaService>();
 builder.Services.AddScoped<IQaService, QaService>();
 builder.Services.AddScoped<IDiscountServices, DiscountServices>();
-
+builder.Services.AddHostedService<DiscountProduct>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<IUserVoucherService, UserVoucherService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

@@ -15,7 +15,7 @@ namespace appAPI.Models
         public string? Street { get; set; } // địa chỉ cụ thể 
         public string? Ward_commune { get; set; }
         public string? District { get; set; }
-        public string?Province_city { get; set; }
+        public string? Province_city { get; set; }
         public string? Type { get; set; }
         public int? Set_as_default { get; set; } = 0; // thiếp laajo địa chỉ mặc định 
         public string? Status { get; set; }

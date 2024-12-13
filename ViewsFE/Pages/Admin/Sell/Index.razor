@@ -954,24 +954,7 @@
         StateHasChanged();
     }
 
-    private async Task PayByCash()
-    {
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận khách hàng thanh toán bằng tiền mặt?");
-        if (confirmed)
-        {
-            CheckOut("cash");
-        }
-    }
-
-    private async Task PayByMomo()
-    {
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận khách hàng thanh toán qua MoMo?");
-        if (confirmed)
-        {
-            CheckOut("momo");
-        }
-    }
-
+   
     private async Task OnSearch()
     {
         lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
@@ -1198,6 +1181,7 @@
     {
         var orderDetailUpdate = orderDetail;
         orderDetailUpdate.TotalDiscount = (orderDetail.ProductAttributes.Sale_price);
+        orderDetailUpdate.UnitPrice = (orderDetail.ProductAttributes.Regular_price);
         await orderDetailService.Update(orderDetailUpdate, orderDetailUpdate.Id);
     }
 
@@ -1303,6 +1287,7 @@
         {
             existingOrderDetail.Quantity += quantity;
             existingOrderDetail.TotalDiscount = productAttribute.Sale_price;
+            existingOrderDetail.UnitPrice = productAttribute.Regular_price;
             await orderDetailService.Update(existingOrderDetail, existingOrderDetail.Id);
         }
         else
@@ -1312,7 +1297,9 @@
                     Quantity = quantity,
                     OrderId = selectedOrderId,
                     Product_Attribute_Id = productAttributeId,
-                    TotalDiscount = productAttribute.Sale_price
+                    TotalDiscount = productAttribute.Sale_price,
+                    UnitPrice = productAttribute.Regular_price
+
                 };
 
             await orderDetailService.Create(orderDetails);
@@ -1449,87 +1436,7 @@
         isCreateCustomerModalVisible = false;
     }
 
-    private async void CheckOut(string paymentMethod)
-    {
-        if (isDeliveryVisible && selectedAddress == null)
-        {
-            await JS.InvokeVoidAsync("toastr.warning", "Vui lòng chọn địa chỉ giao hàng!");
-            return;
-        }
-        if (lst_OrderDetail == null || !lst_OrderDetail.Any())
-        {
-            await JS.InvokeVoidAsync("toastr.warning", "Đơn hàng chưa có sản phẩm nào.");
-            return;
-        }
 
-        var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
-        if (orderToUpdate != null)
-        {
-            CalculateTotalMoney();
-
-            orderToUpdate.TotalAmount = totalAmount; // tiền hàng đã giảm
-            orderToUpdate.TotalPrincipal = totalPrincipal; // Tổng tiền hàng chưa giảm
-            orderToUpdate.Totalmoney = totalMoney; // tổng cần thanh toán ( nếu có ship )
-            if (isDeliveryVisible)
-            {
-                orderToUpdate.Status = "Đã xác nhận";
-                orderToUpdate.FeeShipping = feeShipping;
-            }
-            else
-            {
-                orderToUpdate.Status = "Hóa đơn treo";
-                orderToUpdate.FeeShipping = 0;
-            }
-            await orderService.Update(orderToUpdate,orderToUpdate.Id);
-
-            if (paymentMethod == "momo")
-            {
-                try
-                {
-                    // Tạo giao dịch MoMo
-                    var momoResponse = await orderService.CreateMomoPaymentUrl(customerName, orderToUpdate.Totalmoney ?? 0, $"Thanh toán hóa đơn {selectedOrderId}");
-                    if (!string.IsNullOrEmpty(momoResponse.PayUrl))
-                    {
-                        // Hiển thị modal QR code MoMo
-                        orderToUpdate.TypePayment = "Chuyển khoản MoMo";
-                        ShowMomoModal(momoResponse.PayUrl);
-                        await orderService.Update(orderToUpdate, orderToUpdate.Id);
-
-                    }
-                    else
-                    {
-                        await JS.InvokeVoidAsync("toastr.error", "Không thể tạo giao dịch MoMo.");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    await JS.InvokeVoidAsync("toastr.error", $"Lỗi khi xử lý thanh toán MoMo: {ex.Message}");
-                }
-            }
-            else
-            {
-                orderToUpdate.TypePayment = "Thanh toán tiền mặt";
-                orderToUpdate.Status = "Đã thanh toán";
-                orderToUpdate.Address_Id = null;
-                await orderService.Update(orderToUpdate, orderToUpdate.Id);
-                await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
-                await ResetViewState();
-            }
-
-            var newOrderTracking = new order_trackings
-                {
-                    OrderId = orderToUpdate.Id,
-                    Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
-                    Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" :" Đã xác nhận",
-                    Created_at = DateTime.Now,
-                    Created_by = 1 // ID tạm
-            };
-            await orderTrackingService.AddOrderTracking(newOrderTracking);
-        }
-        await LoadOrderDetails();
-        await LoadOrders();
-        StateHasChanged();
-    }
     private async Task DownloadInvoice(long orderId)
     {
         try
@@ -1620,9 +1527,6 @@
             if (address.Type == null) address.Type = "";
             if (address.Status == null) address.Status = "";
 
-            address.Name = selectedCustomer?.Name ?? "";
-            address.Phone = selectedCustomer?.Phone ?? "";
-            address.Email = selectedCustomer?.Email ?? "";
             var province = provinces.FirstOrDefault(p => p.Id == address.Province_city);
             var district = districts.FirstOrDefault(d => d.Id == address.District);
             var ward = wards.FirstOrDefault(w => w.Id == address.Ward_commune);
@@ -1700,7 +1604,7 @@
     private string street;
     private string phone;
     private Address selectedAddress;
-    private void SelectAddress(Address address)
+    private async Task SelectAddress(Address address)
     {
         ClearInfoAddress();
         if (address != null)
@@ -1712,7 +1616,10 @@
             street = address.Street;
             phone = address.User?.Phone;
         }
+        var order = await orderService.GetByIdOrders(selectedOrderId);
+        order.Address_Id = selectedAddress.Id;
         isChooseAddress = false;
+        await orderService.Update(order, selectedOrderId);
     }
     private void ClearInfoAddress()
     {
@@ -1722,6 +1629,106 @@
         ward = string.Empty;
         street = string.Empty;
         phone = string.Empty;
+    }
+    private async Task PayByCash()
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận khách hàng thanh toán bằng tiền mặt?");
+        if (confirmed)
+        {
+            CheckOut("cash");
+        }
+    }
+
+    private async Task PayByMomo()
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận khách hàng thanh toán qua MoMo?");
+        if (confirmed)
+        {
+            CheckOut("momo");
+        }
+    }
+    private async Task CheckOut(string paymentMethod)
+    {
+        if (isDeliveryVisible && selectedAddress == null)
+        {
+            await JS.InvokeVoidAsync("toastr.warning", "Vui lòng chọn địa chỉ giao hàng!");
+            return;
+        }
+        if (lst_OrderDetail == null || !lst_OrderDetail.Any())
+        {
+            await JS.InvokeVoidAsync("toastr.warning", "Đơn hàng chưa có sản phẩm nào.");
+            return;
+        }
+
+        var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
+        if (orderToUpdate != null)
+        {
+            CalculateTotalMoney();
+
+            orderToUpdate.TotalAmount = totalAmount; // tiền hàng đã giảm
+            orderToUpdate.TotalPrincipal = totalPrincipal; // Tổng tiền hàng chưa giảm
+            orderToUpdate.Totalmoney = totalMoney; // tổng cần thanh toán ( nếu có ship )
+            if (isDeliveryVisible)
+            {
+                orderToUpdate.Status = "Đã xác nhận";
+                orderToUpdate.FeeShipping = feeShipping;
+                orderToUpdate.Address_Id = selectedAddress?.Id;
+            }
+            else
+            {
+                orderToUpdate.Status = "Hóa đơn treo";
+                orderToUpdate.FeeShipping = 0;
+                orderToUpdate.Address_Id = null;
+            }
+            await orderService.Update(orderToUpdate, orderToUpdate.Id);
+
+            if (paymentMethod == "momo")
+            {
+                try
+                {
+                    // Tạo giao dịch MoMo
+                    var momoResponse = await orderService.CreateMomoPaymentUrl(customerName, orderToUpdate.Totalmoney ?? 0, $"Thanh toán hóa đơn {selectedOrderId}");
+                    if (!string.IsNullOrEmpty(momoResponse.PayUrl))
+                    {
+                        // Hiển thị modal QR code MoMo
+                        orderToUpdate.TypePayment = "Chuyển khoản MoMo";
+                        ShowMomoModal(momoResponse.PayUrl);
+                        await orderService.Update(orderToUpdate, orderToUpdate.Id);
+
+                    }
+                    else
+                    {
+                        await JS.InvokeVoidAsync("toastr.error", "Không thể tạo giao dịch MoMo.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await JS.InvokeVoidAsync("toastr.error", $"Lỗi khi xử lý thanh toán MoMo: {ex.Message}");
+                }
+            }
+            else
+            {
+                orderToUpdate.TypePayment = "Thanh toán tiền mặt";
+                orderToUpdate.Status = "Đã thanh toán";
+                orderToUpdate.Address_Id = selectedAddress?.Id;
+                await orderService.Update(orderToUpdate, orderToUpdate.Id);
+                await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
+                await ResetViewState();
+            }
+
+            var newOrderTracking = new order_trackings
+                {
+                    OrderId = orderToUpdate.Id,
+                    Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
+                    Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" : " Đã xác nhận",
+                    Created_at = DateTime.Now,
+                    Created_by = 1 // ID tạm
+                };
+            await orderTrackingService.AddOrderTracking(newOrderTracking);
+        }
+        await LoadOrderDetails();
+        await LoadOrders();
+        StateHasChanged();
     }
 
 }       

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using appAPI.Models;
 
@@ -11,9 +12,10 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    partial class APP_DATA_DATNModelSnapshot : ModelSnapshot
+    [Migration("20241213025147_duccjhua")]
+    partial class duccjhua
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1716,21 +1718,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "b0e591ab-e0f2-40fe-b16a-e73e187911fb",
+                            ConcurrencyStamp = "cedd4fb5-7d05-4c84-a9cc-8261ebdeab5e",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "c48c995e-569a-4b88-839f-58c5d831c7f9",
+                            ConcurrencyStamp = "d8135c58-3ab7-41fa-a51c-90e8117eb1cf",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "59db7b4a-6f00-436b-93ba-d41d0b43058f",
+                            ConcurrencyStamp = "3abacdba-dffb-4447-84cd-b6ff448c2e17",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });

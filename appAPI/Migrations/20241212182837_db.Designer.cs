@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241211071614_ducchuannguyeb")]
-    partial class ducchuannguyeb
+    [Migration("20241212182837_db")]
+    partial class db
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1159,6 +1159,10 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Post_date")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("STT")
+                        .HasMaxLength(255)
+                        .HasColumnType("int");
+
                     b.Property<string>("Short_description")
                         .HasColumnType("nvarchar(max)");
 
@@ -1172,8 +1176,7 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Title")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Type")
                         .HasMaxLength(255)
@@ -1548,9 +1551,12 @@ namespace appAPI.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<string>("Password")
+                    b.Property<bool>("OTPCheck")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
@@ -1712,21 +1718,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "00a6b6b2-67a9-4517-a92b-84f7fa1d4b1f",
+                            ConcurrencyStamp = "ea0891b6-99e4-4ada-8075-ba9c4a371a39",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "9580d91b-b2db-4316-96b6-ded90fc4e6a2",
+                            ConcurrencyStamp = "70f853b0-6f91-45cb-a553-31e6a06729c5",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "dbc8c59b-d63f-4474-bd54-c799fd97b2ca",
+                            ConcurrencyStamp = "1b27a8ec-1588-461b-9d67-669947861d61",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -2142,7 +2148,7 @@ namespace appAPI.Migrations
                         .IsRequired();
 
                     b.HasOne("appAPI.Models.Wishlist", "Wishlist")
-                        .WithMany()
+                        .WithMany("Product_variants")
                         .HasForeignKey("Wishlist_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -2365,6 +2371,11 @@ namespace appAPI.Migrations
                     b.Navigation("UserVouchers");
 
                     b.Navigation("Wishlist");
+                });
+
+            modelBuilder.Entity("appAPI.Models.Wishlist", b =>
+                {
+                    b.Navigation("Product_variants");
                 });
 #pragma warning restore 612, 618
         }

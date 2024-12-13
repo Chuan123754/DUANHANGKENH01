@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace appAPI.Migrations
 {
-    public partial class ducchuannguyeb : Migration
+    public partial class duccjhua : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -400,7 +400,8 @@ namespace appAPI.Migrations
                     Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Phone = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: true),
                     Email = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    Password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
+                    OTPCheck = table.Column<bool>(type: "bit", maxLength: 255, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RememberToken = table.Column<string>(type: "nvarchar(max)", maxLength: 2147483647, nullable: true),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -575,6 +576,7 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    STT = table.Column<int>(type: "int", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Slug = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
                     Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
@@ -1183,9 +1185,9 @@ namespace appAPI.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "ADMIN_ROLE_ID", "00a6b6b2-67a9-4517-a92b-84f7fa1d4b1f", "Admin", "ADMIN" },
-                    { "DESIGNER_ROLE_ID", "dbc8c59b-d63f-4474-bd54-c799fd97b2ca", "Designer", "DESIGNER" },
-                    { "EMPLOYEE_ROLE_ID", "9580d91b-b2db-4316-96b6-ded90fc4e6a2", "Employee", "EMPLOYEE" }
+                    { "ADMIN_ROLE_ID", "cedd4fb5-7d05-4c84-a9cc-8261ebdeab5e", "Admin", "ADMIN" },
+                    { "DESIGNER_ROLE_ID", "3abacdba-dffb-4447-84cd-b6ff448c2e17", "Designer", "DESIGNER" },
+                    { "EMPLOYEE_ROLE_ID", "d8135c58-3ab7-41fa-a51c-90e8117eb1cf", "Employee", "EMPLOYEE" }
                 });
 
             migrationBuilder.InsertData(

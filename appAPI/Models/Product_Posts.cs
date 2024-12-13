@@ -15,6 +15,8 @@ namespace appAPI.Models
     {
         [Key]
         public long Id { get; set; }
+
+        public int? STT { get; set; }
         [StringLength(255)]
         public string? Title { get; set; }
 

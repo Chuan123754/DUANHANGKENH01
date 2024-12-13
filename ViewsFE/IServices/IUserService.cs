@@ -1,6 +1,7 @@
 ﻿using ViewsFE.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static ViewsFE.Pages.Admin.Dashboard.Dashboard;
 
 namespace ViewsFE.IServices
 {
@@ -21,5 +22,9 @@ namespace ViewsFE.IServices
         Task<int> GetTotalUsersByMonthAsync();
         Task<int> GetTotalUsersByYearAsync();
         Task<int> GetTotalUsersAsync();
+        Task<List<CustomerDto>> GetTop5CustomersAsync();
+        Task<List<CustomerDto>> GetTop5CustomersWeeklyAsync();
+        Task<List<CustomerDto>> GetTop5CustomersMonthlyAsync();
+        Task<List<CustomerDto>> GetTop5CustomersYearlyAsync();
     }
 }

@@ -6,7 +6,7 @@
 @inject IDesignerServices des
 @inject IBannerServices bnser
 @inject IJSRuntime JS
-
+@using BlazorBootstrap
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <div class="page-wrapper">
@@ -234,7 +234,7 @@
                                                     }
                                                 </select>
                                                 <div id="category_ids_error" class="validate-error"></div>
-                                                <a href="javascript:void(0)" id="add_category"
+                                                <a @onclick="OnShowModalClick"
                                                    class="mt-2 mb-2 d-block d-flex gap-1">
                                                     <svg xmlns="http://www.w3.org/2000/svg"
                                                          class="icon icon-tabler icon-tabler-plus" width="10"
@@ -247,33 +247,6 @@
                                                     </svg>
                                                     <span> Thêm danh mục</span>
                                                 </a>
-                                                <div class="category-add mt-2 d-none">
-                                                    <div class="form-group mb-2">
-                                                        <label for="category_title" class="form-label">
-                                                            Tiêu
-                                                            đề
-                                                        </label>
-                                                        <input id="category_title" type="text"
-                                                               class="form-control" placeholder="Nhập tên danh mục">
-                                                    </div>
-                                                    <div class="form-group mb-2">
-                                                        <label for="category_parent_id" class="form-label">
-                                                            Danh mục
-                                                            cha
-                                                        </label>
-                                                        <select id="category_parent_id"
-                                                                class="form-control">
-                                                            <option value="">Chọn danh mục cha</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <button type="button" id="save_category"
-                                                                data-action="{{ route('admin.api.categories.store') }}"
-                                                                class="btn btn-primary">
-                                                            Lưu
-                                                        </button>
-                                                    </div>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -295,7 +268,19 @@
                                                         <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
                                                     }
                                                 </select>
-
+                                                <a @onclick="OnShowModalClickTags"
+                                                   class="mt-2 mb-2 d-block d-flex gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                         class="icon icon-tabler icon-tabler-plus" width="10"
+                                                         height="10" viewBox="0 0 26 26" stroke-width="1"
+                                                         stroke="currentColor" fill="none" stroke-linecap="round"
+                                                         stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                        <path d="M12 5l0 14" />
+                                                        <path d="M5 12l14 0" />
+                                                    </svg>
+                                                    <span> Thêm từ khoá</span>
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -314,10 +299,72 @@
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 <Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
+<Modal @ref="modalcate" title="Thêm chuyên mục" IsVerticallyCentered="true">
+    <BodyTemplate>
+        <div class="category-add mt-2">
+            <div class="form-group mb-2">
+                <label for="categories-short-title" class="form-label">
+                    Tiêu
+                    đề ngắn <span class="text-danger">*</span>
+                </label>
+                <input id="categories-short-title" type="text"
+                       class="form-control" @bind="categories.Short_title" placeholder="Nhập tên ngắn danh mục">
+            </div>
+            <div class="form-group mb-2">
+                <label for="category_title" class="form-label">
+                    Tiêu
+                    đề
+                    <span class="text-danger">*</span>
+                </label>
+                <input id="category_title" type="text"
+                       class="form-control" @bind="categories.Title" placeholder="Nhập tên danh mục" @oninput="GenerateSlugCate">
 
+            </div>
+            <div class="form-group mb-3">
+                <label for="categories-slug" class="form-label">Đường dẫn</label>
+                <input id="categories-slug" class="form-control" @bind="categories.Slug" />
+                <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
+            </div>
+            <div class="form-group mb-3">
+                <label for="categories-description" class="form-label">Mô tả</label>
+                <textarea id="categories-description" class="form-control" @bind="categories.Description" rows="3" />
+            </div>
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button class="btn btn-outline-secondary" @onclick="OnHideModalClick">Close</Button>
+        <Button class="btn btn-outline-primary" @onclick="SumbitCate">Tạo chuyên mục</Button>
+    </FooterTemplate>
+</Modal>
+<Modal @ref="modaltags" title="Thêm thẻ tags" IsVerticallyCentered="true">
+    <BodyTemplate>
+        <div class="category-add mt-2">
+            <div class="form-group mb-2">
+                <label for="category_title" class="form-label">
+                    Tiêu
+                    đề
+                    <span class="text-danger">*</span>
+                </label>
+                <input id="category_title" type="text"
+                       class="form-control" @bind="tags.Title" placeholder="Nhập tên tags">
+
+            </div>
+            <div class="form-group mb-3">
+                <label for="categories-description" class="form-label">Mô tả</label>
+                <textarea id="categories-description" class="form-control" @bind="tags.Description" rows="3" />
+            </div>
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button class="btn btn-outline-secondary" @onclick="OnHideModalClickTags">Close</Button>
+        <Button class="btn btn-outline-primary" @onclick="SumbitTag">Tạo thẻ tags</Button>
+    </FooterTemplate>
+</Modal>
 @code {
     private Product_Posts Posts = new Product_Posts();
     private Banner banner = new Banner();
+    private Categories categories = new Categories();
+    private Tags tags = new Tags();
     private List<Categories> CategoriesList = new List<Categories>();
     private Dictionary<string, string> statuses = Product_Posts.STATUSES;
     private List<Designer> designersList = new List<Designer>();
@@ -329,10 +376,63 @@
     private Modal_NImg mediaLibraryModal;
     private Media_manager media_ManagerRef;
     private long postId;
+
+    private Modal modalcate = default!;
+    private Modal modaltags = default!;
+
+    private async Task OnShowModalClick()
+    {
+        await modalcate.ShowAsync();
+    }
+    private async Task OnShowModalClickTags()
+    {
+        await modaltags.ShowAsync();
+    }
+
+    private async Task OnHideModalClick()
+    {
+        await modalcate.HideAsync();
+    }
+    private async Task OnHideModalClickTags()
+    {
+        await modaltags.HideAsync();
+    }
+    private async void SumbitCate()
+    {
+        try
+        {
+            await cate.CreateTypeProject(categories);
+            await JS.InvokeVoidAsync("toastr.success", "Thêm danh mục thành công");
+            await LoadPosts();
+            await modalcate.HideAsync();
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm danh mục. Vui lòng thử lại.");
+        }
+    }
+    private async void SumbitTag()
+    {
+        try
+        {
+            await stag.Create(tags);
+            await JS.InvokeVoidAsync("toastr.success", "Thêm tags thành công");
+            await LoadPosts();
+            await modaltags.HideAsync();
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm tags. Vui lòng thử lại.");
+        }
+    }
     private async Task HandleImageSelectedN(List<string> imagePaths)
     {
         Posts.Image_library = string.Join(",", imagePaths);
-        StateHasChanged();
+        // StateHasChanged();
         await JS.InvokeVoidAsync("openMediaModalN");
     }
 
@@ -340,19 +440,29 @@
     {
         // Nếu imagePath là null, xóa ảnh đại diện
         Posts.Feature_image = imagePath ?? string.Empty;
-        StateHasChanged();
+        //StateHasChanged();
         await JS.InvokeVoidAsync("closeMediaModal");
     }
     private async Task HandleImageSelectedBanner(string imagePath)
     {
         // Nếu imagePath là null, xóa ảnh banner
         banner.Meta_data = imagePath ?? string.Empty;
-        StateHasChanged();
+        //  StateHasChanged();
         await JS.InvokeVoidAsync("closeMediaBannerModal");
     }
     private async Task OpenMediaModalN(bool isMultiple, string referId)
     {
         await JS.InvokeVoidAsync("openMediaModalN", isMultiple, referId);
+    }
+    private async Task LoadPosts()
+    {
+
+     
+        // Tải danh sách tags và categories
+        TagsList = await stag.GetAll();
+        CategoriesList = await cate.GetAllType("project");
+     
+        StateHasChanged();
     }
     protected override async Task OnInitializedAsync()
     {
@@ -360,19 +470,13 @@
         Posts = new Product_Posts
             {
                 Status = Product_Posts.STATUS_PUBLISH // Thiết lập giá trị mặc định
-                
-
             };
-       
-
-        // Tải danh sách tags và categories
-        TagsList = await stag.GetAll();
-        CategoriesList = await cate.GetAllType("project");
         designersList = await des.GetAll();
         if (designersList != null && designersList.Any())
         {
             Posts.AuthorId = designersList.First().id_Designer;
         }
+        await LoadPosts();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -404,38 +508,6 @@
             await JS.InvokeVoidAsync("tinymce.remove", "#tinymce-textarea");
         }
     }
-    private async Task OnTagsChange(ChangeEventArgs e)
-    {
-        var selectedValues = e.Value.ToString().Split(','); // Tách các giá trị được chọn
-        SelectedTags.Clear(); // Xóa danh sách hiện tại
-
-        foreach (var value in selectedValues)
-        {
-            if (long.TryParse(value, out long id))
-            {
-                SelectedTags.Add(id); // Thêm id vào danh sách
-            }
-            else
-            {
-                // Nếu không phải là id, có thể là tag mới
-                var newTagTitle = value.Trim();
-                if (!TagsList.Any(tag => tag.Title.Equals(newTagTitle, StringComparison.OrdinalIgnoreCase)))
-                {
-                    // Thêm tag mới vào danh sách và cơ sở dữ liệu nếu cần
-                    var newTag = new Tags { Title = newTagTitle };
-                    await stag.Create(newTag); // Gọi API để lưu tag mới vào cơ sở dữ liệu
-
-                    TagsList = await stag.GetAll();
-                    // Tìm lại tag vừa được thêm và thêm nó vào SelectedTags
-                    var addedTag = TagsList.FirstOrDefault(t => t.Title.Equals(newTagTitle, StringComparison.OrdinalIgnoreCase));
-                    if (addedTag != null)
-                    {
-                        SelectedTags.Add(addedTag.Id);
-                    }
-                }
-            }
-        }
-    }
     private void GenerateSlug(ChangeEventArgs e)
     {
         if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
@@ -444,6 +516,13 @@
         }
     }
 
+    private void GenerateSlugCate(ChangeEventArgs e)
+    {
+        if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
+        {
+            categories.Slug = CreateSlug(title);
+        }
+    }
     private string CreateSlug(string input)
     {
         // Chuyển sang chữ thường

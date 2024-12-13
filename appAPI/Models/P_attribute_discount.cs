@@ -13,10 +13,8 @@ namespace appAPI.Models
         public string? Status { get; set; }
         public DateTime? AppliedDate { get; set; }
         [ForeignKey("P_attribute_Id")]
-        [JsonIgnore]
         public virtual Product_Attributes? ProductAttributes { get; set; } 
         [ForeignKey("Discount_Id")]
-        [JsonIgnore]
         public virtual Discount? Discount { get; set; } 
     }
 }

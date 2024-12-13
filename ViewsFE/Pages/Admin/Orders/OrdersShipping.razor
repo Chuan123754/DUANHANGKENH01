@@ -204,7 +204,17 @@
                                         {
                                             <tr>
                                                 <td>@item.Id</td>
-                                                <td> đây là ngươi tạo @* @(item.Admin.LastName + " " + item.Admin.FirstName) *@</td>
+                                                <td>
+                                                    @if (item.CreatedByAdminId == null)
+                                                    {
+                                                        <span>Hệ thống</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @(item.Admin.FirstName + " " + item.Admin.LastName)
+                                                    }
+
+                                                </td>
                                                 <td>
                                                     @if (item.Users == null)
                                                     {
@@ -357,7 +367,7 @@
        .ThenByDescending(o => o.Status == "Đang vận chuyển")
        .ThenByDescending(o => o.Status == "Giao thành công")
        .ThenByDescending(o => o.Status == "Giao thất bại")
-       .ThenByDescending(o => o.Status == "Đã hủy")
+       .ThenByDescending(o => o.Status == "Đơn hủy")
        .ThenByDescending(o => o.Created_at)
        .ToList();
 
@@ -369,7 +379,7 @@
         shippingOrders = lst_Orders.Count(o => o.Status == "Đang vận chuyển");
         failedOrders = lst_Orders.Count(o => o.Status == "Giao thất bại");
         successfulOrders = lst_Orders.Count(o => o.Status == "Giao thành công");
-        canceledOrders = lst_Orders.Count(o => o.Status == "Đã hủy");
+        canceledOrders = lst_Orders.Count(o => o.Status == "Đơn hủy");
         LoadPagedOrders();
     }
     private async Task GetPendingOrders()
@@ -417,7 +427,7 @@
     private async Task GetCanceledOrders()
     {
         var lstOrders = await orderService.GetAll();
-        lst_Orders = lstOrders.Where(o => o.Status == "Đã hủy").Where(o => o.Note == "Giao hàng").ToList();
+        lst_Orders = lstOrders.Where(o => o.Status == "Đơn hủy").Where(o => o.Note == "Giao hàng").ToList();
         LoadPagedOrders(); 
     }
 

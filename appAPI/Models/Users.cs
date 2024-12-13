@@ -25,6 +25,7 @@ namespace appAPI.Models
         [EmailAddress]
         public string? Email { get; set; }
         [StringLength(255)]
+
         public string? Password { get; set; }
         [StringLength(int.MaxValue)]
         public string? RememberToken { get; set; }
