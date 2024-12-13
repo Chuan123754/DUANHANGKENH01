@@ -236,7 +236,8 @@
                                                         <path d="M5 12l14 0" />
                                                     </svg>
                                                     <span> Thêm danh mục</span>
-                                                </a>                                             
+                                                </a>
+
                                             </div>
                                         </div>
                                     </div>
@@ -258,6 +259,19 @@
                                                     <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
                                                 }
                                             </select>
+                                            <a @onclick="OnShowModalClickTags"
+                                               class="mt-2 mb-2 d-block d-flex gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="icon icon-tabler icon-tabler-plus" width="10"
+                                                     height="10" viewBox="0 0 26 26" stroke-width="1"
+                                                     stroke="currentColor" fill="none" stroke-linecap="round"
+                                                     stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M12 5l0 14" />
+                                                    <path d="M5 12l14 0" />
+                                                </svg>
+                                                <span> Thêm từ khoá</span>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -279,7 +293,7 @@
 
 
 
-<Modal @ref="modal" title="Thêm chuyên mục" IsVerticallyCentered="true">
+<Modal @ref="modalcate" title="Thêm chuyên mục" IsVerticallyCentered="true">
     <BodyTemplate>
         <div class="category-add mt-2">
             <div class="form-group mb-2">
@@ -298,6 +312,7 @@
                 </label>
                 <input id="category_title" type="text"
                        class="form-control" @bind="categories.Title" placeholder="Nhập tên danh mục" @oninput="GenerateSlugCate">
+
             </div>
             <div class="form-group mb-3">
                 <label for="categories-slug" class="form-label">Đường dẫn</label>
@@ -311,16 +326,40 @@
         </div>
     </BodyTemplate>
     <FooterTemplate>
-        <Button  class="btn btn-outline-secondary" @onclick="OnHideModalClick">Close</Button>
-        <Button class="btn btn-outline-primary" @onclick="Sumbit">Tạo chuyên mục</Button>
+        <Button class="btn btn-outline-secondary" @onclick="OnHideModalClick">Close</Button>
+        <Button class="btn btn-outline-primary" @onclick="SumbitCate">Tạo chuyên mục</Button>
     </FooterTemplate>
 </Modal>
+<Modal @ref="modaltags" title="Thêm thẻ tags" IsVerticallyCentered="true">
+    <BodyTemplate>
+        <div class="category-add mt-2">
+            <div class="form-group mb-2">
+                <label for="category_title" class="form-label">
+                    Tiêu
+                    đề
+                    <span class="text-danger">*</span>
+                </label>
+                <input id="category_title" type="text"
+                       class="form-control" @bind="tags.Title" placeholder="Nhập tên tags">
 
+            </div>
+            <div class="form-group mb-3">
+                <label for="categories-description" class="form-label">Mô tả</label>
+                <textarea id="categories-description" class="form-control" @bind="tags.Description" rows="3" />
+            </div>
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button class="btn btn-outline-secondary" @onclick="OnHideModalClickTags">Close</Button>
+        <Button class="btn btn-outline-primary" @onclick="SumbitTag">Tạo thẻ tags</Button>
+    </FooterTemplate>
+</Modal>
 @code {
     [Parameter]
     public long Id { get; set; }
     private Product_Posts Posts = new Product_Posts();
     private Categories categories = new Categories();
+    private Tags tags = new Tags();
     private Banner banner = new Banner();
     private List<Categories> CategoriesList = new List<Categories>();
     private List<Tags> TagsList = new List<Tags>();
@@ -334,30 +373,56 @@
     private long postId;
 
 
-    private Modal modal = default!;
+    private Modal modalcate = default!;
+    private Modal modaltags = default!;
 
     private async Task OnShowModalClick()
     {
-        await modal.ShowAsync();
+        await modalcate.ShowAsync();
+    }
+    private async Task OnShowModalClickTags()
+    {
+        await modaltags.ShowAsync();
     }
 
     private async Task OnHideModalClick()
     {
-        await modal.HideAsync();
+        await modalcate.HideAsync();
     }
-    private async void Sumbit()
+    private async Task OnHideModalClickTags()
+    {
+        await modaltags.HideAsync();
+    }
+    private async void SumbitCate()
     {
         try
         {
             await cate.CreateTypePost(categories);
             await JS.InvokeVoidAsync("toastr.success", "Thêm danh mục thành công");
-            await modal.HideAsync();
+            await LoadPosts();
+            await modalcate.HideAsync();
 
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error: {ex.Message}");
             await JS.InvokeVoidAsync("toastr.error", "Không thể thêm danh mục. Vui lòng thử lại.");
+        }
+    }
+    private async void SumbitTag()
+    {
+        try
+        {
+            await stag.Create(tags);
+            await JS.InvokeVoidAsync("toastr.success", "Thêm tags thành công");
+            await LoadPosts();
+            await modaltags.HideAsync();
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm tags. Vui lòng thử lại.");
         }
     }
     private async Task HandleImageSelectedN(List<string> imagePaths)
@@ -384,22 +449,27 @@
     {
         await JS.InvokeVoidAsync("openMediaModalN", isMultiple, referId);
     }
-    protected override async Task OnInitializedAsync()
+    private async Task LoadPosts()
     {
-
-        Posts = await sev.GetByIdType(Id, "post");
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAllType("post");
+     
+        StateHasChanged();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        Posts = await sev.GetByIdType(Id, "post");
         banner = await bnser.GetBannerByProductPostId(Id);
         SelectedCategories = (await cate.GetCategoryByPosstId(Id))
-                          .Where(pc => pc.Post_Id == Id)
-                          .Select(pc => pc.Category_Id)
-                          .ToList();
+                       .Where(pc => pc.Post_Id == Id)
+                       .Select(pc => pc.Category_Id)
+                       .ToList();
 
         SelectedTags = (await stag.GetTagByPostId(Id))
                         .Where(pt => pt.Post_Id == Id)
                         .Select(pt => pt.Tag_Id)
                         .ToList();
+      await LoadPosts();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -436,7 +506,13 @@
             Posts.Slug = CreateSlug(title);
         }
     }
-
+    private void GenerateSlugCate(ChangeEventArgs e)
+    {
+        if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
+        {
+            categories.Slug = CreateSlug(title);
+        }
+    }
     private string CreateSlug(string input)
     {
         // Chuyển sang chữ thường
@@ -451,28 +527,7 @@
 
         return result;
     }
-    private void GenerateSlugCate(ChangeEventArgs e)
-    {
-        if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
-        {
-            categories.Slug = CreateSlugCate(title);
-        }
-    }
-
-    private string CreateSlugCate(string input)
-    {
-        // Chuyển sang chữ thường
-        string result = input.ToLowerInvariant();
-
-        // Loại bỏ dấu tiếng Việt
-        result = RemoveDiacritics(result);
-
-        // Loại bỏ ký tự không phải chữ/số và thay thế khoảng trắng bằng dấu gạch ngang
-        result = System.Text.RegularExpressions.Regex.Replace(result, @"[^a-z0-9\s-]", "");
-        result = System.Text.RegularExpressions.Regex.Replace(result, @"\s+", "-").Trim('-');
-
-        return result;
-    }
+   
     private string RemoveDiacritics(string text)
     {
         var normalized = text.Normalize(System.Text.NormalizationForm.FormD);

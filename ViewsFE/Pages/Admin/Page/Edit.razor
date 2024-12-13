@@ -4,7 +4,7 @@
 @inject ITagsServices stag
 @inject IBannerServices bnser
 @inject IJSRuntime JS
-
+@using BlazorBootstrap
 
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
@@ -178,6 +178,19 @@
                                                     <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
                                                 }
                                             </select>
+                                            <a @onclick="OnShowModalClickTags"
+                                               class="mt-2 mb-2 d-block d-flex gap-1">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="icon icon-tabler icon-tabler-plus" width="10"
+                                                     height="10" viewBox="0 0 26 26" stroke-width="1"
+                                                     stroke="currentColor" fill="none" stroke-linecap="round"
+                                                     stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                    <path d="M12 5l0 14" />
+                                                    <path d="M5 12l14 0" />
+                                                </svg>
+                                                <span> Thêm từ khoá</span>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -192,9 +205,36 @@
 </EditForm>
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
+
+
+<Modal @ref="modaltags" title="Thêm thẻ tags" IsVerticallyCentered="true">
+    <BodyTemplate>
+        <div class="category-add mt-2">
+            <div class="form-group mb-2">
+                <label for="category_title" class="form-label">
+                    Tiêu
+                    đề
+                    <span class="text-danger">*</span>
+                </label>
+                <input id="category_title" type="text"
+                       class="form-control" @bind="tags.Title" placeholder="Nhập tên tags">
+
+            </div>
+            <div class="form-group mb-3">
+                <label for="categories-description" class="form-label">Mô tả</label>
+                <textarea id="categories-description" class="form-control" @bind="tags.Description" rows="3" />
+            </div>
+        </div>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button class="btn btn-outline-secondary" @onclick="OnHideModalClickTags">Close</Button>
+        <Button class="btn btn-outline-primary" @onclick="SumbitTag">Tạo thẻ tags</Button>
+    </FooterTemplate>
+</Modal>
 @code {
     [Parameter]
     public long Id { get; set; }
+    private Tags tags = new Tags();
     private Banner banner = new Banner();
     private Product_Posts Posts = new Product_Posts();
     private List<Tags> TagsList = new List<Tags>();
@@ -205,7 +245,31 @@
     private Media_manager media_ManagerRef;
     private long postId;
 
+    private Modal modaltags = default!;
+    private async Task OnShowModalClickTags()
+    {
+        await modaltags.ShowAsync();
+    }
+    private async Task OnHideModalClickTags()
+    {
+        await modaltags.HideAsync();
+    }
+    private async void SumbitTag()
+    {
+        try
+        {
+            await stag.Create(tags);
+            await JS.InvokeVoidAsync("toastr.success", "Thêm tags thành công");
+            await LoadPosts();
+            await modaltags.HideAsync();
 
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error: {ex.Message}");
+            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm tags. Vui lòng thử lại.");
+        }
+    }
     private async Task HandleImageSelected(string imagePath)
     {
         Posts.Feature_image = imagePath ?? string.Empty;
@@ -219,15 +283,23 @@
         StateHasChanged();
         await JS.InvokeVoidAsync("closeMediaBannerModal");
     }
+    private async Task LoadPosts()
+    {
+
+      
+        TagsList = await stag.GetAll();
+        banner = await bnser.GetBannerByProductPostId(Id);
+     
+        StateHasChanged();
+    }
     protected override async Task OnInitializedAsync()
     {
         Posts = await sev.GetByIdType(Id, "page");
-        TagsList = await stag.GetAll();
-        banner = await bnser.GetBannerByProductPostId(Id);
         SelectedTags = (await stag.GetTagByPostId(Id))
-                         .Where(pt => pt.Post_Id == Id)
-                         .Select(pt => pt.Tag_Id)
-                         .ToList();
+                      .Where(pt => pt.Post_Id == Id)
+                      .Select(pt => pt.Tag_Id)
+                      .ToList();
+        await LoadPosts();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

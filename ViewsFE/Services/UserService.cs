@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Http.Json;
+using static ViewsFE.Pages.Admin.Dashboard.Dashboard;
 
 namespace ViewsFE.Services
 {
@@ -248,6 +249,61 @@ namespace ViewsFE.Services
 
             var count = await response.Content.ReadFromJsonAsync<int>();
             return count;
+        }
+        public async Task<List<CustomerDto>> GetTop5CustomersAsync()
+        {
+            string requestURL = $"{_baseUrl}/api/Users/GetTop5Customers";
+            var response = await _httpClient.GetStringAsync(requestURL);
+            var customers = JsonConvert.DeserializeObject<List<dynamic>>(response);
+
+            return customers.Select(c => new CustomerDto
+            {
+                Name = c.name,
+                TotalOrders = c.totalOrders != null ? (int?)c.totalOrders : null,
+                TtotalMoneySpent = c.totalMoneySpent != null ? (decimal?)c.totalMoneySpent : null
+            }).ToList();
+        }
+
+        public async Task<List<CustomerDto>> GetTop5CustomersWeeklyAsync()
+        {
+            string requestURL = $"{_baseUrl}/api/Users/GetTop5CustomersWeekly";
+            var response = await _httpClient.GetStringAsync(requestURL);
+            var customers = JsonConvert.DeserializeObject<List<dynamic>>(response);
+
+            return customers.Select(c => new CustomerDto
+            {
+                Name = c.name,
+                TotalOrders = c.totalOrders != null ? (int?)c.totalOrders : null,
+                TtotalMoneySpent = c.totalMoneySpent != null ? (decimal?)c.totalMoneySpent : null
+            }).ToList();
+        }
+
+        public async Task<List<CustomerDto>> GetTop5CustomersMonthlyAsync()
+        {
+            string requestURL = $"{_baseUrl}/api/Users/GetTop5CustomersMonthly";
+            var response = await _httpClient.GetStringAsync(requestURL);
+            var customers = JsonConvert.DeserializeObject<List<dynamic>>(response);
+
+            return customers.Select(c => new CustomerDto
+            {
+                Name = c.name,
+                TotalOrders = c.totalOrders != null ? (int?)c.totalOrders : null,
+                TtotalMoneySpent = c.totalMoneySpent != null ? (decimal?)c.totalMoneySpent : null
+            }).ToList();
+        }
+
+        public async Task<List<CustomerDto>> GetTop5CustomersYearlyAsync()
+        {
+            string requestURL = $"{_baseUrl}/api/Users/GetTop5CustomersYearly";
+            var response = await _httpClient.GetStringAsync(requestURL);
+            var customers = JsonConvert.DeserializeObject<List<dynamic>>(response);
+
+            return customers.Select(c => new CustomerDto
+            {
+                Name = c.name,
+                TotalOrders = c.totalOrders != null ? (int?)c.totalOrders : null,
+                TtotalMoneySpent = c.totalMoneySpent != null ? (decimal?)c.totalMoneySpent : null
+            }).ToList();
         }
 
         public Task<Users> Login(Users user)

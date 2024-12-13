@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace appAPI.Migrations
 {
-    public partial class updatedataa : Migration
+    public partial class duccjhua : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -576,8 +576,8 @@ namespace appAPI.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    STT = table.Column<int>(type: "int", maxLength: 255, nullable: true),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    STT = table.Column<int>(type: "int", nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Slug = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
                     Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
                     AuthorId = table.Column<long>(type: "bigint", nullable: true),
@@ -1185,9 +1185,9 @@ namespace appAPI.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "ADMIN_ROLE_ID", "e02eef52-f5d0-494e-8caa-e427f56ad19f", "Admin", "ADMIN" },
-                    { "DESIGNER_ROLE_ID", "a5c68552-ec83-4bcf-a6cb-0e8826a7d588", "Designer", "DESIGNER" },
-                    { "EMPLOYEE_ROLE_ID", "e3cfb096-082c-49e5-b6bf-3e5c08cce07c", "Employee", "EMPLOYEE" }
+                    { "ADMIN_ROLE_ID", "cedd4fb5-7d05-4c84-a9cc-8261ebdeab5e", "Admin", "ADMIN" },
+                    { "DESIGNER_ROLE_ID", "3abacdba-dffb-4447-84cd-b6ff448c2e17", "Designer", "DESIGNER" },
+                    { "EMPLOYEE_ROLE_ID", "d8135c58-3ab7-41fa-a51c-90e8117eb1cf", "Employee", "EMPLOYEE" }
                 });
 
             migrationBuilder.InsertData(
