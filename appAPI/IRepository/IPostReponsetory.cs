@@ -18,6 +18,7 @@ namespace appAPI.IRepository
         Task<string?> GetNameDesigner(long id);
         // Lấy bài viết theo id và type
         Task<Product_Posts> GetByIdAndType(long id, string type);
+        Task<Product_Posts> GetBySlugAndType(string slug, string type);
 
         // Lấy bài viết theo type với phân trang và tìm kiếm
         Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm);

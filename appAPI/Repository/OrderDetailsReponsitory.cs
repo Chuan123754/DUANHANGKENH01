@@ -81,5 +81,36 @@ namespace appAPI.Repository
         {
             return await _context.Order_Details.CountAsync();
         }
+
+        public async Task<List<TopSellingProductDto>> GetTop5SellingProductsAsync()
+        {
+            var topSellingProducts = await _context.Order_Details
+                .GroupBy(od => od.ProductAttributes.Product_Variant.Post_Id) // Nhóm theo Post_Id của Product_Variant
+                .Select(group => new
+                {
+                    PostId = group.Key,
+                    TotalQuantitySold = group.Sum(od => od.Quantity) // Tổng số lượng bán của từng Post_Id
+                })
+                .OrderByDescending(p => p.TotalQuantitySold) // Sắp xếp theo số lượng bán giảm dần
+                .Take(5) // Lấy 5 sản phẩm bán chạy nhất
+                .Join(_context.Posts, // Kết hợp với bảng Posts để lấy tên sản phẩm
+                    sales => sales.PostId,
+                    post => post.Id,
+                    (sales, post) => new TopSellingProductDto
+                    {
+                        ProductName = post.Title, // Lấy tên sản phẩm từ bảng Posts
+                        TotalQuantitySold = sales.TotalQuantitySold // Tổng số lượng bán
+                    })
+                .ToListAsync();
+
+            return topSellingProducts;
+        }
+
+        public class TopSellingProductDto
+        {
+            public string ProductName { get; set; } // Tên sản phẩm
+            public int TotalQuantitySold { get; set; } // Tổng số lượng bán
+        }
+
     }
 }

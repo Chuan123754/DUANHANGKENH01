@@ -29,6 +29,7 @@ builder.Services.AddAuthentication("CookieAuth")
         options.LogoutPath = "/admin/Loginclient"; // Đường dẫn đến trang đăng xuất
     });
 
+builder.Services.AddHttpClient();
 
 // Add services to the container.
 // Đăng ký DbContext và cấu hình chuỗi kết nối từ appsettings.json

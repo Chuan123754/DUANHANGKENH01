@@ -3,11 +3,13 @@
  @inject IPostSer sev
  @inject IProductVariantServices varian
  @inject IOrderIServices orde
+ @inject OrderDetailsIServices ordedatil
  @inject IUserService usesv
  @inject NavigationManager nav
  @inject IAccsessViewscsServices accv
  @inject IJSRuntime JS
  @using System.Text.Json
+@using static ViewsFE.Services.OrderDetailsServices
 
 
 
@@ -112,16 +114,7 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="subheader">Tổng số đơn đã bán</div>
-                            @*   <div class="ms-auto lh-1">
-                            <div class="dropdown">
-                            <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Last 7 days</a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                            <a class="dropdown-item active" href="#">Last 7 days</a>
-                            <a class="dropdown-item" href="#">Last 30 days</a>
-                            <a class="dropdown-item" href="#">Last 3 months</a>
-                            </div>
-                            </div>
-                            </div> *@
+                           
                         </div>
                         <div class="mb-3"></div>
                         <div class="d-flex align-items-baseline">
@@ -312,9 +305,41 @@
                 </div>
             </div>
             <div class="col-md-6 col-lg-6">
-                <a href="https://github.com/sponsors/codecalm" class="card card-sponsor" target="_blank" rel="noopener" style="background-image: url(./static/anhlogohangkenh.png)" aria-label="Sponsor Tabler!">
-                    <div class="card-body"></div>
-                </a>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="subheader">
+                            <h3>Top 5 sản phẩm bán chạy</h3>
+                        </div>                     
+                    </div>
+                    <div class="card-table table-responsive">
+                        <table class="table table-vcenter">
+                            <thead>
+                                <tr>
+                                    <th>Tên sản phẩm</th>
+                                    <th>Số lượng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (topSellingProductDtos != null && topSellingProductDtos.Any())
+                                {
+                                    @foreach (var top5sp in topSellingProductDtos)
+                                    {
+                                        <tr>
+                                            <td>@top5sp.ProductName</td>
+                                            <td class="text-secondary">@top5sp.TotalQuantitySold</td> 
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="2" class="text-center">Không có dữ liệu</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
 
@@ -344,7 +369,7 @@
     private long totalViews;
     private string selectedTop5User = "top5all";
     private List<CustomerDto> top5Customers = new List<CustomerDto>();
-
+    private List<TopSellingProductDtoSV> topSellingProductDtos = new List<TopSellingProductDtoSV>();
 
     private async Task LoadPosts()
     {
@@ -363,6 +388,7 @@
         totalUserToYear = await usesv.GetTotalUsersByYearAsync();
         totalUser = await usesv.GetTotalUsersAsync();
         totalViews = await accv.GetTotal();
+        topSellingProductDtos = await ordedatil.GetTop5SellingProductsAsync();
         await DrawChart();
         StateHasChanged();
     }

@@ -108,5 +108,12 @@ namespace appAPI.Controllers
             var totalCount = await _repo.GetTotalCountAsync();
             return Ok(totalCount);
         }
+        // GET: api/Product/TopSelling
+        [HttpGet("TopSelling")]
+        public async Task<IActionResult> GetTop5SellingProducts()
+        {
+            var topSellingProducts = await _repo.GetTop5SellingProductsAsync();
+            return Ok(topSellingProducts);
+        }
     }
 }
