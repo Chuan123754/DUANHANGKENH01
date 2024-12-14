@@ -97,6 +97,7 @@ namespace appAPI.Repository
             if (updateItem != null)
             {
                 updateItem.User_id = orders.User_id;
+                updateItem.CreatedByAdminId = orders.CreatedByAdminId;
                 updateItem.Address_Id = orders.Address_Id;
                 updateItem.Status = orders.Status;
                 updateItem.Note = orders.Note;

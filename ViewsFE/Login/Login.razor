@@ -98,6 +98,7 @@
             {
                 await CustomAuthStateProvider.LoginAsync(token);
                 Navigation.NavigateTo("/");
+                await _jsRuntime.InvokeVoidAsync("toastr.success", "Đăng nhập thành công");
             }
             else
             {

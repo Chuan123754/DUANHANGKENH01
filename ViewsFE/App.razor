@@ -1,5 +1,6 @@
 @using Microsoft.AspNetCore.Components
 @inject NavigationManager Navigation
+@inject CustomAuthenticationStateProvider _authStateProvider
 
 <Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
@@ -12,14 +13,3 @@
         </LayoutView>
     </NotFound>
 </Router>
-
-@* @code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            // Điều hướng đến trang login khi ứng dụng được khởi tạo
-            Navigation.NavigateTo("/admin/login");
-        }
-    }
-} *@

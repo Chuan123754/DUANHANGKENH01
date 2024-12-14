@@ -13,6 +13,35 @@
 
 
 <style>
+    .info-icon {
+        position: relative;
+        cursor: pointer;
+        display: inline-block;
+        color: #6c757d; /* Màu xám nhạt */
+    }
+
+        .info-icon .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 4px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Đẩy tooltip lên phía trên */
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .info-icon:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
 
     .custom-modal-size {
         max-width: 200%;
@@ -717,7 +746,14 @@
                             {
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked" @bind="IsDeliveryVisible">
-                                    <label class="form-check-label" for="flexSwitchCheckChecked">Giao hàng</label>
+                                    <label class="form-check-label" for="flexSwitchCheckChecked">
+                                        <span class="info-icon">
+                                            <i class="fas fa-info-circle fa-sm"></i>
+                                            <span class="tooltip-text">Nếu số lượng sản phẩm nhỏ hơn hoặc bằng 10 thì mặc định tiền vận chuyển là 38000VNĐ , nếu lớn hơn 10 và nhỏ hơn hoặc bằng 20 thì cộng thêm 5000 với mỗi sản phẩm, nếu số lượng sản phẩm lớn hơn 20 và nhỏ hơn hoặc bằng 30 thì giảm 30% tiền vận chuyển,  nếu số lượng sản phẩm lớn hơn 30 và nhỏ hơn hoặc bằng 50 thì giảm 50% tiền vận chuyển, nếu số lượng sản phẩm lớn hơn 50 thì giảm 70% tiền vận chuyển.</span>
+                                        </span>
+                                        Giao hàng
+               
+                                    </label>
                                 </div>
                             }
                         </div>
@@ -887,7 +923,7 @@
     private int page_size = 10;
     private int totalItems;
     private Users selectedCustomer;
-
+    string adminId;
     private string momoError = null; // Lỗi từ phía MoMo
     private string? ErrorCode;
     private string payUrl { get; set; } // URL thanh toán MoMo
@@ -954,7 +990,7 @@
         StateHasChanged();
     }
 
-   
+
     private async Task OnSearch()
     {
         lst_ProductAttributes = await productAttributeService.GetAllProductAttributes();
@@ -1074,6 +1110,15 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var currentUserId = await _authStateProvider.GetCurrentUserId();
+        if(currentUserId == null)
+        {
+            adminId = null;
+        }
+        else
+        {
+            adminId = currentUserId;            
+        }
         await LoadPosts();
         await LoadOrders();
         CalculateTotalMoney();
@@ -1194,11 +1239,10 @@
             await JS.InvokeVoidAsync("toastr.error", "Chỉ có thể tạo tối đa 7 hóa đơn treo");
             return;
         }
-        var currentUserId = await _authStateProvider.GetCurrentUserId();
         var newOrder = new Orders
             {
                 Note = "Tại quầy",
-                CreatedByAdminId = currentUserId,
+                CreatedByAdminId = adminId,
                 Status = "Hóa đơn treo"
             };
         await orderService.Create(newOrder);
@@ -1256,6 +1300,7 @@
         try
         {
             orders.Note = isDeliveryVisible ? "Giao hàng" : "Tại quầy";
+            orders.CreatedByAdminId = adminId;
             await orderService.Update(orders, selectedOrderId);
         }
         catch (Exception ex)
@@ -1342,6 +1387,7 @@
         if (orderToUpdate != null)
         {
             orderToUpdate.User_id = selectedCustomer.Id;
+            orderToUpdate.CreatedByAdminId = adminId;
             await orderService.Update(orderToUpdate, orderToUpdate.Id);
             var updatedOrder = await orderService.GetByIdOrders(selectedOrderId);
             if (updatedOrder != null)
@@ -1618,6 +1664,7 @@
         }
         var order = await orderService.GetByIdOrders(selectedOrderId);
         order.Address_Id = selectedAddress.Id;
+        order.CreatedByAdminId = adminId;
         isChooseAddress = false;
         await orderService.Update(order, selectedOrderId);
     }
@@ -1668,6 +1715,7 @@
             orderToUpdate.TotalAmount = totalAmount; // tiền hàng đã giảm
             orderToUpdate.TotalPrincipal = totalPrincipal; // Tổng tiền hàng chưa giảm
             orderToUpdate.Totalmoney = totalMoney; // tổng cần thanh toán ( nếu có ship )
+            orderToUpdate.CreatedByAdminId = adminId;
             if (isDeliveryVisible)
             {
                 orderToUpdate.Status = "Đã xác nhận";

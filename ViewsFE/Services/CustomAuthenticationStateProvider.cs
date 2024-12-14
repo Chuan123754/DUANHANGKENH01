@@ -25,11 +25,11 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 
         if (user.Identity.IsAuthenticated)
         {
-            // Giả sử bạn đã lưu ID người dùng trong claims  
+            // Lưu id người dùng trong claims
             return user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         }
 
-        return null; // Trả về null nếu không tìm thấy  
+        return null; 
     }
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
@@ -77,10 +77,8 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
         await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", "authToken", token);
 
-        // Thiết lập header Authorization cho HttpClient  
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-        // Giải mã token để lấy claims  
         var handler = new JwtSecurityTokenHandler();
         var jwtToken = handler.ReadJwtToken(token);
         var claims = jwtToken.Claims.ToList();
@@ -88,7 +86,11 @@ public class CustomAuthenticationStateProvider : AuthenticationStateProvider
         var identity = new ClaimsIdentity(claims, "jwt");
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new ClaimsPrincipal(identity))));
     }
-
+    public async Task<bool> IsAuthenticatedAsync()
+    {
+        var authState = await GetAuthenticationStateAsync();
+        return authState.User.Identity.IsAuthenticated;
+    }
     public async Task LogoutAsync()
     {
         await _accountService.SignOutAsync();
