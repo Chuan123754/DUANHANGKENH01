@@ -49,5 +49,10 @@ namespace ViewsFE.Services
             var count = await response.Content.ReadFromJsonAsync<int>();
             return count;
         }
+
+        public async Task Update(Contact c)
+        {
+            await _httpClient.PutAsJsonAsync($"{_baseUrl}/api/Contact/UpdateContact", c);
+        }
     }
 }

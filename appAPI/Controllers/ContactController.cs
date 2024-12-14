@@ -13,8 +13,8 @@ namespace appAPI.Controllers
     {
         private readonly IContactReponsetory _repon;
         private readonly HttpClient _httpClient;
-        private const string TelegramBotToken = ""; // Thay bằng API token của bạn
-        private const string TelegramChatId = ""; // Thay bằng chat ID bạn muốn gửi thông báo
+        private const string TelegramBotToken = "7222454306:AAFQqAQRTnkCnb62B_xPIppcHClOmkRvkak"; // Thay bằng API token của bạn
+        private const string TelegramChatId = "5683379490"; // Thay bằng chat ID bạn muốn gửi thông báo
 
         public ContactController(IContactReponsetory contactReponsetory, HttpClient httpClient)
         {
@@ -89,6 +89,12 @@ namespace appAPI.Controllers
             {
                 return false;
             }
+        }
+
+        [HttpPut("UpdateContact")]
+        public async Task Update(Contact contact)
+        {
+            await _repon.Update(contact);
         }
 
         [HttpDelete("DeleteContact")]

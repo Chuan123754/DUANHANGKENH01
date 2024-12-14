@@ -10,6 +10,8 @@ namespace appAPI.Models
         public string? Email { get; set; }
         public string? Phone { get; set; }
         public string? Message { get; set; }
+        public string? Replies { get; set; }
+        public bool Deleted { get; set; }   
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
