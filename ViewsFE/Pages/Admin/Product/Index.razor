@@ -43,6 +43,9 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>
+                                            <button class="table-sort">Hình ảnh</button>
+                                        </th>
+                                        <th>
                                             <button class="table-sort">Tiêu đề</button>
                                         </th>
                                         <th>
@@ -73,6 +76,7 @@
                                     {
                                         <tr class="post-row">
                                             <td>@stt</td>
+                                            <td><img src="@post.Feature_image" alt="Hình ảnh" style="width: 80px; height: 80px;" /></td>
                                             <td>
                                                 @post.Title
                                                 <br />
@@ -81,6 +85,7 @@
                                                     <a class="cell-action-delete text-danger" @onclick="() => ConfirmDelete(post.Id)">Xóa</a>
                                                 </div>
                                             </td>
+                                           
                                             <td>@post.Designer?.Name</td>
                                             <td class="sort-type">
                                                 @if (post.Post_categories != null && post.Post_categories.Any())
