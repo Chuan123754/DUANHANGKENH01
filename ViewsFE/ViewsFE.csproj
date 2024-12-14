@@ -16,6 +16,7 @@
 		<PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
 		<PackageReference Include="BootstrapBlazor.Chart" Version="8.0.0" />
 		<PackageReference Include="EPPlus" Version="7.4.1" />
+		<PackageReference Include="MailKit" Version="4.9.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="6.0.20" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="6.0.20" />

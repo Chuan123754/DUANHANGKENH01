@@ -112,8 +112,15 @@ namespace appAPI.Controllers
                 {
                     if (errorCode == "0") // Thanh toán thành công
                     {
-                        order.Status = "Đã xác nhận ";
-                        
+                        if(order.CreatedByAdminId == null )
+                        {
+                            order.Status = "Chờ xác nhận";
+                        }    
+                        else
+                        {
+                            order.Status = "Đã xác nhận";
+
+                        }
                     }
                     else
                     {

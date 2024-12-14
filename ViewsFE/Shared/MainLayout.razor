@@ -1,7 +1,8 @@
 ﻿@inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager Navigation
-@inject CustomAuthenticationStateProvider AuthenticationStateProvider
+@inject CustomAuthenticationStateProvider _authStateProvider;
+@inject IAccountService accountService
 
 <PageTitle>BlazorApp1</PageTitle>
 @* <div class="page-wrapper">
@@ -79,19 +80,19 @@
                             <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
                                 <span class="avatar avatar-sm" style="background-image"></span>
                                 <div class="d-none d-xl-block ps-2">
-                                    @*    @if (User.Identity.IsAuthenticated)
+                                    @if (admin!= null)
                                     {
-                                    <div>123</div>
+                                    <div><span>@admin.FirstName @admin.LastName</span></div>
                                     }
                                     else
                                     {
-                                    <div>XuanDung</div>
+                                    <div>admin</div>
                                     <div class="mt-1 small text-muted">Admin</div>
-                                    } *@
+                                    }
                                 </div>
                             </a>
                             <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                <a href="#" onclick="logout()" class="dropdown-item" style="cursor: pointer;">Logout</a>
+                                <a @onclick="Logout" class="dropdown-item" style="cursor: pointer;">Logout</a>
                             </div>
                         </div>
                     </div>
@@ -122,24 +123,25 @@
  
 </div> *@
 @code {
+    string adminId;
+    private Account admin = new Account();
     protected override async Task OnInitializedAsync()
     {
-        // var authenticationState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        // var user = authenticationState.User;
-        // if (user == null)
-        // {
-        //     if (Navigation.Uri != "/admin/login")
-        //     {
-        //         Navigation.NavigateTo("/admin/login");
-        //     }
-        // }
-        // else
-        // {
-        //     if (Navigation.Uri != "/admin/login")
-        //     {
-        //         Navigation.NavigateTo("/admin/dashboard");
-        //     }
-        // }
+        var currentUserId = await _authStateProvider.GetCurrentUserId();
+        if (currentUserId == null)
+        {
+            adminId = null;
+        }
+        else
+        {
+            adminId = currentUserId;
+            admin = await accountService.GetAccountById(adminId);
+        }
+    }
+    public async Task Logout()
+    {
+        await _authStateProvider.LogoutAsync();
+        Navigation.NavigateTo("/admin/login");
     }
 }
 <style>

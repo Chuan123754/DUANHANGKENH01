@@ -1,4 +1,4 @@
-﻿@namespace ViewsFE.Pages
+﻿@* @namespace ViewsFE.Pages
 @using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject NavigationManager navigationManager
@@ -614,25 +614,6 @@
     </div>
 
 </aside>
-@code {
-    private bool isAuthenticated;
-    private string userName;
 
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        isAuthenticated = authState.User.Identity.IsAuthenticated;
 
-        if (isAuthenticated)
-        {
-            userName = authState.User.Identity.Name;
-        }
-    }
-
-    private async Task Logout()
-    {
-        await ((CustomAuthenticationStateProvider)AuthenticationStateProvider).LogoutAsync();
-        navigationManager.NavigateTo("/admin/login");
-    }
-}
-
+ *@

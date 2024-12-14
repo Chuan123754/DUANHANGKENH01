@@ -2,6 +2,10 @@
 @inject IOrderIServices orderService
 @inject IOrderTrackingService orderTrackingService
 @inject NavigationManager NavigationManager
+@inject IAddressServices addressService
+@inject IUserService userService
+@using ViewsFE.BackgroundServices
+@inject EmailNotification email
 @inject HttpClient HttpClient
 @inject IJSRuntime JS
 
@@ -249,16 +253,12 @@
                         <p><strong>Tên khách hàng:</strong>@Order.Users.Name</p>
                         <p><strong>Số điện thoại:</strong> @Order.Users.Phone</p>
 
-                        @if (OrderAddress != null && OrderAddress.Address != null)
+                        @if (Address != null)
                         {
-                            <p><strong>Tên Người nhận hàng:</strong>@OrderAddress.Address.Name</p>
-                            <p><strong>Địa chỉ nhận hàng :</strong>@OrderAddress.Address.Street  </p>
-                            <p><strong>Địa chỉ nhận hàng :</strong>  @OrderAddress.Address.Ward_commune  </p>
-                            <p><strong>Địa chỉ nhận hàng :</strong> @OrderAddress.Address.District </p>
-                            <p><strong>Địa chỉ nhận hàng :</strong>  @OrderAddress.Address.Province_city</p>
-                            <p><strong>Số điện thoại người nhận:</strong>@OrderAddress.Address.Phone</p>
+                            <p><strong>Tên Người nhận hàng:</strong>@Address.Name </p>
+                            <p><strong>Địa chỉ nhận hàng :</strong>  @Address.Street -  @Address.Ward_commune - @Address.District - @Address.Province_city </p>
+                            <p><strong>Số điện thoại người nhận:</strong>@Address.Phone</p>
                         }
-
                     }
                    else
                    {
@@ -351,7 +351,7 @@
     private OrderTrackingDTO? OrderTracking { get; set; }
     private Orders? Order { get; set; }
     private Orders? OrderAddress { get; set; }
-
+    private Address Address = new Address();
     private string currentStatus;
     private string previousStatus;
     private string restoreNote;
@@ -374,9 +374,11 @@
     {
         try
         {
+
             Order = await orderService.GetByIdOrders(OrderId);
             OrderTracking = await orderTrackingService.GetBy(OrderId);
             OrderAddress = await orderService.OrdersAddress(OrderId);
+            Address = await addressService.GetAddressById(Order.Address_Id ?? 0);
 
             if (OrderTracking != null && OrderTracking.OrderTrackings.Any())
             {
@@ -847,24 +849,24 @@
     }
 
     private string GetStatusClass(string status)
-{
-    return status switch
     {
-        "Chờ xác nhận" => "badge bg-warning",
-        "Đã xác nhận" => "badge bg-primary",
-        "Đã thanh toán" => "badge bg-primary",
-        "Đã chuẩn bị hàng" => "badge bg-info",
-        "Đã lấy hàng" => "badge bg-info",
-        "Đang vận chuyển" => "badge bg-info",
-        "Giao thành công" => "badge bg-success",
-        "Giao thất bại" => "badge bg-danger",
-        "Giao dịch thất bại" => "badge bg-danger",
-        "Hoàn tất đơn" => "badge bg-success",
-        "Đơn hủy" => "badge bg-dark",
-        "Tại quầy" => "badge bg-success",
-        _ => "badge bg-light"
-    };
-}
+        return status switch
+        {
+            "Chờ xác nhận" => "badge bg-warning",
+            "Đã xác nhận" => "badge bg-primary",
+            "Đã thanh toán" => "badge bg-primary",
+            "Đã chuẩn bị hàng" => "badge bg-info",
+            "Đã lấy hàng" => "badge bg-info",
+            "Đang vận chuyển" => "badge bg-info",
+            "Giao thành công" => "badge bg-success",
+            "Giao thất bại" => "badge bg-danger",
+            "Giao dịch thất bại" => "badge bg-danger",
+            "Hoàn tất đơn" => "badge bg-success",
+            "Đơn hủy" => "badge bg-dark",
+            "Tại quầy" => "badge bg-success",
+            _ => "badge bg-light"
+        };
+    }
 
 
     private string GetButtonClass(string status)
@@ -963,6 +965,35 @@
 
         var result = await orderTrackingService.AddOrderTracking(newTracking);
         await UpdateOrderStatus(newTracking.Status);
+
+
+        var order = await orderService.GetByIdOrders(OrderId);
+        var user = await userService.GetById(order.User_id ?? 0);
+
+        var emailUser = user.Email;
+
+        string emailSubject = "ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC CẬP NHẬT";
+        string emailMessage = $@"
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset='utf-8'>
+                    <title>{emailSubject}</title>
+                </head>
+                <body>
+                    <h2>Chào mừng bạn đến với HangKenh!</h2>
+                    <p>Xin chào {user.Name} đơn hàng {OrderId} vừa được cập nhật</p>
+                    <p>Thông tin đơn hàng của bạn</p>
+                    <ul>
+                        <li><strong>Trạng thái:</strong> {newStatus}</li>
+                    </ul>
+                    <p>Cảm ơn bạn đã chọn HangKenh!</p>
+                    <p>Trân trọng,<br />Đội ngũ HangKenh</p>
+                      <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy9z_jY_2Jlieg9lmeq_-TnRpWE2T4Kdw8JA&s' alt='HangKenh Logo' style='float: right;'; margin: auto; width: 100%; max-width: 300px;' />
+                </body>
+                </html>
+            ";
+        await email.SendEmailAsync(emailUser, emailSubject, emailMessage);
 
         if (result == "Thêm mới thành công.")
         {

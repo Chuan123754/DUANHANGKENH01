@@ -104,7 +104,7 @@ namespace appAPI.Controllers
 
             _context.Cart_Details.Remove(delete);
             _context.SaveChanges();
-            return Ok(new { message = "Xóa chi tiết giỏ hàng thành công" });
+            return Ok();
         }
     }
 }

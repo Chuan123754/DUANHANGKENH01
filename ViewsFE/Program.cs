@@ -109,6 +109,7 @@ builder.Services.AddScoped<ITextile_technologyServices, Textile_technologyServic
 builder.Services.AddScoped<IloginServices, LoginServices>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<AddressService>();
+builder.Services.AddScoped<EmailNotification>();
 builder.Services.AddScoped<IProductAttributeServices, ProductAttributeServices>();
 builder.Services.AddScoped<IProductVariantServices, ProductVariantServices>();
 builder.Services.AddScoped<OrderDetailsIServices, OrderDetailsServices>();
