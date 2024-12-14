@@ -74,7 +74,7 @@
                                             </td>
                                             <td>@ct.Email</td>
                                             <td>@ct.Phone</td>
-                                            <td>@ct.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")</td>
+                                            <td>@ct.CreatedAt?.ToString("dd/MM/yyyy HH:mm:ss")</td>
                                         </tr>
                                         stt++;
                                     }

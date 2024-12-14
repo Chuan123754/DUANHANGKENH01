@@ -78,7 +78,7 @@
 
             try
             {
-                ct = await sev.Update();
+                ct = await sev.Update(ct);
                 nav.NavigateTo("/admin/contact");
                 await JS.InvokeVoidAsync("toastr.success", "Gửi thông báo thành công");
             }
