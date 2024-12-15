@@ -50,7 +50,7 @@ namespace ViewsFE.Services
 
         public async Task<Products_Returned> CreateAsync(Products_Returned productReturned)
         {
-            var response = await _httpClient.PostAsJsonAsync("https://localhost:7011/api/ProductsReturned", productReturned);
+            var response = await _httpClient.PostAsJsonAsync($"https://localhost:7011/api/ProductsReturned/Post", productReturned);
 
             if (response.IsSuccessStatusCode)
             {
@@ -81,12 +81,43 @@ namespace ViewsFE.Services
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Lỗi: {response.StatusCode} - {errorContent}");
             }
+        }public async Task<bool> ProcessbackAsync(long id)
+        {
+            var response = await _httpClient.PutAsync($"https://localhost:7011/api/ProductsReturned/Processback/{id}", null);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Lỗi: {response.StatusCode} - {errorContent}");
+            }
         }
 
         public async Task<bool> ProcessReturnQuantityAsync(long orderDetailId, int returnQuantity)
         {
             var response = await _httpClient.PutAsJsonAsync(
                 $"https://localhost:7011/api/ProductsReturned/ProcessReturnQuantity",
+                new { OrderDetailId = orderDetailId, ReturnQuantity = returnQuantity }
+            );
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Lỗi: {response.StatusCode} - {errorContent}");
+            }
+        }
+
+        public async Task<bool> ProcessRefundQuantityAsync(long orderDetailId, int returnQuantity)
+        {
+            var response = await _httpClient.PutAsJsonAsync(
+                $"https://localhost:7011/api/ProductsReturned/ProcessRefundQuantity",
                 new { OrderDetailId = orderDetailId, ReturnQuantity = returnQuantity }
             );
 
@@ -108,6 +139,24 @@ namespace ViewsFE.Services
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<Products_Returned>();
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException($"Lỗi: {response.StatusCode} - {errorContent}");
+            }
+        }
+
+        public async Task<bool> UpdateReturnQuantityAsync(long id, int quantityToStock)
+        {
+            var response = await _httpClient.PutAsJsonAsync(
+                $"https://localhost:7011/api/ProductsReturned/UpdateReturnQuantity/{id}",
+                new { QuantityToStock = quantityToStock }
+            );
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
             }
             else
             {

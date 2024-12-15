@@ -10,6 +10,7 @@
 @inject ITextile_technologyServices Textile_technologyServices
 @inject IColorServices colorService
 @inject ISizeServices sizeService
+@inject IPostSer post
 @inject IJSRuntime JS
 @inject CustomAuthenticationStateProvider _authStateProvider;
 
@@ -33,21 +34,44 @@
         <div class="container-xl">
             <div class="card">
                 <div class="card-body">
-                    <!-- Search form -->
+                   <!-- Search form -->
                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
-                        <form onsubmit="@OnSearch">
+                        <div class="form-group d-flex gap-2">
                             <div class="form-group d-flex gap-2">
-                                <select id="search_filter" class="form-select" @bind="searchFilter">
-                                    <option value="product_name">Tên sản phẩm</option>
-                                    <option value="textile_technology">Công nghệ dệt</option>
-                                    <option value="material">Chất liệu</option>
-                                    <option value="style">Phong cách</option>
+                                <select class="form-select" @onchange="(e) => HandleProductNameChange(e)">
+                                    <option value="">Chọn sản phẩm</option>
+                                    @foreach (var item in product_posts_list)
+                                    {
+                                        <option value="@item.Id">@item.Title</option>
+                                    }
                                 </select>
-                                <input id="search_input" class="form-control" @bind="search_query" placeholder="Nhập từ khóa tìm kiếm" />
-                                <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                <select class="form-select" @onchange="(e) => HandleTextileChange(e)">
+                                    <option value="">Chọn Công nghệ dệt</option>
+                                    @foreach (var tech in TextileTechnology_list)
+                                    {
+                                        <option value="@tech.Id">@tech.Title</option>
+                                    }
+                                </select>
+
+                                <select class="form-select" @onchange="(e) => HandleMaterialChange(e)">
+                                    <option value="">Chọn Chất liệu</option>
+                                    @foreach (var material in Material_list)
+                                    {
+                                        <option value="@material.Id">@material.Title</option>
+                                    }
+                                </select>
+
+                                <select class="form-select" @onchange="(e) => HandleStyleChange(e)">
+                                    <option value="">Chọn Phong cách</option>
+                                    @foreach (var style in Style_list)
+                                    {
+                                        <option value="@style.Id">@style.Title</option>
+                                    }
+                                </select>
                             </div>
-                        </form>
+                        </div>
                     </div>
+
 
 
 
@@ -405,6 +429,8 @@
     private Dictionary<long, bool> colorSelections = new();
     private Dictionary<long, bool> sizeSelections = new();
     private Media_modal mediaModalRef;
+    private List<Product_Posts> product_posts_list = new List<Product_Posts>();
+    private Product_variants product_Variant = new Product_variants();
 
     private long selectedPostId;
     private bool showAttributes = false;
@@ -417,7 +443,40 @@
     private int page_size = 10;
     private int totalItems;
     private bool isAuthenticated;
- private string searchFilter = "product_name";
+     private string searchFilter = "product_name";
+
+    private string selectedTextileTechnologyId = string.Empty;
+    private string selectedMaterialId = string.Empty;
+    private string selectedStyleId = string.Empty;
+    private string selectedProductId = string.Empty;
+
+    private async Task HandleProductNameChange(ChangeEventArgs e)
+    {
+        selectedProductId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+
+    private async Task HandleTextileChange(ChangeEventArgs e)
+    {
+        selectedTextileTechnologyId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+
+    private async Task HandleMaterialChange(ChangeEventArgs e)
+    {
+        selectedMaterialId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+
+    private async Task HandleStyleChange(ChangeEventArgs e)
+    {
+        selectedStyleId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+
+    
+
+
     protected override async Task OnInitializedAsync()
     {
 
@@ -427,7 +486,75 @@
         Material_list = await MaterialService.GetAll();
         TextileTechnology_list = await Textile_technologyServices.GetAll();
         Style_list = await StyleServices.GetAll();
+        product_posts_list = await post.GetByTypeAsync("product", page_number, page_size, search_query);
+
+        selectedTextileTechnologyId = string.Empty;
+        selectedMaterialId = string.Empty;
+        selectedStyleId = string.Empty;
     }
+
+    private async Task OnProductChange(ChangeEventArgs e)
+    {
+        var selectedProductIdString = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedProductIdString) &&
+       long.TryParse(selectedProductIdString, out var selectedProductId))
+        {
+            var selectedProduct = product_posts_list.FirstOrDefault(p => p.Id == selectedProductId);
+
+            if (selectedProduct != null)
+            {
+                product_Variant.Post_Id = selectedProduct.Id;
+                product_Variant.Posts = selectedProduct;
+                product_Variant.Posts.Feature_image = selectedProduct.Feature_image;
+            }
+        }
+        StateHasChanged();
+    }
+
+    private async Task ApplyFilters()
+    {
+        // Lọc sản phẩm theo các điều kiện đã chọn
+        var filteredProducts = await productVariansService.GetAllProductVarians();
+
+        if (!string.IsNullOrEmpty(selectedProductId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Posts.Title != null &&
+                post.Posts.Title.Contains(selectedProductId, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
+        // Lọc theo Công nghệ dệt
+        if (!string.IsNullOrEmpty(selectedTextileTechnologyId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Textile_technology_id == long.Parse(selectedTextileTechnologyId)).ToList();
+        }
+
+        // Lọc theo Chất liệu
+        if (!string.IsNullOrEmpty(selectedMaterialId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Material_id == long.Parse(selectedMaterialId)).ToList();
+        }
+
+        // Lọc theo Phong cách
+        if (!string.IsNullOrEmpty(selectedStyleId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Style_id == long.Parse(selectedStyleId)).ToList();
+        }
+
+        product_Varians_list = filteredProducts;
+        StateHasChanged();
+    }
+
+    private async Task OnSearch()
+    {
+        await ApplyFilters();
+    }
+
+
     private async Task HandleImageSelected(string imagePath)
     {
         selectedAttribute.Image = imagePath ?? string.Empty;
@@ -649,37 +776,7 @@
         StateHasChanged();
     }
 
-    private async Task OnSearch()
-    {
-        product_Varians_list = await productVariansService.GetAllProductVarians();
-
-        if (string.IsNullOrWhiteSpace(search_query))
-        {
-            return;
-        }
-
-        product_Varians_list = product_Varians_list.Where(post =>
-        {
-            switch (searchFilter)
-            {
-                case "product_name":
-                    return post.Posts.Title.Contains(search_query, StringComparison.OrdinalIgnoreCase);
-                case "textile_technology":
-                    return TextileTechnology_list.Any(t => t.Id == post.Textile_technology_id &&
-                                                            t.Title.Contains(search_query, StringComparison.OrdinalIgnoreCase));
-                case "material":
-                    return Material_list.Any(m => m.Id == post.Material_id &&
-                                                  m.Title.Contains(search_query, StringComparison.OrdinalIgnoreCase));
-                case "style":
-                    return Style_list.Any(s => s.Id == post.Style_id &&
-                                               s.Title.Contains(search_query, StringComparison.OrdinalIgnoreCase));
-                default:
-                    return false;
-            }
-        }).ToList();
-        StateHasChanged();
-    }
-
+    
 
     private async Task NavEditCtgr(long id)
     {
