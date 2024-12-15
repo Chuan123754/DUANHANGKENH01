@@ -116,9 +116,9 @@ namespace appAPI.Controllers
                         {
                             order.Status = "Chờ xác nhận";
                         }    
-                        else
+                        else if(order.CreatedByAdminId != null && order.Note=="Tại quầy")
                         {
-                            order.Status = "Đã xác nhận";
+                            order.Status = "Đã thanh toán";
 
                         }
                     }

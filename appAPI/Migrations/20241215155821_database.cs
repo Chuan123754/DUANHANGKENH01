@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace appAPI.Migrations
 {
-    public partial class duccjhua : Migration
+    public partial class database : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -138,6 +138,8 @@ namespace appAPI.Migrations
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Message = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Replies = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Deleted = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -400,9 +402,9 @@ namespace appAPI.Migrations
                     Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     Phone = table.Column<string>(type: "varchar(20)", unicode: false, maxLength: 20, nullable: true),
                     Email = table.Column<string>(type: "varchar(255)", unicode: false, maxLength: 255, nullable: true),
-                    OTPCheck = table.Column<bool>(type: "bit", maxLength: 255, nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Password = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     RememberToken = table.Column<string>(type: "nvarchar(max)", maxLength: 2147483647, nullable: true),
+                    OTPCheck = table.Column<bool>(type: "bit", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true)
@@ -1031,7 +1033,7 @@ namespace appAPI.Migrations
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Created_by = table.Column<long>(type: "bigint", nullable: false),
+                    Created_by = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true)
                 },
                 constraints: table =>
@@ -1185,9 +1187,9 @@ namespace appAPI.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "ADMIN_ROLE_ID", "cedd4fb5-7d05-4c84-a9cc-8261ebdeab5e", "Admin", "ADMIN" },
-                    { "DESIGNER_ROLE_ID", "3abacdba-dffb-4447-84cd-b6ff448c2e17", "Designer", "DESIGNER" },
-                    { "EMPLOYEE_ROLE_ID", "d8135c58-3ab7-41fa-a51c-90e8117eb1cf", "Employee", "EMPLOYEE" }
+                    { "ADMIN_ROLE_ID", "d4959e27-cadf-44c2-9e2f-39b992e90a91", "Admin", "ADMIN" },
+                    { "DESIGNER_ROLE_ID", "aba459b4-9e27-4edc-bb1b-28b082f61939", "Designer", "DESIGNER" },
+                    { "EMPLOYEE_ROLE_ID", "f7ec8213-ae9f-4a6a-a3a8-7a681cb02aaf", "Employee", "EMPLOYEE" }
                 });
 
             migrationBuilder.InsertData(

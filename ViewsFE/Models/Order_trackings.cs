@@ -18,7 +18,7 @@ namespace ViewsFE.Models
         public string? Note { get; set; }
         public DateTime? Created_at { get; set; }
         public DateTime? Updated_at { get; set;}
-        public long Created_by { get; set; }
+        public string? Created_by { get; set; }
         [StringLength(100)]
         public string? Status { get; set; }
 

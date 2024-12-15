@@ -14,7 +14,10 @@
 @inject IJSRuntime JS
 @inject CustomAuthenticationStateProvider _authStateProvider;
 
-<div class="page-wrapper">
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+ <div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
         <div class="container-xl">
@@ -391,6 +394,12 @@
     </div>
 </div>
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
+    </Authorized>
+    <NotAuthorized>
+        <p>Không thể truy cập, bạn không có quyền.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
 @code {
     private List<Product_variants> product_Varians_list = new List<Product_variants>();
     private List<Size> Size_list = new List<Size>();

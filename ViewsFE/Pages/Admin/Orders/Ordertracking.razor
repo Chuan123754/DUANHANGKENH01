@@ -3,6 +3,7 @@
 @inject IOrderTrackingService orderTrackingService
 @inject NavigationManager NavigationManager
 @inject IAddressServices addressService
+@inject IAccountService accountService
 @inject IUserService userService
 @using ViewsFE.BackgroundServices
 @inject EmailNotification email
@@ -145,8 +146,19 @@
                                 <td>@OrderTracking.Note</td>
                                 <td>@OrderTracking.TypePayment</td>
                                 <td><span class="@GetStatusClass(tracking.Status)">@tracking.Status</span></td>
-                                <td>@tracking.Note</td>
-                                <td>@OrderTracking.SellerName</td>
+                                <td>@tracking.Note</td>                                
+                                <td>
+                                    @if (@tracking.CreateBy != null)
+                                    {
+                                        @tracking.CreateBy
+                                    }
+                                    else
+                                    {
+                                        <span> Hệ thống</span>
+                                    }
+                          
+                                </td>
+
                             </tr>
                         }
                     </tbody>
@@ -355,6 +367,7 @@
     private Orders? Order { get; set; }
     private Orders? OrderAddress { get; set; }
     private Address Address = new Address();
+    private Account Admin = new Account();
     private string currentStatus;
     private string previousStatus;
     private string restoreNote;
@@ -387,13 +400,11 @@
             {
                 adminId = currentUserId;
             }
-
-
-
             Order = await orderService.GetByIdOrders(OrderId);
             OrderTracking = await orderTrackingService.GetBy(OrderId);
             OrderAddress = await orderService.OrdersAddress(OrderId);
             Address = await addressService.GetAddressById(Order.Address_Id ?? 0);
+
 
             if (OrderTracking != null && OrderTracking.OrderTrackings.Any())
             {
@@ -401,7 +412,7 @@
                 var latestTracking = OrderTracking.OrderTrackings
                     .OrderByDescending(t => t.CreatedAt)
                     .FirstOrDefault();
-
+                Admin = await accountService.GetAccountById(adminId);
                 OrderTracking.Status = latestTracking?.Status;
                 selectedTrackingId = latestTracking?.Id ?? 0; // Lấy ID của bản ghi mới nhất
             }
@@ -474,7 +485,7 @@
                 Status = status,
                 Note = note,
                 Created_at = DateTime.Now,
-                Created_by = long.Parse(adminId)
+                Created_by = adminId
             };
 
             var result = await orderTrackingService.AddOrderTracking(newTracking);
@@ -540,7 +551,7 @@
                 Status = "Hoàn Thành đơn",
                 Note = "Khách đã thanh toán trước.",
                 Created_at = DateTime.Now,
-                    Created_by = long.Parse(adminId)
+                    Created_by = adminId
             };
 
             var result = await orderTrackingService.AddOrderTracking(newTracking);
@@ -577,7 +588,7 @@
                 Status = status,
                 Note = note,
                 Updated_at = DateTime.Now,
-                Created_by = long.Parse(adminId)
+                    Created_by = adminId
             };
 
             var resultTracking = await orderTrackingService.AddOrderTracking(updatedTracking);
@@ -704,7 +715,7 @@
                     Status = status,
                     Note = note,
                     Created_at = DateTime.Now,
-                    Created_by = 1
+                    Created_by = adminId
                 };
 
             var result = await orderTrackingService.AddOrderTracking(newTracking);
@@ -987,7 +998,7 @@
                 Status = newStatus,
                 Note = note,
                 Created_at = DateTime.Now,
-                Created_by = long.Parse(adminId)
+                Created_by = adminId
             };
 
         var result = await orderTrackingService.AddOrderTracking(newTracking);

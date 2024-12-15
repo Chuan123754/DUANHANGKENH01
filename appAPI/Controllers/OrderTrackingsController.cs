@@ -1,8 +1,10 @@
 ﻿using appAPI.DTO;
+using appAPI.IRepository;
 using appAPI.Models;
 using appAPI.Repository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace appAPI.Controllers
 {
@@ -10,6 +12,7 @@ namespace appAPI.Controllers
     [Route("api/[controller]")]
     public class OrderTrackingsController : ControllerBase
     {
+        private readonly IAccountRepo _accountRepo;
         private readonly IRepository<Orders> _ordersRepository;
         private readonly IRepository<Order_details> _orderDetailsRepository;
         private readonly IRepository<order_trackings> _orderTrackingsRepository;
@@ -17,15 +20,19 @@ namespace appAPI.Controllers
         public OrderTrackingsController(
             IRepository<Orders> ordersRepository,
             IRepository<Order_details> orderDetailsRepository,
-            IRepository<order_trackings> orderTrackingsRepository)
+            IRepository<order_trackings> orderTrackingsRepository,
+            IAccountRepo accountRepo)
+            
+            
         {
+            _accountRepo = accountRepo;
             _ordersRepository = ordersRepository;
             _orderDetailsRepository = orderDetailsRepository;
             _orderTrackingsRepository = orderTrackingsRepository;
         }
 
         [HttpGet("GetOrderTracking")]
-        public IActionResult GetOrderTracking(long orderId)
+        public async Task<IActionResult> GetOrderTracking(long orderId)
         {
             // Lấy thông tin đơn hàng
             var order = _ordersRepository.Find(o => o.Id == orderId,
@@ -48,10 +55,22 @@ namespace appAPI.Controllers
 
             // Lấy thông tin lịch sử trạng thái từ bảng OrderTrackings
             var orderTrackings = _orderTrackingsRepository.Find(ot => ot.OrderId == orderId).ToList();
+            foreach (var tracking in orderTrackings)
+            {
+                if (tracking.Created_by != null)
+                {
+                    var admin = await _accountRepo.GetAccountById(tracking.Created_by);
+                    tracking.Created_by = admin != null ? admin.FirstName + " " + admin.LastName : "";
+                }
+                else
+                {
+                    tracking.Created_by = ""; // Nếu không có người tạo
+                }
+            }
 
             var dto = new OrderTrackingDTO
             {
-                SellerName = order.CreatedByAdminId,
+                SellerName = orderTrackings.FirstOrDefault()?.Created_by ?? "",
                 BuyerName = order.Users?.Name,
                 Address = order.Users?.Address,
                 Note = order.Note,
@@ -61,7 +80,9 @@ namespace appAPI.Controllers
                     Status = ot.Status,
                     Note = ot.Note,
                     TotalMoney = order.Totalmoney ?? 0,
-                    CreatedAt = ot.Created_at ?? DateTime.MinValue
+                    CreatedAt = ot.Created_at ?? DateTime.MinValue,
+                    CreateBy = ot.Created_by
+
                 }).ToList(),
                 Products = orderDetails.Select(d => new ProductItem
                 {

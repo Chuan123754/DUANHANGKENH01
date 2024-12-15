@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241212182837_db")]
-    partial class db
+    [Migration("20241215155821_database")]
+    partial class database
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -502,6 +502,9 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
@@ -515,6 +518,9 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Replies")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -843,8 +849,8 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Created_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("Created_by")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Created_by")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
@@ -1160,7 +1166,6 @@ namespace appAPI.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("STT")
-                        .HasMaxLength(255)
                         .HasColumnType("int");
 
                     b.Property<string>("Short_description")
@@ -1176,7 +1181,8 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("Title")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Type")
                         .HasMaxLength(255)
@@ -1552,11 +1558,11 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("OTPCheck")
-                        .HasMaxLength(255)
                         .HasColumnType("bit");
 
                     b.Property<string>("Password")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
@@ -1718,21 +1724,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "ea0891b6-99e4-4ada-8075-ba9c4a371a39",
+                            ConcurrencyStamp = "d4959e27-cadf-44c2-9e2f-39b992e90a91",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "70f853b0-6f91-45cb-a553-31e6a06729c5",
+                            ConcurrencyStamp = "f7ec8213-ae9f-4a6a-a3a8-7a681cb02aaf",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "1b27a8ec-1588-461b-9d67-669947861d61",
+                            ConcurrencyStamp = "aba459b4-9e27-4edc-bb1b-28b082f61939",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });

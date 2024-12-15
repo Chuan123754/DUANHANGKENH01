@@ -39,7 +39,8 @@ namespace ViewsFE.Services
                     Id = t.Id,
                     Status = t.Status,
                     Note = t.Note,
-                    CreatedAt = t.CreatedAt
+                    CreatedAt = t.CreatedAt,
+                    CreateBy = t.CreateBy
                 }).ToList(),
                 Products = tracking.Products.Select(p => new ProductItem
                 {
