@@ -35,6 +35,12 @@ namespace ViewsFE.Services
             return await _httpClient.GetFromJsonAsync<List<Designer>>(requestURL);
         }
 
+        public async Task<List<Designer>> GetAllAC()
+        {
+            string requestURL = $"{_baseUrl}/api/Designer/GetAllAC";
+            return await _httpClient.GetFromJsonAsync<List<Designer>>(requestURL);
+        }
+
         public async Task<Designer> GetById(long id)
         {
                 return await _httpClient.GetFromJsonAsync<Designer>($"{_baseUrl}/api/Designer/{id}");

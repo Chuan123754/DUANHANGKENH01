@@ -16,6 +16,7 @@ namespace ViewsFE.Models
         [Key]
         public long Id { get; set; }
         [StringLength(255)]
+        [Required(ErrorMessage = "Tên tags là bắt buộc.")]
         public string? Title { get; set; }
         [StringLength(255)]
         public string? Slug { get; set; }

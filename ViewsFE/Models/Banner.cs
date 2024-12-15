@@ -14,12 +14,14 @@ namespace ViewsFE.Models
         [Key]
         public long Id { get; set; }
         [StringLength(255)]
-        public string? Name { get; set; }
+        [Required(ErrorMessage = "Tiêu đề là bắt buộc.")]
+        public string Name { get; set; }
         [StringLength(20)]
         public string? Type { get; set; }
         [StringLength(20)]
         public string? Status { get; set; }
-        public string? Meta_data { get; set; }
+        [Required(ErrorMessage = "Ảnh banner là bắt buộc.")]
+        public string Meta_data { get; set; }
         public long? Created_by { get; set; }
         public long? Updated_by { get; set; }
         public DateTime? Created_at { get; set; }

@@ -5,6 +5,7 @@ namespace ViewsFE.IServices
     public interface IDesignerServices
     {
         Task<List<Designer>> GetAll();
+        Task<List<Designer>> GetAllAC();
         Task<Designer> GetById(long id);
         Task<long> Create(Designer at);
         Task<long> Update(Designer at);

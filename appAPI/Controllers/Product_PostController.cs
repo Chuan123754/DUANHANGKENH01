@@ -4,6 +4,7 @@ using appAPI.Models.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 
@@ -15,10 +16,12 @@ namespace appAPI.Controllers
     {
         private readonly IPostReponsetory _postRepository;
         private readonly IBannerRepository _bannerRepository;
-        public Product_PostController(IPostReponsetory postRepository, IBannerRepository bannerRepository)
+        APP_DATA_DATN _context;
+        public Product_PostController(APP_DATA_DATN context,IPostReponsetory postRepository, IBannerRepository bannerRepository)
         {
             _postRepository = postRepository;
             _bannerRepository = bannerRepository;
+            _context = context;
         }
         [HttpGet("Get-All")]
         public async Task<List<Product_Posts>> GetAll()
@@ -72,6 +75,18 @@ namespace appAPI.Controllers
             var post = await _postRepository.GetByIdAndType(id, type);
             return Ok(post);
         }
+        [HttpGet("checkslug")]
+        public async Task<IActionResult> CheckSlug(string slug)
+        {
+            if (string.IsNullOrWhiteSpace(slug))
+            {
+                return BadRequest("Slug không được để trống.");
+            }
+
+            bool exists = await _context.Posts.Where(p => p.Deleted == false).AnyAsync(x => x.Slug == slug);
+            return Ok(!exists); 
+        }
+
 
         [HttpGet("GetBySlugAndTypePage")]
         public async Task<IActionResult> GetBySlugAndTypePage(string slug, string type)

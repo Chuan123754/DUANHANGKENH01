@@ -31,12 +31,13 @@
                                 <div class="mb-3">
                                     <label for="title" class="form-label">Tên trang<span class="text-danger">*</span></label>
                                     <InputText id="title" class="form-control" @bind-Value="Posts.Title" placeholder="Tên trang" @oninput="GenerateSlug" />
-                                    <div id="title_error" class="validate-error"></div>
+                                    <ValidationMessage For="@(() => Posts.Title)" />
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="seoSlug" class="form-label">Đường dẫn<span class="text-danger">*</span></label>
                                     <InputText id="seoSlug" class="form-control" @bind-Value="Posts.Slug" />
+                                    <ValidationMessage For="@(() => Posts.Slug)" />
                                 </div>
 
                                 <div class="mb-3">
@@ -56,18 +57,17 @@
                                 <h2 class="accordion-header">
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                             data-bs-target="#banner_block" aria-expanded="true">
-                                        Cấu hình banner<span class="text-danger">*</span>
+                                        Cấu hình banner
                                     </button>
                                 </h2>
                                 <div id="banner_block" class="accordion-collapse collapse show">
                                     <div class="card-body pb-4 px-4" style="height: 300px">
                                         <div class="mb-3">
-                                            <label for="title" class="form-label">Tiêu đề<span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control" @bind-value="banner.Name"
-                                                   placeholder="Tiêu đề">
+                                            <label for="title" class="form-label">Tiêu đề</label>
+                                            <InputText id="title" class="form-control" @bind-Value="banner.Name" placeholder="Tiêu đề" />
+                                            <ValidationMessage For="@(() => banner.Name)" />
                                         </div>
                                         <div>
-
                                             <div id="banner_image"
                                                  class="image-post-box d-flex align-items-center justify-content-center open-media-modal"
                                                  data-multiple="false"
@@ -88,8 +88,10 @@
                                                         </svg>
                                                     </div>
                                                 }
+                                                <ValidationMessage For="@(() => banner.Meta_data)" />
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -360,6 +362,19 @@
         }
         return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
+    private async Task<bool> IsSlugUnique(string slug)
+    {
+        try
+        {
+            return await sev.CheckSlug(slug); // Gọi API kiểm tra Slug
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error checking slug: {ex.Message}");
+            return false;
+        }
+    }
+
     private async void HandleValidSubmit()
     {
         Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
@@ -371,6 +386,13 @@
                 .Where(id => id > 0)
                 .ToList();
         }
+        bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty);
+        if (!isSlugUnique)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
+            return;
+        }
+
         try
         {
             postId = await sev.CreatePage(Posts, SelectedTags);

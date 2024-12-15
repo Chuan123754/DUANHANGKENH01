@@ -13,7 +13,9 @@ namespace ViewsFE.Models
         [Key]
         public long Id { get; set; }
         [StringLength(255)]
+        [Required(ErrorMessage = "Câu hỏi là bắt buộc.")]
         public string? Question { get; set; }
+        [Required(ErrorMessage = "Đáp án là bắt buộc.")]
 
         public string? Answer { get; set; }
 
