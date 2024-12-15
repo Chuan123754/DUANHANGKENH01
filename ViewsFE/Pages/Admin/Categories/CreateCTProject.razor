@@ -42,26 +42,7 @@
                                     <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
                                 </div>
 
-                                <div class="form-group mb-3">
-                                    <label for="categories_parent_id" class="form-label">Chuyên mục cha</label>
-                                    <InputSelect id="categories_parent_id" class="form-control" @bind-Value="categories.Parent_id">
-                                        <option value="0">Không có chuyên mục cha</option> <!-- Thêm lựa chọn không có chuyên mục cha -->
-                                        @if (categoriesList != null && categoriesList.Any())
-                                        {
-                                            @foreach (var attr in categoriesList)
-                                            {
-                                                <option value="@attr.Id">@attr.Title</option>
-                                            }
-                                        }
-                                    </InputSelect>
-                                    <small class="text-gray-100">
-                                        Chuyên mục khác với thẻ, bạn có thể sử dụng nhiều
-                                        cấp
-                                        chuyên mục. Ví dụ: Trong chuyên mục nhạc, bạn có chuyên mục con là nhạc Pop,
-                                        nhạc
-                                        Jazz. Việc này hoàn toàn là tùy theo ý bạn.
-                                    </small>
-                                </div>
+                            
                                 <div class="form-group mb-3">
                                     <label for="categories-description" class="form-label">Mô tả</label>
                                     <InputTextArea id="categories-description" class="form-control" @bind-Value="categories.Description" rows="3" />
@@ -70,7 +51,7 @@
 
                                 <div class="form-group">
                                     <button type="submit" class="btn btn-primary" style="float: right">
-                                        Đăng
+                                        Tạo chuyên mục
                                     </button>
                                 </div>
                             </div>                  

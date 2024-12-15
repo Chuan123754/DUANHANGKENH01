@@ -72,6 +72,13 @@ namespace appAPI.Controllers
             var post = await _postRepository.GetByIdAndType(id, type);
             return Ok(post);
         }
+
+        [HttpGet("GetBySlugAndTypePage")]
+        public async Task<IActionResult> GetBySlugAndTypePage(string slug, string type)
+        {
+            var post = await _postRepository.GetBySlugAndType(slug, type);
+            return Ok(post);
+        }
         [HttpPost("Create-product")]
         public async Task<IActionResult> CreateProduct([FromBody] Product_Posts post, [FromQuery] List<long> tagIds, [FromQuery] List<long> cate)
         {

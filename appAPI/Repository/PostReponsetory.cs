@@ -4,6 +4,7 @@ using appAPI.Models.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace appAPI.Repository
 {
@@ -846,6 +847,16 @@ namespace appAPI.Repository
             (idDesigner == null || !idDesigner.Any() || idDesigner.Contains(p.AuthorId)) &&
             (idCategory == null || !idCategory.Any() || p.Post_categories.Any(pc => idCategory.Contains(pc.Category_Id))) &&
                      (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
+        }
+
+        public async Task<Product_Posts> GetBySlugAndType(string slug, string type)
+        {
+            return await _context.Posts
+               .Where(p => p.Slug == slug && p.Type == type && p.Deleted == false)
+               .Include(p => p.Post_tags).ThenInclude(pt => pt.Tag)
+               .Include(p => p.Post_categories).ThenInclude(pc => pc.Categories)
+               .OrderByDescending(p => p.Id)
+               .FirstOrDefaultAsync();
         }
     }
 }

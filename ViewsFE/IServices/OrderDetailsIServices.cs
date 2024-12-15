@@ -1,4 +1,6 @@
 ﻿using ViewsFE.Models;
+using static appAPI.Repository.OrderDetailsReponsitory;
+using static ViewsFE.Services.OrderDetailsServices;
 
 namespace ViewsFE.IServices
 {
@@ -13,5 +15,6 @@ namespace ViewsFE.IServices
         Task Delete(long id);
         Task<List<Order_details>> GetByTypeAsync(int pageNumber, int pageSize);
         Task<int> GetTotalCountAsync();
+        Task<List<TopSellingProductDtoSV>> GetTop5SellingProductsAsync();
     }
 }

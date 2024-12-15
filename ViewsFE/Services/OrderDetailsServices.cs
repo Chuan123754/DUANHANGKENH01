@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using appAPI.Repository;
+using Newtonsoft.Json;
 using System.Net;
 using ViewsFE.IServices;
 using ViewsFE.Models;
@@ -66,6 +67,31 @@ namespace ViewsFE.Services
             return JsonConvert.DeserializeObject<List<Order_details>>(response);
         }
 
+        public async Task<List<TopSellingProductDtoSV>> GetTop5SellingProductsAsync()
+        {          
+            string requestURL = $"{_baseUrl}/api/OrderDetails/TopSelling";
+            try
+            {
+                var response = await _client.GetStringAsync(requestURL);
+                if (string.IsNullOrEmpty(response))
+                {
+                    return new List<TopSellingProductDtoSV>();
+                }
+                var topSellingProducts = JsonConvert.DeserializeObject<List<TopSellingProductDtoSV>>(response);
+                return topSellingProducts;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error fetching top selling products: {ex.Message}");
+                return new List<TopSellingProductDtoSV>();
+            }
+        }
+
+        public class TopSellingProductDtoSV
+        {
+            public string ProductName { get; set; } 
+            public int TotalQuantitySold { get; set; }
+        }
         public async Task<int> GetTotalCountAsync()
         {
             var url = $"{_baseUrl}/api/OrderDetails/Get-Total-Count";

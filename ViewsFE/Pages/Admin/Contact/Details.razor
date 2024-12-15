@@ -17,37 +17,46 @@
     </div>
     <div class="page-body">
         <div class="container-xl">
-            <div class="row">
-                <div class="col-md-12 col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <!-- Hiển thị tiêu đề -->
-                            <div class="form-group mb-3">
-                                <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
-                                <div class="form-control-plaintext">@ct.FullName</div>
-                            </div>
+            <EditForm Model="ct" OnValidSubmit="SubmitForm" enctype="multipart/form-data">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
 
-                            <!-- Hiển thị đường dẫn -->
-                            <div class="form-group mb-3">
-                                <label class="form-label">Email</label>
-                                <div class="form-control-plaintext">@ct.Email</div>
-                            </div>
+                <div class="row">
+                    <div class="col-md-12 col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <!-- Hiển thị tiêu đề -->
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                    <div class="form-control-plaintext">@ct.FullName</div>
+                                </div>
 
-                            <!-- Hiển thị mô tả số điện thoại -->
-                            <div class="form-group mb-3">
-                                <label class="form-label">Số điện thoại</label>
-                                <div class="form-control-plaintext">@ct.Phone</div>
-                            </div>
+                                <!-- Hiển thị đường dẫn -->
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Email</label>
+                                    <div class="form-control-plaintext">@ct.Email</div>
+                                </div>
 
-                            <!-- Hiển thị mô tả tin nhắn -->
-                            <div class="form-group mb-3">
-                                <label class="form-label">Tin nhắn</label>
-                                <div class="form-control-plaintext">@ct.Message</div>
+                                <!-- Hiển thị mô tả số điện thoại -->
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Số điện thoại</label>
+                                    <div class="form-control-plaintext">@ct.Phone</div>
+                                </div>
+
+                                <!-- Hiển thị mô tả tin nhắn -->
+                                <div class="form-group mb-3">
+                                    <label class="form-label">Tin nhắn</label>
+                                    <div class="form-control-plaintext">@ct.Message</div>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="Pinterest" class="form-label">Pinterest</label>
+                                    <InputText @bind-Value="ct.Replies" class="form-control"  placeholder="Nhập nội dung" />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </EditForm>
+
         </div>
     </div>
 </div>
@@ -60,5 +69,26 @@
     protected async override Task OnInitializedAsync()
     {
         ct = await sev.GetById(Id);
+    }
+    private async Task SubmitForm()
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận cập nhật thông tin nhà thiết kế ?");
+        if (confirmed)
+        {
+
+            try
+            {
+                 await sev.Update(ct);
+                
+                await JS.InvokeVoidAsync("toastr.success", "Gửi thông báo thành công");
+                nav.NavigateTo("/admin/contact");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                await JS.InvokeVoidAsync("toastr.error", "Không thể phản hồi thông tin liên hệ.");
+            }
+        }
+
     }
 }

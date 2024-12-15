@@ -1,4 +1,5 @@
 ﻿using appAPI.Models;
+using static appAPI.Repository.OrderDetailsReponsitory;
 
 namespace appAPI.IRepository
 {
@@ -13,5 +14,6 @@ namespace appAPI.IRepository
         Task Delete(long id);
         Task<List<Order_details>> GetByTypeAsync(int pageNumber, int pageSize);
         Task<int> GetTotalCountAsync();
+        Task<List<TopSellingProductDto>> GetTop5SellingProductsAsync();
     }
 }

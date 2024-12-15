@@ -80,7 +80,7 @@ namespace ViewsFE.BackgroundServices
                     await Task.WhenAll(tasks).ConfigureAwait(false);
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken); // kiểm tra mỗi 100 giây
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken); // kiểm tra mỗi 100 giây
             }
         }
 

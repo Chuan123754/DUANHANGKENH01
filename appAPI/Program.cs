@@ -29,6 +29,7 @@ builder.Services.AddAuthentication("CookieAuth")
         options.LogoutPath = "/admin/Loginclient"; // Đường dẫn đến trang đăng xuất
     });
 
+builder.Services.AddHttpClient();
 
 // Add services to the container.
 // Đăng ký DbContext và cấu hình chuỗi kết nối từ appsettings.json
@@ -182,8 +183,8 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
-    //FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
+   // FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
+    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
     //FileProvider = new PhysicalFileProvider(@"I:\VIs Stu fille\DATN\DATN-Blazon\appAPI\FileMedia"),
 
     RequestPath = "/FileMedia"

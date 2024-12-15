@@ -3,103 +3,129 @@
 @inject NavigationManager Navigation
 @inject AddressService address_Service
 
-<h3>Chi tiết Người dùng</h3>
+<h3 class="text-center">Chi tiết Người dùng</h3>
 
 @if (user == null)
 {
-    <p>Đang tải thông tin người dùng...</p>
+    <p class="text-center">Đang tải thông tin người dùng...</p>
 }
 else
 {
-    <EditForm Model="@user" OnValidSubmit="HandleSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+    <div class="container mt-5 d-flex justify-content-center">
+        <div class="card shadow-lg" style="width: 50%; border-radius: 10px;">
+            <div class="card-body">
+                <EditForm Model="@user" OnValidSubmit="HandleSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
 
-        <div class="form-group">
-            <label for="Name">Tên</label>
-            <InputText id="Name" class="form-control" @bind-Value="user.Name" Disabled="@user.OTPCheck" />
-        </div>
+                    <div class="form-group mb-3">
+                        <label for="Name">Tên</label>
+                        <InputText id="Name" class="form-control" @bind-Value="user.Name" Disabled="@user.OTPCheck" />
+                    </div>
 
-        <div class="form-group">
-            <label for="Phone">Số điện thoại</label>
-            <InputText id="Phone" class="form-control" @bind-Value="user.Phone" Disabled="@(user.OTPCheck || otpSent)" />
-            @if (!user.OTPCheck)
-            {
-                <button type="button" class="btn btn-secondary mt-2" @onclick="SendOtp" Disabled="@otpSent">
-                    Gửi OTP
-                </button>
-            }
-            @if (otpSent)
-            {
-                <div class="form-group mt-2">
-                    <label for="OTP">Nhập OTP</label>
-                    <InputText id="OTP" class="form-control" @bind-Value="otpInput" />
-                    <button type="button" class="btn btn-success mt-2" @onclick="VerifyOtp">
-                        Xác nhận OTP
-                    </button>
-                </div>
-            }
-        </div>
+                    <div class="form-group mb-3">
+                        <label for="Phone">Số điện thoại</label>
+                        <InputText id="Phone" class="form-control" @bind-Value="user.Phone" Disabled="@(user.OTPCheck || otpSent)" />
+                        @if (!user.OTPCheck)
+                        {
+                            <button type="button" class="btn btn-secondary mt-2" @onclick="SendOtp" Disabled="@otpSent">
+                                Gửi OTP
+                            </button>
+                        }
 
-        @if (otpError != null)
-        {
-            <p class="text-danger">@otpError</p>
-        }
+                        @if (!user.OTPCheck)
+                        {
+                            <div class="form-group mt-2">
+                                <label for="OTP">Nhập OTP</label>
+                                <InputText id="OTP" class="form-control" @bind-Value="otpInput" />
+                                <button type="button" class="btn btn-success mt-2" @onclick="VerifyOtp">
+                                    Xác nhận OTP
+                                </button>
+                            </div>
+                        }
+                    </div>
 
+                    @if (otpError != null)
+                    {
+                        <p class="text-danger">@otpError</p>
+                    }
 
-        <div class="form-group">
-            <label for="Email">Email</label>
-            <InputText id="Email" class="form-control" @bind-Value="user.Email" Disabled="true" />
-        </div>
+                    <div class="form-group mb-3">
+                        <label for="Email">Email</label>
+                        <InputText id="Email" class="form-control" @bind-Value="user.Email" Disabled="true" />
+                    </div>
 
-        <div class="form-group">
-            <label for="Address">Chọn Địa chỉ</label>
-            <select class="form-control" @onchange="OnProvinceChange">
-                <option value="">Chọn tỉnh/thành phố</option>
-                @foreach (var province in provinces)
+                    <h5 class="text-center mt-4">Thêm địa chỉ mới</h5>
+
+                    <div class="form-group mb-3">
+                        <label for="city">Tỉnh/Thành phố</label>
+                        <select id="city" @onchange="OnProvinceChange" class="form-select">
+                            <option value="">Chọn Tỉnh</option>
+                            @if (provinces != null && provinces.Count > 0)
+                            {
+                                @foreach (var province in provinces)
+                                {
+                                    <option value="@province.Id">@province.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="district">Quận/Huyện</label>
+                        <select id="district" @onchange="OnDistrictChange" class="form-select" disabled="@(!hasDistricts)">
+                            <option value="">Chọn Huyện</option>
+                            @if (districts != null && districts.Count > 0)
+                            {
+                                @foreach (var district in districts)
+                                {
+                                    <option value="@district.Id">@district.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="ward">Xã/Phường/Thị trấn</label>
+                        <select id="ward" @onchange="OnWardChange" class="form-select" disabled="@(!hasWards)">
+                            <option value="">Chọn Xã</option>
+                            @if (wards != null && wards.Count > 0)
+                            {
+                                @foreach (var ward in wards)
+                                {
+                                    <option value="@ward.Id">@ward.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="address">Địa chỉ cụ thể</label>
+                        <input type="text" @bind="address.Street" class="form-control" placeholder="Nhập địa chỉ cụ thể">
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="note">Ghi chú</label>
+                        <input type="text" @bind="address.Status" class="form-control" placeholder="Nhập ghi chú">
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                    </div>
+                </EditForm>
+
+                @if (!string.IsNullOrEmpty(message))
                 {
-                    <option value="@province.Id">@province.Name</option>
+                    <p class="text-success text-center mt-3">@message</p>
                 }
-            </select>
-            @if (hasDistricts)
-            {
-                <select class="form-control mt-2" @onchange="OnDistrictChange">
-                    <option value="">Chọn quận/huyện</option>
-                    @foreach (var district in districts)
-                    {
-                        <option value="@district.Id">@district.Name</option>
-                    }
-                </select>
-            }
-            @if (hasWards)
-            {
-                <select class="form-control mt-2" @onchange="OnWardChange">
-                    <option value="">Chọn phường/xã</option>
-                    @foreach (var ward in wards)
-                    {
-                        <option value="@ward.Id">@ward.Name</option>
-                    }
-                </select>
-            }
+
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <p class="text-danger text-center mt-3">@errorMessage</p>
+                }
+            </div>
         </div>
-
-        <div class="form-group">
-            <label for="Street">Địa chỉ cụ thể</label>
-            <InputText id="Street" class="form-control" @bind-Value="address.Street" />
-        </div>
-
-        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-    </EditForm>
-
-    @if (!string.IsNullOrEmpty(message))
-    {
-        <p class="text-success">@message</p>
-    }
-
-    @if (!string.IsNullOrEmpty(errorMessage))
-    {
-        <p class="text-danger">@errorMessage</p>
-    }
+    </div>
 }
 
 @code {
@@ -117,7 +143,7 @@ else
     private DateTime? otpExpiryTime;
     private string otpError;
 
-
+    private bool isCreateAddress = false;
     private List<Province> provinces = new List<Province>();
     private List<Districted> districts = new List<Districted>();
     private List<Ward> wards = new List<Ward>();
@@ -125,6 +151,11 @@ else
     private bool hasDistricts = false;
     private bool hasWards = false;
 
+    private bool IsSelectedProvince(string id) => address.Province_city == id;
+    private bool IsSelectedDistrict(string id) => address.District == id;
+    private bool IsSelectedWard(string id) => address.Ward_commune == id;
+
+    // Tích hợp chuyển đổi ID thành tên trong OnInitializedAsync
     protected override async Task OnInitializedAsync()
     {
         try
@@ -134,9 +165,30 @@ else
             {
                 errorMessage = "Người dùng không tồn tại.";
                 Navigation.NavigateTo("/admin/users");
+                return;
             }
+
+            // Lấy danh sách tỉnh, huyện, xã
             provinces = await address_Service.GetProvincesAsync();
 
+            if (!string.IsNullOrEmpty(user.Address))
+            {
+                // Giả sử Address lưu ID của tỉnh, huyện, xã
+                var addressIds = user.Address.Split(',');
+                if (addressIds.Length == 3)
+                {
+                    address.Province_city = addressIds[0];
+                    address.District = addressIds[1];
+                    address.Ward_commune = addressIds[2];
+
+                    // Load dữ liệu huyện và xã
+                    districts = await address_Service.GetDistrictsAsync(int.Parse(address.Province_city));
+                    wards = await address_Service.GetWardsAsync(int.Parse(address.District));
+
+                    hasDistricts = districts.Count > 0;
+                    hasWards = wards.Count > 0;
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -144,11 +196,76 @@ else
         }
     }
 
+    private async Task CreateAddress()
+    {
+        // Kiểm tra thông tin địa chỉ
+        if (string.IsNullOrEmpty(address.Ward_commune) ||
+            string.IsNullOrEmpty(address.Province_city) ||
+            string.IsNullOrEmpty(address.District))
+        {
+            errorMessage = "Vui lòng nhập đầy đủ thông tin địa chỉ.";
+            StateHasChanged();
+            return;
+        }
+
+        // Chuyển đổi ID sang tên tỉnh/huyện/xã
+        var selectedProvince = provinces.FirstOrDefault(p => p.Id.ToString() == address.Province_city);
+        var selectedDistrict = districts.FirstOrDefault(d => d.Id.ToString() == address.District);
+        var selectedWard = wards.FirstOrDefault(w => w.Id.ToString() == address.Ward_commune);
+
+        if (selectedProvince == null || selectedDistrict == null || selectedWard == null)
+        {
+            errorMessage = "Không tìm thấy thông tin địa phương. Vui lòng chọn lại.";
+            StateHasChanged();
+            return;
+        }
+
+        // Gán lại tên cho địa chỉ
+        address.Province_city = selectedProvince.Name;
+        address.District = selectedDistrict.Name;
+        address.Ward_commune = selectedWard.Name;
+
+        // Gán ID người dùng
+        if (user != null)
+        {
+            address.User_Id = user.Id;
+        }
+        else
+        {
+            errorMessage = "Không tìm thấy thông tin người dùng.";
+            StateHasChanged();
+            return;
+        }
+
+        // Tạo địa chỉ qua service
+        try
+        {
+            var createdAddress = await address_Service.CreateAddressAndReturn(address);
+            if (createdAddress != null)
+            {
+                // Cập nhật thông báo thành công
+                message = "Địa chỉ đã được tạo thành công.";
+                isCreateAddress = false; // Đóng modal sau khi tạo thành công
+            }
+            else
+            {
+                errorMessage = "Tạo địa chỉ thất bại.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
+        }
+
+        StateHasChanged();
+    }
+
     private async Task OnProvinceChange(ChangeEventArgs e)
     {
         var selectedProvinceId = e.Value?.ToString();
         if (!string.IsNullOrEmpty(selectedProvinceId))
         {
+            // Thiết lập tỉnh hiện tại và xóa các quận huyện, xã
             address.Province_city = selectedProvinceId;
             districts = await address_Service.GetDistrictsAsync(int.Parse(selectedProvinceId));
             hasDistricts = districts.Count > 0;
@@ -156,7 +273,6 @@ else
             hasWards = false;
         }
     }
-
     private async Task OnDistrictChange(ChangeEventArgs e)
     {
         var selectedDistrictId = e.Value?.ToString();
@@ -167,7 +283,6 @@ else
             hasWards = wards.Count > 0;
         }
     }
-
     private async Task OnWardChange(ChangeEventArgs e)
     {
         var selectedWardId = e.Value?.ToString();
@@ -176,13 +291,34 @@ else
             address.Ward_commune = selectedWardId;
         }
     }
-
-
-    protected override void OnInitialized()
+    // Các biến để bind vào form
+    private string city;
+    private string district;
+    private string ward;
+    private string street;
+    private string phone;
+    private Address selectedAddress;
+    private void SelectAddress(Address address)
     {
-        generatedOtp = null;
-        otpExpiryTime = null;
-        otpSent = false;
+        ClearInfoAddress();
+        if (address != null)
+        {
+            selectedAddress = address;
+            city = address.Province_city;
+            district = address.District;
+            ward = address.Ward_commune;
+            street = address.Street;
+            phone = address.User?.Phone;
+        }
+    }
+    private void ClearInfoAddress()
+    {
+        selectedAddress = null;
+        city = string.Empty;
+        district = string.Empty;
+        ward = string.Empty;
+        street = string.Empty;
+        phone = string.Empty;
     }
 
     private async Task SendOtp()
@@ -252,12 +388,14 @@ else
         }
         else
         {
+            user.OTPCheck = true;
             await UserService.Update(user);
             message = "Cập nhật thông tin thành công!";
         }
 
         StateHasChanged();
     }
+
 
     private async Task HandleSubmit()
     {
@@ -267,7 +405,9 @@ else
             return;
         }
 
-        if (string.IsNullOrEmpty(address.Province_city) || string.IsNullOrEmpty(address.District) || string.IsNullOrEmpty(address.Ward_commune))
+        if (string.IsNullOrEmpty(address.Province_city) ||
+            string.IsNullOrEmpty(address.District) ||
+            string.IsNullOrEmpty(address.Ward_commune))
         {
             errorMessage = "Vui lòng nhập đầy đủ thông tin địa chỉ trước khi lưu.";
             return;
@@ -275,12 +415,38 @@ else
 
         try
         {
+            // Chuyển đổi ID sang tên trước khi lưu
+            var selectedProvince = provinces.FirstOrDefault(p => p.Id.ToString() == address.Province_city);
+            var selectedDistrict = districts.FirstOrDefault(d => d.Id.ToString() == address.District);
+            var selectedWard = wards.FirstOrDefault(w => w.Id.ToString() == address.Ward_commune);
+
+            if (selectedProvince == null || selectedDistrict == null || selectedWard == null)
+            {
+                errorMessage = "Không tìm thấy thông tin địa phương. Vui lòng kiểm tra lại.";
+                StateHasChanged();
+                return;
+            }
+
+            // Gán lại tên cụ thể vào đối tượng `address`
+            address.Province_city = selectedProvince.Name;
+            address.District = selectedDistrict.Name;
+            address.Ward_commune = selectedWard.Name;
+
+            // Gán ID người dùng
             address.User_Id = user.Id;
+            address.Name = user.Name;
+            address.Phone = user.Phone;
+            address.Email = user.Email;
+
+            // Gọi service để lưu vào cơ sở dữ liệu
             var createdAddress = await address_Service.CreateAddressAndReturn(address);
+
             if (createdAddress != null)
             {
+                // Cập nhật thông tin địa chỉ cho user
                 user.Address = createdAddress.Id.ToString();
                 await UserService.Update(user);
+
                 message = "Lưu thay đổi thành công!";
                 Navigation.NavigateTo("/admin/users");
             }
@@ -296,4 +462,5 @@ else
             errorMessage = $"Lỗi khi cập nhật thông tin: {ex.Message}";
         }
     }
+
 }
