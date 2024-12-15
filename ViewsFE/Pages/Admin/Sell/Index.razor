@@ -1,4 +1,6 @@
 ﻿@page "/admin/sell"
+@using ViewsFE.BackgroundServices
+@inject EmailNotification email
 @inject NavigationManager nav
 @inject IUserService userService
 @inject IAddressServices addressService
@@ -1770,10 +1772,33 @@
                     Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
                     Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" : " Đã xác nhận",
                     Created_at = DateTime.Now,
-                    Created_by = 1 // ID tạm
+                    Created_by = long.Parse(adminId)
                 };
             await orderTrackingService.AddOrderTracking(newOrderTracking);
+
+            var emailUser = selectedCustomer.Email;
+            string emailSubject = "ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC ĐẶT THÀNH CÔNG";
+            string emailMessage = $@"
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset='utf-8'>
+                    <title>{emailSubject}</title>
+                </head>
+                <body>
+                    <h2>Cảm ơn bạn đã lựa chọn tin tưởng HangKenh!</h2>
+                    <p>Xin chào {Customer.Name} đơn hàng {orderToUpdate.Id} của bạn đã được đặt hàng thành công</p>
+                    <p>Cảm ơn bạn đã chọn HangKenh!</p>
+                    <p>Trân trọng,<br />Đội ngũ HangKenh</p>
+                     <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy9z_jY_2Jlieg9lmeq_-TnRpWE2T4Kdw8JA&s' alt='HangKenh Logo' style='float: left;'; margin: auto; width: 100%; max-width: 250px;' />
+                </body>
+                </html>
+            ";
+            await email.SendEmailAsync(emailUser, emailSubject, emailMessage);
+
+
         }
+        isDeliveryVisible = false;
         await LoadOrderDetails();
         await LoadOrders();
         StateHasChanged();

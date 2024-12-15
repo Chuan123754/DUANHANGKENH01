@@ -63,8 +63,6 @@ namespace ViewsFE.Services
             return dto;
         }
 
-
-
         public async Task<List<Orders>> GetAllOrders()
         {
             string requestURL = $"{_baseUrl}/api/Orders/All-Orders";

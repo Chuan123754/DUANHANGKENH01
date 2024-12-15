@@ -287,7 +287,16 @@
                                             </td>
                                             <td>@item.Size.Title</td>
                                             <td>@string.Format("{0:N0}", item.Regular_price).Replace(".", ",") VNĐ</td>
-                                            <td>@item.Stock</td>
+                                            <td>
+                                                @if (@item.Stock<=0)
+                                                {
+                                                    <span style="color : red"> Hết hàng</span>
+                                                }
+                                                else
+                                                {
+                                                    @item.Stock
+                                                }
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>

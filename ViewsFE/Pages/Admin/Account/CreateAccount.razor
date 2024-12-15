@@ -21,7 +21,6 @@
         </div>
         <div class="card-body">
             <EditForm Model="sigupModel" OnValidSubmit="HandleValidSubmit">
-                <DataAnnotationsValidator />
                 <ValidationSummary />
 
                 <div class="mb-3">
@@ -42,16 +41,8 @@
                     <ValidationMessage For="@(() => sigupModel.Email)" />
                 </div>
 
-                <div class="mb-3">
-                    <label for="password" class="form-label">Mật khẩu:</label>
-                    <InputText id="password" @bind-Value="sigupModel.Password" class="form-control" type="password" placeholder="Nhập mật khẩu" />
-                    <ValidationMessage For="@(() => sigupModel.Password)" />
-                </div>
-
-                <div class="mb-3">
-                    <label for="confirmPassword" class="form-label">Nhập lại mật khẩu:</label>
-                    <InputText id="confirmPassword" @bind-Value="sigupModel.ConfirmPassword" class="form-control" type="password" placeholder="Nhập lại mật khẩu" />
-                    <ValidationMessage For="@(() => sigupModel.ConfirmPassword)" />
+                <div class="alert alert-info">
+                    Mật khẩu sẽ được tạo tự động và gửi đến email .
                 </div>
 
                 <div class="mb-3">
@@ -85,7 +76,7 @@
                 await JS.InvokeVoidAsync("toastr.error", "Email đã tồn tại. Vui lòng chọn kiểm tra lại.");
                 return;
             }
-
+            sigupModel.Password = GenerateRandomPassword();
             await accountService.SignUpAsync(sigupModel);
             await JS.InvokeVoidAsync("toastr.success", "Tạo tài khoản thành công!");
             Navigation.NavigateTo("/admin/account/allaccount");
@@ -110,7 +101,7 @@
                     <p>Hãy đổi lại mật khẩu sau khi đăng nhập vào hệ thống.</p>
                     <p>Cảm ơn bạn đã chọn HangKenh!</p>
                     <p>Trân trọng,<br />Đội ngũ HangKenh</p>
-                      <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy9z_jY_2Jlieg9lmeq_-TnRpWE2T4Kdw8JA&s' alt='HangKenh Logo' style='float: right;'; margin: auto; width: 100%; max-width: 300px;' />
+                      <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy9z_jY_2Jlieg9lmeq_-TnRpWE2T4Kdw8JA&s' alt='HangKenh Logo' style='float: left;'; margin: auto; width: 100%; max-width: 250px;' />
                 </body>
                 </html>
             ";
@@ -123,6 +114,33 @@
             Console.WriteLine($"Stack Trace: {ex.StackTrace}");
         }
     }
+
+    private string GenerateRandomPassword()
+    {
+        const string uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        const string lowercase = "abcdefghijklmnopqrstuvwxyz";
+        const string digits = "0123456789";
+        const string specialChars = "!@#$%^&*()_+[]{}|;:,.<>?";
+
+        var random = new Random();
+
+        // Đảm bảo mỗi loại ký tự xuất hiện ít nhất một lần
+        char upper = uppercase[random.Next(uppercase.Length)];
+        char lower = lowercase[random.Next(lowercase.Length)];
+        char digit = digits[random.Next(digits.Length)];
+        char special = specialChars[random.Next(specialChars.Length)];
+
+        // Tạo phần còn lại của mật khẩu
+        var remainingChars = new string(Enumerable.Repeat(uppercase + lowercase + digits + specialChars, 4)
+            .Select(s => s[random.Next(s.Length)]).ToArray());
+
+        // Ghép các ký tự và trộn ngẫu nhiên
+        var password = new string((upper.ToString() + lower + digit + special + remainingChars)
+            .OrderBy(_ => random.Next()).ToArray());
+
+        return password;
+    }
+
 
     private void GoBack()
     {

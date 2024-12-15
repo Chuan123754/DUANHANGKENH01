@@ -97,8 +97,8 @@
             if (!string.IsNullOrEmpty(token))
             {
                 await CustomAuthStateProvider.LoginAsync(token);
-                Navigation.NavigateTo("/");
                 await _jsRuntime.InvokeVoidAsync("toastr.success", "Đăng nhập thành công");
+                Navigation.NavigateTo("/");
             }
             else
             {
