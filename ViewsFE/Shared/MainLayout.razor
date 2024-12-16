@@ -5,12 +5,6 @@
 @inject IAccountService accountService
 
 <PageTitle>BlazorApp1</PageTitle>
-@* <div class="page-wrapper">
-    <ViewsFE.Pages.HeaderLeft />
-    <main class="flex-grow-1 p-3">
-        @Body
-    </main>
-</div> *@
 <div class="layout">
     <div class="sidebar">
         <ViewsFE.Pages.NavMenu />
@@ -110,18 +104,6 @@
     </div>
 </div>
 
-@* <div class="page">
-
-        <ViewsFE.Pages.NavMenu />
-        <div class="top-row px-4">
-        
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
- 
-</div> *@
 @code {
     string adminId;
     private Account admin = new Account();

@@ -16,9 +16,7 @@
 @inject CustomAuthenticationStateProvider _authStateProvider;
 
 
-<AuthorizeView Roles="Admin">
-    <Authorized>
- <div class="page-wrapper">
+<div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
         <div class="container-xl">
@@ -38,7 +36,7 @@
         <div class="container-xl">
             <div class="card">
                 <div class="card-body">
-                   <!-- Search form -->
+                    <!-- Search form -->
                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
                         <div class="form-group d-flex gap-2">
                             <div class="form-group d-flex gap-2">
@@ -97,16 +95,16 @@
                                             <button class="table-sort">Mô tả</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" >Công nghệ dệt</button>
+                                            <button class="table-sort">Công nghệ dệt</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" >Chất liệu</button>
+                                            <button class="table-sort">Chất liệu</button>
                                         </th>
                                         <th>
                                             <button class="table-sort">Phong cách</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort" >Trạng thái</button>                        
+                                            <button class="table-sort">Trạng thái</button>
                                         </th>
                                         <th>
                                             <button class="table-sort">Hành động</button>
@@ -159,7 +157,7 @@
                         }
 
                     </div>
-                    @if(isModalAddAttributeVisiable)
+                    @if (isModalAddAttributeVisiable)
                     {
                         <div class="modal fade show d-block" tabindex="-1" role="dialog">
                             <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 25%; width: auto;">
@@ -248,7 +246,7 @@
                                         <tr>
                                             <th>ID biến thể</th>
                                             <th>Hình ảnh</th>
-                                            <th>SKU</th>                 
+                                            <th>SKU</th>
                                             <th>Gía gốc</th>
                                             <th>Gía khuyến mãi</th>
                                             <th>Số lượng kho</th>
@@ -269,7 +267,7 @@
                                                     @if (attributes.Sale_price.HasValue)
                                                     {
                                                         @string.Format("{0:N0}", attributes.Sale_price.Value).Replace(".", ",")      <span>VNĐ</span>
-                                                    
+
                                                     }
                                                     else
                                                     {
@@ -295,10 +293,10 @@
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td>@attributes.Size?.Title</td>                        
+                                                <td>@attributes.Size?.Title</td>
                                                 <td>
                                                     <i class="bi bi-pencil text-success " style="padding-right:10px" @onclick="() => OpenUpdateProductAttributeModal(attributes.Id)"></i>
-                                                 @*    <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenUpdateProductAttributeModal(attributes.Id)">Sửa thông tin</button> *@
+                                                    @*    <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenUpdateProductAttributeModal(attributes.Id)">Sửa thông tin</button> *@
                                                     <i class="bi bi-trash3 text-danger" style="cursor: pointer;" @onclick="() => DeleteProductAttribute(attributes.Id)"></i>
                                                 </td>
                                             </tr>
@@ -327,7 +325,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th style="width: 8%;">Hình ảnh</th>
-                                                        <th style="width: 8%;">SKU</th>                                             
+                                                        <th style="width: 8%;">SKU</th>
                                                         <th style="width: 5%;">Màu sắc</th>
                                                         <th style="width: 9%;">Kích thước</th>
                                                         <th style="width: 10%;">Gía gốc</th>
@@ -360,7 +358,7 @@
                                                         <td>
                                                             <input type="text" @bind="@selectedAttribute.SKU" class="form-control" readonly />
                                                         </td>
-                                     
+
                                                         <td>
                                                             <div class="d-flex align-items-center justify-content-center">
                                                                 <span class="text-truncate">@selectedAttribute.Color?.Title</span>
@@ -417,12 +415,9 @@
         </div>
     </div>
 </div>
+
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
-    </Authorized>
-    <NotAuthorized>
-        <p>Không thể truy cập, bạn không có quyền.</p>
-    </NotAuthorized>
-</AuthorizeView>
+
 
 @code {
     private List<Product_variants> product_Varians_list = new List<Product_variants>();
@@ -453,7 +448,7 @@
     private int page_size = 10;
     private int totalItems;
     private bool isAuthenticated;
-     private string searchFilter = "product_name";
+    private string searchFilter = "product_name";
 
     private string selectedTextileTechnologyId = string.Empty;
     private string selectedMaterialId = string.Empty;
@@ -484,7 +479,7 @@
         await ApplyFilters();
     }
 
-    
+
 
 
     protected override async Task OnInitializedAsync()
@@ -798,7 +793,7 @@
         StateHasChanged();
     }
 
-    
+
 
     private async Task NavEditCtgr(long id)
     {

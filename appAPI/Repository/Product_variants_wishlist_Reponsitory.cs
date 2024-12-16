@@ -56,6 +56,16 @@ namespace appAPI.Repository
                  .Include(cd => cd.Product_Variants).ThenInclude(p => p.Material)
                  .Include(cd => cd.Product_Variants).ThenInclude(p => p.Textile_Technology)
                  .OrderByDescending(p => p.Product_Variants.Created_at)
+                 .Select(p => new Product_variants_wishlist
+                 {
+                     Id = p.Id,
+                     Product_variants_id = p.Product_variants_id,
+                     Product_Variants = p.Product_Variants,
+                     Wishlist = p.Wishlist,
+                     Wishlist_id = p.Wishlist_id,
+                     MinPrice = p.Product_Variants.Product_Attributes.Min(pa => pa.Sale_price ?? pa.Regular_price), // Giá thấp nhất
+                     MaxPrice = p.Product_Variants.Product_Attributes.Max(pa => pa.Sale_price ?? pa.Regular_price)
+                 })
                  .ToListAsync();
             return await wlp;
 
