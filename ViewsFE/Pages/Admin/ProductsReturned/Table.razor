@@ -1,0 +1,284 @@
+﻿@page "/admin/productsreturned"
+@inject NavigationManager nav
+@inject IProductsReturnedService productsReturnedService
+@inject IJSRuntime JS
+
+<style>
+    .badge {
+        padding: 0.3em 0.6em;
+        border-radius: 5px;
+        color: white;
+        font-size: 14px;
+    }
+
+    .bg-new {
+        background-color: #17a2b8;
+    }
+
+    .bg-instock {
+        background-color: #28a745;
+    }
+
+    .bg-damaged {
+        background-color: #dc3545;
+    }
+
+    td span {
+        word-wrap: break-word;
+        white-space: normal;
+    }
+</style>
+
+<div class="page-wrapper">
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">DANH SÁCH SẢN PHẨM TRẢ LẠI</h2>
+                </div>      
+            </div>
+        </div>
+    </div>
+
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="row row-deck row-cards">
+                <div class="form-group d-flex justify-content-start mb-4">
+                    <div>
+                        <select class="form-select" @onchange="(e) => OnSearchTextChanged(e.Value.ToString())">
+                            <option value="">Tất cả lý do</option>
+                            <option value="Trả sản phẩm">Trả sản phẩm</option>
+                            <option value="Đổi sản phẩm">Đổi sản phẩm</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select class="form-select" @onchange="(e) => OnStatusChanged(e.Value.ToString())">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="Mới">Mới</option>
+                            <option value="Nhập kho">Nhập kho</option>
+                            <option value="Hỏng">Hỏng</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="col-12">
+                    <div class="card">
+                        <div class="table-responsive">
+                            <table class="table card-table table-vcenter text-nowrap">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Lý do trả hàng</th>
+                                        <th>Số lượng</th>
+                                        <th>Giá đơn vị</th>
+                                        <th>Tổng giá trả lại</th>
+                                        <th>Tình trạng</th>
+                                        <th>Ngày trả hàng</th>
+                                        <th>Note</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (pagedProductsReturned.Any())
+                                    {
+                                        foreach (var item in pagedProductsReturned)
+                                        {
+                                            <tr>
+                                                <td>@item.Id</td>
+                                                <td>@item.ReturnReason</td>
+                                                <td>@item.Quantity</td>
+                                                <td>@string.Format("{0:N0}", item.UnitPrice) VNĐ</td>
+                                                <td>@string.Format("{0:N0}", item.TotalPrice) VNĐ</td>
+                                                <td>
+                                                    <span class="badge @GetStatusClass(item.Condition)">@item.Condition</span>
+                                                </td>
+                                                <td>@item.ReturnDate.ToString("dd/MM/yyyy")</td>
+                                                <td>
+                                                    @if (!string.IsNullOrEmpty(item.Notes))
+                                                    {
+                                                        <span style="white-space: normal;">@((MarkupString)FormatNote(item.Notes))</span>
+                                                    }
+                                                </td>
+
+
+                                                <td>
+                                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => ShowUpdateQuantityModal(item.Id, item.Quantity)">Cập nhật</button>
+                                                </td>
+
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="7" class="text-center">Không có dữ liệu.</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                            <div class="mt-4">
+                                <Pagination TItem="Products_Returned" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="lstProductsReturned.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (isModalOpen)
+{
+    <div class="modal show d-block" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cập nhật số lượng sản phẩm trả lại</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                </div>
+                <div class="modal-body">
+                    <label for="quantityToStock">Số lượng đưa lại vào kho:</label>
+                    <input type="number" id="quantityToStock" class="form-control" @bind="quantityToStock" />
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="CloseModal">Hủy</button>
+                    <button class="btn btn-primary" @onclick="UpdateReturnQuantity">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    private List<Products_Returned> lstProductsReturned = new();
+    private List<Products_Returned> pagedProductsReturned = new();
+    private string searchText = string.Empty;
+    private string selectedStatus = string.Empty;
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalPages = 1;
+
+
+    private bool isModalOpen = false;
+    private long selectedProductId = 0;
+    private int quantityToStock = 0;
+
+    private string FormatNote(string note)
+    {
+        if (string.IsNullOrEmpty(note)) return string.Empty;
+
+        // Thay dấu ',' bằng xuống dòng
+        return note.Replace(",", "<br>");
+    }
+
+
+
+
+    private string GetStatusClass(string condition)
+    {
+        return condition switch
+        {
+            "Mới" => "bg-new",
+            "Nhập kho" => "bg-instock",
+            "Xem xét" => "bg-warning",
+            "Hỏng" => "bg-damaged",
+            _ => "bg-secondary",
+        };
+    }
+
+    private void LoadPagedProductsReturned()
+    {
+        totalPages = (int)Math.Ceiling((double)lstProductsReturned.Count / pageSize);
+        pagedProductsReturned = lstProductsReturned.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+    }
+    private async Task OnSearchTextChanged(string value)
+    {
+        searchText = value;
+        await ApplyFilters();
+    }
+
+    private async Task OnStatusChanged(string value)
+    {
+        selectedStatus = value;
+        await ApplyFilters();
+    }
+
+    private async Task ApplyFilters()
+    {
+        var allProducts = await productsReturnedService.GetAllAsync();
+
+        lstProductsReturned = allProducts
+            .Where(p => (string.IsNullOrEmpty(searchText) || p.ReturnReason == searchText) &&
+                        (string.IsNullOrEmpty(selectedStatus) || p.Condition == selectedStatus))
+            .ToList();
+
+        currentPage = 1;
+        LoadPagedProductsReturned();
+    }
+
+
+    private async Task GoToPage(int page)
+    {
+        currentPage = page;
+        LoadPagedProductsReturned();
+    }
+
+    private async Task OnPageSizeChanged(int newPageSize)
+    {
+        pageSize = newPageSize;
+        currentPage = 1;
+        LoadPagedProductsReturned();
+    }
+
+    private void ShowUpdateQuantityModal(long id, int maxQuantity)
+    {
+        selectedProductId = id;
+        quantityToStock = maxQuantity; // Gán giá trị mặc định là tổng số lượng hiện tại
+        isModalOpen = true;
+    }
+
+    private void CloseModal()
+    {
+        isModalOpen = false;
+        selectedProductId = 0;
+        quantityToStock = 0;
+    }
+
+    private async Task UpdateReturnQuantity()
+    {
+        try
+        {
+            if (quantityToStock <= 0)
+            {
+                await JS.InvokeVoidAsync("alert", "Số lượng phải lớn hơn 0.");
+                return;
+            }
+
+            var result = await productsReturnedService.UpdateReturnQuantityAsync(selectedProductId, quantityToStock);
+            if (result)
+            {
+                await JS.InvokeVoidAsync("alert", "Cập nhật thành công!");
+                CloseModal();
+                await LoadData(); // Tải lại danh sách sản phẩm trả lại
+            }
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("alert", $"Lỗi: {ex.Message}");
+        }
+    }
+
+    private async Task LoadData()
+    {
+        lstProductsReturned = await productsReturnedService.GetAllAsync();
+        LoadPagedProductsReturned();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        lstProductsReturned = await productsReturnedService.GetAllAsync();
+        LoadPagedProductsReturned();
+    }
+}

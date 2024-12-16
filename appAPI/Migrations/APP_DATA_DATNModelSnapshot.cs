@@ -1301,6 +1301,9 @@ namespace appAPI.Migrations
                     b.Property<long?>("Created_by")
                         .HasColumnType("bigint");
 
+                    b.Property<bool?>("IsReturn")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
@@ -1318,13 +1321,18 @@ namespace appAPI.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime?>("Update_at")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderDetailId")
-                        .IsUnique();
+                    b.HasIndex("OrderDetailId");
 
                     b.ToTable("products_returned");
                 });
@@ -1722,21 +1730,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "181e563e-b680-4392-a471-ad1d73c5401c",
+                            ConcurrencyStamp = "b0e591ab-e0f2-40fe-b16a-e73e187911fb",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "91085531-e9d5-4f8b-886b-81f6657e107c",
+                            ConcurrencyStamp = "c48c995e-569a-4b88-839f-58c5d831c7f9",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "ad50012b-2cd3-4f7f-a025-257130b9d0d7",
+                            ConcurrencyStamp = "59db7b4a-6f00-436b-93ba-d41d0b43058f",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -2165,8 +2173,8 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Products_Returned", b =>
                 {
                     b.HasOne("appAPI.Models.Order_details", "OrderDetails")
-                        .WithOne("ProductsReturned")
-                        .HasForeignKey("appAPI.Models.Products_Returned", "OrderDetailId")
+                        .WithMany("ProductsReturned")
+                        .HasForeignKey("OrderDetailId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

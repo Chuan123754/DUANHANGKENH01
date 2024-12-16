@@ -17,6 +17,8 @@ namespace appAPI.Models
         [StringLength(255)]
         public string ReturnReason { get; set; } = string.Empty; // Lý do trả hàng
         public int Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
+        public decimal TotalPrice { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -26,6 +28,7 @@ namespace appAPI.Models
         public DateTime ReturnDate { get; set; } = DateTime.UtcNow; // Ngày trả hàng
 
         public string? Notes { get; set; }
+        public bool? IsReturn { get; set; }
         public DateTime? Created_at { get; set; } = DateTime.Now;
         public long? Created_by { get; set; }
         public DateTime? Update_at { get; set; }
