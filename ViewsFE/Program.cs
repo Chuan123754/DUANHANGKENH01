@@ -56,6 +56,7 @@ builder.Services.AddSession(options =>
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Chỉ gửi cookie qua HTTPS
 });
 
+
 // Cấu hình Blazor Server
 builder.Services.AddServerSideBlazor()
     .AddHubOptions(options =>
@@ -66,7 +67,7 @@ builder.Services.AddServerSideBlazor()
 // Thêm CORS nếu cần
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins",
+    options.AddPolicy("AllowAllOrigins", 
         policy =>
         {
             policy.AllowAnyOrigin()
@@ -79,6 +80,7 @@ builder.Services.AddDbContext<APP_DATA_DATN>(options =>
 builder.Services.AddIdentity<Account, IdentityRole>()
     .AddEntityFrameworkStores<APP_DATA_DATN>()
     .AddDefaultTokenProviders();
+builder.Services.AddAuthenticationCore();
 builder.Services.AddHttpClient<IAddressServices, AddressService>();
 builder.Services.AddScoped<IAddressServices, AddressService>();
 builder.Services.AddScoped<ILogActivityHistoryService, LogActivityHistoryService>();
@@ -127,6 +129,7 @@ builder.Services.AddScoped<IContacServices, ContacServices>();
 builder.Services.AddScoped<IAccsessViewscsServices, AccsessViewsServices>();
 builder.Services.AddScoped<IProductsReturnedService, ProductsReturnedService>();
 
+builder.Services.AddScoped<RoleService>();
 
 var app = builder.Build();
 
