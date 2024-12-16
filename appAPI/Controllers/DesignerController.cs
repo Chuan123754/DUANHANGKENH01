@@ -22,6 +22,11 @@ namespace appAPI.Controllers
         {
             return await _repon.GetAll();
         }
+        [HttpGet("GetAllAC")]
+        public async Task<List<Designer>> GetAllAC()
+        {
+            return await _repon.GetAllAC();
+        }
         // GET: api/Designer/{id}
         [HttpGet("{id}")]
         public async Task<Designer> GetById(long id)
@@ -66,6 +71,23 @@ namespace appAPI.Controllers
         public async Task<IActionResult> GetTotalCount([FromQuery] string? searchTerm = null)
         {
             var totalCount = await _repon.GetTotalCountAsync(searchTerm);
+            return Ok(totalCount);
+        }
+        [HttpGet("get-by-type-client")]
+        public async Task<IActionResult> GetByTypeClient([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        {
+            if (pageNumber < 1 || pageSize < 1)
+            {
+                return BadRequest("Page number and page size must be greater than 0.");
+            }
+
+            var result = await _repon.GetByTypeAsyncClient(pageNumber, pageSize, searchTerm);
+            return Ok(result);
+        }
+        [HttpGet("Get-Total-Count-Client")]
+        public async Task<IActionResult> GetTotalCountClient([FromQuery] string? searchTerm = null)
+        {
+            var totalCount = await _repon.GetTotalCountAsyncClient(searchTerm);
             return Ok(totalCount);
         }
     }

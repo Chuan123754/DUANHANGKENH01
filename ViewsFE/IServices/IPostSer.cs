@@ -23,6 +23,6 @@ namespace ViewsFE.IServices
         Task Delete(long id);
         Task<long> Update(Product_Posts post, List<long> tagIds);
         Task<long> Updatetagcate(Product_Posts post, List<long> tagIds, List<long> categoryIds);
-
+        Task<bool> CheckSlug(string slug);
     }
 }

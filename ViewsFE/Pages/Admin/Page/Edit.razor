@@ -8,7 +8,7 @@
 
 <EditForm Model="Posts" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
-    <ValidationSummary />
+
     <div class="page-wrapper">
         <div class="page-header d-print-none">
             <div class="container-xl">
@@ -30,12 +30,13 @@
                                 <div class="mb-3">
                                     <label for="title" class="form-label">Tên trang<span class="text-danger">*</span></label>
                                     <InputText id="title" class="form-control" @bind-Value="Posts.Title" placeholder="Tên trang" @oninput="GenerateSlug" />
-                                    <div id="title_error" class="validate-error"></div>
+                                    <ValidationMessage For="@(() => Posts.Title)" />
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="seoSlug" class="form-label">Đường dẫn<span class="text-danger">*</span></label>
                                     <InputText id="seoSlug" class="form-control" @bind-Value="Posts.Slug" />
+                                    <ValidationMessage For="@(() => Posts.Slug)" />
                                 </div>
 
                                 <div class="mb-3">
@@ -55,13 +56,13 @@
                                 <h2 class="accordion-header">
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                             data-bs-target="#banner_block" aria-expanded="true">
-                                        Cấu hình banner<span class="text-danger">*</span>
+                                        Cấu hình banner
                                     </button>
                                 </h2>
                                 <div id="banner_block" class="accordion-collapse collapse show">
                                     <div class="card-body pb-4 px-4" style="height: 300px">
                                         <div class="mb-3">
-                                            <label for="title" class="form-label">Tiêu đề<span class="text-danger">*</span></label>
+                                            <label for="title" class="form-label">Tiêu đề</label>
                                             <input type="text" class="form-control" @bind-value="banner.Name"
                                                    placeholder="Tiêu đề">
                                         </div>
@@ -102,7 +103,7 @@
                                     <h2 class="accordion-header">
                                         <button class="accordion-button " type="button" data-bs-toggle="collapse"
                                                 data-bs-target="#action-1" aria-expanded="true">
-                                           Cập nhật
+                                            Cập nhật
                                         </button>
                                     </h2>
                                     <div class="accordion-collapse collapse show" id="action-1" data-bs-parent="#accordion-example">
@@ -286,10 +287,10 @@
     private async Task LoadPosts()
     {
 
-      
+
         TagsList = await stag.GetAll();
         banner = await bnser.GetBannerByProductPostId(Id);
-     
+
         StateHasChanged();
     }
     protected override async Task OnInitializedAsync()
@@ -369,6 +370,13 @@
         SelectedTags = string.IsNullOrEmpty(tags)
             ? new List<long>() // Nếu tags rỗng, tạo danh sách trống
             : tags.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
+
+        bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty);
+        if (!isSlugUnique)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
+            return;
+        }
         try
         {
             postId = await sev.Update(Posts, SelectedTags);

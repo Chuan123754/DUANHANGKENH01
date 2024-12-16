@@ -220,7 +220,7 @@ namespace appAPI.Repository
         public async Task<Product_Posts> GetByIdAndType(long id, string type)
         {
             return await _context.Posts
-                .Where(p => p.Id == id && p.Type == type && p.Deleted == false)
+                .Where(p => p.Id == id && p.Type == type && p.Status == "publish" && p.Deleted == false)
                 .Include(p => p.Post_tags).ThenInclude(pt => pt.Tag)
                 .Include(p => p.Post_categories).ThenInclude(pc => pc.Categories)
                 .OrderByDescending(p => p.Id)

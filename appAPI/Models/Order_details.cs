@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -24,6 +25,6 @@ namespace appAPI.Models
         [ForeignKey("Product_Attribute_Id")]
         public virtual Product_Attributes? ProductAttributes { get; set; }
         [JsonIgnore]
-        public virtual Products_Returned? ProductsReturned { get; set; }
+        public virtual ICollection<Products_Returned>? ProductsReturned { get; set; }
     }
 }

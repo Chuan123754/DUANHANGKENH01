@@ -62,13 +62,13 @@
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                             data-bs-target="#banner_block" aria-expanded="true">
                                         Cấu hình banner
-                                        <span class="text-danger">*</span>
+                                       
                                     </button>
                                 </h2>
                                 <div id="banner_block" class="accordion-collapse collapse show">
                                     <div class="card-body pb-4 px-4" style="height: 300px">
                                         <div class="mb-3">
-                                            <label for="title" class="form-label">Tiêu đề<span class="text-danger">*</span></label>
+                                            <label for="title" class="form-label">Tiêu đề</label>
                                             <input type="text" class="form-control" @bind-value="banner.Name"
                                                    placeholder="Tiêu đề">
                                         </div>
@@ -133,7 +133,7 @@
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Nhà thiết kế<span class="text-danger">*</span></label>
                                                 <select @bind="Posts.AuthorId" class="form-control">
-                                                    <option value="" disabled selected>Chọn nhà thiết kế</option>
+                                                  
                                                     @foreach (var desi in designersList)
                                                     {
                                                         <option value="@desi.id_Designer">@desi.Name</option>
@@ -474,7 +474,7 @@
             {
                 Status = Product_Posts.STATUS_PUBLISH // Thiết lập giá trị mặc định
             };
-        designersList = await des.GetAll();
+        designersList = await des.GetAllAC();
         if (designersList != null && designersList.Any())
         {
             Posts.AuthorId = designersList.First().id_Designer;
@@ -577,7 +577,12 @@
                 .Where(id => id > 0)
                 .ToList();
         }
-
+            bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty);
+            if (!isSlugUnique)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
+                return;
+            }
         try
         {
             postId = await sev.CreateProduct(Posts, SelectedTags, SelectedCategories);

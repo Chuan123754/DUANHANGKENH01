@@ -1,4 +1,5 @@
-﻿using ViewsFE.IServices;
+﻿using System.Net.Http;
+using ViewsFE.IServices;
 using ViewsFE.Models;
 
 namespace ViewsFE.Services
@@ -150,6 +151,13 @@ namespace ViewsFE.Services
 
             var count = await response.Content.ReadFromJsonAsync<int>();
             return count;
+        }
+
+        public async Task<bool> CheckSlug(string slug)
+        {
+            var response = await _client.GetAsync($"{_baseUrl}/api/Product_Post/checkslug?slug={slug}");
+            response.EnsureSuccessStatusCode();
+            return bool.Parse(await response.Content.ReadAsStringAsync());
         }
     }
 }

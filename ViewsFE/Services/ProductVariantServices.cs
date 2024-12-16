@@ -46,6 +46,11 @@ namespace ViewsFE.Services
             string requestURL = $"{_baseUrl}/api/ProductVarians/GetAllProduct";
             var response = await _client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Product_variants>>(response);
+        }  public async Task<List<Product_Posts>> GetAllProductPosts()
+        {
+            string requestURL = $"{_baseUrl}api/Product_Post/Get-All";
+            var response = await _client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<List<Product_Posts>>(response);
         }
 
         public async Task<Product_variants> GetProductVariantsById(long id)

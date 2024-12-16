@@ -62,13 +62,13 @@
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                             data-bs-target="#banner_block" aria-expanded="true">
                                         Cấu hình banner
-                                        <span class="text-danger">*</span>
+                                     
                                     </button>
                                 </h2>
                                 <div id="banner_block" class="accordion-collapse collapse show">
                                     <div class="card-body pb-4 px-4" style="height: 300px">
                                         <div class="mb-3">
-                                            <label for="title" class="form-label">Tiêu đề<span class="text-danger">*</span></label>
+                                            <label for="title" class="form-label">Tiêu đề</label>
                                             <input type="text" class="form-control" @bind-value="banner.Name"
                                                    placeholder="Tiêu đề">
                                         </div>
@@ -474,7 +474,7 @@
     {
 
         Posts = await sev.GetByIdType(Id, "product");
-        designersList = await des.GetAll();
+        designersList = await des.GetAllAC();
         banner = await bnser.GetBannerByProductPostId(Id);
         SelectedCategories = (await cate.GetCategoryByPosstId(Id))
                           .Where(pc => pc.Post_Id == Id)
@@ -571,6 +571,12 @@
             SelectedCategories = string.IsNullOrEmpty(categories)
                 ? new List<long>() // Nếu categories rỗng, tạo danh sách trống
                 : categories.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
+            bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty);
+            if (!isSlugUnique)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
+                return;
+            }
             try
             {
                 postId = await sev.Updatetagcate(Posts, SelectedTags, SelectedCategories);

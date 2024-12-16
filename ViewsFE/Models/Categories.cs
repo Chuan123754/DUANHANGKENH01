@@ -21,9 +21,11 @@ namespace ViewsFE.Models
         [StringLength(255)]
         public string? Short_title { get; set; }
         [StringLength(255)]
+        [Required(ErrorMessage = "Tên là bắt buộc.")]
         public string? Title { get; set; }
         [StringLength(255)]
         [Unicode(false)]
+        [Required(ErrorMessage = "Đường dẫn là bắt buộc.")]
         public string? Slug { get; set; }
         [StringLength(255)]
         public string? Type { get; set; }

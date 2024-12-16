@@ -60,7 +60,7 @@ namespace appAPI.Controllers
 
 
         // POST: api/ProductsReturned
-        [HttpPost]
+        [HttpPost("Post")]
         public IActionResult Create([FromBody] Products_Returned productReturned)
         {
             if (!ModelState.IsValid)
@@ -123,6 +123,108 @@ namespace appAPI.Controllers
         }
 
 
+        [HttpPut("Processback/{id}")]
+        public IActionResult Processback(long id)
+        {
+            // Tìm bản ghi Products_Returned theo ID
+            var productReturned = _repository.Find(pr => pr.Id == id).FirstOrDefault();
+            if (productReturned == null)
+            {
+                return NotFound(new { message = "Không tìm thấy bản ghi đổi trả." });
+            }
+
+            // Lấy sản phẩm từ OrderDetail thông qua OrderDetailId
+            var orderDetail = _orderDetailsRepository.Find(od => od.Id == productReturned.OrderDetailId).FirstOrDefault();
+            if (orderDetail == null)
+            {
+                return NotFound(new { message = "Không tìm thấy thông tin chi tiết hóa đơn." });
+            }        
+
+            // Cập nhật số lượng trong OrderDetail
+            if (orderDetail.Quantity >= productReturned.Quantity)
+            {
+                orderDetail.Quantity -= productReturned.Quantity;
+                _orderDetailsRepository.Update(orderDetail);
+            }
+            else
+            {
+                return BadRequest(new { message = "Số lượng sản phẩm trả vượt quá số lượng trong chi tiết hóa đơn." });
+            }
+
+            return Ok(new { message = "Cập nhật tồn kho và chi tiết hóa đơn thành công." });
+        }
+
+
+        [HttpPut("UpdateReturnQuantity/{id}")]
+        public IActionResult UpdateReturnQuantity(long id, [FromBody] UpdateReturnQuantityRequest request)
+        {
+            // Tìm sản phẩm trả lại theo ID
+            var productReturned = _repository.Find(pr => pr.Id == id).FirstOrDefault();
+            if (productReturned == null)
+            {
+                return NotFound(new { message = "Không tìm thấy sản phẩm trả lại." });
+            }
+
+            // Lấy sản phẩm từ OrderDetail thông qua OrderDetailId
+            var orderDetail = _orderDetailsRepository.Find(od => od.Id == productReturned.OrderDetailId).FirstOrDefault();
+            if (orderDetail == null)
+            {
+                return NotFound(new { message = "Không tìm thấy thông tin chi tiết hóa đơn." });
+            }
+
+            // Lấy sản phẩm từ ProductAttributes
+            var productAttribute = _productAttributeRepository.Find(pa => pa.Id == orderDetail.Product_Attribute_Id).FirstOrDefault();
+            if (productAttribute == null)
+            {
+                return NotFound(new { message = "Không tìm thấy thông tin sản phẩm." });
+            }
+
+            // Kiểm tra số lượng trả lại hợp lệ
+            if (request.QuantityToStock > productReturned.Quantity)
+            {
+                return BadRequest(new { message = "Số lượng đưa lại vào kho vượt quá số lượng đổi trả." });
+            }
+
+            // Cộng số lượng vào kho
+            productAttribute.Stock += request.QuantityToStock;
+            _productAttributeRepository.Update(productAttribute);
+
+            // Cập nhật số lượng còn lại trong sản phẩm đổi trả
+            var remainingQuantity = productReturned.Quantity - request.QuantityToStock;
+            if (remainingQuantity > 0)
+            {
+                // Tạo bản ghi mới cho số lượng còn lại với trạng thái "Hỏng"
+                var damagedProduct = new Products_Returned
+                {
+                    OrderDetailId = productReturned.OrderDetailId,
+                    Quantity = remainingQuantity,
+                    ReturnReason = productReturned.ReturnReason,
+                    Condition = "Hỏng",
+                    ReturnDate = productReturned.ReturnDate,
+                    IsReturn = false,
+                    UnitPrice = productReturned.UnitPrice, // Đơn giá từ ProductAttribute
+                    Notes = $"Sản phẩm hỏng IDOrder: {productReturned.OrderDetailId}",
+                    TotalPrice = remainingQuantity * productReturned.UnitPrice // Tính tổng giá
+                };
+                _repository.Add(damagedProduct);
+            }
+
+            // Cập nhật bản ghi gốc
+            productReturned.Quantity = request.QuantityToStock;
+            productReturned.Condition = "Nhập kho";
+            productReturned.UnitPrice = productReturned.UnitPrice; // Đơn giá từ ProductAttribute
+            productReturned.TotalPrice = request.QuantityToStock * productReturned.UnitPrice; // Tính tổng giá
+            _repository.Update(productReturned);
+
+            return Ok(new { message = "Cập nhật sản phẩm trả lại và kho thành công." });
+        }
+
+
+        // DTO để nhận dữ liệu từ client
+        public class UpdateReturnQuantityRequest
+        {
+            public int QuantityToStock { get; set; }
+        }
 
 
         // PUT: api/ProductsReturned/put
@@ -140,21 +242,68 @@ namespace appAPI.Controllers
                 return NotFound(new { message = "Sản phẩm trả lại không tồn tại." });
             }
 
-            existingProductReturned.Quantity += productReturned.Quantity;
+            // Cập nhật thông tin cơ bản
+            existingProductReturned.Quantity = productReturned.Quantity;
             existingProductReturned.ReturnReason = productReturned.ReturnReason;
             existingProductReturned.Condition = productReturned.Condition;
             existingProductReturned.ReturnDate = productReturned.ReturnDate;
-            existingProductReturned.Notes += $"\nThêm số lượng: {productReturned.Quantity}";
+            existingProductReturned.UnitPrice = productReturned.UnitPrice;
+            existingProductReturned.TotalPrice = productReturned.TotalPrice;
+            existingProductReturned.Notes += productReturned.Notes;
 
             _repository.Update(existingProductReturned);
 
-            return Ok(new { message = "Cập nhật thành công.", data = existingProductReturned });
+            return Ok(new { message = "Cập nhật thành công." });
         }
+
 
 
 
         [HttpPut("ProcessReturnQuantity")]
         public IActionResult ProcessReturnQuantity([FromBody] ProcessReturnRequest request)
+        {
+            // Lấy thông tin OrderDetail từ OrderDetailId
+            var orderDetail = _orderDetailsRepository.Find(od => od.Id == request.OrderDetailId).FirstOrDefault();
+            if (orderDetail == null)
+            {
+                return NotFound(new { message = "Không tìm thấy thông tin chi tiết hóa đơn." });
+            }
+
+            // Lấy sản phẩm từ ProductAttributes thông qua Product_Attribute_Id
+            var productAttribute = _productAttributeRepository.Find(pa => pa.Id == orderDetail.Product_Attribute_Id).FirstOrDefault();
+            if (productAttribute == null)
+            {
+                return NotFound(new { message = "Không tìm thấy thông tin sản phẩm." });
+            }
+
+            // Kiểm tra và cập nhật số lượng tồn kho
+            if (productAttribute.Stock >= request.ReturnQuantity)
+            {
+                productAttribute.Stock -= request.ReturnQuantity;
+                _productAttributeRepository.Update(productAttribute); // Cập nhật tồn kho
+            }
+            else
+            {
+                return BadRequest(new { message = "Số lượng sản phẩm trả vượt quá tồn kho." });
+            }
+
+            // Kiểm tra và cập nhật số lượng
+            if (orderDetail.Quantity >= request.ReturnQuantity)
+            {
+                orderDetail.Quantity -= request.ReturnQuantity;
+                _orderDetailsRepository.Update(orderDetail);
+            }
+            else
+            {
+                return BadRequest(new { message = "Số lượng sản phẩm trả vượt quá số lượng trong chi tiết hóa đơn." });
+            }
+
+            return Ok(new { message = "Cập nhật số lượng sản phẩm trả thành công." });
+        }
+
+
+        [HttpPut("ProcessRefundQuantity")]
+        public IActionResult ProcessRefundQuantity([FromBody] ProcessReturnRequest request)
         {
             // Lấy thông tin OrderDetail từ OrderDetailId
             var orderDetail = _orderDetailsRepository.Find(od => od.Id == request.OrderDetailId).FirstOrDefault();
