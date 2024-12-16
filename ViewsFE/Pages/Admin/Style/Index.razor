@@ -2,6 +2,7 @@
 @inject NavigationManager nav
 @inject IStyleServices sev
 @inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthStateProvider 
 
 <div class="modal fade" id="fileModal" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -163,10 +164,25 @@
     private int total_pages = 1;
     private int page_size = 10;
     private int totalItems;
+    private bool isAdmin = false;
 
     private List<string> successfulTitles = new();
     private List<string> failedTitles = new();
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
 
+        // Kiểm tra nếu người dùng không có vai trò "Admin"
+        if (!user.IsInRole("Admin"))
+        {
+            nav.NavigateTo("/unauthorized", true); // Điều hướng đến trang không có quyền
+            return;
+        }
+
+        isAdmin = true;
+        await LoadPosts();
+    }
     [Inject]
     private IUploadService UploadService { get; set; }
 
@@ -200,10 +216,7 @@
         page_number = 1;
         await LoadPosts();
     }
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadPosts();
-    }
+
 
     private void NavEditCtgr(long id)
     {

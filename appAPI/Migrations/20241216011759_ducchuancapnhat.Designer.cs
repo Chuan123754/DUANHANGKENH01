@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241215155821_database")]
-    partial class database
+    [Migration("20241216011759_ducchuancapnhat")]
+    partial class ducchuancapnhat
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1303,6 +1303,9 @@ namespace appAPI.Migrations
                     b.Property<long?>("Created_by")
                         .HasColumnType("bigint");
 
+                    b.Property<bool?>("IsReturn")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
@@ -1320,13 +1323,18 @@ namespace appAPI.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime?>("Update_at")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderDetailId")
-                        .IsUnique();
+                    b.HasIndex("OrderDetailId");
 
                     b.ToTable("products_returned");
                 });
@@ -1724,21 +1732,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "d4959e27-cadf-44c2-9e2f-39b992e90a91",
+                            ConcurrencyStamp = "ed4264eb-2e43-4714-bb00-eae7391ed721",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "f7ec8213-ae9f-4a6a-a3a8-7a681cb02aaf",
+                            ConcurrencyStamp = "42f86835-eed9-439d-9428-786d32744b26",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "aba459b4-9e27-4edc-bb1b-28b082f61939",
+                            ConcurrencyStamp = "19c81260-1c99-429f-aefb-41b8b5cc0f6b",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
@@ -2167,8 +2175,8 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Products_Returned", b =>
                 {
                     b.HasOne("appAPI.Models.Order_details", "OrderDetails")
-                        .WithOne("ProductsReturned")
-                        .HasForeignKey("appAPI.Models.Products_Returned", "OrderDetailId")
+                        .WithMany("ProductsReturned")
+                        .HasForeignKey("OrderDetailId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
