@@ -193,7 +193,6 @@ namespace appAPI.Controllers
             var remainingQuantity = productReturned.Quantity - request.QuantityToStock;
             if (remainingQuantity > 0)
             {
-                // Tạo bản ghi mới cho số lượng còn lại với trạng thái "Hỏng"
                 var damagedProduct = new Products_Returned
                 {
                     OrderDetailId = productReturned.OrderDetailId,
@@ -201,19 +200,29 @@ namespace appAPI.Controllers
                     ReturnReason = productReturned.ReturnReason,
                     Condition = "Hỏng",
                     ReturnDate = productReturned.ReturnDate,
-                    IsReturn = false,
-                    UnitPrice = productReturned.UnitPrice, // Đơn giá từ ProductAttribute
+                    IsReturn = productReturned.ReturnReason == "Đổi sản phẩm",
+                    UnitPrice = productReturned.UnitPrice, 
                     Notes = $"Sản phẩm hỏng IDOrder: {productReturned.OrderDetailId}",
-                    TotalPrice = remainingQuantity * productReturned.UnitPrice // Tính tổng giá
+                    TotalPrice = remainingQuantity * productReturned.UnitPrice 
                 };
                 _repository.Add(damagedProduct);
+            }
+
+            if (productReturned.ReturnReason == "Đổi sản phẩm")
+            {
+                productReturned.IsReturn = true;
+            }
+            else if (productReturned.ReturnReason == "Trả sản phẩm")
+            {
+                productReturned.IsReturn = false;
             }
 
             // Cập nhật bản ghi gốc
             productReturned.Quantity = request.QuantityToStock;
             productReturned.Condition = "Nhập kho";
-            productReturned.UnitPrice = productReturned.UnitPrice; // Đơn giá từ ProductAttribute
-            productReturned.TotalPrice = request.QuantityToStock * productReturned.UnitPrice; // Tính tổng giá
+            productReturned.Notes += ", Nhập kho";
+            productReturned.UnitPrice = productReturned.UnitPrice;
+            productReturned.TotalPrice = request.QuantityToStock * productReturned.UnitPrice;
             _repository.Update(productReturned);
 
             return Ok(new { message = "Cập nhật sản phẩm trả lại và kho thành công." });
@@ -247,8 +256,15 @@ namespace appAPI.Controllers
             existingProductReturned.ReturnReason = productReturned.ReturnReason;
             existingProductReturned.Condition = productReturned.Condition;
             existingProductReturned.ReturnDate = productReturned.ReturnDate;
-            existingProductReturned.UnitPrice = productReturned.UnitPrice;
-            existingProductReturned.TotalPrice = productReturned.TotalPrice;
+            if (productReturned.ReturnReason == "Đổi sản phẩm")
+            {
+                existingProductReturned.UnitPrice = 0;
+                existingProductReturned.TotalPrice = 0;
+            } else
+            {
+                existingProductReturned.UnitPrice = productReturned.UnitPrice;
+                existingProductReturned.TotalPrice = productReturned.TotalPrice;
+            }
             existingProductReturned.Notes += productReturned.Notes;
 
             _repository.Update(existingProductReturned);

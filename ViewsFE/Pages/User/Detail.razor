@@ -2,6 +2,7 @@
 @inject IUserService UserService
 @inject NavigationManager Navigation
 @inject AddressService address_Service
+@inject IJSRuntime JSRuntime
 
 <h3 class="text-center">Chi tiết Người dùng</h3>
 
@@ -20,7 +21,7 @@ else
 
                     <div class="form-group mb-3">
                         <label for="Name">Tên</label>
-                        <InputText id="Name" class="form-control" @bind-Value="user.Name" Disabled="@user.OTPCheck" />
+                        <InputText id="Name" class="form-control" @bind-Value="user.Name" />
                     </div>
 
                     <div class="form-group mb-3">
@@ -52,62 +53,9 @@ else
 
                     <div class="form-group mb-3">
                         <label for="Email">Email</label>
-                        <InputText id="Email" class="form-control" @bind-Value="user.Email" Disabled="true" />
+                        <InputText id="Email" class="form-control" @bind-Value="user.Email" />
                     </div>
 
-                    <h5 class="text-center mt-4">Thêm địa chỉ mới</h5>
-
-                    <div class="form-group mb-3">
-                        <label for="city">Tỉnh/Thành phố</label>
-                        <select id="city" @onchange="OnProvinceChange" class="form-select">
-                            <option value="">Chọn Tỉnh</option>
-                            @if (provinces != null && provinces.Count > 0)
-                            {
-                                @foreach (var province in provinces)
-                                {
-                                    <option value="@province.Id">@province.Name</option>
-                                }
-                            }
-                        </select>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="district">Quận/Huyện</label>
-                        <select id="district" @onchange="OnDistrictChange" class="form-select" disabled="@(!hasDistricts)">
-                            <option value="">Chọn Huyện</option>
-                            @if (districts != null && districts.Count > 0)
-                            {
-                                @foreach (var district in districts)
-                                {
-                                    <option value="@district.Id">@district.Name</option>
-                                }
-                            }
-                        </select>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="ward">Xã/Phường/Thị trấn</label>
-                        <select id="ward" @onchange="OnWardChange" class="form-select" disabled="@(!hasWards)">
-                            <option value="">Chọn Xã</option>
-                            @if (wards != null && wards.Count > 0)
-                            {
-                                @foreach (var ward in wards)
-                                {
-                                    <option value="@ward.Id">@ward.Name</option>
-                                }
-                            }
-                        </select>
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="address">Địa chỉ cụ thể</label>
-                        <input type="text" @bind="address.Street" class="form-control" placeholder="Nhập địa chỉ cụ thể">
-                    </div>
-
-                    <div class="form-group mb-3">
-                        <label for="note">Ghi chú</label>
-                        <input type="text" @bind="address.Status" class="form-control" placeholder="Nhập ghi chú">
-                    </div>
 
                     <div class="d-flex justify-content-between mt-4">
                         <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
@@ -119,11 +67,9 @@ else
                     <p class="text-success text-center mt-3">@message</p>
                 }
 
-                @if (!string.IsNullOrEmpty(errorMessage))
-                {
-                    <p class="text-danger text-center mt-3">@errorMessage</p>
-                }
+                
             </div>
+
         </div>
     </div>
 }
@@ -133,8 +79,7 @@ else
     public long userId { get; set; }
 
     private Users user;
-    private string message = string.Empty;
-    private string errorMessage = string.Empty;
+    private string message;
 
     // OTP handling
     private string otpInput;
@@ -151,11 +96,31 @@ else
     private bool hasDistricts = false;
     private bool hasWards = false;
 
-    private bool IsSelectedProvince(string id) => address.Province_city == id;
-    private bool IsSelectedDistrict(string id) => address.District == id;
-    private bool IsSelectedWard(string id) => address.Ward_commune == id;
 
-    // Tích hợp chuyển đổi ID thành tên trong OnInitializedAsync
+    private async Task<bool> ShowConfirmation(string message)
+    {
+        return await JSRuntime.InvokeAsync<bool>("confirm", message);
+    }
+
+    private async Task ShowToast(string type, string message)
+    {
+        switch (type)
+        {
+            case "success":
+                await JSRuntime.InvokeVoidAsync("toastr.success", message);
+                break;
+            case "error":
+                await JSRuntime.InvokeVoidAsync("toastr.error", message);
+                break;
+            case "warning":
+                await JSRuntime.InvokeVoidAsync("toastr.warning", message);
+                break;
+            case "info":
+                await JSRuntime.InvokeVoidAsync("toastr.info", message);
+                break;
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -163,162 +128,17 @@ else
             user = await UserService.GetById(userId);
             if (user == null)
             {
-                errorMessage = "Người dùng không tồn tại.";
+                await ShowToast("error", "Người dùng không tồn tại.");
                 Navigation.NavigateTo("/admin/users");
                 return;
             }
+            address = null;
 
-            // Lấy danh sách tỉnh, huyện, xã
-            provinces = await address_Service.GetProvincesAsync();
-
-            if (!string.IsNullOrEmpty(user.Address))
-            {
-                // Giả sử Address lưu ID của tỉnh, huyện, xã
-                var addressIds = user.Address.Split(',');
-                if (addressIds.Length == 3)
-                {
-                    address.Province_city = addressIds[0];
-                    address.District = addressIds[1];
-                    address.Ward_commune = addressIds[2];
-
-                    // Load dữ liệu huyện và xã
-                    districts = await address_Service.GetDistrictsAsync(int.Parse(address.Province_city));
-                    wards = await address_Service.GetWardsAsync(int.Parse(address.District));
-
-                    hasDistricts = districts.Count > 0;
-                    hasWards = wards.Count > 0;
-                }
-            }
         }
         catch (Exception ex)
         {
-            errorMessage = $"Lỗi: {ex.Message}";
+            await ShowToast("error", $"Lỗi: {ex.Message}");
         }
-    }
-
-    private async Task CreateAddress()
-    {
-        // Kiểm tra thông tin địa chỉ
-        if (string.IsNullOrEmpty(address.Ward_commune) ||
-            string.IsNullOrEmpty(address.Province_city) ||
-            string.IsNullOrEmpty(address.District))
-        {
-            errorMessage = "Vui lòng nhập đầy đủ thông tin địa chỉ.";
-            StateHasChanged();
-            return;
-        }
-
-        // Chuyển đổi ID sang tên tỉnh/huyện/xã
-        var selectedProvince = provinces.FirstOrDefault(p => p.Id.ToString() == address.Province_city);
-        var selectedDistrict = districts.FirstOrDefault(d => d.Id.ToString() == address.District);
-        var selectedWard = wards.FirstOrDefault(w => w.Id.ToString() == address.Ward_commune);
-
-        if (selectedProvince == null || selectedDistrict == null || selectedWard == null)
-        {
-            errorMessage = "Không tìm thấy thông tin địa phương. Vui lòng chọn lại.";
-            StateHasChanged();
-            return;
-        }
-
-        // Gán lại tên cho địa chỉ
-        address.Province_city = selectedProvince.Name;
-        address.District = selectedDistrict.Name;
-        address.Ward_commune = selectedWard.Name;
-
-        // Gán ID người dùng
-        if (user != null)
-        {
-            address.User_Id = user.Id;
-        }
-        else
-        {
-            errorMessage = "Không tìm thấy thông tin người dùng.";
-            StateHasChanged();
-            return;
-        }
-
-        // Tạo địa chỉ qua service
-        try
-        {
-            var createdAddress = await address_Service.CreateAddressAndReturn(address);
-            if (createdAddress != null)
-            {
-                // Cập nhật thông báo thành công
-                message = "Địa chỉ đã được tạo thành công.";
-                isCreateAddress = false; // Đóng modal sau khi tạo thành công
-            }
-            else
-            {
-                errorMessage = "Tạo địa chỉ thất bại.";
-            }
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
-        }
-
-        StateHasChanged();
-    }
-
-    private async Task OnProvinceChange(ChangeEventArgs e)
-    {
-        var selectedProvinceId = e.Value?.ToString();
-        if (!string.IsNullOrEmpty(selectedProvinceId))
-        {
-            // Thiết lập tỉnh hiện tại và xóa các quận huyện, xã
-            address.Province_city = selectedProvinceId;
-            districts = await address_Service.GetDistrictsAsync(int.Parse(selectedProvinceId));
-            hasDistricts = districts.Count > 0;
-            wards.Clear();
-            hasWards = false;
-        }
-    }
-    private async Task OnDistrictChange(ChangeEventArgs e)
-    {
-        var selectedDistrictId = e.Value?.ToString();
-        if (!string.IsNullOrEmpty(selectedDistrictId))
-        {
-            address.District = selectedDistrictId;
-            wards = await address_Service.GetWardsAsync(int.Parse(selectedDistrictId));
-            hasWards = wards.Count > 0;
-        }
-    }
-    private async Task OnWardChange(ChangeEventArgs e)
-    {
-        var selectedWardId = e.Value?.ToString();
-        if (!string.IsNullOrEmpty(selectedWardId))
-        {
-            address.Ward_commune = selectedWardId;
-        }
-    }
-    // Các biến để bind vào form
-    private string city;
-    private string district;
-    private string ward;
-    private string street;
-    private string phone;
-    private Address selectedAddress;
-    private void SelectAddress(Address address)
-    {
-        ClearInfoAddress();
-        if (address != null)
-        {
-            selectedAddress = address;
-            city = address.Province_city;
-            district = address.District;
-            ward = address.Ward_commune;
-            street = address.Street;
-            phone = address.User?.Phone;
-        }
-    }
-    private void ClearInfoAddress()
-    {
-        selectedAddress = null;
-        city = string.Empty;
-        district = string.Empty;
-        ward = string.Empty;
-        street = string.Empty;
-        phone = string.Empty;
     }
 
     private async Task SendOtp()
@@ -336,32 +156,28 @@ else
 
         otpError = null;
         message = $"OTP của bạn là: {generatedOtp} (Giả lập, chỉ dành cho thử nghiệm)";
-        StateHasChanged();
-
-        await Task.Delay(500);
     }
 
     private async Task VerifyOtp()
     {
         if (generatedOtp == null)
         {
-            otpError = "Không tìm thấy OTP. Vui lòng gửi lại.";
+            await ShowToast("error", "Không tìm thấy OTP. Vui lòng gửi lại.");
             return;
         }
 
         if (otpExpiryTime == null || otpExpiryTime <= DateTime.Now)
         {
-            otpError = "OTP đã hết hạn. Vui lòng gửi lại.";
+            await ShowToast("error", "OTP đã hết hạn. Vui lòng gửi lại.");
             return;
         }
 
         if (otpInput != generatedOtp)
         {
-            otpError = "OTP không chính xác.";
+            await ShowToast("error", "OTP không chính xác.");
             return;
         }
 
-        otpError = null;
         otpSent = false;
 
         var allUsers = await UserService.GetAll();
@@ -369,7 +185,6 @@ else
 
         if (existingUser != null)
         {
-            // Cập nhật thông tin từ bản ghi hiện tại vào bản ghi tìm thấy
             existingUser.Name = user.Name;
             existingUser.Phone = user.Phone;
             existingUser.Email = user.Email;
@@ -379,21 +194,17 @@ else
             existingUser.Updated_at = DateTime.Now;
 
             await UserService.Update(existingUser);
-
-            // Xóa bản ghi hiện tại sau khi cập nhật bản ghi tìm thấy
             await UserService.Delete(user.Id);
             user = existingUser;
 
-            message = "Cập nhật thông tin thành công! Số điện thoại đã được liên kết.";
+            await ShowToast("success", "Cập nhật thông tin thành công! Số điện thoại đã được liên kết.");
         }
         else
         {
             user.OTPCheck = true;
             await UserService.Update(user);
-            message = "Cập nhật thông tin thành công!";
+            await ShowToast("success", "Cập nhật thông tin thành công!");
         }
-
-        StateHasChanged();
     }
 
 
@@ -401,66 +212,29 @@ else
     {
         if (otpSent)
         {
-            otpError = "Vui lòng xác nhận OTP trước khi lưu thông tin.";
+            await ShowToast("warning", "Vui lòng xác nhận OTP trước khi lưu thông tin.");
             return;
         }
-
-        if (string.IsNullOrEmpty(address.Province_city) ||
-            string.IsNullOrEmpty(address.District) ||
-            string.IsNullOrEmpty(address.Ward_commune))
-        {
-            errorMessage = "Vui lòng nhập đầy đủ thông tin địa chỉ trước khi lưu.";
-            return;
-        }
-
         try
         {
-            // Chuyển đổi ID sang tên trước khi lưu
-            var selectedProvince = provinces.FirstOrDefault(p => p.Id.ToString() == address.Province_city);
-            var selectedDistrict = districts.FirstOrDefault(d => d.Id.ToString() == address.District);
-            var selectedWard = wards.FirstOrDefault(w => w.Id.ToString() == address.Ward_commune);
+            var allUsers = await UserService.GetAll();
+            var emailExists = allUsers.Any(u => u.Email == user.Email && u.Id != user.Id);
 
-            if (selectedProvince == null || selectedDistrict == null || selectedWard == null)
+            if (emailExists)
             {
-                errorMessage = "Không tìm thấy thông tin địa phương. Vui lòng kiểm tra lại.";
-                StateHasChanged();
+                await ShowToast("error", "Email đã tồn tại. Vui lòng nhập email khác.");
                 return;
             }
 
-            // Gán lại tên cụ thể vào đối tượng `address`
-            address.Province_city = selectedProvince.Name;
-            address.District = selectedDistrict.Name;
-            address.Ward_commune = selectedWard.Name;
+            user.Address = null;
+            await UserService.Update(user);
 
-            // Gán ID người dùng
-            address.User_Id = user.Id;
-            address.Name = user.Name;
-            address.Phone = user.Phone;
-            address.Email = user.Email;
-
-            // Gọi service để lưu vào cơ sở dữ liệu
-            var createdAddress = await address_Service.CreateAddressAndReturn(address);
-
-            if (createdAddress != null)
-            {
-                // Cập nhật thông tin địa chỉ cho user
-                user.Address = createdAddress.Id.ToString();
-                await UserService.Update(user);
-
-                message = "Lưu thay đổi thành công!";
-                Navigation.NavigateTo("/admin/users");
-            }
-            else
-            {
-                errorMessage = "Không thể tạo địa chỉ mới.";
-            }
-
-            StateHasChanged();
+            await ShowToast("success", "Lưu thay đổi thành công!");
+            Navigation.NavigateTo("/admin/users");
         }
         catch (Exception ex)
         {
-            errorMessage = $"Lỗi khi cập nhật thông tin: {ex.Message}";
+            await ShowToast("error", $"Lỗi khi cập nhật thông tin: {ex.Message}");
         }
     }
-
 }

@@ -18,13 +18,53 @@ namespace ViewsFE.Services
 
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<List<Products_Returned>>() ?? new List<Products_Returned>();
+                var productsReturned = await response.Content.ReadFromJsonAsync<List<Products_Returned>>() ?? new List<Products_Returned>();
+
+                // Tải thêm thông tin OrderDetails và ProductAttributes
+                foreach (var item in productsReturned)
+                {
+                    if (item.OrderDetailId > 0)
+                    {
+                        var orderDetail = await _httpClient.GetFromJsonAsync<Order_details>($"https://localhost:7011/api/OrderDetails/Details?id={item.OrderDetailId}");
+                        item.OrderDetails = orderDetail;
+                    }
+                }
+                return productsReturned;
             }
             else
             {
                 throw new HttpRequestException($"Lỗi: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
             }
         }
+
+
+        public async Task<List<Products_Returned>> GetAllWithDetailsAsync()
+        {
+            var response = await _httpClient.GetAsync("https://localhost:7011/api/ProductsReturned");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var productsReturned = await response.Content.ReadFromJsonAsync<List<Products_Returned>>() ?? new List<Products_Returned>();
+
+                foreach (var item in productsReturned)
+                {
+                    if (item.OrderDetailId > 0)
+                    {
+                        var orderDetail = await _httpClient.GetFromJsonAsync<Order_details>($"https://localhost:7011/api/OrderDetails/GetOrderAndReturnedProductsById?orderId={item.OrderDetailId}");
+                        item.OrderDetails = orderDetail;
+                    }
+                }
+
+                return productsReturned;
+            }
+            else
+            {
+                throw new HttpRequestException($"Lỗi: {response.StatusCode} - {await response.Content.ReadAsStringAsync()}");
+            }
+        }
+
+
+
 
         public async Task<Products_Returned?> GetByIdAsync(long id)
         {

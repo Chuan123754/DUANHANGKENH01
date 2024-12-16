@@ -182,6 +182,45 @@ namespace ViewsFE.Services
             return result;
         }
 
+        public async Task<Users> GetByPhoneNumber(string phone)
+        {
+            string requestURL = $"{_baseUrl}/api/Users/GetByPhoneNumber?phoneNumber={phone}";
+            var response = await _httpClient.GetAsync(requestURL);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var user = await response.Content.ReadFromJsonAsync<Users>();
+                return user;
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null; // Không tìm thấy người dùng
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Lỗi khi tìm kiếm người dùng: {errorMessage}");
+            }
+        }
+
+
+        public async Task<bool> UpdatePassword(long userId, string newPassword)
+        {
+            string requestURL = $"{_baseUrl}/api/Users/UpdatePassword?userId={userId}";
+            var requestBody = new StringContent(JsonConvert.SerializeObject(newPassword), Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PutAsync(requestURL, requestBody);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true; // Cập nhật mật khẩu thành công
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                throw new Exception($"Cập nhật mật khẩu thất bại: {errorMessage}");
+            }
+        }
 
         public async Task<Users> AutoLogin(string rememberToken)
         {
