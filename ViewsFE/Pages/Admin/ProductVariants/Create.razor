@@ -222,6 +222,7 @@
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th>Id</th>
                                     <th>SKU</th>
                                     <th>Màu Sắc</th>
                                     <th>Kích Thước</th>
@@ -235,6 +236,7 @@
                                 @foreach (var item in LST_ProductAttributes)
                                 {
                                     <tr>
+                                        <td>@item.Id </td>
                                         <td>@item.SKU </td>
                                         <td class="text-center">
                                             <div class="d-flex align-items-center justify-content-center">
@@ -793,25 +795,25 @@
 
             if (item.Stock == null)
             {
-                await JS.InvokeVoidAsync("toastr.error", $"Số lượng cho SKU {item.SKU} không được để trống.");
+                await JS.InvokeVoidAsync("toastr.error", $"Số lượng cho SKU {item.Id} không được để trống.");
                 return;
             }
 
             if (item.Regular_price == null)
             {
-                await JS.InvokeVoidAsync("toastr.error", $"Giá bán cho SKU {item.SKU} không được để trống.");
+                await JS.InvokeVoidAsync("toastr.error", $"Giá bán cho SKU {item.Id} không được để trống.");
                 return;
             }
 
             if (item.Stock <= 0)
             {
-                await JS.InvokeVoidAsync("toastr.error", $"Số lượng cho SKU {item.SKU} phải lớn hơn 0.");
+                await JS.InvokeVoidAsync("toastr.error", $"Số lượng cho SKU {item.Id} phải lớn hơn 0.");
                 return;
             }
 
             if (item.Regular_price <= 0)
             {
-                await JS.InvokeVoidAsync("toastr.error", $"Giá giảm cho SKU {item.SKU} phải lớn hơn 0");
+                await JS.InvokeVoidAsync("toastr.error", $"Giá Bán cho SKU {item.Id} phải lớn hơn 0");
                 return;
             }
 

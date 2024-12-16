@@ -459,6 +459,7 @@
         {
             lst_Orders = lst_Orders
                 .Where(o => o.Id == searchId)
+                .Where(o => o.Note == "Tại quầy")
                 .ToList();
         }
         else
