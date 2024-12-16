@@ -1,7 +1,10 @@
 ﻿@page "/Admin/productVariant/Create"
 @using System.ComponentModel.DataAnnotations
+@using System.Globalization
+@using System.Text
 @using ViewsFE.DTO
 @using appAPI.DTO
+@using System.Text.RegularExpressions;
 @inject NavigationManager nav
 @inject IProductAttributeServices productAttributes
 @inject IPostSer post
@@ -714,6 +717,7 @@
     private async Task CreateProductAttributes()
     {
         bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Xác nhận tạo các biến thể của sản phẩm {product_Variant.Posts.Title} ?");
+
         if (confirmed)
         {
             var selectedColors = colorSelections.Where(c => c.Value).Select(c => c.Key).ToList();
@@ -725,25 +729,39 @@
                 await JS.InvokeVoidAsync("toastr.error", "Vui lòng chọn ít nhất một màu và một kích thước.");
                 return;
             }
+
             foreach (var colorId in selectedColors)
             {
                 foreach (var sizeId in selectedSizes)
                 {
                     var productCreated = await productVariant.GetProductVariantsById(IdProductVariantCreated);
                     string productName = productCreated.Posts.Title;
-                    string textileTechnology = productCreated.Textile_Technology.Slug;
-                    string style = productCreated.Style.Slug;
-                    string material = productCreated.Material.Slug;
+
+                    // Lấy Title thay vì Slug và làm sạch
+                    string textileTechnologyTitle = productCreated.Textile_Technology.Title;
+                    string styleTitle = productCreated.Style.Title;
+                    string materialTitle = productCreated.Material.Title;
 
                     // Tạo tên viết tắt của sản phẩm
                     string productAbbreviation = string.Concat(productName
                         .Split(' ', StringSplitOptions.RemoveEmptyEntries)
                         .Select(word => word[0].ToString().ToUpper()));
 
-                    // Lấy 3 ký tự đầu của các tiêu đề
-                    string textileAbbreviation = textileTechnology?.ToUpper() ?? string.Empty;
-                    string styleAbbreviation = style?.ToUpper() ?? string.Empty;
-                    string materialAbbreviation = material?.ToUpper() ?? string.Empty;
+                    // Hàm làm sạch để xử lý string
+                    string CleanTitle(string title)
+                    {
+                        // Xóa dấu
+                        string normalizedString = new string(title.Normalize(NormalizationForm.FormD)
+                            .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                            .ToArray());
+
+                        // Xóa ký tự đặc biệt và chuyển về chữ hoa
+                        return Regex.Replace(normalizedString, @"[^A-Za-z0-9]", "").ToUpper();
+                    }
+
+                    string textileAbbreviation = CleanTitle(textileTechnologyTitle);
+                    string styleAbbreviation = CleanTitle(styleTitle);
+                    string materialAbbreviation = CleanTitle(materialTitle);
 
                     // Tạo mã SKU
                     string sku = $"{productAbbreviation}-{textileAbbreviation}-{styleAbbreviation}-{materialAbbreviation}";
@@ -755,19 +773,18 @@
                             Size_Id = sizeId,
                             Status = product_Attributes.Stock == 0 ? "Hết hàng" : "Còn hàng",
                             SKU = sku,
-
                         };
+
                     await productAttributes.Create(productAttribute);
                     isProductAttributesCreated = true;
                 }
             }
+
             await JS.InvokeVoidAsync("toastr.success", "Tạo thành công các biến thể");
             LST_ProductAttributes = await productAttributes.GetProductAttributesByProductVarianId(IdProductVariantCreated);
             IdProductVariantCreated = 0;
         }
-
     }
-
 
     private async Task UpdateProductAttributes()
     {

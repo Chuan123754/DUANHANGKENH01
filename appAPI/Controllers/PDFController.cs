@@ -137,13 +137,20 @@ namespace appAPI.Controllers
                     if (product != null)
                     {
                         decimal unitPrice = detail.UnitPrice?? 0; // giá gốc
-                        decimal discountPrice = detail.TotalDiscount ?? 0; // giá giảm
-                        string discountPriceText = discountPrice > 0 ? $"{discountPrice:0,0}" : "#N/A"; // giá giảm null
+                        decimal discountPrice = detail.TotalDiscount ?? unitPrice;
+                        if (discountPrice > unitPrice)
+                        {
+                            discountPrice = unitPrice;
+                        }
+                        string discountPriceText = discountPrice < unitPrice
+                                               ? $"{discountPrice:0,0}"
+                                               : "#N/A"; // Hiển thị giá giảm nếu khác giá gốc
                         decimal appliedPrice = discountPrice > 0 ? discountPrice : unitPrice; // nếu giá giảm null thì giá giảm = giá gốc
 
                         decimal amount = detail.Quantity * appliedPrice; // giá tổng giá đã giảm
                         decimal amountWithoutDiscount = detail.Quantity * unitPrice;  // giá ban đầu
-                        decimal discountAmount = (unitPrice - discountPrice) * detail.Quantity; // tổng tiền được giảm                    
+
+                        decimal discountAmount = (unitPrice - discountPrice) * detail.Quantity;
 
                         itemTable.AddCell(new Cell().Add(new Paragraph(index.ToString()).SetFont(fontNormal).SetFontSize(9)));
                         itemTable.AddCell(new Cell().Add(new Paragraph(product.SKU).SetFont(fontNormal).SetFontSize(9)));
@@ -173,7 +180,7 @@ namespace appAPI.Controllers
                 Table totalTable = new Table(1).UseAllAvailableWidth();
                 totalTable.AddCell(new Cell().Add(new Paragraph($"Cộng tiền hàng chưa giảm (Total): {totalAmountWithoutDiscount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 totalTable.AddCell(new Cell().Add(new Paragraph($"Cộng tiền hàng đã giảm giá (Total amount): {totalAmount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
-                totalTable.AddCell(new Cell().Add(new Paragraph($"Tổng tiền được giảm: - {totalDiscount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                totalTable.AddCell(new Cell().Add(new Paragraph($"Tổng tiền được chiết khấu : {totalDiscount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 totalTable.AddCell(new Cell().Add(new Paragraph($"Phí giao hàng ( FeeShipping): {order.FeeShipping:0,0} VND").SetFont(fontBold).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 totalTable.AddCell(new Cell().Add(new Paragraph($"Tổng cộng tiền thanh toán (Total payment): {totalPayableAmount + order.FeeShipping:0,0} VND").SetFont(fontBold).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 document.Add(totalTable);

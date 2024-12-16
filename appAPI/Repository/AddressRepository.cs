@@ -71,6 +71,8 @@ namespace appAPI.Repository
             if (updateItem != null)
             {
                 updateItem.Name = address.Name;
+                updateItem.Phone = address.Phone;
+                updateItem.Email = address.Email;
                 updateItem.Street = address.Street;
                 updateItem.Ward_commune = address.Ward_commune;
                 updateItem.District = address.District;

@@ -1,4 +1,7 @@
 ﻿@namespace ViewsFE.Pages
+@inject CustomAuthenticationStateProvider _authAdmin
+@inject IAccountService accountService
+@inject IJSRuntime _jsRuntime
 <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
     <div class="container-fluid">
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
@@ -188,6 +191,7 @@
                         </span>
                     </a>
                 </li>
+
                 <li class="nav-item  ">
                     <a class="nav-link " href="/admin/sell">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -211,25 +215,29 @@
                         </span>
                     </a>
                 </li>
-                <li class="nav-item  ">
-                    <a class="nav-link " href="/admin/discounts">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                 stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" />
-                                <path d="M12 12l8 -4.5" />
-                                <path d="M12 12l0 9" />
-                                <path d="M12 12l-8 -4.5" />
-                                <path d="M16 5.25l-8 4.5" />
-                            </svg>
-                        </span>
-                        <span class="nav-link-title">
-                            Discounts
-                        </span>
-                    </a>
-                </li>
+                @if (isAuthenticated == true)
+                {
+                    <li class="nav-item  ">
+                        <a class="nav-link " href="/admin/discounts">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M12 3l8 4.5l0 9l-8 4.5l-8 -4.5l0 -9l8 -4.5" />
+                                    <path d="M12 12l8 -4.5" />
+                                    <path d="M12 12l0 9" />
+                                    <path d="M12 12l-8 -4.5" />
+                                    <path d="M16 5.25l-8 4.5" />
+                                </svg>
+                            </span>
+                            <span class="nav-link-title">
+                                Discounts
+                            </span>
+                        </a>
+                    </li>
+                }
+               
                 <li class="nav-item  ">
                     <a class="nav-link" href="admin/media">
                         <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -359,112 +367,117 @@
                         </div>
                     </div>
                 </li>
-                <li class="nav-item  dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
-                       data-bs-auto-close="false" role="button" aria-expanded="false">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                @if (isAdmin)
+                {
+                    <li class="nav-item  dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
+                           data-bs-auto-close="false" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
 
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round"
-                                 class="icon icon-tabler icons-tabler-outline icon-tabler-building-store">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M3 21l18 0" />
-                                <path d="M3 7v1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1h-18l2 -4h14l2 4" />
-                                <path d="M5 21l0 -10.15" />
-                                <path d="M19 21l0 -10.15" />
-                                <path d="M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4" />
-                            </svg>
-                        </span>
-                        <span class="nav-link-title">
-                            Sản phẩm
-                        </span>
-                    </a>
-                    <div class="dropdown-menu ">
-                        <div class="dropdown-menu-columns">
-                            <div class="dropdown-menu-column">
-                                <a class="dropdown-item " href="/admin/product">
-                                    Tất cả sản phẩm
-                                </a>
-                                <a class="dropdown-item " href="/admin/productVarians">
-                                    Sản phẩm chi tiết
-                                </a>                               
-                                <a class="dropdown-item "
-                                   href="/admin/product-delete">
-                                    Sản phẩm đã xoá
-                                </a>
-                                <a class="dropdown-item " href="/admin/productsreturned">
-                                    Sản phẩm đổi trả
-                                </a>
-                                <a class="dropdown-item "
-                                   href="/admin/product/create">
-                                    Thêm mới sản phẩm
-                                </a>
-                                <a class="dropdown-item "
-                                   href="/admin/product/categorie">
-                                    Chuyên mục
-                                </a>
-                                <a class="dropdown-item " href="/admin/color">
-                                    Màu sắc
-                                </a>
-                                <a class="dropdown-item " href="/admin/size">
-                                    Kích thước
-                                </a>
-                                <a class="dropdown-item " href="/admin/style">
-                                    Phong cách
-                                </a>
-                                <a class="dropdown-item " href="/admin/material">
-                                    Chất liệu
-                                </a>
-                                <a class="dropdown-item " href="/admin/textiletechnology">
-                                    Công nghệ dệt
-                                </a>
+
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     class="icon icon-tabler icons-tabler-outline icon-tabler-building-store">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M3 21l18 0" />
+                                    <path d="M3 7v1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1m0 1a3 3 0 0 0 6 0v-1h-18l2 -4h14l2 4" />
+                                    <path d="M5 21l0 -10.15" />
+                                    <path d="M19 21l0 -10.15" />
+                                    <path d="M9 21v-4a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v4" />
+                                </svg>
+                            </span>
+                            <span class="nav-link-title">
+                                Sản phẩm
+                            </span>
+                        </a>
+                        <div class="dropdown-menu ">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item " href="/admin/product">
+                                        Tất cả sản phẩm
+                                    </a>
+                                    <a class="dropdown-item " href="/admin/productVarians">
+                                        Sản phẩm chi tiết
+                                    </a>
+                                    <a class="dropdown-item "
+                                       href="/admin/product-delete">
+                                        Sản phẩm đã xoá
+                                    </a>
+                                    <a class="dropdown-item "
+                                       href="/admin/product/create">
+                                        Thêm mới sản phẩm
+                                    </a>
+                                    <a class="dropdown-item "
+                                       href="/admin/product/categorie">
+                                        Chuyên mục
+                                    </a>
+                                    <a class="dropdown-item " href="/admin/color">
+                                        Màu sắc
+                                    </a>
+                                    <a class="dropdown-item " href="/admin/size">
+                                        Kích thước
+                                    </a>
+                                    <a class="dropdown-item " href="/admin/style">
+                                        Phong cách
+                                    </a>
+                                    <a class="dropdown-item " href="/admin/material">
+                                        Chất liệu
+                                    </a>
+                                    <a class="dropdown-item " href="/admin/textiletechnology">
+                                        Công nghệ dệt
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </li>
-                <li class="nav-item  dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
-                       data-bs-auto-close="false" role="button" aria-expanded="false">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block">
+                    </li>
+                }
+                @if (isEmployee)
+                {
+                    <li class="nav-item  dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
+                           data-bs-auto-close="false" role="button" aria-expanded="false">
+                            <span class="nav-link-icon d-md-none d-lg-inline-block">
 
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round"
-                                 class="icon icon-tabler icons-tabler-outline icon-tabler-building-fortress">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <path d="M7 21h1a1 1 0 0 0 1 -1v-1h0a3 3 0 0 1 6 0m3 2h1a1 1 0 0 0 1 -1v-15l-3 -2l-3 2v6h-4v-6l-3 -2l-3 2v15a1 1 0 0 0 1 1h2m8 -2v1a1 1 0 0 0 1 1h2" />
-                                <path d="M7 7h0v.01" />
-                                <path d="M7 10h0v.01" />
-                                <path d="M7 13h0v.01" />
-                                <path d="M17 7h0v.01" />
-                                <path d="M17 10h0v.01" />
-                                <path d="M17 13h0v.01" />
-                            </svg>
-                        </span>
-                        <span class="nav-link-title">
-                            Dự án/Công trình
-                        </span>
-                    </a>
-                    <div class="dropdown-menu ">
-                        <div class="dropdown-menu-columns">
-                            <div class="dropdown-menu-column">
-                                <a class="dropdown-item "
-                                   href="/admin/project">
-                                    Danh sách dự án
-                                </a>
-                                <a class="dropdown-item "
-                                   href="/admin/project/create">
-                                    Thêm mới dự án
-                                </a>
-                                <a class="dropdown-item "
-                                   href="/admin/categorie">
-                                    Chuyên mục
-                                </a>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     class="icon icon-tabler icons-tabler-outline icon-tabler-building-fortress">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <path d="M7 21h1a1 1 0 0 0 1 -1v-1h0a3 3 0 0 1 6 0m3 2h1a1 1 0 0 0 1 -1v-15l-3 -2l-3 2v6h-4v-6l-3 -2l-3 2v15a1 1 0 0 0 1 1h2m8 -2v1a1 1 0 0 0 1 1h2" />
+                                    <path d="M7 7h0v.01" />
+                                    <path d="M7 10h0v.01" />
+                                    <path d="M7 13h0v.01" />
+                                    <path d="M17 7h0v.01" />
+                                    <path d="M17 10h0v.01" />
+                                    <path d="M17 13h0v.01" />
+                                </svg>
+                            </span>
+                            <span class="nav-link-title">
+                                Dự án/Công trình
+                            </span>
+                        </a>
+                        <div class="dropdown-menu ">
+                            <div class="dropdown-menu-columns">
+                                <div class="dropdown-menu-column">
+                                    <a class="dropdown-item "
+                                       href="/admin/project">
+                                        Danh sách dự án
+                                    </a>
+                                    <a class="dropdown-item "
+                                       href="/admin/project/create">
+                                        Thêm mới dự án
+                                    </a>
+                                    <a class="dropdown-item "
+                                       href="/admin/categorie">
+                                        Chuyên mục
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </li>
+                    </li>
+                }
+             
                 <li class="nav-item  dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
                        data-bs-auto-close="false" role="button" aria-expanded="false">
@@ -612,3 +625,43 @@
     </div>
 
 </aside>
+
+    @code {
+    private SignInModel loginModel = new SignInModel();
+    private string? errorMessage;
+    private bool isInitialized;
+    private bool isAuthenticated = false;
+    private string? userId;
+    private bool isAdmin = false;
+    private bool isEmployee = false;
+
+    private async Task<bool> UserIsInRoleAsync(string role)
+    {
+        var authState = await _authAdmin.GetAuthenticationStateAsync();
+        var user = authState.User;
+        return user.IsInRole(role);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !isInitialized)
+        {
+            // Khởi tạo trạng thái xác thực
+            await _authAdmin.InitializeAuthenticationState();
+            isInitialized = true;
+
+            // Kiểm tra người dùng đã đăng nhập hay chưa
+            isAuthenticated = await _authAdmin.IsAuthenticatedAsync();
+
+            if (isAuthenticated)
+            {
+                userId = await _authAdmin.GetCurrentUserId();
+                // Kiểm tra vai trò người dùng
+                isAdmin = await UserIsInRoleAsync("Admin");
+                isEmployee = await UserIsInRoleAsync("Employee");
+            }
+
+            StateHasChanged();
+        }
+    }
+}

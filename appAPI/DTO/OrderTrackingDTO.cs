@@ -25,6 +25,7 @@
     {
         public long Id { get; set; }            // ID của order_trackings
         public string Status { get; set; }       // Trạng thái đơn hàng
+        public string? CreateBy { get; set; }       
 
         public string PreviousStatus { get; set; }
         public string Note { get; set; }         // Ghi chú

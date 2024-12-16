@@ -26,6 +26,7 @@
     {
         public long Id { get; set; }            // ID của order_trackings
         public string Status { get; set; }       // Trạng thái đơn hàng
+        public string? CreateBy { get; set; }
         public string PreviousStatus { get; set; } // Trạng thái hiện tại
         public string Note { get; set; }         // Ghi chú
         public decimal TotalMoney { get; set; }  // Tổng tiền

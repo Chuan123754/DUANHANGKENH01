@@ -847,8 +847,8 @@ namespace appAPI.Migrations
                     b.Property<DateTime?>("Created_at")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("Created_by")
-                        .HasColumnType("bigint");
+                    b.Property<string>("Created_by")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
@@ -1730,21 +1730,26 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "b0e591ab-e0f2-40fe-b16a-e73e187911fb",
+
+                            ConcurrencyStamp = "d4959e27-cadf-44c2-9e2f-39b992e90a91",
+
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "c48c995e-569a-4b88-839f-58c5d831c7f9",
+
+                            ConcurrencyStamp = "f7ec8213-ae9f-4a6a-a3a8-7a681cb02aaf",
+
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "59db7b4a-6f00-436b-93ba-d41d0b43058f",
+                            ConcurrencyStamp = "aba459b4-9e27-4edc-bb1b-28b082f61939",
+
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });

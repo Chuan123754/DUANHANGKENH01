@@ -1,6 +1,7 @@
 ﻿@page "/admin/productVarians"
 @using System.Text
 @using System.Globalization
+@using System.Text.RegularExpressions
 @inject NavigationManager Navigation
 @inject IProductVariantServices productVariansService
 @inject IProductAttributeServices productAttributeService
@@ -14,7 +15,10 @@
 @inject IJSRuntime JS
 @inject CustomAuthenticationStateProvider _authStateProvider;
 
-<div class="page-wrapper">
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+ <div class="page-wrapper">
     <!-- Page header -->
     <div class="page-header d-print-none">
         <div class="container-xl">
@@ -414,6 +418,12 @@
     </div>
 </div>
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
+    </Authorized>
+    <NotAuthorized>
+        <p>Không thể truy cập, bạn không có quyền.</p>
+    </NotAuthorized>
+</AuthorizeView>
+
 @code {
     private List<Product_variants> product_Varians_list = new List<Product_variants>();
     private List<Size> Size_list = new List<Size>();
@@ -638,19 +648,30 @@
                 }
 
                 string productName = productVariant.Posts.Title;
-                string textileTechnology = productVariant.Textile_Technology?.Slug ?? string.Empty;
-                string style = productVariant.Style?.Slug ?? string.Empty;
-                string material = productVariant.Material?.Slug ?? string.Empty;
+                string textileTechnologyTitle = productVariant.Textile_Technology.Title;
+                string styleTitle = productVariant.Style.Title;
+                string materialTitle = productVariant.Material.Title;
 
                 // Tạo tên viết tắt của sản phẩm
                 string productAbbreviation = string.Concat(productName
-                    .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(word => RemoveDiacritics(word)[0].ToString().ToUpper()));
+                                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                .Select(word => word[0].ToString().ToUpper()));
 
+
+                string CleanTitle(string title)
+                {
+                    // Xóa dấu
+                    string normalizedString = new string(title.Normalize(NormalizationForm.FormD)
+                        .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                        .ToArray());
+
+                    // Xóa ký tự đặc biệt và chuyển về chữ hoa
+                    return Regex.Replace(normalizedString, @"[^A-Za-z0-9]", "").ToUpper();
+                }
                 // Lấy 3 ký tự đầu của các tiêu đề (nếu có)
-                string textileAbbreviation = textileTechnology.Length >= 3 ? textileTechnology.Substring(0, 3).ToUpper() : textileTechnology.ToUpper();
-                string styleAbbreviation = style.Length >= 3 ? style.Substring(0, 3).ToUpper() : style.ToUpper();
-                string materialAbbreviation = material.Length >= 3 ? material.Substring(0, 3).ToUpper() : material.ToUpper();
+                string textileAbbreviation = CleanTitle(textileTechnologyTitle);
+                string styleAbbreviation = CleanTitle(styleTitle);
+                string materialAbbreviation = CleanTitle(materialTitle);
 
                 // Tạo mã SKU
                 string sku = $"{productAbbreviation}-{textileAbbreviation}-{styleAbbreviation}-{materialAbbreviation}";
@@ -658,12 +679,13 @@
                 // Tạo biến thể mới
                 var productAttribute = new Product_Attributes
                     {
-                        Product_Variant_Id = selectedPostId,
+                        Product_Variant_Id = productVariant.Id,
                         Color_Id = colorId,
                         Size_Id = sizeId,
-                        Status = "",
+                        Status = selectedAttribute.Stock == 0 ? "Hết hàng" : "Còn hàng",
                         SKU = sku,
                     };
+
 
                 await productAttributeService.Create(productAttribute);
 

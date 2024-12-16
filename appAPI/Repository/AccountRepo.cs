@@ -107,10 +107,6 @@ namespace appAPI.Repository
         {
             try
             {
-                if (model.Password != model.ConfirmPassword)
-                {
-                    throw new InvalidOperationException("Mật khẩu không hợp lệ");
-                }
                 var account = new Account
                 {
                     FirstName = model.FirstName,

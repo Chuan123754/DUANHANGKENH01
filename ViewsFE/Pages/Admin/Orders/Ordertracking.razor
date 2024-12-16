@@ -3,11 +3,13 @@
 @inject IOrderTrackingService orderTrackingService
 @inject NavigationManager NavigationManager
 @inject IAddressServices addressService
+@inject IAccountService accountService
 @inject IUserService userService
 @using ViewsFE.BackgroundServices
 @inject EmailNotification email
 @inject HttpClient HttpClient
 @inject IJSRuntime JS
+@inject CustomAuthenticationStateProvider _authStateProvider;
 
 <style>
     .card-header {
@@ -118,9 +120,9 @@
     {
         <!-- Lịch sử đơn hàng -->
         <div class="card mb-4">
-            <div class="card-header bg-light">
+            <div class="card-header d-flex justify-content-between align-items-center bg-light">
                 <h5 class="card-title mb-0">Lịch sử đơn hàng</h5>
-                <button class="btn btn-outline-primary" style="margin-left: 10px;" @onclick="() => DownloadInvoice(OrderId)">Xuất hóa đơn</button>
+                <button class="btn btn-danger mb-0">Hủy đơn</button>
             </div>
             <div class="card-body">
                 <table class="table">
@@ -144,8 +146,19 @@
                                 <td>@OrderTracking.Note</td>
                                 <td>@OrderTracking.TypePayment</td>
                                 <td><span class="@GetStatusClass(tracking.Status)">@tracking.Status</span></td>
-                                <td>@tracking.Note</td>
-                                <td>@OrderTracking.SellerName</td>
+                                <td>@tracking.Note</td>                                
+                                <td>
+                                    @if (@tracking.CreateBy != null)
+                                    {
+                                        @tracking.CreateBy
+                                    }
+                                    else
+                                    {
+                                        <span> Hệ thống</span>
+                                    }
+                          
+                                </td>
+
                             </tr>
                         }
                     </tbody>
@@ -155,15 +168,16 @@
 
         <!-- Danh sách sản phẩm -->
         <div class="card mb-4">
-            <div class="card-header bg-light">
+            <div class="card-header d-flex justify-content-between align-items-center bg-light">
                 <h5 class="card-title mb-0">Danh sách sản phẩm</h5>
+                <button class="btn btn-outline-primary" style="margin-left: 10px;" @onclick="() => DownloadInvoice(OrderId)">Xuất hóa đơn</button>
             </div>
             <div class="card-body">
                 <table class="table">
                     <thead>
                         <tr>
                             <th scope="col">Hình ảnh</th>
-                            <th scope="col">SKU</th>
+                            <th scope="col">Tên sản phẩm</th>
                             <th scope="col">Màu sắc</th>
                             <th scope="col">Size</th>
                             <th scope="col">Số lượng</th>
@@ -252,6 +266,7 @@
                     {
                         <p><strong>Tên khách hàng:</strong>@Order.Users.Name</p>
                         <p><strong>Số điện thoại:</strong> @Order.Users.Phone</p>
+                        <p><strong>E-mail:</strong> @Order.Users.Email</p>
 
                         @if (Address != null)
                         {
@@ -352,6 +367,7 @@
     private Orders? Order { get; set; }
     private Orders? OrderAddress { get; set; }
     private Address Address = new Address();
+    private Account Admin = new Account();
     private string currentStatus;
     private string previousStatus;
     private string restoreNote;
@@ -368,17 +384,27 @@
     private string currentModalId = string.Empty;
     private string currentModalTitle = string.Empty;
     private bool isModalOpen = false;
+    private string adminId;
 
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-
+            var currentUserId = await _authStateProvider.GetCurrentUserId();
+            if (currentUserId == null)
+            {
+                adminId = null;
+            }
+            else
+            {
+                adminId = currentUserId;
+            }
             Order = await orderService.GetByIdOrders(OrderId);
             OrderTracking = await orderTrackingService.GetBy(OrderId);
             OrderAddress = await orderService.OrdersAddress(OrderId);
             Address = await addressService.GetAddressById(Order.Address_Id ?? 0);
+
 
             if (OrderTracking != null && OrderTracking.OrderTrackings.Any())
             {
@@ -386,7 +412,7 @@
                 var latestTracking = OrderTracking.OrderTrackings
                     .OrderByDescending(t => t.CreatedAt)
                     .FirstOrDefault();
-
+                Admin = await accountService.GetAccountById(adminId);
                 OrderTracking.Status = latestTracking?.Status;
                 selectedTrackingId = latestTracking?.Id ?? 0; // Lấy ID của bản ghi mới nhất
             }
@@ -459,7 +485,7 @@
                 Status = status,
                 Note = note,
                 Created_at = DateTime.Now,
-                Created_by = 1 // Đang dùng ID ảo.
+                Created_by = adminId
             };
 
             var result = await orderTrackingService.AddOrderTracking(newTracking);
@@ -525,7 +551,7 @@
                 Status = "Hoàn Thành đơn",
                 Note = "Khách đã thanh toán trước.",
                 Created_at = DateTime.Now,
-                Created_by = 1
+                    Created_by = adminId
             };
 
             var result = await orderTrackingService.AddOrderTracking(newTracking);
@@ -561,7 +587,8 @@
                 OrderId = OrderId,
                 Status = status,
                 Note = note,
-                Updated_at = DateTime.Now
+                Updated_at = DateTime.Now,
+                    Created_by = adminId
             };
 
             var resultTracking = await orderTrackingService.AddOrderTracking(updatedTracking);
@@ -607,10 +634,21 @@
             {
                 if (paidTracking != null) // Nếu đã thanh toán
                 {
-                    var modalStatus = "Hoàn tất đơn";
-                    var modalNote = "Khách đã thanh toán qua hình thức chuyển khoản MOMO.";
-                    await AddNewTracking(modalStatus, modalNote);
-                    await UpdateOrderStatus(modalStatus);
+                    if(Order.CreatedByAdminId != null)
+                    {
+                        var modalStatus = "Giao thành công";
+                        var modalNote = "Khách đã thanh toán tại quầy";
+                        await AddNewTracking(modalStatus, modalNote);
+                        await UpdateOrderStatus(modalStatus);
+                    }
+                    else
+                    {
+                        var modalStatus = "Hoàn tất đơn";
+                        var modalNote = "Khách đã thanh toán qua hình thức chuyển khoản MOMO.";
+                        await AddNewTracking(modalStatus, modalNote);
+                        await UpdateOrderStatus(modalStatus);
+                    }
+
                     await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã hoàn tất, khách đã thanh toán tại quầy.");
                     CloseModal();
                     return;
@@ -677,7 +715,7 @@
                     Status = status,
                     Note = note,
                     Created_at = DateTime.Now,
-                    Created_by = 1
+                    Created_by = adminId
                 };
 
             var result = await orderTrackingService.AddOrderTracking(newTracking);
@@ -960,7 +998,7 @@
                 Status = newStatus,
                 Note = note,
                 Created_at = DateTime.Now,
-                Created_by = 1
+                Created_by = adminId
             };
 
         var result = await orderTrackingService.AddOrderTracking(newTracking);
@@ -969,9 +1007,18 @@
 
         var order = await orderService.GetByIdOrders(OrderId);
         var user = await userService.GetById(order.User_id ?? 0);
+        if (result == "Thêm mới thành công.")
+        {
+            await ReloadTrackingData();
+            await JS.InvokeVoidAsync("toastr.success", $"Trạng thái mới được thêm: {newStatus}");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("toastr.error", result);
+        }
+        ReloadTrackingData();
 
         var emailUser = user.Email;
-
         string emailSubject = "ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC CẬP NHẬT";
         string emailMessage = $@"
                 <!DOCTYPE html>
@@ -982,27 +1029,17 @@
                 </head>
                 <body>
                     <h2>Chào mừng bạn đến với HangKenh!</h2>
-                    <p>Xin chào {user.Name} đơn hàng {OrderId} vừa được cập nhật</p>
+                    <p>Xin chào {user.Name} đơn hàng {OrderId} của bạn vừa được cập nhật</p>
                     <p>Thông tin đơn hàng của bạn</p>
                     <ul>
                         <li><strong>Trạng thái:</strong> {newStatus}</li>
                     </ul>
                     <p>Cảm ơn bạn đã chọn HangKenh!</p>
                     <p>Trân trọng,<br />Đội ngũ HangKenh</p>
-                      <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy9z_jY_2Jlieg9lmeq_-TnRpWE2T4Kdw8JA&s' alt='HangKenh Logo' style='float: right;'; margin: auto; width: 100%; max-width: 300px;' />
+                     <img src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTy9z_jY_2Jlieg9lmeq_-TnRpWE2T4Kdw8JA&s' alt='HangKenh Logo' style='float: left;'; margin: auto; width: 100%; max-width: 250px;' />
                 </body>
                 </html>
             ";
         await email.SendEmailAsync(emailUser, emailSubject, emailMessage);
-
-        if (result == "Thêm mới thành công.")
-        {
-            await ReloadTrackingData();
-            await JS.InvokeVoidAsync("toastr.success", $"Trạng thái mới được thêm: {newStatus}");
-        }
-        else
-        {
-            await JS.InvokeVoidAsync("toastr.error", result);
-        }
     }
 }
