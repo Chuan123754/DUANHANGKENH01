@@ -362,11 +362,24 @@
         }
         return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
-    private async Task<bool> IsSlugUnique(string slug)
+    // private async Task<bool> IsSlugUnique(string slug)
+    // {
+    //     try
+    //     {
+    //         return await sev.CheckSlug(slug); // Gọi API kiểm tra Slug
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Console.WriteLine($"Error checking slug: {ex.Message}");
+    //         return false;
+    //     }
+    // }
+    private async Task<bool> IsSlugUnique(string slug, long postId)
     {
         try
         {
-            return await sev.CheckSlug(slug); // Gọi API kiểm tra Slug
+            // Kiểm tra Slug trong database nhưng bỏ qua sản phẩm hiện tại (theo postId)
+            return await sev.CheckSlugForUpdate(slug, postId); // Gọi API để kiểm tra
         }
         catch (Exception ex)
         {
@@ -374,25 +387,30 @@
             return false;
         }
     }
+
     private async void HandleValidSubmit()
     {
-        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
-
-        var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
-        SelectedTags = string.IsNullOrEmpty(tags)
-            ? new List<long>() // Nếu tags rỗng, tạo danh sách trống
-            : tags.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
-
-        bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty);
-        if (!isSlugUnique)
-        {
-            await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
-            return;
-        }
         try
         {
+            // Lấy nội dung từ TinyMCE
+            Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
+
+            var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
+            SelectedTags = string.IsNullOrEmpty(tags)
+                ? new List<long>()
+                : tags.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
+
+            bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty, Posts.Id);
+            if (!isSlugUnique)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
+                return;
+            }
+
+    
             postId = await sev.Update(Posts, SelectedTags);
             await bnser.Update(banner, postId);
+
             await JS.InvokeVoidAsync("toastr.success", "Sửa trang thành công");
             nav.NavigateTo("/admin/page");
         }

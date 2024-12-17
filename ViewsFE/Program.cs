@@ -50,7 +50,7 @@ builder.Services.AddDistributedMemoryCache();
 // Thêm cấu hình session
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(15); // Thời gian timeout của session (giảm xuống nếu không cần thiết)
+    options.IdleTimeout = TimeSpan.FromMinutes(5); // Thời gian timeout của session (giảm xuống nếu không cần thiết)
     options.Cookie.HttpOnly = true; // Chỉ cho phép truy cập cookie từ phía máy chủ
     options.Cookie.IsEssential = true; // Cookie cần thiết cho ứng dụng
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Chỉ gửi cookie qua HTTPS
@@ -61,8 +61,8 @@ builder.Services.AddSession(options =>
 builder.Services.AddServerSideBlazor()
     .AddHubOptions(options =>
     {
-        options.ClientTimeoutInterval = TimeSpan.FromSeconds(90); // Tăng thời gian timeout cho client
-        options.HandshakeTimeout = TimeSpan.FromSeconds(15); // Giảm thời gian timeout cho handshake
+        options.ClientTimeoutInterval = TimeSpan.FromMinutes(5); // Tăng thời gian timeout cho client
+        options.HandshakeTimeout = TimeSpan.FromMinutes(5); // Giảm thời gian timeout cho handshake
     });
 // Thêm CORS nếu cần
 builder.Services.AddCors(options =>
@@ -128,7 +128,6 @@ builder.Services.AddServerSideBlazor(options => options.DetailedErrors = true);
 builder.Services.AddScoped<IContacServices, ContacServices>();
 builder.Services.AddScoped<IAccsessViewscsServices, AccsessViewsServices>();
 builder.Services.AddScoped<IProductsReturnedService, ProductsReturnedService>();
-
 builder.Services.AddScoped<RoleService>();
 
 var app = builder.Build();

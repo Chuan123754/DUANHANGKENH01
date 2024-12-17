@@ -167,6 +167,16 @@
                                     </span>
                                 </a>
                             </li>
+                                <li class="nav-item">
+                                    <a @onclick="async () => await GetCompleteOrders()"
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Hoàn thành</strong>
+                                        <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
+                                            @completeOrders
+                                        </span>
+                                    </a>
+                                </li>
                             <li class="nav-item">
                                     <a @onclick="async () => await GetCanceledOrders()"
                                     class="order-tab-click nav-link"
@@ -292,6 +302,7 @@
     private int shippingOrders = 0; // đang giao
     private int failedOrders = 0; // giao thất bại
     private int successfulOrders = 0; // giao thành công
+    private int completeOrders = 0; // hoàn thành
     private int canceledOrders = 0; // bị hủy
 
     private string GetNoteClass(string note)
@@ -325,13 +336,13 @@
         LoadPagedOrders();
     }
 
-    private string GetStatusClass(string status) // giao diện cho status
+    private string GetStatusClass(string status)
     {
         if (status == "Hóa đơn treo")
         {
             return "badge bg-danger"; 
         }
-        else if (status == "Đã thanh toán")
+        else if (status == "Hoàn tất đơn")
         {
             return "badge bg-success"; 
         }
@@ -353,13 +364,14 @@
         nav.NavigateTo($"/ordertracking/{orderId}");
     }
 
-    public async Task ListOrder()
-    {
+   public async Task ListOrder()
+{
         var lst_OrdersShipping = await orderService.GetAll();
         // sắp xếp
         lst_Orders = lst_OrdersShipping
        .Where(o => o.Note == "Giao hàng")
        .OrderByDescending(o => o.Status == "Hóa đơn treo")
+       .ThenByDescending(o => o.Status == "Đã thanh toán")
        .ThenByDescending(o => o.Status == "Chờ xác nhận")
        .ThenByDescending(o => o.Status == "Đã xác nhận")
        .ThenByDescending(o => o.Status == "Đã chuẩn bị hàng")
@@ -367,25 +379,30 @@
        .ThenByDescending(o => o.Status == "Đang vận chuyển")
        .ThenByDescending(o => o.Status == "Giao thành công")
        .ThenByDescending(o => o.Status == "Giao thất bại")
+       .ThenByDescending(o => o.Status == "Hoàn tất đơn")
        .ThenByDescending(o => o.Status == "Đơn hủy")
        .ThenByDescending(o => o.Created_at)
        .ToList();
 
-        totalOrders = lst_Orders.Count;
-        pendingOrders = lst_Orders.Count(o => o.Status == "Chờ xác nhận");
-        confirmedOrders = lst_Orders.Count(o => o.Status == "Đã xác nhận");
-        preparedOrders = lst_Orders.Count(o => o.Status == "Đã chuẩn bị hàng");
-        pickedOrders = lst_Orders.Count(o => o.Status == "Đã lấy hàng");
-        shippingOrders = lst_Orders.Count(o => o.Status == "Đang vận chuyển");
-        failedOrders = lst_Orders.Count(o => o.Status == "Giao thất bại");
-        successfulOrders = lst_Orders.Count(o => o.Status == "Giao thành công");
-        canceledOrders = lst_Orders.Count(o => o.Status == "Đơn hủy");
-        LoadPagedOrders();
-    }
+    // Tính toán các thống kê
+    totalOrders = lst_Orders.Count;
+    pendingOrders = lst_Orders.Count(o => o.Status == "Chờ xác nhận");
+    confirmedOrders = lst_Orders.Count(o => o.Status == "Đã xác nhận");
+    preparedOrders = lst_Orders.Count(o => o.Status == "Đã chuẩn bị hàng");
+    pickedOrders = lst_Orders.Count(o => o.Status == "Đã lấy hàng");
+    shippingOrders = lst_Orders.Count(o => o.Status == "Đang vận chuyển");
+    failedOrders = lst_Orders.Count(o => o.Status == "Giao thất bại");
+    successfulOrders = lst_Orders.Count(o => o.Status == "Giao thành công");
+    completeOrders = lst_Orders.Count(o => o.Status == "Hoàn tất đơn");
+    canceledOrders = lst_Orders.Count(o => o.Status == "Đơn hủy");
+
+    LoadPagedOrders();
+}
+
     private async Task GetPendingOrders()
     {
         var lstOrders = await orderService.GetAll();
-        lst_Orders = lstOrders.Where(o => o.Status == "Chờ xác nhận").Where(o => o.Note == "Giao hàng").ToList();
+        lst_Orders = lstOrders.Where(o => o.Status == "Chờ xác nhận").Where(o => o.Status == "Đã thanh toán").Where(o => o.Note == "Giao hàng").ToList();
         LoadPagedOrders(); 
     }
     private async Task GetConfirmOrder()
@@ -424,6 +441,12 @@
         lst_Orders = lstOrders.Where(o => o.Status == "Giao thành công").Where(o => o.Note == "Giao hàng").ToList();
         LoadPagedOrders();
     }
+    private async Task GetCompleteOrders()
+    {
+        var lstOrders = await orderService.GetAll();
+        lst_Orders = lstOrders.Where(o => o.Status == "Hoàn tất đơn").Where(o => o.Note == "Giao hàng").ToList();
+        LoadPagedOrders();
+    }
     private async Task GetCanceledOrders()
     {
         var lstOrders = await orderService.GetAll();
@@ -450,6 +473,7 @@
         else if (int.TryParse(searchText, out int searchId))
         {
             lst_Orders = lst_Orders
+                .Where(o => o.Note == "Giao hàng")
                 .Where(o => o.Id == searchId)
                 .ToList();
         }

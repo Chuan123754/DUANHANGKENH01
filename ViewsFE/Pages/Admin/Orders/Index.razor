@@ -73,7 +73,6 @@
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-deck row-cards">
-                
                 <!-- Input tìm kiếm -->
                 <div class="form-group d-flex justify-content-end">
                     <div class="d-flex gap-2" style="width: 40%;">
@@ -89,10 +88,58 @@
                 </div>
                <div class="col-12">
                     <div class="card">
-                        <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
-                            <input type="date" id="startDate" @bind="startDate" class="form-control" placeholder="Ngày bắt đầu" style="max-width: 200px;" />
-                            <input type="date" id="endDate" @bind="endDate" class="form-control" placeholder="Ngày kết thúc" style="max-width: 200px;" />
-                            <button class="btn btn-primary" @onclick="FilterByDateRange">Lọc theo thời gian</button>
+                        <div class="card-header">
+                            <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" >
+                                <li class="nav-item">
+                                    <a @onclick="async () => await ListOrder()"
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Tất cả</strong>
+                                        <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
+                                            @totalOrders
+                                        </span>
+
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a @onclick="async () => await GetProcessinglOrders()"
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Đang xử lý</strong>
+                                        <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
+                                            @totalProcessing
+                                        </span>
+
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a @onclick="async () => await GetCompleteOrders()"
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Hoàn thành</strong>
+                                        <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
+                                            @totalComplete
+                                        </span>
+
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a @onclick="async () => await GetCanceledOrders()"
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Đơn hủy</strong>
+                                        <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
+                                            @canceledOrders
+                                        </span>
+
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
+                                <input type="date" id="startDate" @bind="startDate" class="form-control" placeholder="Ngày bắt đầu" style="max-width: 200px;" />
+                                <input type="date" id="endDate" @bind="endDate" class="form-control" placeholder="Ngày kết thúc" style="max-width: 200px;" />
+                                <button class="btn btn-primary" @onclick="FilterByDateRange">Lọc theo thời gian</button>
+                            </div>
                         </div>
 
                         <div class="table-responsive">
@@ -206,13 +253,8 @@
     private int pageSize = 10;
     private int totalPages = 1;
     private int totalOrders = 0; // tổng hóa đơn
-    private int pendingOrders = 0; // chờ xác nhận
-    private int confirmedOrders = 0; // đã xác nhận
-    private int preparedOrders = 0; // chuẩn bị hàng
-    private int pickedOrders = 0; // đã lấy hàng 
-    private int shippingOrders = 0; // đang giao
-    private int failedOrders = 0; // giao thất bại
-    private int successfulOrders = 0; // giao thành công
+    private int totalProcessing = 0; // tổng đơn hàng đang xử lý
+    private int totalComplete = 0; // đơn hàng hoàn thành
     private int canceledOrders = 0; // bị hủy
 
     private DateTime? startDate;
@@ -253,22 +295,17 @@
     {
         if (status == "Hóa đơn treo")
         {
-            return "badge bg-danger"; 
+            return "badge bg-danger";
         }
-        else if (status == "Đã thanh toán")
+        else if (status == "Hoàn tất đơn")
         {
-            return "badge bg-success"; 
+            return "badge bg-success";
         }
-        return "badge bg-secondary"; 
+        return "badge bg-secondary";
     }
     private void NavigateToSell()
     {
         nav.NavigateTo("/admin/sell");
-    }
-
-    private async Task LoadOrders()
-    {
-        Orders = await OrderTrackingService.GetAllOrders();
     }
 
     private void GoToOrderTracking(long orderId)
@@ -278,39 +315,42 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadOrders();
-        await ListOrder();
+        await LoadOrders(); 
+        await ListOrder();  
         LoadPagedOrders();
     }
+    private async Task LoadOrders()
+    {
+        Orders = await OrderTrackingService.GetAllOrders();
+    }
+
 
     public async Task ListOrder()
     {   
-        var orders = await orderService.GetAll();
+        var lst_OrdersShipping = await orderService.GetAll();
         // sắp xếp
-        lst_Orders = orders
-       .OrderByDescending(o => o.Status == "Hóa đơn treo") // "Hóa đơn treo" xếp lên đầu
+        lst_Orders = lst_OrdersShipping
+       .OrderByDescending(o => o.Status == "Hóa đơn treo")
+       .ThenByDescending(o => o.Status == "Đã thanh toán")
+       .ThenByDescending(o => o.Status == "Chờ xác nhận")
+       .ThenByDescending(o => o.Status == "Đã xác nhận")
+       .ThenByDescending(o => o.Status == "Đã chuẩn bị hàng")
+       .ThenByDescending(o => o.Status == "Đã lấy hàng")
+       .ThenByDescending(o => o.Status == "Đang vận chuyển")
+       .ThenByDescending(o => o.Status == "Giao thành công")
+       .ThenByDescending(o => o.Status == "Giao thất bại")
+       .ThenByDescending(o => o.Status == "Hoàn tất đơn")
+       .ThenByDescending(o => o.Status == "Đơn hủy")
        .ThenByDescending(o => o.Created_at)
        .ToList();
-        lst_Orders = await orderService.GetAll() ?? new List<Orders>();
-        lst_Orders = lst_Orders
-            .OrderByDescending(o => o.Status == "Hóa đơn treo") 
-            .ThenByDescending(o => o.Status == "Đã thanh toán") 
-            .ThenByDescending(o => o.Created_at) 
-            .ToList();
 
-
+        // Tính toán thống kê
         totalOrders = lst_Orders.Count;
-        pendingOrders = lst_Orders.Count(o => o.Status == "Chờ xác nhận");
-        confirmedOrders = lst_Orders.Count(o => o.Status == "Đã xác nhận");
-        preparedOrders = lst_Orders.Count(o => o.Status == "Đã chuẩn bị hàng");
-        pickedOrders = lst_Orders.Count(o => o.Status == "Đã lấy hàng");
-        shippingOrders = lst_Orders.Count(o => o.Status == "Đang vận chuyển");
-        failedOrders = lst_Orders.Count(o => o.Status == "Giao thất bại");
-        successfulOrders = lst_Orders.Count(o => o.Status == "Giao thành công");
-        canceledOrders = lst_Orders.Count(o => o.Status == "Đã hủy");
+        canceledOrders = lst_Orders.Count(o => o.Status == "Đơn hủy");
+        totalComplete = lst_Orders.Count(o => o.Status == "Hoàn tất đơn");
+        totalProcessing = lst_Orders.Count(o => o.Status != "Đã hủy" && o.Status != "Hoàn tất đơn");
         LoadPagedOrders();
     }
-
     private async Task FilterByDateRange()
     {
         lst_Orders = await orderService.GetAll() ?? new List<Orders>();
@@ -326,55 +366,42 @@
         LoadPagedOrders();
     }
 
+    private async Task GetTotalOrders()
+    {
+        lst_Orders = await orderService.GetAll();
+        currentPage = 1;
+        LoadPagedOrders();
+    }
+    private async Task GetProcessinglOrders()
+    {
+        var lstOrders = await orderService.GetAll();
+        lst_Orders = lstOrders.Where(o => o.Status != "Đơn hủy" && o.Status != "Hoàn tất đơn")
+               .OrderByDescending(o => o.Status == "Hóa đơn treo")
+               .ThenByDescending(o => o.Status == "Đã thanh toán")
+               .ThenByDescending(o => o.Status == "Chờ xác nhận")
+               .ThenByDescending(o => o.Status == "Đã xác nhận")
+               .ThenByDescending(o => o.Status == "Đã chuẩn bị hàng")
+               .ThenByDescending(o => o.Status == "Đã lấy hàng")
+               .ThenByDescending(o => o.Status == "Đang vận chuyển")
+               .ThenByDescending(o => o.Status == "Giao thành công")
+               .ThenByDescending(o => o.Status == "Giao thất bại")
+               .ThenByDescending(o => o.Created_at)
+               .ToList();
 
-    // private async Task GetPendingOrders()
-    // {
-    //     var lstOrders = await orderService.GetAll();
-    //     lst_Orders = lstOrders.Where(o => o.Status == "Chờ xác nhận").ToList();
-    //     LoadPagedOrders(); 
-    // }
-    // private async Task GetConfirmOrder()
-    // {
-    //     var lstOrders = await orderService.GetAll();
-    //     lst_Orders = lstOrders.Where(o => o.Status == "Đã xác nhận").ToList();
-    //     LoadPagedOrders();
-    // }
-    // private async Task GetPreparedOrders()
-    // {
-    //     var lstOrders = await orderService.GetAll();
-    //     lst_Orders = lstOrders.Where(o => o.Status == "Đã chuẩn bị hàng").ToList();
-    //     LoadPagedOrders(); 
-    // }
-    // private async Task GetPickedOrders()
-    // {
-    //     var lstOrders = await orderService.GetAll();
-    //     lst_Orders = lstOrders.Where(o => o.Status == "Đã lấy hàng").ToList();
-    //     LoadPagedOrders(); 
-    // }
-    // private async Task GetShippingOrders()
-    // {
-    //     var lstOrders = await orderService.GetAll();
-    //     lst_Orders = lstOrders.Where(o => o.Status == "Đang vận chuyển").ToList();
-    //     LoadPagedOrders(); 
-    // }
-    // private async Task GetFailedOrders()
-    // {
-    //     var lstOrders = await orderService.GetAll();
-    //     lst_Orders = lstOrders.Where(o => o.Status == "Giao thất bại").ToList();
-    //     LoadPagedOrders();
-    // }
-    // private async Task GetSuccessfulOrders()
-    // {
-    //     var lstOrders = await orderService.GetAll();
-    //     lst_Orders = lstOrders.Where(o => o.Status == "Giao thành công").ToList();
-    //     LoadPagedOrders();
-    // }
-    // private async Task GetCanceledOrders()
-    // {
-    //     var lstOrders = await orderService.GetAll();
-    //     lst_Orders = lstOrders.Where(o => o.Status == "Đã hủy").ToList();
-    //     LoadPagedOrders(); 
-    // }
+        LoadPagedOrders();
+    }
+    private async Task GetCompleteOrders()
+    {
+        var lstOrders = await orderService.GetAll();
+        lst_Orders = lstOrders.Where(o => o.Status == "Hoàn tất đơn").OrderByDescending(o => o.Created_at).ToList();
+        LoadPagedOrders();
+    }
+    private async Task GetCanceledOrders()
+    {
+        var lstOrders = await orderService.GetAll();
+        lst_Orders = lstOrders.Where(o => o.Status == "Đơn hủy").OrderByDescending(o => o.Created_at).ToList();
+        LoadPagedOrders(); 
+    }
 
     private async Task SearchOrders(ChangeEventArgs e)
     {
