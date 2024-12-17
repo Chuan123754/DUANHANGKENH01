@@ -23,6 +23,25 @@ namespace appAPI.Controllers
             _bannerRepository = bannerRepository;
             _context = context;
         }
+        [HttpGet("check-slug-for-update")]
+        public async Task<IActionResult> CheckSlugForUpdate([FromQuery] string slug, [FromQuery] long postId)
+        {
+            if (string.IsNullOrEmpty(slug))
+            {
+                return BadRequest(new { message = "Slug không được để trống." });
+            }
+
+            try
+            {
+                bool isUnique = await _postRepository.CheckSlugForUpdate(slug, postId);
+
+                return Ok(new { isUnique }); // Trả về true nếu Slug hợp lệ, false nếu trùng
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Lỗi xảy ra: {ex.Message}" });
+            }
+        }
         [HttpGet("Get-All")]
         public async Task<List<Product_Posts>> GetAll()
         {
