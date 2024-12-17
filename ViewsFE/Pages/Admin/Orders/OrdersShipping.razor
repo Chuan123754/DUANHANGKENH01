@@ -405,7 +405,7 @@
     private async Task GetPendingOrders()
     {
         var lstOrders = await orderService.GetAll();
-        lst_Orders = lstOrders.Where(o => o.Status == "Chờ xác nhận").Where(o => o.Status == "Đã thanh toán").Where(o => o.Note == "Giao hàng").ToList();
+        lst_Orders = lstOrders.Where(o => o.Status == "Chờ xác nhận").Where(o => o.Note == "Giao hàng").ToList();
         LoadPagedOrders(); 
     }
     private async Task GetConfirmOrder()
