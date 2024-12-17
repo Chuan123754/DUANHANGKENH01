@@ -6,6 +6,7 @@
  @inject OrderDetailsIServices ordedatil
  @inject IUserService usesv
  @inject NavigationManager nav
+ @inject CustomAuthenticationStateProvider _authAdmin
  @inject IAccsessViewscsServices accv
  @inject IJSRuntime JS
  @using System.Text.Json
@@ -570,6 +571,28 @@
         JS.InvokeVoidAsync("eval", $"var ctx = document.getElementById('orderDoughnutChart').getContext('2d'); new Chart(ctx, {jsonOptionsdoughnut});");
 
 
+    }
+
+    private bool isInitialized;
+    private bool isAuthenticated = false;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !isInitialized)
+        {
+            // Khởi tạo trạng thái xác thực
+            await _authAdmin.InitializeAuthenticationState();
+            isInitialized = true;
+
+            // Kiểm tra người dùng đã đăng nhập hay chưa
+            isAuthenticated = await _authAdmin.IsAuthenticatedAsync();
+
+            if (!isAuthenticated)
+            {
+                nav.NavigateTo("/admin/login");
+            }
+
+            StateHasChanged();
+        }
     }
 
     protected override async Task OnInitializedAsync()
