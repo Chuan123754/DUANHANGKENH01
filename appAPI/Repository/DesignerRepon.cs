@@ -1,6 +1,7 @@
 ﻿using appAPI.IRepository;
 using appAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 
 namespace appAPI.Repository
 {
@@ -101,6 +102,21 @@ namespace appAPI.Repository
         public async Task<List<Designer>> GetAllAC()
         {
             return await _context.Designer.Where(p => p.Deleted == false && p.status == "ACTIVE").ToListAsync();
+        }
+
+        public async Task<Designer> GetByIdSlug(string slug)
+        {
+            return await _context.Designer.Where(p => p.slug == slug && p.Deleted == false).FirstOrDefaultAsync();
+        }
+
+        public async Task<bool> CheckSlugForUpdate(string slug, long desiId)
+        {
+            if (string.IsNullOrWhiteSpace(slug))
+                return false;
+
+            // Tìm kiếm Slug trùng lặp nhưng bỏ qua chính bản ghi hiện tại
+            return await _context.Designer
+                .AnyAsync(p => p.slug == slug && p.id_Designer != desiId);
         }
     }
 }

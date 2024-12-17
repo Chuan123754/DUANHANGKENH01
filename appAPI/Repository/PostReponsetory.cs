@@ -158,7 +158,8 @@ namespace appAPI.Repository
                 .Include(p => p.Post_categories)    // Lấy thông tin về Post_categories
                     .ThenInclude(pc => pc.Categories)
                 .Include(p => p.Designer)           // Lấy thông tin Designer
-                .OrderByDescending(p => p.Id)
+                .OrderBy(p => p.STT == null)
+                .ThenBy(p => p.STT)
                 .ToListAsync();
         }
         // Lấy tất cả bài viết
@@ -384,6 +385,7 @@ namespace appAPI.Repository
             item.Feature_image = post.Feature_image;
             item.Description = post.Description;
             item.Short_description = post.Short_description;
+            item.STT = post.STT;
             item.Updated_by = post.Updated_by;
             item.Updated_at = DateTime.Now;
             item.Post_date = DateTime.Now;
@@ -860,7 +862,10 @@ namespace appAPI.Repository
         }
         public async Task<bool> CheckSlugForUpdate(string slug, long postId)
         {
-            // Kiểm tra Slug có tồn tại nhưng không phải của bản ghi hiện tại
+            if (string.IsNullOrWhiteSpace(slug))
+                return false;
+
+            // Tìm kiếm Slug trùng lặp nhưng bỏ qua chính bản ghi hiện tại
             return await _context.Posts
                 .AnyAsync(p => p.Slug == slug && p.Id != postId);
         }
