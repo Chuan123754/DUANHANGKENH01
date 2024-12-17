@@ -168,9 +168,9 @@
                                             <tr>
                                                 <td>@item.Id</td>
                                                 <td>
-                                                    @if(item.CreatedByAdminId == null )
+                                                    @if (item.CreatedByAdminId == null)
                                                     {
-                                                        <span>Hệ thống</span>
+                                                        <span style="color:green"><strong>Online</strong></span>
                                                     }
                                                     else
                                                     {
@@ -353,22 +353,35 @@
         orderCounterComplete = lst_Orders.Where(o => o.Status == "Đã thanh toán").Where(o=>o.Note=="Tại quầy").Count();
         totalComplete = orderShippingComplete + orderCounterComplete;
 
-        totalProcessing = lst_Orders.Where(o => o.Status != "Đã hủy" && o.Status != "Hoàn tất đơn").Where(o => o.Status != "Đã thanh toán" && o.Note != "Tại quầy").Count();
+        totalProcessing = lst_Orders.Where(o =>
+            o.Status != "Đơn hủy" &&
+            o.Status != "Hoàn tất đơn" &&
+            !(o.Status == "Đã thanh toán" && o.Note == "Tại quầy") ||
+            (o.Status == "Đã thanh toán" && o.Note == "Giao hàng")).Count();
         LoadPagedOrders();
     }
     private async Task FilterByDateRange()
     {
         lst_Orders = await orderService.GetAll() ?? new List<Orders>();
 
-        if (startDate.HasValue && endDate.HasValue)
+        if(startDate >= endDate)
         {
-            lst_Orders = lst_Orders
-                .Where(o => o.Created_at >= startDate.Value && o.Created_at <= endDate.Value)
-                .ToList();
+            await JS.InvokeVoidAsync("toastr.warning", "Vui lòng nhập thời gian hợp lệ");
+            return;
+        }
+        else
+        {
+            if (startDate.HasValue && endDate.HasValue)
+            {
+                lst_Orders = lst_Orders
+                    .Where(o => o.Created_at >= startDate.Value && o.Created_at <= endDate.Value)
+                    .ToList();
+            }
+
+            currentPage = 1;
+            LoadPagedOrders();
         }
 
-        currentPage = 1;
-        LoadPagedOrders();
     }
 
     private async Task GetTotalOrders()
@@ -380,7 +393,12 @@
     private async Task GetProcessinglOrders()
     {
         var lstOrders = await orderService.GetAll();
-        lst_Orders = lstOrders.Where(o => o.Status != "Đơn hủy" && o.Status != "Hoàn tất đơn")
+        lst_Orders = lstOrders.Where(o => 
+            o.Status != "Đơn hủy" && 
+            o.Status != "Hoàn tất đơn" &&
+            !(o.Status == "Đã thanh toán" && o.Note == "Tại quầy") ||
+            (o.Status == "Đã thanh toán" && o.Note == "Giao hàng"))
+
                .OrderByDescending(o => o.Status == "Hóa đơn treo")
                .ThenByDescending(o => o.Status == "Đã thanh toán")
                .ThenByDescending(o => o.Status == "Chờ xác nhận")
