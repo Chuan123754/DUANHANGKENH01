@@ -2,6 +2,7 @@
  @using BlazorBootstrap
  @inject IPostSer sev
  @inject IProductVariantServices varian
+ @inject IAccountService accountService
  @inject IOrderIServices orde
  @inject OrderDetailsIServices ordedatil
  @inject IUserService usesv
@@ -352,6 +353,7 @@
 @code
 {
     private string selectedMode = "day";
+    private Account admin = new Account();
     private Dictionary<int, decimal> totalRevenuePerYear = new Dictionary<int, decimal>();
     private Dictionary<string, int> totalOrdersPerMonth = new Dictionary<string, int>();
     private int totalPost;
@@ -460,6 +462,7 @@
             _ => "Khách hàng mua nhiều đơn hàng"
         };
     }
+
     private async Task LoadTop5CustomersAsync()
     {
         Console.WriteLine($"Loading data for {selectedTop5User}");
@@ -484,7 +487,6 @@
                 TtotalMoneySpent = c.TtotalMoneySpent
             }).ToList();
     }
-
 
     private async void SetModeUserTop5(string mode)
     {
@@ -575,6 +577,7 @@
 
     private bool isInitialized;
     private bool isAuthenticated = false;
+    private bool modalUpdateInfo = false;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && !isInitialized)
@@ -590,7 +593,6 @@
             {
                 nav.NavigateTo("/admin/login");
             }
-
             StateHasChanged();
         }
     }

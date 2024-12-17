@@ -762,7 +762,7 @@
                         <div class="table-responsive">
                             <div class="container px-4 text-center">
                                 <div class="row gx-2 justify-content-between">
-                                    <div class="col-auto" readonly>
+                                   @*  <div class="col-auto" readonly>
                                         <fieldset class="border p-2" style="width: 150px; padding-top: 0.5rem;">
                                             <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Tiêu đề</legend>
                                             <div style="margin-top: -0.5rem;"><strong>Mã giảm giá</strong></div>
@@ -773,7 +773,7 @@
                                             <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">.</legend>
                                             <div style="margin-top: -0.5rem;"><strong>Code</strong></div>
                                         </fieldset>
-                                    </div>
+                                    </div> *@
                                 </div>
                             </div>
                             <div class="card-table table-responsive">
@@ -849,11 +849,66 @@
 
                             </div>
                             <div class="d-flex justify-content-center my-3">
-                                <button type="button" class="btn btn-outline-primary me-2" @onclick="PayByCash">Thanh toán tiền mặt</button>
+                                <button type="button" class="btn btn-outline-primary me-2" @onclick="OpenModalPayByCash">Thanh toán tiền mặt</button>
                                 <button type="button" class="btn btn-outline-success" @onclick="PayByMomo">Thanh toán qua MoMo</button>
                             </div>
 
                         </div>
+                        @if(modalPayByCash)
+                        {
+                            <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                                 <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 45%; width: auto;">
+                                     <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Thông tin đơn hàng</h5>
+                                            <button type="button" class="btn-close" @onclick="CancelPayByCash" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="d-flex justify-content-between align-items-start mb-4">
+                                                <div class="col-12 mb-3 p-4 border rounded shadow-sm" style="background-color: #f9f9f9;">
+                                                    <h5 class="mb-4 text-center">Thông tin tổng tiền</h5>
+                                                    <div class="mb-2">
+                                                        <label class="me-2"><strong>Tổng tiền :</strong> @totalPrincipal.ToString("N0").Replace(".", ",") VNĐ</label>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <label class="me-2"><strong>Tổng tiền đã giảm:</strong>@totalAmount.ToString("N0").Replace(".", ",") VNĐ </label>
+                                                    </div>
+                                                    @if(isDeliveryVisible)
+                                                    {
+                                                        <div class="mb-2">
+                                                            <label class="me-2"><strong>Phí giao hàng:</strong> @feeShipping.ToString("N0").Replace(".", ",") VNĐ</label>
+                                                        </div>
+                                                    }
+                                                       <div class="mb-2">
+                                                        <label class="me-2"><strong>Tỏng thanh toán:</strong> @totalMoney.ToString("N0").Replace(".", ",") VNĐ</label>
+                                                    </div>
+                                                    <div class="mb-2">
+                                                        <label class="me-2"><strong>Nhập số tiền khách đưa:</strong> </label>
+                                                        <div class="input-group">
+                                                            <input type="text"
+                                                                   class="form-control"
+                                                                   @bind="khachDua"
+                                                                   @bind:event="oninput" />
+                                                            <span class="input-group-text">VNĐ</span>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer d-flex justify-content-between">
+                                            <div>
+                                                <button type="button" class="btn btn-secondary" @onclick="CancelPayByCash">Hủy</button>
+                                            </div>
+                                            <div>
+                                                <button type="button" class="btn btn-primary" @onclick="PayByCash">Xác nhận</button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        }
                         @if (isMomoModalVisible)
                         {
                             <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background-color: rgba(0, 0, 0, 0.5);">
@@ -931,6 +986,9 @@
     private string payUrl { get; set; } // URL thanh toán MoMo
     private string qrCodeBase64 { get; set; } // Mã QR Base64 để hiển thị
 
+    private bool modalPayByCash = false;
+    private decimal khachDua;
+
     private bool isMomoModalVisible = false; // Kiểm tra modal MoMo đang mở hay không
                                              // Hiển thị modal QR MoMo
 
@@ -945,16 +1003,27 @@
     // Xử lý khi nhấn nút "Hủy"
     private async Task CancelMomoPayment()
     {
-        isMomoModalVisible = false;
-        await LoadOrders(); 
-        StateHasChanged();
+        var updateitem = await orderService.GetByIdOrders(selectedOrderId);
+        if (updateitem.Status == "Đã thanh toán")
+        {
+            await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
+            isMomoModalVisible = false;
+            await ResetViewState();
+        }
+        else
+        {
+            isMomoModalVisible = false;
+            await LoadOrders();
+            StateHasChanged();
+        }
+
     }
 
     // Xử lý khi nhấn nút "Xác nhận thanh toán"
     private async Task ConfirmMomoPayment()
     {
         var updateitem = await orderService.GetByIdOrders(selectedOrderId);
-        if(updateitem.Status == "Đã xác nhận")
+        if(updateitem.Status == "Đã thanh toán")
         {
             await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
             isMomoModalVisible = false;
@@ -983,6 +1052,7 @@
         isAddProductModalVisible = false;
         isAddCustomerModalVisible = false;
         isCreateCustomerModalVisible = false;
+        khachDua = 0;
         ClearInfoAddress();
 
         await LoadOrderDetails();
@@ -1020,6 +1090,7 @@
         page_number = 1;
         await LoadPosts();
     }
+
     private async Task SelectOrder(long orderId) // chọn hóa đơn
     {
         selectedOrderId = orderId;
@@ -1236,9 +1307,9 @@
     {
         var pendingOrders = lst_Orders.Where(order => order.Status == "Hóa đơn treo").ToList();
 
-        if (pendingOrders.Count >= 7)
+        if (pendingOrders.Count >= 10)
         {
-            await JS.InvokeVoidAsync("toastr.error", "Chỉ có thể tạo tối đa 7 hóa đơn treo");
+            await JS.InvokeVoidAsync("toastr.error", "Chỉ có thể tạo tối đa 10 hóa đơn treo");
             return;
         }
         var newOrder = new Orders
@@ -1608,7 +1679,6 @@
         isCreateAddress = false;
     }
 
-
     // tách được đoạn code này ra chỗ khác thì càng tốt
     private List<Province> provinces = new List<Province>();
     private List<Districted> districts = new List<Districted>();
@@ -1682,13 +1752,50 @@
         street = string.Empty;
         phone = string.Empty;
     }
+
+    private async Task OpenModalPayByCash()
+    {
+        if(lst_OrderDetail.Count==0)
+        {
+            await JS.InvokeVoidAsync("toastr.warning", "Đơn hàng không có sản phẩm nào");
+            return;
+        }
+        else
+        {
+            bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận khách hàng thanh toán bằng tiền mặt?");
+            if (confirmed)
+            {
+                modalPayByCash = true;
+            }
+        }
+
+    }
+
+
+    private async Task CancelPayByCash()
+    {
+        modalPayByCash = false;
+    }
+
     private async Task PayByCash()
     {
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận khách hàng thanh toán bằng tiền mặt?");
-        if (confirmed)
+        if(khachDua < totalMoney)
         {
-            CheckOut("cash");
+            await JS.InvokeVoidAsync("toastr.warning", "Khách hàng chưa đưa đủ tiền!");
+            return;
         }
+        else
+        {
+            bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận in hóa đơn cho khách hàng không ?");
+            if (confirmed)
+            {
+                DownloadInvoice(selectedOrderId);
+            }
+            CheckOut("cash");
+            modalPayByCash = false;
+
+        }
+        
     }
 
     private async Task PayByMomo()
