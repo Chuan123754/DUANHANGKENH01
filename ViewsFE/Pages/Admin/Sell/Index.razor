@@ -954,7 +954,7 @@
     private async Task ConfirmMomoPayment()
     {
         var updateitem = await orderService.GetByIdOrders(selectedOrderId);
-        if(updateitem.Status == "Đã thanh toán")
+        if(updateitem.Status == "Đã xác nhận")
         {
             await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
             isMomoModalVisible = false;

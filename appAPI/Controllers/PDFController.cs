@@ -67,19 +67,10 @@ namespace appAPI.Controllers
 
                 Image logoImage = new Image(ImageDataFactory.Create(imagePath)).SetWidth(50).SetHeight(50);
 
-                // Thông tin Header  
-                Table headerTable = new Table(3).UseAllAvailableWidth(); // Sử dụng 3 cột  
-
-                // Thêm ô chứa logo   
+                Table headerTable = new Table(3).UseAllAvailableWidth(); 
                 headerTable.AddCell(new Cell().Add(logoImage).SetBorder(Border.NO_BORDER).SetVerticalAlignment(VerticalAlignment.MIDDLE));
-
-                // Thêm ô chứa tiêu đề "HÓA ĐƠN BÁN HÀNG"  
                 headerTable.AddCell(new Cell().Add(new Paragraph("HÓA ĐƠN BÁN HÀNG").SetFont(fontBold).SetFontSize(12).SetTextAlignment(TextAlignment.CENTER)).SetBorder(Border.NO_BORDER));
-
-                // Thêm ô chứa số hóa đơn  
                 headerTable.AddCell(new Cell().Add(new Paragraph($"Số (No.): {order.Id}").SetFont(fontNormal).SetFontSize(9).SetTextAlignment(TextAlignment.RIGHT)).SetBorder(Border.NO_BORDER));
-
-                // Thêm bảng header vào tài liệu  
                 document.Add(headerTable);
 
                 document.Add(new Paragraph("VAT INVOICE").SetFont(fontNormal).SetFontSize(9).SetTextAlignment(TextAlignment.CENTER));
@@ -96,33 +87,31 @@ namespace appAPI.Controllers
                 if (user != null)
                 {
                     document.Add(new Paragraph($"Họ tên người mua hàng (Buyer): {user.Name}").SetFont(fontNormal).SetFontSize(9));
-                    document.Add(new Paragraph($"Địa chỉ (Address): {user.Address}").SetFont(fontNormal).SetFontSize(9));
+                    document.Add(new Paragraph($"Email (E-mail): {user.Email}").SetFont(fontNormal).SetFontSize(9)); 
                     document.Add(new Paragraph($"Số điện thoại (Phone): {user.Phone}").SetFont(fontNormal).SetFontSize(9));
                 }
                 else
                 {
                     document.Add(new Paragraph("Họ tên người mua hàng (Buyer): KHÁCH LẺ").SetFont(fontNormal).SetFontSize(9));
-                    document.Add(new Paragraph("Địa chỉ (Address): ").SetFont(fontNormal).SetFontSize(9));
+                    document.Add(new Paragraph("Email (E-mail): ").SetFont(fontNormal).SetFontSize(9));
                     document.Add(new Paragraph("Số điện thoại (Phone): #N/A ").SetFont(fontNormal).SetFontSize(9));
                 }
 
                 // Bảng chi tiết thanh toán
                 Table paymentTable = new Table(new float[] { 1, 1 }).UseAllAvailableWidth();
-                paymentTable.AddCell(new Cell().Add(new Paragraph("Hình thức thanh toán (Payment method): Chuyển khoản").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
-                paymentTable.AddCell(new Cell().Add(new Paragraph("Số tài khoản (A/C No.): 13136969301").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                paymentTable.AddCell(new Cell().Add(new Paragraph($"Hình thức thanh toán (Payment method): {order.TypePayment}").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                paymentTable.AddCell(new Cell().Add(new Paragraph("Số tài khoản (A/C No.): 0358384108").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 document.Add(paymentTable);
 
-                document.Add(new Paragraph("Ngân hàng (Bank): [Tên ngân hàng của bạn]").SetFont(fontNormal).SetFontSize(9));
                 document.Add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------------"));
 
-                // Bảng chi tiết sản phẩm
                 Table itemTable = new Table(new float[] { 0.7f, 1.5f, 1.2f, 1.2f, 1, 1.5f, 1, 1.5f }).UseAllAvailableWidth();
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("STT").SetFont(fontBold).SetFontSize(9)));
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Mã sản phẩm").SetFont(fontBold).SetFontSize(9)));
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Màu sắc").SetFont(fontBold).SetFontSize(9)));
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Size").SetFont(fontBold).SetFontSize(9)));
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Đơn giá").SetFont(fontBold).SetFontSize(9)));
-                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Giá Giảm").SetFont(fontBold).SetFontSize(9)));
+                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Giá chiết khấu").SetFont(fontBold).SetFontSize(9)));
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Số lượng").SetFont(fontBold).SetFontSize(9)));
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Thành tiền").SetFont(fontBold).SetFontSize(9)));
 
