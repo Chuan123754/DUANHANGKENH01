@@ -6,93 +6,114 @@
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
 @inject IAccountService accountService
 
-<h1>Danh sách tài khoản</h1>
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
 
-<p>
-    <button class="btn btn-primary" @onclick="AddNewAccount">Thêm tài khoản</button>
-</p>
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">
+                        Danh sách tài khoản
+                    </h2>
+                    <a @onclick="AddNewAccount" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-plus-lg"> </i> Thêm tài khoản
+                    </a>
 
-<!-- Form tìm kiếm -->
-<div class="row mb-3">
-    <div class="col-md-6">
-        <input type="text" @bind="searchKeyword" class="form-control" placeholder="Nhập từ khóa tìm kiếm" />
+                </div>
+
+            </div>
+        </div>
     </div>
-    <div class="col-md-2">
-        <button class="btn btn-primary">Tìm kiếm</button>
+
+    <div class="page-body">
+        <div class="container-xl">
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                        <div></div>
+                        <div class="form-group d-flex gap-2">
+                            <input type="text" @bind="searchKeyword" class="form-control" placeholder="Nhập từ khóa tìm kiếm" />
+
+                            <button class="btn btn-primary">Tìm kiếm</button>
+                        </div>
+                    </div>
+                    <div id="table-default" class="table-responsive">
+
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Tên</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Vai trò</th>
+                                    <th>Trạng thái</th>
+                                   
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (accounts != null && accounts.Any())
+                                {
+                                    @foreach (var account in accounts)
+                                    {
+                                        <tr class="post-row">
+                                            <td>
+                                                @account.Account.FirstName @account.Account.LastName
+                                                <br />
+                                                <div class="cell-action">
+                                                    <a class="cell-action-edit text-primary" @onclick="() => EditAccount(account.Account.Id)" >Chỉnh sửa</a> 
+                                                    <a class="cell-action-delete text-danger" @onclick="() => DeleteAccount(account.Account.Id)">Xóa</a>
+                                                    <a class="cell-action-delete text-warning" @onclick="() => DeleteAccount(account.Account.Id)">Toggle Lock</a>
+                                                    <a class="cell-action-delete text-green" @onclick="() => NavDetails(account.Account.Id)">Xem chi tiết</a>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @account.Account.UserName                                            
+                                            </td>
+                                            <td>@account.Account.Email</td>
+                                            <td>
+                                                @if (account.Roles == null || account.Roles.Count == 0)
+                                                {
+                                                    <span>Không có vai trò</span>
+                                                }
+                                                else
+                                                {
+                                                    @foreach (var role in account.Roles)
+                                                    {
+                                                        <span>@role</span>
+                                                    }
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (account.Account.LockoutEnd != null && account.Account.LockoutEnd > DateTimeOffset.UtcNow)
+                                                {
+                                                    <span class="text-danger">Khóa</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-success">Hoạt động</span>
+                                                }
+                                            </td>
+
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="7" class="text-center">Không có tài khoản nào.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-
-<!-- Bảng danh sách tài khoản -->
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Tên</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Vai trò</th>
-            <th>Trạng thái</th>
-            <th>Hành động</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (accounts != null && accounts.Any())
-        {
-            @foreach (var account in accounts)
-            {
-                <tr class="account-row">
-                    <td>
-                        @account.Account.FirstName @account.Account.LastName
-                        <br />
-                        <div class="action-buttons">
-                            <a href="javascript:void(0);" @onclick="() => EditAccount(account.Account.Id)" style="margin-right: 10px;">Chỉnh sửa</a> |
-                            <a href="javascript:void(0);" class="status-danger" @onclick="() => DeleteAccount(account.Account.Id)">Xóa</a>
-                        </div>
-                        <div class="action-buttons">
-                    <td>
-                        <button class="btn btn-info" @onclick="() => EditAccount(account.Account.Id)">Sửa</button>
-                        <button class="btn btn-danger" @onclick="() => DeleteAccount(account.Account.Id)">Xóa</button>
-
-                        <button @onclick="() => ToggleLock(account.Account.Id)" class="btn btn-warning">Toggle Lock</button>
-                    </td>
-                        </div>
-                    </td>
-                    <td>@account.Account.UserName</td>
-                    <td>@account.Account.Email</td>
-                    <td>
-                        @if (account.Roles == null || account.Roles.Count == 0)
-                        {
-                            <span>Không có vai trò</span>
-                        }
-                        else
-                        {
-                            @foreach (var role in account.Roles)
-                            {
-                                <span>@role</span>
-                            }
-                        }
-                    </td>
-                    <td>
-                        @if (account.Account.LockoutEnd != null && account.Account.LockoutEnd > DateTimeOffset.UtcNow)
-                        {
-                            <span class="text-danger">Khóa</span>
-                        }
-                        else
-                        {
-                            <span class="text-success">Hoạt động</span>
-                        }
-                    </td>
-                   
-                </tr>
-            }
-        }
-        else
-        {
-            <tr>
-                <td colspan="7" class="text-center">Không có tài khoản nào.</td>
-            </tr>
-        }
-    </tbody>
-</table>
 
 @code {
     private List<AccountWithRoles> accounts;
@@ -112,7 +133,10 @@
     {
         Navigation.NavigateTo("/admin/account/create");
     }
-
+    private async Task NavDetails(string id)
+    {
+        Navigation.NavigateTo($"/admin/account/details/{id}");
+    }
     private void EditAccount(string accountId)
     {
         Navigation.NavigateTo($"/account/edit/{accountId}");

@@ -1,0 +1,56 @@
+﻿@page "/admin/account/details/{id}"
+@using ViewsFE.BackgroundServices
+@using ViewsFE.Helper
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject IAccountService accountService
+@inject ILogActivityHistoryService LogActivityHistoryService
+@inject EmailNotification email
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject IJSRuntime JS
+
+<div class="container mt-5">
+
+    <div class="card shadow-sm" style="max-width: 600px; margin: auto;">
+        <div class="card-header text-center">
+            <h3 class="mb-0">Xem tài khoản</h3>
+        </div>
+        <div class="card-body">
+            <EditForm Model="ct">
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label for="firstName" class="form-label">Tên:</label>
+                    <div class="form-control-plaintext">@ct.FirstName</div>
+                 
+                </div>
+
+                <div class="mb-3">
+                    <label for="lastName" class="form-label">Họ:</label>
+                    <div class="form-control-plaintext">@ct.LastName</div>
+                    
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <div class="form-control-plaintext">@ct.Email</div>                  
+                </div>   
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    private SignUpModel sigupModel = new SignUpModel();
+
+ 
+    [Parameter]
+    public string Id { get; set; }
+    private Account ct = new Account();
+
+    protected async override Task OnInitializedAsync()
+    {
+        ct = await accountService.GetAccountById(Id);
+    }
+
+}
