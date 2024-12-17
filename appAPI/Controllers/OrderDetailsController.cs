@@ -45,6 +45,26 @@ namespace appAPI.Controllers
             }    
             return NotFound();
         }
+
+        [HttpGet("GetOrderAndReturnedProductsById")]
+        public async Task<IActionResult> GetOrderAndReturnedProductsById(long orderId)
+        {
+            try
+            {
+                var result = await _repo.GetOrderAndReturnedProductsByIdAsync(orderId);
+                if (result != null)
+                {
+                    return Ok(result);
+                }
+                return NotFound("Order or returned products not found.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         [HttpGet("Details")]
         public async Task<IActionResult> Details(long id)
         {

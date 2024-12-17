@@ -24,5 +24,6 @@ namespace ViewsFE.IServices
         Task<long> Update(Product_Posts post, List<long> tagIds);
         Task<long> Updatetagcate(Product_Posts post, List<long> tagIds, List<long> categoryIds);
         Task<bool> CheckSlug(string slug);
+        Task<bool> CheckSlugForUpdate(string slug, long postId);
     }
 }

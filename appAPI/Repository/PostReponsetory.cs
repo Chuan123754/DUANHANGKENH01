@@ -858,5 +858,12 @@ namespace appAPI.Repository
                .OrderByDescending(p => p.Id)
                .FirstOrDefaultAsync();
         }
+        public async Task<bool> CheckSlugForUpdate(string slug, long postId)
+        {
+            // Kiểm tra Slug có tồn tại nhưng không phải của bản ghi hiện tại
+            return await _context.Posts
+                .AnyAsync(p => p.Slug == slug && p.Id != postId);
+        }
+
     }
 }

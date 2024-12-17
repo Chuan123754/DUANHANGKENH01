@@ -159,5 +159,26 @@ namespace ViewsFE.Services
             response.EnsureSuccessStatusCode();
             return bool.Parse(await response.Content.ReadAsStringAsync());
         }
+
+        public async Task<bool> CheckSlugForUpdate(string slug, long postId)
+        {
+            try
+            {
+                // Gửi request đến API
+                var response = await _client.GetFromJsonAsync<ApiResponse>($"{_baseUrl}/api/Product_Post/check-slug-for-update?slug={slug}&postId={postId}");
+
+                // Nếu response hợp lệ, trả về giá trị `IsUnique`
+                return response?.IsUnique ?? false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error calling CheckSlugForUpdate API: {ex.Message}");
+                return false; // Trả về false trong trường hợp lỗi
+            }
+        }
+        private class ApiResponse
+        {
+            public bool IsUnique { get; set; }
+        }
     }
 }

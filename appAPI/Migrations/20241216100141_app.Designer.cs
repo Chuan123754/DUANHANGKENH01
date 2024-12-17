@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241216011759_ducchuancapnhat")]
-    partial class ducchuancapnhat
+    [Migration("20241216100141_app")]
+    partial class app
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -1732,21 +1732,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "ed4264eb-2e43-4714-bb00-eae7391ed721",
+                            ConcurrencyStamp = "ef5fd227-416c-4d2c-b94f-9679491b2d45",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "42f86835-eed9-439d-9428-786d32744b26",
+                            ConcurrencyStamp = "d388ac27-37ac-4bac-bf93-17c060cec6e0",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "19c81260-1c99-429f-aefb-41b8b5cc0f6b",
+                            ConcurrencyStamp = "f9261e0b-62a9-4d6d-b6cb-29a564116178",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });

@@ -20,10 +20,10 @@ namespace ViewsFE.Models
         public decimal? UnitPrice { get; set; }
         public long? TotalDiscount { get; set; }
         [ForeignKey("OrderId")]
-        [JsonIgnore]
+        [JsonPropertyName("orders")]
         public virtual Orders? Orders { get; set; }
         [ForeignKey("Product_Attribute_Id")]
-        [JsonIgnore]
+        [JsonPropertyName("productAttributes")]
         public virtual Product_Attributes? ProductAttributes { get; set; }
         public virtual Products_Returned ProductsReturned { get; set; } = new Products_Returned();
 

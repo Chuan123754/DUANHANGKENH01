@@ -19,6 +19,7 @@ namespace appAPI.IRepository
         // Lấy bài viết theo id và type
         Task<Product_Posts> GetByIdAndType(long id, string type);
         Task<Product_Posts> GetBySlugAndType(string slug, string type);
+        Task<bool> CheckSlugForUpdate(string slug, long postId);
 
         // Lấy bài viết theo type với phân trang và tìm kiếm
         Task<List<Product_Posts>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm);

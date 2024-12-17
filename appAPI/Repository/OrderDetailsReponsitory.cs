@@ -56,6 +56,29 @@ namespace appAPI.Repository
                 .ToListAsync();
         }
 
+        public async Task<Order_details> GetOrderAndReturnedProductsByIdAsync(long orderDetailId)
+        {
+            var orderDetails = await _context.Order_Details
+                .Where(od => od.Id == orderDetailId) // Tìm theo Id của Order_Details
+                .Include(od => od.Orders) // Bao gồm thông tin Orders
+                .Include(od => od.ProductAttributes) // Bao gồm thông tin ProductAttributes
+                .ThenInclude(pa => pa.Color) // Nếu cần thông tin Color
+                .Include(od => od.ProductAttributes)
+                .ThenInclude(pa => pa.Size) // Nếu cần thông tin Size
+                .FirstOrDefaultAsync(); // Trả về một kết quả duy nhất hoặc null
+
+            // Kiểm tra nếu không tìm thấy
+            if (orderDetails == null)
+            {
+                throw new KeyNotFoundException($"OrderDetail with ID {orderDetailId} not found.");
+            }
+
+            return orderDetails;
+        }
+
+
+
+
         public async Task Update(Order_details orderdetails, long id)
         {
             var updateItem = await GetByIdOrderdetails(id);
