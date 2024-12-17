@@ -1730,21 +1730,21 @@ namespace appAPI.Migrations
                         new
                         {
                             Id = "ADMIN_ROLE_ID",
-                            ConcurrencyStamp = "ef5fd227-416c-4d2c-b94f-9679491b2d45",
+                            ConcurrencyStamp = "bedfa161-9315-4c02-b767-d2fc118fecba",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "EMPLOYEE_ROLE_ID",
-                            ConcurrencyStamp = "d388ac27-37ac-4bac-bf93-17c060cec6e0",
+                            ConcurrencyStamp = "36a64daa-80d6-4d0c-a8cd-a301675447e0",
                             Name = "Employee",
                             NormalizedName = "EMPLOYEE"
                         },
                         new
                         {
                             Id = "DESIGNER_ROLE_ID",
-                            ConcurrencyStamp = "f9261e0b-62a9-4d6d-b6cb-29a564116178",
+                            ConcurrencyStamp = "9ef9812c-685a-4167-920e-f5c2ba8ad698",
                             Name = "Designer",
                             NormalizedName = "DESIGNER"
                         });
