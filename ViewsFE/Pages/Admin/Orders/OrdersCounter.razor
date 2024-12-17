@@ -100,7 +100,9 @@
                                        class="order-tab-click nav-link"
                                        data-bs-toggle="tab">
                                         <strong>Tất cả</strong>
-
+                                        <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
+                                            @totalOrderCounter
+                                        </span>
                                     </a>
                                 </li>
                             </ul>
@@ -378,6 +380,7 @@
     private IEnumerable<Orders> paged_Orders;
     private string searchText = string.Empty;
     private int currentPage = 1;
+    private int totalOrderCounter;
     private int pageSize = 10;
     private int totalPages = 1;
 
@@ -427,6 +430,7 @@
     }
     protected override async Task OnInitializedAsync()
     {
+
         await ListOrder();
         LoadPagedOrders();
     }
@@ -440,6 +444,9 @@
             .ThenByDescending(o => o.Created_at)
             .ToList();
         LoadPagedOrders();
+        totalOrderCounter = lst_Orders.Count();
+
+
     }
     private async Task SearchOrders(ChangeEventArgs e)
     {

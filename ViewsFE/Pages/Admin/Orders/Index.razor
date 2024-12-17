@@ -254,6 +254,8 @@
     private int totalPages = 1;
     private int totalOrders = 0; // tổng hóa đơn
     private int totalProcessing = 0; // tổng đơn hàng đang xử lý
+    private int orderShippingComplete = 0; // đơn hàng hoàn thành
+    private int orderCounterComplete = 0; // đơn hàng hoàn thành
     private int totalComplete = 0; // đơn hàng hoàn thành
     private int canceledOrders = 0; // bị hủy
 
@@ -347,8 +349,11 @@
         // Tính toán thống kê
         totalOrders = lst_Orders.Count;
         canceledOrders = lst_Orders.Count(o => o.Status == "Đơn hủy");
-        totalComplete = lst_Orders.Count(o => o.Status == "Hoàn tất đơn");
-        totalProcessing = lst_Orders.Count(o => o.Status != "Đã hủy" && o.Status != "Hoàn tất đơn");
+        orderShippingComplete = lst_Orders.Count(o => o.Status == "Hoàn tất đơn");
+        orderCounterComplete = lst_Orders.Where(o => o.Status == "Đã thanh toán").Where(o=>o.Note=="Tại quầy").Count();
+        totalComplete = orderShippingComplete + orderCounterComplete;
+
+        totalProcessing = lst_Orders.Where(o => o.Status != "Đã hủy" && o.Status != "Hoàn tất đơn").Where(o => o.Status != "Đã thanh toán" && o.Note != "Tại quầy").Count();
         LoadPagedOrders();
     }
     private async Task FilterByDateRange()
@@ -393,7 +398,7 @@
     private async Task GetCompleteOrders()
     {
         var lstOrders = await orderService.GetAll();
-        lst_Orders = lstOrders.Where(o => o.Status == "Hoàn tất đơn").OrderByDescending(o => o.Created_at).ToList();
+        lst_Orders = lstOrders.Where(o => o.Status == "Hoàn tất đơn" || (o.Status == "Đã thanh toán" && o.Note == "Tại quầy")).OrderByDescending(o => o.Created_at).ToList();
         LoadPagedOrders();
     }
     private async Task GetCanceledOrders()
