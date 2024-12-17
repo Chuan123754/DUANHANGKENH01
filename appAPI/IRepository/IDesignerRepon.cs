@@ -7,6 +7,8 @@ namespace appAPI.IRepository
         Task<List<Designer>> GetAll();
         Task<List<Designer>> GetAllAC();
         Task<Designer> GetById(long id);
+        Task<Designer> GetByIdSlug(string slug);
+        Task<bool> CheckSlugForUpdate(string slug, long desiId);
         Task<Designer> Create(Designer at);
         Task<Designer> Update(Designer at);
         Task Delete(long id);
