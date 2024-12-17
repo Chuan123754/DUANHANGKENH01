@@ -1641,6 +1641,11 @@
             await JS.InvokeVoidAsync("toastr.error", "Vui lòng nhập đầy đủ thông tin địa chỉ.");
             return;
         }
+        if (string.IsNullOrEmpty(address.Phone) || !Regex.IsMatch(address.Phone, @"^0\d{9}$"))
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Số điện thoại không hợp lệ. Vui lòng nhập số điện thoại bắt đầu bằng 0 và có 10 chữ số.");
+            return;
+        }
         var order = await orderService.GetByIdOrders(selectedOrderId);
         if (order?.User_id.HasValue == true)
         {
