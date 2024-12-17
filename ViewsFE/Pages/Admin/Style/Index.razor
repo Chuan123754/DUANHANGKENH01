@@ -2,7 +2,8 @@
 @inject NavigationManager nav
 @inject IStyleServices sev
 @inject IJSRuntime JS
-@inject AuthenticationStateProvider AuthStateProvider 
+@inject AuthenticationStateProvider AuthStateProvider
+@inject RoleService RoleService
 
 <div class="modal fade" id="fileModal" tabindex="-1" role="dialog" aria-labelledby="fileModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -26,7 +27,7 @@
     <!-- Page header -->
     <div class="page-header d-print-none">
         <div class="container-xl">
-           
+
             <div class="row g-2 align-items-center">
                 <div class="col d-flex gap-3">
                     <h2 class="page-title">
@@ -165,22 +166,22 @@
     private int page_size = 10;
     private int totalItems;
     private bool isAdmin = false;
+    private bool isEmployee = false;
 
     private List<string> successfulTitles = new();
     private List<string> failedTitles = new();
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
+        // Kiểm tra vai trò của người dùng
+        isAdmin = await RoleService.UserIsInRoleAsync("Admin");
 
-        // Kiểm tra nếu người dùng không có vai trò "Admin"
-        if (!user.IsInRole("Admin"))
+
+        if (!isAdmin)
         {
             nav.NavigateTo("/unauthorized", true); // Điều hướng đến trang không có quyền
             return;
         }
 
-        isAdmin = true;
         await LoadPosts();
     }
     [Inject]
