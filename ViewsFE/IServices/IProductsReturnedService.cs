@@ -1,4 +1,5 @@
 ﻿using ViewsFE.Models;
+using static ViewsFE.Services.ProductsReturnedService;
 
 namespace ViewsFE.IServices
 {
@@ -7,6 +8,7 @@ namespace ViewsFE.IServices
         Task<List<Products_Returned>> GetAllAsync();
         Task<Products_Returned?> GetByIdAsync(long id);
         Task<List<Products_Returned>> GetByOrderDetailIdAsync(long orderDetailId);
+        Task<List<Products_Returned>> GetAllWithDetailsAsync();
         Task<Products_Returned> CreateAsync(Products_Returned productReturned);
         Task<bool> ProcessReturnAsync(long id);
         Task<bool> ProcessbackAsync(long id);

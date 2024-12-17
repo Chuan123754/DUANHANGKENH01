@@ -16,7 +16,7 @@ namespace ViewsFE.Models
         public string ReturnReason { get; set; } = string.Empty; // Lý do trả hàng
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
-        public decimal TotalPrice { get; set; }
+        public decimal? TotalPrice { get; set; }
 
         [Required]
         [StringLength(50)]

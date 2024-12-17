@@ -1,6 +1,9 @@
 ﻿@page "/admin/productsreturned"
 @inject NavigationManager nav
+@inject IOrderIServices OrderServices
 @inject IProductsReturnedService productsReturnedService
+@inject OrderDetailsIServices OrderDetailsServices
+@inject IAddressServices AddressService
 @inject IJSRuntime JS
 
 <style>
@@ -55,6 +58,7 @@
                         <select class="form-select" @onchange="(e) => OnStatusChanged(e.Value.ToString())">
                             <option value="">Tất cả trạng thái</option>
                             <option value="Mới">Mới</option>
+                            <option value="Xem xét">Xem xét</option>
                             <option value="Nhập kho">Nhập kho</option>
                             <option value="Hỏng">Hỏng</option>
                         </select>
@@ -69,6 +73,9 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
+                                        <th>Order ID</th> <!-- Thêm cột Order ID -->
+                                        <th>Order Detail ID</th> <!-- Thêm cột Order Detail ID -->
+                                        <th>Thông tin sản phẩm</th> <!-- Thêm cột SKU + Size + Color -->
                                         <th>Lý do trả hàng</th>
                                         <th>Số lượng</th>
                                         <th>Giá đơn vị</th>
@@ -85,7 +92,20 @@
                                         foreach (var item in pagedProductsReturned)
                                         {
                                             <tr>
-                                                <td>@item.Id</td>
+                                                <td>@item.Id</td> <!-- ID của ProductsReturned -->
+                                                <td>@item.OrderDetails?.Orders?.Id</td> <!-- Hiển thị Order ID -->
+                                                <td>@item.OrderDetails?.Id</td> <!-- Hiển thị Order Detail ID -->
+                                                <td>
+                                                    @if (item.OrderDetails?.ProductAttributes != null)
+                                                    {
+                                                        @($"{item.OrderDetails.ProductAttributes.SKU} - {item.OrderDetails.ProductAttributes.Size?.Title} - {item.OrderDetails.ProductAttributes.Color?.Title}")
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>Không có thông tin sản phẩm</span>
+                                                    }
+                                                </td>
+
                                                 <td>@item.ReturnReason</td>
                                                 <td>@item.Quantity</td>
                                                 <td>@string.Format("{0:N0}", item.UnitPrice) VNĐ</td>
@@ -100,10 +120,13 @@
                                                         <span style="white-space: normal;">@((MarkupString)FormatNote(item.Notes))</span>
                                                     }
                                                 </td>
-
-
                                                 <td>
-                                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => ShowUpdateQuantityModal(item.Id, item.Quantity)">Cập nhật</button>
+                                                    @if (item.Condition != "Nhập kho")
+                                                    {
+                                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => ShowUpdateQuantityModal(item.Id, item.Quantity)">
+                                                            Cập nhật
+                                                        </button>
+                                                    }
                                                 </td>
 
                                             </tr>
@@ -112,10 +135,11 @@
                                     else
                                     {
                                         <tr>
-                                            <td colspan="7" class="text-center">Không có dữ liệu.</td>
+                                            <td colspan="11" class="text-center">Không có dữ liệu.</td>
                                         </tr>
                                     }
                                 </tbody>
+
                             </table>
                             <div class="mt-4">
                                 <Pagination TItem="Products_Returned" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="lstProductsReturned.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
@@ -152,8 +176,18 @@
 
 
 @code {
+    [Parameter]
+    public long Id { get; set; }
+
     private List<Products_Returned> lstProductsReturned = new();
     private List<Products_Returned> pagedProductsReturned = new();
+    private Orders? Order { get; set; }
+    private List<Order_details> OrderDetails = new();
+    private List<Address> Addresses = new();
+    private List<Products_Returned> ProductsReturned = new();
+
+    private string? ErrorMessage;
+
     private string searchText = string.Empty;
     private string selectedStatus = string.Empty;
     private int currentPage = 1;
@@ -165,6 +199,73 @@
     private long selectedProductId = 0;
     private int quantityToStock = 0;
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Lấy danh sách ProductsReturned cùng các thông tin chi tiết
+            lstProductsReturned = await productsReturnedService.GetAllWithDetailsAsync();
+            LoadPagedProductsReturned();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Đã xảy ra lỗi: {ex.Message}";
+        }
+    }
+
+
+
+    private async Task LoadOrderDetails()
+    {
+        try
+        {
+            // Lấy thông tin Order
+            List<Orders> Order = await OrderServices.GetAll();
+
+            if (Order == null)
+            {
+                ErrorMessage = "Không tìm thấy hóa đơn.";
+                return;
+            }
+
+            // Lấy chi tiết hóa đơn
+            OrderDetails = await OrderDetailsServices.GetOrderDetailsByOrderId(Id);
+
+            if (OrderDetails == null || !OrderDetails.Any())
+            {
+                ErrorMessage = "Không tìm thấy chi tiết hóa đơn.";
+                return;
+            }
+
+            // Cập nhật lại danh sách sản phẩm đổi trả trước
+            ProductsReturned = new List<Products_Returned>();
+            foreach (var detail in OrderDetails)
+            {
+                var returnedProducts = await productsReturnedService.GetByOrderDetailIdAsync(detail.Id);
+                if (returnedProducts != null && returnedProducts.Any())
+                {
+                    ProductsReturned.AddRange(returnedProducts);
+                }
+            }
+
+            // Gắn sản phẩm đổi trả đầu tiên vào từng chi tiết hóa đơn (nếu có)
+            foreach (var detail in OrderDetails)
+            {
+                var returnedProduct = ProductsReturned.FirstOrDefault(rp => rp.OrderDetailId == detail.Id);
+                if (returnedProduct != null)
+                {
+                    detail.ProductsReturned = returnedProduct;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Đã xảy ra lỗi: {ex.Message}";
+        }
+    }
+
+
+
     private string FormatNote(string note)
     {
         if (string.IsNullOrEmpty(note)) return string.Empty;
@@ -172,9 +273,6 @@
         // Thay dấu ',' bằng xuống dòng
         return note.Replace(",", "<br>");
     }
-
-
-
 
     private string GetStatusClass(string condition)
     {
@@ -191,8 +289,14 @@
     private void LoadPagedProductsReturned()
     {
         totalPages = (int)Math.Ceiling((double)lstProductsReturned.Count / pageSize);
-        pagedProductsReturned = lstProductsReturned.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+        pagedProductsReturned = lstProductsReturned
+            .OrderByDescending(p => p.ReturnDate) 
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
     }
+
     private async Task OnSearchTextChanged(string value)
     {
         searchText = value;
@@ -212,11 +316,13 @@
         lstProductsReturned = allProducts
             .Where(p => (string.IsNullOrEmpty(searchText) || p.ReturnReason == searchText) &&
                         (string.IsNullOrEmpty(selectedStatus) || p.Condition == selectedStatus))
+            .OrderByDescending(p => p.ReturnDate) 
             .ToList();
 
         currentPage = 1;
         LoadPagedProductsReturned();
     }
+
 
 
     private async Task GoToPage(int page)
@@ -250,9 +356,9 @@
     {
         try
         {
-            if (quantityToStock <= 0)
+            if (quantityToStock < 0)
             {
-                await JS.InvokeVoidAsync("alert", "Số lượng phải lớn hơn 0.");
+                await JS.InvokeVoidAsync("alert", "Số lượng không được âm.");
                 return;
             }
 
@@ -261,7 +367,7 @@
             {
                 await JS.InvokeVoidAsync("alert", "Cập nhật thành công!");
                 CloseModal();
-                await LoadData(); // Tải lại danh sách sản phẩm trả lại
+                await OnInitializedAsync(); // Tải lại danh sách sản phẩm trả lại
             }
         }
         catch (Exception ex)
@@ -276,9 +382,5 @@
         LoadPagedProductsReturned();
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        lstProductsReturned = await productsReturnedService.GetAllAsync();
-        LoadPagedProductsReturned();
-    }
+   
 }

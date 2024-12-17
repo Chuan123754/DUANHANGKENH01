@@ -136,6 +136,36 @@ namespace appAPI.Controllers
             return Ok(new { message = "Đăng ký thành công", user });
         }
 
+        [HttpGet("GetByPhoneNumber")]
+        public IActionResult GetByPhoneNumber(string phoneNumber)
+        {
+            var user = context.Users.FirstOrDefault(u => u.Phone == phoneNumber);
+            if (user == null)
+            {
+                return NotFound(new { message = "Số điện thoại không tồn tại trong hệ thống." });
+            }
+            return Ok(user);
+        }
+
+        [HttpPut("UpdatePassword")]
+        public IActionResult UpdatePassword(long userId, [FromBody] string newPassword)
+        {
+            var user = context.Users.Find(userId);
+            if (user == null)
+            {
+                return NotFound(new { message = "Người dùng không tồn tại." });
+            }
+
+            // Mã hóa mật khẩu mới bằng PasswordHasher
+            var passwordHasher = new PasswordHasher<object>();
+            user.Password = passwordHasher.HashPassword(null, newPassword);
+
+            user.Updated_at = DateTime.Now;
+            context.SaveChanges();
+
+            return Ok(new { message = "Mật khẩu đã được cập nhật thành công." });
+        }
+
         [HttpGet("check-cookie")]
         public IActionResult CheckCookie()
         {

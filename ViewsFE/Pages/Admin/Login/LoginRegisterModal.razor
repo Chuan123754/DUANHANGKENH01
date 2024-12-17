@@ -156,11 +156,8 @@
                             <input type="password" @bind="loginModel.Password" id="password" placeholder="Mật khẩu" required>
 
                             <div class="form-options">
-                                <label>
-                                <input type="checkbox" @bind="loginModel.RememberMe" /> Ghi nhớ mật khẩu
-                            </label>
-                                <a href="#" class="forgot-password">Quên mật khẩu?</a>
-                            </div>
+                            <a @onclick="NavigateToForgotPassword" class="forgot-password">Quên mật khẩu?</a>
+                        </div>
 
                             <button type="submit" class="btn-login">Đăng nhập</button>
 
@@ -193,7 +190,7 @@
                         </form>
                     </div>
                 </div>
-            </div> 
+            </div>
         </div>
     </div>
 
@@ -362,6 +359,10 @@
         }
     }
 
+    private void NavigateToForgotPassword()
+    {
+        Navigation.NavigateTo("/admin/forgot-password");
+    }
 
     private async Task HandleLogout()
     {

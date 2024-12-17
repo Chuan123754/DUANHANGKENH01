@@ -8,6 +8,7 @@ namespace appAPI.IRepository
         Task<List<Order_details>> GetAlldetail();
         Task<Order_details> GetByIdOrderdetails(long id);
         Task<Order_details> GetByOrderIdAndProductAttributeId(long orderId, long productAttributeId);
+        Task<Order_details> GetOrderAndReturnedProductsByIdAsync(long orderId);
         Task<List<Order_details>> GetOrderDetailsByOrderId(long idOrder);
         Task Create(Order_details orderdetails);
         Task Update(Order_details orderdetails , long id);
