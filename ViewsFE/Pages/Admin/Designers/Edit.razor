@@ -32,7 +32,7 @@
                                     <label for="ShortName" class="form-label">Tên ngắn nhà thiết kế<span class="text-danger">*</span></label>
                                     <InputText @bind-Value="designer.ShortName" class="form-control" id="ShortName" placeholder="Tên ngắn nhà thiết kế" />
                                     <ValidationMessage For="@(() => designer.ShortName)" />
-                               
+
                                 </div>
 
                                 <div class="mb-3">
@@ -43,7 +43,7 @@
 
                                 <div class="mb-3">
                                     <label for="Slug" class="form-label">Đường dẫn <span class="text-danger">*</span></label>
-                                    <InputText @bind-Value="designer.slug" class="form-control" id="Slug" placeholder="Đường dẫn"  />
+                                    <InputText @bind-Value="designer.slug" class="form-control" id="Slug" placeholder="Đường dẫn" />
                                     <ValidationMessage For="@(() => designer.slug)" />
                                 </div>
 
@@ -346,6 +346,17 @@
         return result;
     }
 
+    private async Task<bool> IsSlugUnique(string slug, long postId)
+    {
+        if (string.IsNullOrWhiteSpace(slug)) return false;
+
+        Console.WriteLine($"Checking Slug: {slug}, PostId: {postId}");
+
+        // Gọi API kiểm tra Slug trùng lặp
+        bool exists = await sev.CheckSlugForUpdate(slug, postId);
+        return !exists; // Nếu không tồn tại ở bản ghi khác => duy nhất
+    }
+
     private string RemoveDiacritics(string text)
     {
         var normalized = text.Normalize(System.Text.NormalizationForm.FormD);
@@ -366,19 +377,26 @@
         if (confirmed)
         {
             designer.description = await JS.InvokeAsync<string>("getTinyMCEContent");
-        try
-        {
-            designer.SetMetaData(metaData);
-            postId = await sev.Update(designer);
-            await bnser.UpdateToDesiner(banner, postId);
-            nav.NavigateTo("/admin/designer");
-            await JS.InvokeVoidAsync("toastr.success", "Sửa nhà thiết kế thành công");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể sửa nhà thiết kế. Vui lòng thử lại.");
-        }            
+
+            bool isSlugUnique = await IsSlugUnique(designer.slug ?? string.Empty, designer.id_Designer);
+            if (!isSlugUnique)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
+                return;
+            }
+            try
+            {
+                designer.SetMetaData(metaData);
+                postId = await sev.Update(designer);
+                await bnser.UpdateToDesiner(banner, postId);
+                nav.NavigateTo("/admin/designer");
+                await JS.InvokeVoidAsync("toastr.success", "Sửa nhà thiết kế thành công");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                await JS.InvokeVoidAsync("toastr.error", "Không thể sửa nhà thiết kế. Vui lòng thử lại.");
+            }
         }
 
     }

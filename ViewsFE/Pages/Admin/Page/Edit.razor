@@ -112,7 +112,7 @@
                                                 <label class="form-label">Trạng thái<span class="text-danger">*</span></label>
                                                 <select @bind="Posts.Status" class="form-control">
 
-                                                    @foreach (var status in statuses)
+                                                    @foreach (var status in statuses.Where(p => p.Key != "delete"))
                                                     {
                                                         <option value="@status.Key" selected="@(Posts.Status == status.Key)">
                                                             @status.Value
@@ -164,7 +164,7 @@
                             </div>
                             <!-- #endregion -->
                             <!-- Từ khóa -->
-                            <div class="accordion bg-white mb-3">
+                           @*  <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
@@ -195,7 +195,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> *@
                             <!-- #endregion  Từ khóa(tags) -->
                         </div>
                     </div>
@@ -208,7 +208,7 @@
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 
 
-<Modal @ref="modaltags" title="Thêm thẻ tags" IsVerticallyCentered="true">
+@* <Modal @ref="modaltags" title="Thêm thẻ tags" IsVerticallyCentered="true">
     <BodyTemplate>
         <div class="category-add mt-2">
             <div class="form-group mb-2">
@@ -231,7 +231,7 @@
         <Button class="btn btn-outline-secondary" @onclick="OnHideModalClickTags">Close</Button>
         <Button class="btn btn-outline-primary" @onclick="SumbitTag">Tạo thẻ tags</Button>
     </FooterTemplate>
-</Modal>
+</Modal> *@
 @code {
     [Parameter]
     public long Id { get; set; }
@@ -255,22 +255,22 @@
     {
         await modaltags.HideAsync();
     }
-    private async void SumbitTag()
-    {
-        try
-        {
-            await stag.Create(tags);
-            await JS.InvokeVoidAsync("toastr.success", "Thêm tags thành công");
-            await LoadPosts();
-            await modaltags.HideAsync();
+    // private async void SumbitTag()
+    // {
+    //     try
+    //     {
+    //         await stag.Create(tags);
+    //         await JS.InvokeVoidAsync("toastr.success", "Thêm tags thành công");
+    //         await LoadPosts();
+    //         await modaltags.HideAsync();
 
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm tags. Vui lòng thử lại.");
-        }
-    }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Console.WriteLine($"Error: {ex.Message}");
+    //         await JS.InvokeVoidAsync("toastr.error", "Không thể thêm tags. Vui lòng thử lại.");
+    //     }
+    // }
     private async Task HandleImageSelected(string imagePath)
     {
         Posts.Feature_image = imagePath ?? string.Empty;
@@ -311,11 +311,11 @@
             tinyMCEInitialized = true;
             StateHasChanged();
         }
-        if (TagsList?.Count > 0)
-        {
-            await JS.InvokeVoidAsync("initializeTagsList", TagsList);
-            await JS.InvokeVoidAsync("initializeTomSelect", "#tags-selects");
-        }
+        // if (TagsList?.Count > 0)
+        // {
+        //     await JS.InvokeVoidAsync("initializeTagsList", TagsList);
+        //     await JS.InvokeVoidAsync("initializeTomSelect", "#tags-selects");
+        // }
 
     }
     public async ValueTask DisposeAsync()
@@ -362,30 +362,16 @@
         }
         return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
-    // private async Task<bool> IsSlugUnique(string slug)
-    // {
-    //     try
-    //     {
-    //         return await sev.CheckSlug(slug); // Gọi API kiểm tra Slug
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Console.WriteLine($"Error checking slug: {ex.Message}");
-    //         return false;
-    //     }
-    // }
+    
     private async Task<bool> IsSlugUnique(string slug, long postId)
     {
-        try
-        {
-            // Kiểm tra Slug trong database nhưng bỏ qua sản phẩm hiện tại (theo postId)
-            return await sev.CheckSlugForUpdate(slug, postId); // Gọi API để kiểm tra
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error checking slug: {ex.Message}");
-            return false;
-        }
+        if (string.IsNullOrWhiteSpace(slug)) return false;
+
+        Console.WriteLine($"Checking Slug: {slug}, PostId: {postId}");
+
+        // Gọi API kiểm tra Slug trùng lặp
+        bool exists = await sev.CheckSlugForUpdate(slug, postId);
+        return !exists; // Nếu không tồn tại ở bản ghi khác => duy nhất
     }
 
     private async void HandleValidSubmit()

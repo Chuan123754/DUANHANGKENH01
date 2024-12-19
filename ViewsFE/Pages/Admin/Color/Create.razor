@@ -31,7 +31,7 @@
                                 </div>
 
                                 <div class="form-group mb-3">
-                                    <label for="color-slug" class="form-label">Đường dẫn</label>
+                                    <label for="color-slug" class="form-label">Đường dẫn <span class="text-danger">*</span></label>
                                     <InputText id="color-slug" class="form-control" @bind-Value="color.Slug" />
                                     <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
                                     <ValidationMessage For="@(() => color.Slug)" />
@@ -42,7 +42,7 @@
                                            @onchange="OnColorChange" />
                                 </div>
                                 <div class="form-group mb-3">
-                                    <label for="attribute-color_code" class="form-label">Mã màu</label>
+                                    <label for="attribute-color_code" class="form-label">Mã màu <span class="text-danger">*</span></label>
                                     <InputText id="attribute-color_code" class="form-control" @bind-Value="color.Color_code" />
                                     <ValidationMessage For="@(() => color.Color_code)" />
                                 </div>

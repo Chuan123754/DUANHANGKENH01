@@ -94,7 +94,7 @@ builder.Services.AddScoped<ITagsServices, TagsServices>();
 //builder.Services.AddScoped<IPostMetaService, PostMetaService>();
 builder.Services.AddScoped<IQaService, QaService>();
 builder.Services.AddScoped<IDiscountServices, DiscountServices>();
-builder.Services.AddHostedService<DiscountProduct>();
+//builder.Services.AddHostedService<DiscountProduct>();
 builder.Services.AddScoped<IVoucherService, VoucherService>();
 builder.Services.AddScoped<IUserVoucherService, UserVoucherService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

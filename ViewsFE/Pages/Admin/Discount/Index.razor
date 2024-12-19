@@ -6,7 +6,9 @@
 @inject IProductAttributeServices productAttributeService
 @inject IAttributesDiscountServices AttributeDiscountService
 @inject IJSRuntime JS
-
+@inject AuthenticationStateProvider AuthStateProvider
+@inject RoleService RoleService
+ @inject NavigationManager nav
 <style>
     .btn-edit {
         transition: all 0.3s ease;
@@ -268,13 +270,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var item in lst_ProductAtribites)
+                                    @foreach (var item in lst_ProductAtribites.Where(p => p.Product_Variant.Status != "Đã xoá"))
                                     {
                                         <tr>
                                             <td>
                                                 <input type="checkbox" checked="@selectedProductIds.Contains(item.Id)" @onchange="@(e => OnCheckboxChange(e, item.Id))" />
                                             </td>
-                                            <td><img src="@item.Image" alt="Hình ảnh" style="width: 80px; height: auto;" /></td>
+                                            <td><img src="@item.Image" alt="Hình ảnh" style="width: 80px; height: 105px;" /></td>
                                             <td>@item.Id</td>
                                             <td>@item.SKU</td>
                                             <td class="text-center">
@@ -316,6 +318,8 @@
 </div>
 
 @code {
+    private bool isAdmin = false;
+    private bool isEmployee = false;
     private List<Discount> discounts = new List<Discount>();
     private List<Discount> pagedDiscounts = new List<Discount>();
     private List<Product_Attributes> lst_ProductAtribites = new List<Product_Attributes>();
@@ -352,7 +356,7 @@
     private int totalProductPages = 1;
 
     private EditContext editContext;
-
+   
     protected override void OnInitialized()
     {
         editContext = new EditContext(discount);
@@ -454,6 +458,15 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Kiểm tra vai trò của người dùng
+        isAdmin = await RoleService.UserIsInRoleAsync("Admin");
+
+
+        if (!isAdmin)
+        {
+            nav.NavigateTo("/admin/sell", true); // Điều hướng đến trang không có quyền
+            return;
+        }
         discount.Create_at = DateTime.Now;
         discount.Update_at = DateTime.Now;
         discount.Start_date = DateTime.Now;

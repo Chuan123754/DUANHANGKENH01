@@ -63,7 +63,7 @@ namespace ViewsFE.Services
             response.EnsureSuccessStatusCode(); // Kiểm tra xem phản hồi có thành công hay không
 
             var count = await response.Content.ReadFromJsonAsync<int>();
-            return count; 
+            return count;
         }
 
         public Task<List<Product_Attributes_DTO>> GetVariantByProductVariantId(List<long> variantIds)
@@ -75,7 +75,7 @@ namespace ViewsFE.Services
         {
             await _client.PutAsJsonAsync($"{_baseUrl}/api/ProductAttributes/UpdateProductAttrubutes?id={id}", productAttribute);
         }
-        
+
 
     }
 }

@@ -37,7 +37,7 @@ namespace ViewsFE.Services
         }
         public async Task<List<Post_categories>> GetCategoryByPosstId(long postId)
         {
-            string requetsURL = $"https://localhost:7011/api/Category/GetCategoryByPostId?postId={postId}";
+            string requetsURL = $"{_baseUrl}/api/Category/GetCategoryByPostId?postId={postId}";
             var response = await _client.GetStringAsync(requetsURL);
             return JsonConvert.DeserializeObject<List<Post_categories>>(response);
         }

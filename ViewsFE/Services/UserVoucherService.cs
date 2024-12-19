@@ -11,16 +11,18 @@ namespace ViewsFE.Services
     public class UserVoucherService : IUserVoucherService
     {
         private readonly HttpClient _httpClient;
+        private readonly string _baseUrl;
 
-        public UserVoucherService(HttpClient httpClient)
+        public UserVoucherService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
 
         // Lấy danh sách tất cả các UserVouchers từ API
         public async Task<List<UserVouchers>> GetAll()
         {
-            string requestURL = "https://localhost:7011/api/UserVouchers";
+            string requestURL = $"{_baseUrl}/api/UserVouchers";
             var response = await _httpClient.GetStringAsync(requestURL);
             var userVouchers = JsonConvert.DeserializeObject<List<UserVouchers>>(response);
             return userVouchers;
@@ -29,7 +31,7 @@ namespace ViewsFE.Services
         // Lấy chi tiết UserVoucher theo ID từ API
         public async Task<UserVouchers> Details(long id)
         {
-            string requestURL = $"https://localhost:7011/api/UserVouchers/{id}";
+            string requestURL = $"{_baseUrl}/api/UserVouchers/{id}";
             var response = await _httpClient.GetStringAsync(requestURL);
             var userVoucher = JsonConvert.DeserializeObject<UserVouchers>(response);
             return userVoucher;
@@ -38,7 +40,7 @@ namespace ViewsFE.Services
         // Lấy danh sách UserVoucher theo VoucherId từ API
         public async Task<List<UserVouchers>> GetByVoucherId(long voucherId)
         {
-            string requestURL = $"https://localhost:7011/api/UserVouchers/byVoucher/{voucherId}";
+            string requestURL = $"{_baseUrl}/api/UserVouchers/byVoucher/{voucherId}";
             var response = await _httpClient.GetStringAsync(requestURL);
             var userVouchers = JsonConvert.DeserializeObject<List<UserVouchers>>(response);
             return userVouchers;
@@ -46,7 +48,7 @@ namespace ViewsFE.Services
 
         public async Task<UserVouchers> GetByVoucherIdAndUserId(long voucherId, long userId)
         {
-            string requestURL = $"https://localhost:7011/api/UserVouchers/byVoucherAndUser/{voucherId}/{userId}";
+            string requestURL = $"{_baseUrl}/api/UserVouchers/byVoucherAndUser/{voucherId}/{userId}";
             var response = await _httpClient.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<UserVouchers>(response);
         }
@@ -55,7 +57,7 @@ namespace ViewsFE.Services
         // Tạo mới một UserVoucher
         public async Task<bool> Create(UserVouchers userVoucher)
         {
-            string requestURL = "https://localhost:7011/api/UserVouchers/post";
+            string requestURL = $"{_baseUrl}/api/UserVouchers/post";
             var jsonContent = JsonConvert.SerializeObject(userVoucher);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -72,7 +74,7 @@ namespace ViewsFE.Services
         // Cập nhật một UserVoucher
         public async Task<bool> Update(UserVouchers userVoucher)
         {
-            string requestURL = "https://localhost:7011/api/UserVouchers/put";
+            string requestURL = $"{_baseUrl}/api/UserVouchers/put";
             var jsonContent = JsonConvert.SerializeObject(userVoucher);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -88,7 +90,7 @@ namespace ViewsFE.Services
         // Xóa một UserVoucher theo ID
         public async Task<bool> Delete(long id)
         {
-            string requestURL = $"https://localhost:7011/api/UserVouchers/{id}";
+            string requestURL = $"{_baseUrl}/api/UserVouchers/{id}";
             var response = await _httpClient.DeleteAsync(requestURL);
             if (!response.IsSuccessStatusCode)
             {

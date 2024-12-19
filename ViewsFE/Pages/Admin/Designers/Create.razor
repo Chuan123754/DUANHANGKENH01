@@ -369,12 +369,31 @@
         }
         return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
+    private async Task<bool> IsSlugUnique(string slug)
+    {
+        try
+        {
+            return await sev.CheckSlug(slug); // Gọi API kiểm tra Slug
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error checking slug: {ex.Message}");
+            return false;
+        }
+    }
     private async Task SubmitForm()
     {
         bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận thêm nhà thiết kế ?");
         if (confirmed)
         {
             designer.description = await JS.InvokeAsync<string>("getTinyMCEContent");
+            bool isSlugUnique = await IsSlugUnique(designer.slug ?? string.Empty);
+            if (!isSlugUnique)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
+                return;
+            }
+
             try
             {
                 designer.SetMetaData(metaData);

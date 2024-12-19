@@ -32,7 +32,7 @@
                                 </div>
 
                                 <div class="form-group mb-3">
-                                    <label for="attribute-slug" class="form-label">Đường dẫn</label>
+                                    <label for="attribute-slug" class="form-label">Đường dẫn <span class="text-danger">*</span></label>
                                     <InputText id="attribute-slug" class="form-control" @bind-Value="style.Slug" />
                                     <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
                                     <ValidationMessage For="@(() => style.Slug)" />

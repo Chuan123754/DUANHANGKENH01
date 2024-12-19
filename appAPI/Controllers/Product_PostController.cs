@@ -102,7 +102,7 @@ namespace appAPI.Controllers
                 return BadRequest("Slug không được để trống.");
             }
 
-            bool exists = await _context.Posts.Where(p => p.Deleted == false).AnyAsync(x => x.Slug == slug);
+            bool exists = await _context.Posts.Where(p =>   p.Deleted == false).AnyAsync(x => x.Slug == slug);
             return Ok(!exists); 
         }
 
@@ -295,121 +295,8 @@ namespace appAPI.Controllers
         {
             return await _postRepository.GetNameDesigner(id);
         }
-        //color
-        [HttpGet("get-by-product-color")]
-        public async Task<IActionResult> GetByProductColor([FromQuery] long idColor, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-        {
-            if (pageNumber < 1 || pageSize < 1)
-            {
-                return BadRequest("Page number and page size must be greater than 0.");
-            }
+     
 
-            var list = await _postRepository.GetByTypeAsyncProductColor(idColor, pageNumber, pageSize);
-            return Ok(list);
-        }
-        [HttpGet("Get-Total-Count-Product-Color")]
-        public async Task<IActionResult> GetTotalCountProductColor([FromQuery] long idColor)
-        {
-            var totalCount = await _postRepository.GetTotalCountAsyncProductColor(idColor);
-            return Ok(totalCount);
-        }
-
-        //size
-        [HttpGet("get-by-product-size")]
-        public async Task<IActionResult> GetByProductSize([FromQuery] long idSize, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-        {
-            if (pageNumber < 1 || pageSize < 1)
-            {
-                return BadRequest("Page number and page size must be greater than 0.");
-            }
-
-            var list = await _postRepository.GetByTypeAsyncProductSize(idSize, pageNumber, pageSize);
-            return Ok(list);
-        }
-        [HttpGet("Get-Total-Count-Product-Size")]
-        public async Task<IActionResult> GetTotalCountProductSize([FromQuery] long idSize)
-        {
-            var totalCount = await _postRepository.GetTotalCountAsyncProductSize(idSize);
-            return Ok(totalCount);
-        }
-
-        //style
-        [HttpGet("get-by-product-style")]
-        public async Task<IActionResult> GetByProductStyle([FromQuery] long idStyle, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-        {
-            if (pageNumber < 1 || pageSize < 1)
-            {
-                return BadRequest("Page number and page size must be greater than 0.");
-            }
-
-            var list = await _postRepository.GetByTypeAsyncProductStyle(idStyle, pageNumber, pageSize);
-            return Ok(list);
-        }
-        [HttpGet("Get-Total-Count-Product-Style")]
-        public async Task<IActionResult> GetTotalCountProductStyle([FromQuery] long idStyle)
-        {
-            var totalCount = await _postRepository.GetTotalCountAsyncProductStyle(idStyle);
-            return Ok(totalCount);
-        }
-
-
-
-        //material
-        [HttpGet("get-by-product-material")]
-        public async Task<IActionResult> GetByProductMaterial([FromQuery] long idMaterial, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-        {
-            if (pageNumber < 1 || pageSize < 1)
-            {
-                return BadRequest("Page number and page size must be greater than 0.");
-            }
-
-            var list = await _postRepository.GetByTypeAsyncProductMaterial(idMaterial, pageNumber, pageSize);
-            return Ok(list);
-        }
-        [HttpGet("Get-Total-Count-Product-Material")]
-        public async Task<IActionResult> GetTotalCountProductMaterial([FromQuery] long idMaterial)
-        {
-            var totalCount = await _postRepository.GetTotalCountAsyncProductMaterial(idMaterial);
-            return Ok(totalCount);
-        }
-        //Textile_technology
-
-        [HttpGet("get-by-product-textile_technology")]
-        public async Task<IActionResult> GetByProductTextile_technology([FromQuery] long idTextile_technology, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-        {
-            if (pageNumber < 1 || pageSize < 1)
-            {
-                return BadRequest("Page number and page size must be greater than 0.");
-            }
-
-            var list = await _postRepository.GetByTypeAsyncProductTextile_technology(idTextile_technology, pageNumber, pageSize);
-            return Ok(list);
-        }
-        [HttpGet("Get-Total-Count-Product-Textile_technology")]
-        public async Task<IActionResult> GetTotalCountProductTextile_technology([FromQuery] long idTextile_technology)
-        {
-            var totalCount = await _postRepository.GetTotalCountAsyncProductTextile_technology(idTextile_technology);
-            return Ok(totalCount);
-        }
-
-        //designer
-        [HttpGet("get-by-product-designer")]
-        public async Task<IActionResult> GetByProductDesigner([FromQuery] long idDesigner, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
-        {
-            if (pageNumber < 1 || pageSize < 1)
-            {
-                return BadRequest("Page number and page size must be greater than 0.");
-            }
-
-            var list = await _postRepository.GetByTypeAsyncProductDesigner(idDesigner, pageNumber, pageSize);
-            return Ok(list);
-        }
-        [HttpGet("Get-Total-Count-Product-Designer")]
-        public async Task<IActionResult> GetTotalCountProductDesigner([FromQuery] long idDesigner)
-        {
-            var totalCount = await _postRepository.GetTotalCountAsyncProductDesigner(idDesigner);
-            return Ok(totalCount);
-        }
         [HttpGet("get-by-product-filter")]
         public async Task<IActionResult> GetByProductFilter([FromQuery] List<long?> idDesigner, [FromQuery] List<long?> idColor, [FromQuery] List<long?> idMaterial, [FromQuery] List<long?> idTextile_technology, [FromQuery] List<long?> idStyle, [FromQuery] List<long?> idSize, [FromQuery] List<long?> idCategory, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
         {

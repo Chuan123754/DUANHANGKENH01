@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using ViewsFE.IServices;
 using ViewsFE.Models;
+using static iText.StyledXmlParser.Jsoup.Select.Evaluator;
 using static ViewsFE.Services.PostServices;
 
 namespace ViewsFE.Services
@@ -14,6 +15,31 @@ namespace ViewsFE.Services
             _httpClient = new HttpClient();
             _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
+
+        public async Task<bool> CheckSlug(string slug)
+        {
+            var response = await _httpClient.GetAsync($"{_baseUrl}/api/Designer/checkslug?slug={slug}");
+            response.EnsureSuccessStatusCode();
+            return bool.Parse(await response.Content.ReadAsStringAsync());
+        }
+
+        public async Task<bool> CheckSlugForUpdate(string slug, long desiId)
+        { 
+            try
+            {
+                // Gửi request đến API
+                var response = await _httpClient.GetFromJsonAsync<ApiResponse>($"{_baseUrl}/api/Designer/check-slug-for-update?slug={slug}&desiId={desiId}");
+
+                // Nếu response hợp lệ, trả về giá trị `IsUnique`
+                return response?.IsUnique ?? false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error calling CheckSlugForUpdate API: {ex.Message}");
+                return false; // Trả về false trong trường hợp lỗi
+            }
+        }
+
         public async Task<long> Create(Designer at)
         {
             string requestURL = $"{_baseUrl}/api/Designer";
@@ -43,7 +69,12 @@ namespace ViewsFE.Services
 
         public async Task<Designer> GetById(long id)
         {
-                return await _httpClient.GetFromJsonAsync<Designer>($"{_baseUrl}/api/Designer/{id}");
+           return await _httpClient.GetFromJsonAsync<Designer>($"{_baseUrl}/api/Designer/{id}");
+        }
+
+        public async Task<Designer> GetByIdSlug(string slug)
+        {
+            return await _httpClient.GetFromJsonAsync<Designer>($"{_baseUrl}/api/Designer/GetByIdSlug?slug={slug}");
         }
 
         public async Task<List<Designer>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)

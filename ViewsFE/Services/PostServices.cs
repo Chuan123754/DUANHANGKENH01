@@ -176,7 +176,7 @@ namespace ViewsFE.Services
                 return false; // Trả về false trong trường hợp lỗi
             }
         }
-        private class ApiResponse
+        public class ApiResponse
         {
             public bool IsUnique { get; set; }
         }

@@ -34,18 +34,18 @@ namespace appAPI.Repository
 
         public async Task<List<Textile_technology>> GetAll()
         {
-            return await _context.Textile_Technologies.Where(p => p.Deleted == false).ToListAsync();
+            return await _context.Textile_Technologies.Where(p =>   p.Deleted == false).ToListAsync();
         }
 
         public async Task<Textile_technology> GetByIdAndType(long id)
         {
-            return await _context.Textile_Technologies.FirstOrDefaultAsync(p => p.Id == id && p.Deleted == false);
+            return await _context.Textile_Technologies.FirstOrDefaultAsync(p => p.Id == id &&   p.Deleted == false);
         }
 
         public async Task<List<Textile_technology>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)
         {
             return await _context.Textile_Technologies
-                  .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) && p.Deleted == false)
+                  .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) &&   p.Deleted == false)
                   .OrderBy(p => p.Id)
                   .Skip((pageNumber - 1) * pageSize)
                   .Take(pageSize)
@@ -55,7 +55,7 @@ namespace appAPI.Repository
         public async Task<int> GetTotalCountAsync(string searchTerm)
         {
             return await _context.Textile_Technologies
-                .CountAsync(p => p.Deleted == false &&
+                .CountAsync(p =>   p.Deleted == false &&
                                 (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
         }
 

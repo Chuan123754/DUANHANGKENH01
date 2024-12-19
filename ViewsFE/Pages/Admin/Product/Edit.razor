@@ -121,7 +121,7 @@
                                                 <label class="form-label">Trạng thái<span class="text-danger">*</span></label>
                                                 <select @bind="Posts.Status" class="form-control">
 
-                                                    @foreach (var status in statuses)
+                                                    @foreach (var status in statuses.Where(p => p.Key != "delete"))
                                                     {
                                                         <option value="@status.Key" selected="@(Posts.Status == status.Key)">
                                                             @status.Value
@@ -555,17 +555,15 @@
         }
         return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
-    private async Task<bool> IsSlugUnique(string slug)
+    private async Task<bool> IsSlugUnique(string slug, long postId)
     {
-        try
-        {
-            return await sev.CheckSlug(slug); // Gọi API kiểm tra Slug
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error checking slug: {ex.Message}");
-            return false;
-        }
+        if (string.IsNullOrWhiteSpace(slug)) return false;
+
+        Console.WriteLine($"Checking Slug: {slug}, PostId: {postId}");
+
+        // Gọi API kiểm tra Slug trùng lặp
+        bool exists = await sev.CheckSlugForUpdate(slug, postId);
+        return !exists; // Nếu không tồn tại ở bản ghi khác => duy nhất
     }
 
     private async void HandleValidSubmit()
@@ -584,12 +582,13 @@
             SelectedCategories = string.IsNullOrEmpty(categories)
                 ? new List<long>() // Nếu categories rỗng, tạo danh sách trống
                 : categories.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
-            bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty);
+            bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty, Posts.Id);
             if (!isSlugUnique)
             {
                 await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
                 return;
             }
+
             try
             {
                 postId = await sev.Updatetagcate(Posts, SelectedTags, SelectedCategories);

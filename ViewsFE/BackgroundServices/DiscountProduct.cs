@@ -80,7 +80,7 @@ namespace ViewsFE.BackgroundServices
                     await Task.WhenAll(tasks).ConfigureAwait(false);
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(6000), stoppingToken); // kiểm tra mỗi 100 giây
+                await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
             }
         }
 
@@ -94,7 +94,7 @@ namespace ViewsFE.BackgroundServices
             {
                 return regularPrice - discountValue;
             }
-            return regularPrice; 
+            return regularPrice;
         }
     }
 }

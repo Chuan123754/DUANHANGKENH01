@@ -34,19 +34,19 @@ namespace appAPI.Repository
 
         public async Task<List<Style>> GetAll()
         {
-            return await _context.Styles.Where(p => p.Deleted == false).ToListAsync();
+            return await _context.Styles.Where(p =>   p.Deleted == false).ToListAsync();
         }
 
 
         public async Task<Style> GetByIdAndType(long id)
         {
-            return await _context.Styles.FirstOrDefaultAsync(p => p.Id == id && p.Deleted == false);
+            return await _context.Styles.FirstOrDefaultAsync(p => p.Id == id &&   p.Deleted == false);
         }
 
         public async Task<List<Style>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)
         {
             return await _context.Styles
-                .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) && p.Deleted == false)
+                .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) &&   p.Deleted == false)
                 .OrderBy(p => p.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -57,7 +57,7 @@ namespace appAPI.Repository
         {
             // Lấy tổng số sản phẩm theo loại và tìm kiếm với điều kiện Deleted = false
             return await _context.Styles
-                .CountAsync(p => p.Deleted == false &&
+                .CountAsync(p =>   p.Deleted == false &&
                                 (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
         }
 

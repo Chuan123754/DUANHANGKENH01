@@ -101,10 +101,12 @@
                         // Xóa tệp khỏi Dropzone sau khi upload thành công
                         this.removeFile(file);
 
-                        //setTimeout(() => {
-                        //    location.reload(); // Reload the page after 2 seconds
-                        //}, 1000);
+
+                        setTimeout(() => {
+                           location.reload(); // Reload the page after 2 seconds
+                        }, 1000);
                         if (dotNetObjectReference) {
+                            console.log("Đang gọi LoadPosts...");
                             dotNetObjectReference.invokeMethodAsync('LoadPosts')
                                 .then(() => {
                                     console.log("LoadPosts đã được gọi từ JavaScript.");
@@ -149,10 +151,9 @@
     private int total_pages = 1;
     private int page_size = 21;
     private int totalItems;
-
+    private bool initializeDropzone = false;
     protected override void OnInitialized()
     {
-        // Tạo đối tượng DotNetObjectReference cho component của bạn
         objRef = DotNetObjectReference.Create(this);
     }
     protected override async Task OnInitializedAsync()
@@ -168,17 +169,14 @@
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
     }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             Console.WriteLine("Khởi tạo Dropzone...");
-            await JS.InvokeVoidAsync("initializeDropzone", objRef);
+            await JS.InvokeVoidAsync("initializeDropzone", objRef); 
         }
-
-        // Chắc chắn gọi lại LoadPosts nếu cần
-        await LoadPosts();
+       // await LoadPosts();
     }
 
     public void Dispose()

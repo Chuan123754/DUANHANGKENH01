@@ -62,7 +62,7 @@ namespace appAPI.Controllers
                 PdfFont fontNormal = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
                 PdfFont fontBold = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
 
-                string imagePath = @"E:\HangKenh\appAPI\FileMedia\Logohk.jpg";
+                string imagePath = @"D:\DATN\DUANHANGKENH01\appAPI\FileMedia\Logohk.jpg"; 
                 if (!System.IO.File.Exists(imagePath)) return BadRequest("Hình ảnh không tồn tại tại đường dẫn: " + imagePath);
 
                 Image logoImage = new Image(ImageDataFactory.Create(imagePath)).SetWidth(50).SetHeight(50);
@@ -74,12 +74,12 @@ namespace appAPI.Controllers
                 document.Add(headerTable);
 
                 document.Add(new Paragraph("VAT INVOICE").SetFont(fontNormal).SetFontSize(9).SetTextAlignment(TextAlignment.CENTER));
-                document.Add(new Paragraph($"Ngày (Date): {DateTime.Now:dd/MM/yyyy}\n\n").SetFont(fontNormal).SetFontSize(9).SetTextAlignment(TextAlignment.CENTER));
+                document.Add(new Paragraph($"Ngày (Date): {DateTime.Now:dd/MM/yyyy HH:mm}\n\n").SetFont(fontNormal).SetFontSize(9).SetTextAlignment(TextAlignment.CENTER));
 
                 // Thông tin Người bán
-                document.Add(new Paragraph("Tên đơn vị bán hàng (Seller): TRƯỜNG CAO ĐẲNG FPT POLYTECHNIC").SetFont(fontNormal).SetFontSize(9));
-                document.Add(new Paragraph("Mã số thuế (Tax code): 0102635866").SetFont(fontNormal).SetFontSize(9));
-                document.Add(new Paragraph("Địa chỉ (Address): Km12, đường Cầu Diễn, P.Phúc Diễn, Q.Bắc Từ Liêm, Hà Nội").SetFont(fontNormal).SetFontSize(9));
+                document.Add(new Paragraph("Tên đơn vị bán hàng (Seller): CÔNG TY CỔ PHẦN THẢM LEN HÀNG KÊNH").SetFont(fontNormal).SetFontSize(9));
+                document.Add(new Paragraph("Mã số thuế (Tax code): 0201558210").SetFont(fontNormal).SetFontSize(9));
+                document.Add(new Paragraph("Địa chỉ (Address): Đội 7, Xã An Thọ, Huyện An Lão, Thành phố Hải Phòng, Việt Nam").SetFont(fontNormal).SetFontSize(9));
                 document.Add(new Paragraph("Số tài khoản (A/C No.): 13136969301 tại Ngân hàng TMCP Tiên Phong - CN Hoàn Kiếm").SetFont(fontNormal).SetFontSize(9));
                 document.Add(new Paragraph("----------------------------------------------------------------------------------------------------------------------------------------"));
 

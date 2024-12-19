@@ -12,16 +12,17 @@ namespace appAPI.Services
     public class LoginServices : IloginServices
     {
         private readonly HttpClient _httpClient;
-
-        public LoginServices(HttpClient httpClient)
+        private readonly string _baseUrl;
+        public LoginServices(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
 
         // Phương thức SignUp
         public async Task<string> SignUp(SignUpModel model)
         {
-            string requestURL = "https://localhost:7011/api/Account/SignUp";
+            string requestURL = $"{_baseUrl}/api/Account/SignUp";
             var jsonContent = JsonConvert.SerializeObject(model);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -40,7 +41,7 @@ namespace appAPI.Services
         // Phương thức Login
         public async Task<string> Login(SignInModel model)
         {
-            string requestURL = "https://localhost:7011/api/Account/Login";
+            string requestURL = $"{_baseUrl}/api/Account/Login";
             var jsonContent = JsonConvert.SerializeObject(model);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -61,7 +62,7 @@ namespace appAPI.Services
         // Phương thức SignOut
         public async Task<bool> SignOut()
         {
-            string requestURL = "https://localhost:7011/api/Account/SignOut";
+            string requestURL = $"{_baseUrl}/api/Account/SignOut";
             var response = await _httpClient.PostAsync(requestURL, null);
 
             return response.IsSuccessStatusCode;

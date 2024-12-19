@@ -1,7 +1,15 @@
 ﻿@page "/admin/sell"
+@using System.Text.RegularExpressions
 @using ViewsFE.BackgroundServices
 @inject EmailNotification email
 @inject NavigationManager nav
+@inject IPostSer post
+@inject IStyleServices StyleServices
+@inject ISizeServices SizeServices
+@inject IMaterialServices MaterialService
+@inject ITextile_technologyServices Textile_technologyServices
+@inject IColorServices colorService
+@inject ISizeServices sizeService
 @inject IUserService userService
 @inject IAddressServices addressService
 @inject IOrderIServices orderService
@@ -112,23 +120,55 @@
                                             <h5 class="modal-title">Thêm Sản Phẩm</h5>
                                             <button type="button" class="btn-close" @onclick="CloseAddProductModal" aria-label="Close"></button>
                                         </div>
-                                        <div class="search-box d-flex align-items-center justify-content-between mb-3">
-                                            <div></div>
-                                            @*            <EditForm Model="product_Attributes" OnValidSubmit="@OnSearch">
-                                        <div class="form-group d-flex gap-2">
-                                        <InputText id="search_input" class="form-control" @bind-Value="search_query" placeholder="Nhập từ khóa tìm kiếm" />
-                                        <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                        <div class="modal-body">
+                                            <div class="search-box mb-4">
+                                                <div class="row g-2 align-items-center">
+                                                    <div class="col-lg-3 col-md-6">
+                                                        <select class="form-select" @onchange="(e) => HandleProductNameChange(e)">
+                                                            <option value="">Chọn sản phẩm</option>
+                                                            @foreach (var item in product_posts_list)
+                                                            {
+                                                                <option value="@item.Id">@item.Title</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-3 col-md-6">
+                                                        <select class="form-select" @onchange="(e) => HandleTextileChange(e)">
+                                                            <option value="">Chọn Công nghệ dệt</option>
+                                                            @foreach (var tech in TextileTechnology_list)
+                                                            {
+                                                                <option value="@tech.Id">@tech.Title</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-3 col-md-6">
+                                                        <select class="form-select" @onchange="(e) => HandleMaterialChange(e)">
+                                                            <option value="">Chọn Chất liệu</option>
+                                                            @foreach (var material in Material_list)
+                                                            {
+                                                                <option value="@material.Id">@material.Title</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-lg-3 col-md-6">
+                                                        <select class="form-select" @onchange="(e) => HandleStyleChange(e)">
+                                                            <option value="">Chọn Phong cách</option>
+                                                            @foreach (var style in Style_list)
+                                                            {
+                                                                <option value="@style.Id">@style.Title</option>
+                                                            }
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                        </EditForm> *@
-                                        </div>
-
+                                           
                                         <div class="modal-body">
                                             <table class="table table-bordered table-striped table-hover align-middle">
                                                 <thead class="table-light text-center">
                                                     <tr>
                                                         <th>Hình Ảnh</th>
-                                                        <th>Tên Sản Phẩm</th>
-                                                        <th>Mô Tả</th>
+                                                        <th>Tên Sản Phẩm</th>                                                     
                                                         <th>Công Nghệ Dệt</th>
                                                         <th>Phong Cách</th>
                                                         <th>Chất Liệu</th>
@@ -140,18 +180,15 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach (var product in lst_ProductAttributes)
+                                                    @foreach (var product in lst_ProductAttributes.Where(p => p.Product_Variant.Status != "Đã xoá"))
                                                     {
                                                         <tr>
                                                             <td class="text-center">
-                                                                <img src="@product.Image" alt="Hình ảnh" style="width: 80px; height: auto; object-fit: cover; border-radius: 4px;" />
+                                                                <img src="@product.Image" alt="Hình ảnh" style="width: 80px; height: 105px !important; object-fit: cover; border-radius: 4px;" />
                                                             </td>
                                                             <td class="text-truncate" style="max-width: 150px;">
                                                                 @product.Product_Variant.Posts.Title
-                                                            </td>
-                                                            <td class="text-truncate" style="max-width: 200px;">
-                                                                @product.Product_Variant?.Description
-                                                            </td>
+                                                            </td>                                                     
                                                             <td class="text-truncate text-center">
                                                                 @product.Product_Variant?.Textile_Technology?.Title
                                                             </td>
@@ -213,10 +250,6 @@
                                                     }
                                                 </tbody>
                                             </table>
-
-                                            <div class="mt-4 text-center">
-                                                <PaginationMediaModal TItem="Product_Attributes" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
-                                            </div>
                                         </div>
 
                                         <div class="modal-footer">
@@ -266,7 +299,7 @@
                                     @foreach (var item in lst_OrderDetail)
                                     {
                                         <tr>
-                                            <td><img src="@item.ProductAttributes.Image" alt="Hình ảnh" style="width: 80px; height: auto;" /></td>
+                                            <td><img src="@item.ProductAttributes.Image" alt="Hình ảnh" style="width: 80px; height: 105px !important;" /></td>
                                             <td>@item.ProductAttributes.SKU </td>
                                             <td class="sort-city">
                                                 <div class="d-flex align-items-center">
@@ -728,11 +761,7 @@
                                                     </fieldset>
                                                 </div>
                                             </div>
-                                            <div class="mb-3">
-                                                <div class="d-flex justify-content-between">
-                                                    <span><strong>Thời gian nhận hàng dự kiến:</strong></span>
-                                                </div>
-                                            </div>
+                                         
                                         </form>
                                     </div>
                                 </div>
@@ -762,18 +791,7 @@
                         <div class="table-responsive">
                             <div class="container px-4 text-center">
                                 <div class="row gx-2 justify-content-between">
-                                   @*  <div class="col-auto" readonly>
-                                        <fieldset class="border p-2" style="width: 150px; padding-top: 0.5rem;">
-                                            <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">Tiêu đề</legend>
-                                            <div style="margin-top: -0.5rem;"><strong>Mã giảm giá</strong></div>
-                                        </fieldset>
-                                    </div>
-                                    <div class="col-auto" readonly>
-                                        <fieldset class="border p-2" style="width: 150px; padding-top: 0.5rem;">
-                                            <legend class="float-none w-auto px-2" style="font-size: 0.75rem; text-align: left; margin-bottom: 0;">.</legend>
-                                            <div style="margin-top: -0.5rem;"><strong>Code</strong></div>
-                                        </fieldset>
-                                    </div> *@
+                       
                                 </div>
                             </div>
                             <div class="card-table table-responsive">
@@ -992,6 +1010,80 @@
     private bool isMomoModalVisible = false; // Kiểm tra modal MoMo đang mở hay không
                                              // Hiển thị modal QR MoMo
 
+    private List<Size> Size_list = new List<Size>();
+    private List<Material> Material_list = new List<Material>();
+    private List<Textile_technology> TextileTechnology_list = new List<Textile_technology>();
+    private List<Style> Style_list = new List<Style>();
+    private List<Product_Posts> product_posts_list = new List<Product_Posts>();
+    private string searchFilter = "product_name";
+
+    private string selectedTextileTechnologyId = string.Empty;
+    private string selectedMaterialId = string.Empty;
+    private string selectedStyleId = string.Empty;
+    private string selectedProductId = string.Empty;
+
+    private async Task HandleProductNameChange(ChangeEventArgs e)
+    {
+        selectedProductId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+
+    private async Task HandleTextileChange(ChangeEventArgs e)
+    {
+        selectedTextileTechnologyId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+
+    private async Task HandleMaterialChange(ChangeEventArgs e)
+    {
+        selectedMaterialId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+
+    private async Task HandleStyleChange(ChangeEventArgs e)
+    {
+        selectedStyleId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+           
+    private async Task ApplyFilters()
+    {
+        // Lọc sản phẩm theo các điều kiện đã chọn
+        var filteredProducts = await productAttributeService.GetAllProductAttributes();
+
+        if (!string.IsNullOrEmpty(selectedProductId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                    post.Product_Variant.Posts.Id == long.Parse(selectedProductId)).ToList();
+        }
+
+
+        // Lọc theo Công nghệ dệt
+        if (!string.IsNullOrEmpty(selectedTextileTechnologyId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Product_Variant.Textile_technology_id == long.Parse(selectedTextileTechnologyId)).ToList();
+        }
+
+        // Lọc theo Chất liệu
+        if (!string.IsNullOrEmpty(selectedMaterialId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Product_Variant.Material_id == long.Parse(selectedMaterialId)).ToList();
+        }
+
+        // Lọc theo Phong cách
+        if (!string.IsNullOrEmpty(selectedStyleId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Product_Variant.Style_id == long.Parse(selectedStyleId)).ToList();
+        }
+
+        lst_ProductAttributes = filteredProducts;
+        StateHasChanged();
+    }
+
+
     private void ShowMomoModal(string momoUrl)
     {
         payUrl = momoUrl;
@@ -1023,7 +1115,7 @@
     private async Task ConfirmMomoPayment()
     {
         var updateitem = await orderService.GetByIdOrders(selectedOrderId);
-        if(updateitem.Status == "Đã thanh toán")
+        if (updateitem.Status == "Đã thanh toán")
         {
             await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
             isMomoModalVisible = false;
@@ -1032,7 +1124,7 @@
         else
         {
             await JS.InvokeVoidAsync("toastr.error", $"Đơn hàng chưa được thanh toán");
-        }
+        }     
 
     }
 
@@ -1183,6 +1275,15 @@
 
     protected override async Task OnInitializedAsync()
     {
+        Material_list = await MaterialService.GetAll();
+        TextileTechnology_list = await Textile_technologyServices.GetAll();
+        Style_list = await StyleServices.GetAll();
+        product_posts_list = await post.GetByTypeAsync("product", page_number, page_size, search_query);
+
+        selectedTextileTechnologyId = string.Empty;
+        selectedMaterialId = string.Empty;
+        selectedStyleId = string.Empty;
+
         var currentUserId = await _authStateProvider.GetCurrentUserId();
         if(currentUserId == null)
         {
@@ -1800,7 +1901,7 @@
             modalPayByCash = false;
 
         }
-        
+
     }
 
     private async Task PayByMomo()
@@ -1860,6 +1961,20 @@
                         ShowMomoModal(momoResponse.PayUrl);
                         await orderService.Update(orderToUpdate, orderToUpdate.Id);
 
+                        if(orderToUpdate.Status=="Đã xác nhận")
+                        {
+                            var newOrderTracking = new order_trackings
+                                {
+                                    OrderId = orderToUpdate.Id,
+                                    Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
+                                    Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" : " Đã xác nhận",
+                                    Created_at = DateTime.Now,
+                                    Created_by = adminId
+                                };
+                            await orderTrackingService.AddOrderTracking(newOrderTracking);
+                        }
+                      
+
                     }
                     else
                     {
@@ -1879,20 +1994,22 @@
                 await orderService.Update(orderToUpdate, orderToUpdate.Id);
                 await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
                 await ResetViewState();
+
+
+                var newOrderTracking = new order_trackings
+                    {
+                        OrderId = orderToUpdate.Id,
+                        Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
+                        Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" : " Đã xác nhận",
+                        Created_at = DateTime.Now,
+                        Created_by = adminId
+                    };
+                await orderTrackingService.AddOrderTracking(newOrderTracking);
             }
 
-            var newOrderTracking = new order_trackings
-                {
-                    OrderId = orderToUpdate.Id,
-                    Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
-                    Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" : " Đã xác nhận",
-                    Created_at = DateTime.Now,
-                    Created_by = adminId
-                };
-            await orderTrackingService.AddOrderTracking(newOrderTracking);
 
 
-            if (selectedCustomer != null)
+            if (selectedCustomer != null && orderToUpdate.Status=="Đã thanh toán")
             {
                 var emailUser = selectedCustomer.Email;
                 string emailSubject = "ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC ĐẶT THÀNH CÔNG";
