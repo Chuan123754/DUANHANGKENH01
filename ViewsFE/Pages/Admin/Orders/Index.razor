@@ -209,8 +209,8 @@
                                                 </td>
                                                 <td>@item.Created_at</td>
                                                 <td>
-                                                    <span class="@GetStatusClass(item.Status)">
-                                                        @item.Status
+                                                    <span class="@GetStatusClass(item.StatusClass)">
+                                                        @item.StatusLabel
                                                     </span>
                                                 </td>                                               
                                                 <td>
@@ -245,8 +245,7 @@
     private List<Orders> pagedOrders = new List<Orders>();
     private List<Order_details> lst_OrderDetails = new List<Order_details>();
 
-    private List<Orders> Orders = new();
-
+    private List<Orders> OrdersLis = new();
     private IEnumerable<Orders> paged_Orders;
     private string searchText = string.Empty;
     private int currentPage = 1;
@@ -295,11 +294,11 @@
 
     private string GetStatusClass(string status) // giao diện cho status
     {
-        if (status == "Hóa đơn treo")
+        if (status == /* "Hóa đơn treo" */ Orders.STATUS_HANGINGINVOICE )
         {
             return "badge bg-danger";
         }
-        else if (status == "Hoàn tất đơn")
+        else if (status == /* "Hoàn tất đơn" */ Orders.STATUS_COMPLETED)
         {
             return "badge bg-success";
         }
@@ -323,7 +322,7 @@
     }
     private async Task LoadOrders()
     {
-        Orders = await OrderTrackingService.GetAllOrders();
+        OrdersLis = await OrderTrackingService.GetAllOrders();
     }
 
 
@@ -332,32 +331,43 @@
         var lst_OrdersShipping = await orderService.GetAll();
         // sắp xếp
         lst_Orders = lst_OrdersShipping
-       .OrderByDescending(o => o.Status == "Hóa đơn treo")
-       .ThenByDescending(o => o.Status == "Đã thanh toán")
-       .ThenByDescending(o => o.Status == "Chờ xác nhận")
-       .ThenByDescending(o => o.Status == "Đã xác nhận")
-       .ThenByDescending(o => o.Status == "Đã chuẩn bị hàng")
-       .ThenByDescending(o => o.Status == "Đã lấy hàng")
-       .ThenByDescending(o => o.Status == "Đang vận chuyển")
-       .ThenByDescending(o => o.Status == "Giao thành công")
-       .ThenByDescending(o => o.Status == "Giao thất bại")
-       .ThenByDescending(o => o.Status == "Hoàn tất đơn")
-       .ThenByDescending(o => o.Status == "Đơn hủy")
+       // .OrderByDescending(o => o.Status == "Hóa đơn treo")
+       // .ThenByDescending(o => o.Status == "Đã thanh toán")
+       // .ThenByDescending(o => o.Status == "Chờ xác nhận")
+       // .ThenByDescending(o => o.Status == "Đã xác nhận")
+       // .ThenByDescending(o => o.Status == "Đã chuẩn bị hàng")
+       // .ThenByDescending(o => o.Status == "Đã lấy hàng")
+       // .ThenByDescending(o => o.Status == "Đang vận chuyển")
+       // .ThenByDescending(o => o.Status == "Giao thành công")
+       // .ThenByDescending(o => o.Status == "Giao thất bại")
+       // .ThenByDescending(o => o.Status == "Hoàn tất đơn")
+       // .ThenByDescending(o => o.Status == "Đơn hủy")
+       .OrderByDescending(o => o.Status == Orders.STATUS_HANGINGINVOICE)
+        .ThenByDescending(o => o.Status == Orders.STATUS_PAID)
+        .ThenByDescending(o => o.Status == Orders.STATUS_WAIT)
+        .ThenByDescending(o => o.Status == Orders.STATUS_CONFIREMD)
+        .ThenByDescending(o => o.Status == Orders.STATUS_PREPAREDGOODS)
+        .ThenByDescending(o => o.Status == Orders.STATUS_RECEIVED)
+        .ThenByDescending(o => o.Status == Orders.STATUS_SHIPING)
+        .ThenByDescending(o => o.Status == Orders.STATUS_DELIVEREDSUCCESSFULLY)
+        .ThenByDescending(o => o.Status == Orders.STATUS_DELIVERYFAILED)
+        .ThenByDescending(o => o.Status == Orders.STATUS_COMPLETED)
+        .ThenByDescending(o => o.Status == Orders.STATUS_CANCEL)
        .ThenByDescending(o => o.Created_at)
        .ToList();
 
         // Tính toán thống kê
         totalOrders = lst_Orders.Count;
-        canceledOrders = lst_Orders.Count(o => o.Status == "Đơn hủy");
-        orderShippingComplete = lst_Orders.Count(o => o.Status == "Hoàn tất đơn");
-        orderCounterComplete = lst_Orders.Where(o => o.Status == "Đã thanh toán").Where(o=>o.Note=="Tại quầy").Count();
+        canceledOrders = lst_Orders.Count(o => o.Status == /* "Đơn hủy" */ Orders.STATUS_CANCEL);
+        orderShippingComplete = lst_Orders.Count(o => o.Status == /* "Hoàn tất đơn" */ Orders.STATUS_COMPLETED);
+        orderCounterComplete = lst_Orders.Where(o => o.Status == /* "Đã thanh toán" */ Orders.STATUS_PAID).Where(o => o.Note == "Tại quầy").Count();
         totalComplete = orderShippingComplete + orderCounterComplete;
 
         totalProcessing = lst_Orders.Where(o =>
-            o.Status != "Đơn hủy" &&
-            o.Status != "Hoàn tất đơn" &&
-            !(o.Status == "Đã thanh toán" && o.Note == "Tại quầy") ||
-            (o.Status == "Đã thanh toán" && o.Note == "Giao hàng")).Count();
+            o.Status != /* "Đơn hủy" */ Orders.STATUS_CANCEL &&
+            o.Status != /* "Hoàn tất đơn"  */ Orders.STATUS_COMPLETED &&
+            !(o.Status == /* "Đã thanh toán" */ Orders.STATUS_PAID && o.Note == "Tại quầy") ||
+            (o.Status == /* "Đã thanh toán" */ Orders.STATUS_PAID && o.Note == "Giao hàng")).Count();
         LoadPagedOrders();
     }
     private async Task FilterByDateRange()
@@ -392,37 +402,54 @@
     }
     private async Task GetProcessinglOrders()
     {
-        var lstOrders = await orderService.GetAll();
-        lst_Orders = lstOrders.Where(o => 
-            o.Status != "Đơn hủy" && 
-            o.Status != "Hoàn tất đơn" &&
-            !(o.Status == "Đã thanh toán" && o.Note == "Tại quầy") ||
-            (o.Status == "Đã thanh toán" && o.Note == "Giao hàng"))
+        // var lstOrders = await orderService.GetAll();
+        // lst_Orders = lstOrders.Where(o => 
+        //     o.Status != "Đơn hủy" && 
+        //     o.Status != "Hoàn tất đơn" &&
+        //     !(o.Status == "Đã thanh toán" && o.Note == "Tại quầy") ||
+        //     (o.Status == "Đã thanh toán" && o.Note == "Giao hàng"))
 
-               .OrderByDescending(o => o.Status == "Hóa đơn treo")
-               .ThenByDescending(o => o.Status == "Đã thanh toán")
-               .ThenByDescending(o => o.Status == "Chờ xác nhận")
-               .ThenByDescending(o => o.Status == "Đã xác nhận")
-               .ThenByDescending(o => o.Status == "Đã chuẩn bị hàng")
-               .ThenByDescending(o => o.Status == "Đã lấy hàng")
-               .ThenByDescending(o => o.Status == "Đang vận chuyển")
-               .ThenByDescending(o => o.Status == "Giao thành công")
-               .ThenByDescending(o => o.Status == "Giao thất bại")
-               .ThenByDescending(o => o.Created_at)
-               .ToList();
+        //        .OrderByDescending(o => o.Status == "Hóa đơn treo")
+        //        .ThenByDescending(o => o.Status == "Đã thanh toán")
+        //        .ThenByDescending(o => o.Status == "Chờ xác nhận")
+        //        .ThenByDescending(o => o.Status == "Đã xác nhận")
+        //        .ThenByDescending(o => o.Status == "Đã chuẩn bị hàng")
+        //        .ThenByDescending(o => o.Status == "Đã lấy hàng")
+        //        .ThenByDescending(o => o.Status == "Đang vận chuyển")
+        //        .ThenByDescending(o => o.Status == "Giao thành công")
+        //        .ThenByDescending(o => o.Status == "Giao thất bại")
+        //        .ThenByDescending(o => o.Created_at)
+        //        .ToList();
+        var lstOrders = await orderService.GetAll();
+        lst_Orders = lstOrders.Where(o =>
+            o.Status != Orders.STATUS_CANCEL &&
+            o.Status != Orders.STATUS_COMPLETED &&
+            !(o.Status == Orders.STATUS_PAID && o.Note == "Tại quầy") ||
+            (o.Status == Orders.STATUS_PAID && o.Note == "Giao hàng"))
+            .OrderByDescending(o => o.Status == Orders.STATUS_HANGINGINVOICE)
+            .ThenByDescending(o => o.Status == Orders.STATUS_PAID)
+            .ThenByDescending(o => o.Status == Orders.STATUS_WAIT)
+            .ThenByDescending(o => o.Status == Orders.STATUS_CONFIREMD)
+            .ThenByDescending(o => o.Status == Orders.STATUS_PREPAREDGOODS)
+            .ThenByDescending(o => o.Status == Orders.STATUS_RECEIVED)
+            .ThenByDescending(o => o.Status == Orders.STATUS_SHIPING)
+            .ThenByDescending(o => o.Status == Orders.STATUS_DELIVEREDSUCCESSFULLY)
+            .ThenByDescending(o => o.Status == Orders.STATUS_DELIVERYFAILED)
+            .ThenByDescending(o => o.Created_at)
+            .ToList();
 
         LoadPagedOrders();
     }
     private async Task GetCompleteOrders()
     {
         var lstOrders = await orderService.GetAll();
-        lst_Orders = lstOrders.Where(o => o.Status == "Hoàn tất đơn" || (o.Status == "Đã thanh toán" && o.Note == "Tại quầy")).OrderByDescending(o => o.Created_at).ToList();
+        lst_Orders = lstOrders.Where(o => o.Status == /* "Hoàn tất đơn" */ Orders.STATUS_COMPLETED || (o.Status == /* "Đã thanh toán" */ Orders.STATUS_PAID && o.Note == "Tại quầy")).OrderByDescending(o => o.Created_at).ToList();
         LoadPagedOrders();
     }
     private async Task GetCanceledOrders()
     {
         var lstOrders = await orderService.GetAll();
-        lst_Orders = lstOrders.Where(o => o.Status == "Đơn hủy").OrderByDescending(o => o.Created_at).ToList();
+        lst_Orders = lstOrders.Where(o => o.Status == /* "Đơn hủy" */ Orders.STATUS_CANCEL).OrderByDescending(o => o.Created_at).ToList();
         LoadPagedOrders(); 
     }
 

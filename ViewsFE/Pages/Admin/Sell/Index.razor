@@ -180,7 +180,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach (var product in lst_ProductAttributes.Where(p => p.Product_Variant.Status != "Đã xoá"))
+                                                    @foreach (var product in lst_ProductAttributes.Where(p => p.Product_Variant.Status != "Đã xoá" && p.Product_Variant.Posts.Status !="delete"))
                                                     {
                                                         <tr>
                                                             <td class="text-center">
@@ -1096,7 +1096,7 @@
     private async Task CancelMomoPayment()
     {
         var updateitem = await orderService.GetByIdOrders(selectedOrderId);
-        if (updateitem.Status == "Đã thanh toán")
+        if (updateitem.Status ==/*  "Đã thanh toán" */ Orders.STATUS_PAID)
         {
             await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
             isMomoModalVisible = false;
@@ -1115,7 +1115,7 @@
     private async Task ConfirmMomoPayment()
     {
         var updateitem = await orderService.GetByIdOrders(selectedOrderId);
-        if (updateitem.Status == "Đã thanh toán")
+        if (updateitem.Status ==/*  "Đã thanh toán" */ Orders.STATUS_PAID)
         {
             await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
             isMomoModalVisible = false;
@@ -1304,7 +1304,7 @@
     private async Task LoadOrders() // lấy ra các hóa đơn treo ( chưa thanh toán )
     {
         var allOrders = await orderService.GetAll();
-        lst_Orders = allOrders.Where(order => order.Status == "Hóa đơn treo").ToList();
+        lst_Orders = allOrders.Where(order => order.Status == /* "Hóa đơn treo" */ Orders.STATUS_HANGINGINVOICE).ToList();
         StateHasChanged();
     }
 
@@ -1406,7 +1406,7 @@
 
     private async Task CreateOrder()
     {
-        var pendingOrders = lst_Orders.Where(order => order.Status == "Hóa đơn treo").ToList();
+        var pendingOrders = lst_Orders.Where(order => order.Status == Orders.STATUS_HANGINGINVOICE).ToList();
 
         if (pendingOrders.Count >= 10)
         {
@@ -1417,7 +1417,7 @@
             {
                 Note = "Tại quầy",
                 CreatedByAdminId = adminId,
-                Status = "Hóa đơn treo"
+                Status = Orders.STATUS_HANGINGINVOICE
             };
         await orderService.Create(newOrder);
         lst_Orders = await orderService.GetAll();
@@ -1936,13 +1936,13 @@
             orderToUpdate.CreatedByAdminId = adminId;
             if (isDeliveryVisible)
             {
-                orderToUpdate.Status = "Đã xác nhận";
+                orderToUpdate.Status = Orders.STATUS_CONFIREMD;
                 orderToUpdate.FeeShipping = feeShipping;
                 orderToUpdate.Address_Id = selectedAddress?.Id;
             }
             else
             {
-                orderToUpdate.Status = "Hóa đơn treo";
+                orderToUpdate.Status = Orders.STATUS_HANGINGINVOICE;
                 orderToUpdate.FeeShipping = 0;
                 orderToUpdate.Address_Id = null;
             }
@@ -1961,12 +1961,12 @@
                         ShowMomoModal(momoResponse.PayUrl);
                         await orderService.Update(orderToUpdate, orderToUpdate.Id);
 
-                        if(orderToUpdate.Status=="Đã xác nhận")
+                        if (orderToUpdate.Status == Orders.STATUS_CONFIREMD)
                         {
                             var newOrderTracking = new order_trackings
                                 {
                                     OrderId = orderToUpdate.Id,
-                                    Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
+                                    Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành"  ,
                                     Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" : " Đã xác nhận",
                                     Created_at = DateTime.Now,
                                     Created_by = adminId
@@ -1989,7 +1989,7 @@
             else
             {
                 orderToUpdate.TypePayment = "Thanh toán tiền mặt";
-                orderToUpdate.Status = "Đã thanh toán";
+                orderToUpdate.Status =/*  "Đã thanh toán" */ Orders.STATUS_PAID;
                 orderToUpdate.Address_Id = selectedAddress?.Id;
                 await orderService.Update(orderToUpdate, orderToUpdate.Id);
                 await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
@@ -1999,7 +1999,7 @@
                 var newOrderTracking = new order_trackings
                     {
                         OrderId = orderToUpdate.Id,
-                        Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
+                        Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành" ,
                         Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" : " Đã xác nhận",
                         Created_at = DateTime.Now,
                         Created_by = adminId
@@ -2009,7 +2009,7 @@
 
 
 
-            if (selectedCustomer != null && orderToUpdate.Status=="Đã thanh toán")
+            if (selectedCustomer != null && orderToUpdate.Status==/* "Đã thanh toán" */ Orders.STATUS_PAID)
             {
                 var emailUser = selectedCustomer.Email;
                 string emailSubject = "ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC ĐẶT THÀNH CÔNG";

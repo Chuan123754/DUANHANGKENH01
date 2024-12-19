@@ -132,13 +132,13 @@ namespace appAPI.Repository
         public async Task<int> GetTotal()
         {
             return await _context.Orders
-               .CountAsync(p => p.Status != "Hóa đơn treo" && p.Status !="Chờ xác nhận" && p.Status !="Đơn huỷ");
+               .CountAsync(p => p.Status != "hanginginvoice" && p.Status != "wait" && p.Status != "cancel");
         }
         public async Task<int> GetTotalToday()
         {
             var today = DateTime.Today; // Lấy ngày hiện tại (00:00:00)
             return await _context.Orders
-                .CountAsync(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đơn huỷ" &&
+                .CountAsync(p => p.Status != "hanginginvoice" && p.Status != "wait" && p.Status != "cancel" &&
                                  p.Created_at.HasValue && // Kiểm tra không null
                                  p.Created_at.Value.Date == today); // So sánh chỉ phần ngày
         }
@@ -147,7 +147,7 @@ namespace appAPI.Repository
         {
             var today = DateTime.Today; // Lấy ngày hiện tại (00:00:00)
             return await _context.Orders
-                .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đơn hủy" &&
+                .Where(p => p.Status != "hanginginvoice" && p.Status != "wait" && p.Status != "cancel" &&
                             p.Created_at.HasValue &&
                             p.Created_at.Value.Date == today) // So sánh phần ngày
                 .SumAsync(p => p.TotalAmount ?? 0); // Tổng giá trị TotalAmount, mặc định là 0 nếu null
@@ -159,7 +159,7 @@ namespace appAPI.Repository
             var endOfWeek = startOfWeek.AddDays(6); // Lấy ngày cuối tuần (Chủ nhật)
 
             return await _context.Orders
-                .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đơn hu" &&
+                .Where(p => p.Status != "hanginginvoice" && p.Status != "wait" && p.Status != "cancel" &&
                             p.Created_at.HasValue &&
                             p.Created_at.Value.Date >= startOfWeek &&
                             p.Created_at.Value.Date <= endOfWeek) // Lọc các hóa đơn trong tuần hiện tại
@@ -173,7 +173,7 @@ namespace appAPI.Repository
             var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1); // Ngày cuối cùng của tháng hiện tại
 
             return await _context.Orders
-                .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đã huỷ" &&
+                .Where(p => p.Status != "hanginginvoice" && p.Status != "wait" && p.Status != "cancel" &&
                             p.Created_at.HasValue &&
                             p.Created_at.Value.Date >= startOfMonth &&
                             p.Created_at.Value.Date <= endOfMonth) // Lọc hóa đơn trong tháng hiện tại
@@ -182,7 +182,7 @@ namespace appAPI.Repository
         public async Task<Dictionary<int, decimal>> GetTotalRevenuePerYear()
         {
             var orders = await _context.Orders
-                .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đã huỷ" && p.Created_at.HasValue) // Lọc theo trạng thái và chắc chắn có giá trị ngày tạo
+                .Where(p => p.Status != "hanginginvoice" && p.Status != "wait" && p.Status != "cancel" && p.Created_at.HasValue) // Lọc theo trạng thái và chắc chắn có giá trị ngày tạo
                 .GroupBy(p => p.Created_at.Value.Year) // Nhóm theo năm của ngày tạo
                 .Select(g => new
                 {

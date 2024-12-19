@@ -65,6 +65,7 @@ namespace ViewsFE.Models
         public const string STATUS_DELIVERYFAILED = "faileddelivery";
         public const string STATUS_EXCHANGEGOODS = "exchangegoods";
         public const string STATUS_RETURNS = "returns";
+        public const string STATUS_PENDING = "Pending";
 
         // Dictionary to hold status labels
         public static readonly Dictionary<string, string> STATUSES = new Dictionary<string, string>
@@ -82,7 +83,8 @@ namespace ViewsFE.Models
              { STATUS_DELIVEREDSUCCESSFULLY, "Giao hàng thành công" },
              { STATUS_DELIVERYFAILED, "Giao hàng thất bại" },
              { STATUS_EXCHANGEGOODS, "Đổi hàng" },
-             { STATUS_RETURNS, "Trả hàng" }
+             { STATUS_RETURNS, "Trả hàng" },
+             { STATUS_PENDING, "Pending" }
 
         };
 
@@ -97,12 +99,12 @@ namespace ViewsFE.Models
              { STATUS_WAIT, "text-warning" },
              { STATUS_HANGINGINVOICE, "text-info" },
              { STATUS_PANDING, "text-dark" },
-             { STATUS_PREPAREDGOODS, "Đã chuẩn bị hàng" },
-             { STATUS_SHIPING, "Đang vận chuyển" },
-             { STATUS_DELIVEREDSUCCESSFULLY, "Giao hàng thành công" },
-             { STATUS_DELIVERYFAILED, "Giao hàng thất bại" },
-             { STATUS_EXCHANGEGOODS, "Đổi hàng" },
-             { STATUS_RETURNS, "Trả hàng" }
+             { STATUS_PREPAREDGOODS, "text-info" }, 
+             { STATUS_SHIPING, "text-primary" }, 
+             { STATUS_DELIVEREDSUCCESSFULLY, "text-success" }, 
+             { STATUS_DELIVERYFAILED, "text-danger" }, 
+             { STATUS_EXCHANGEGOODS, "text-warning" },
+             { STATUS_RETURNS, "text-secondary" }
         };
 
         // Get the label for the current status
