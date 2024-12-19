@@ -101,6 +101,10 @@
                         // Xóa tệp khỏi Dropzone sau khi upload thành công
                         this.removeFile(file);
 
+
+                        setTimeout(() => {
+                           location.reload(); // Reload the page after 2 seconds
+                        }, 1000);
                         if (dotNetObjectReference) {
                             console.log("Đang gọi LoadPosts...");
                             dotNetObjectReference.invokeMethodAsync('LoadPosts')
@@ -172,6 +176,7 @@
             Console.WriteLine("Khởi tạo Dropzone...");
             await JS.InvokeVoidAsync("initializeDropzone", objRef); 
         }
+       // await LoadPosts();
     }
 
     public void Dispose()
