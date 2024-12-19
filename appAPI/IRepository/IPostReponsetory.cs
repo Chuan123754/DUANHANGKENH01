@@ -59,20 +59,6 @@ namespace appAPI.IRepository
         // Xóa bài viết
         Task Delete(long id);
         Task<List<Product_variants>> GetAllByClient();
-
-        Task<List<Product_variants>> GetByTypeAsyncProductColor(long idColor, int pageNumber, int pageSize);
-        // Lấy tổng số bài viết theo type và tìm kiếm
-        Task<int> GetTotalCountAsyncProductColor(long idColor);
-        Task<List<Product_variants>> GetByTypeAsyncProductSize(long idSize, int pageNumber, int pageSize);
-        Task<int> GetTotalCountAsyncProductSize(long idSize);
-        Task<List<Product_variants>> GetByTypeAsyncProductStyle(long idStyle, int pageNumber, int pageSize);
-        Task<int> GetTotalCountAsyncProductStyle(long idStyle);
-        Task<List<Product_variants>> GetByTypeAsyncProductMaterial(long idMaterial, int pageNumber, int pageSize);
-        Task<int> GetTotalCountAsyncProductMaterial(long idMaterial);
-        Task<List<Product_variants>> GetByTypeAsyncProductTextile_technology(long idTextile_technology, int pageNumber, int pageSize);
-        Task<int> GetTotalCountAsyncProductTextile_technology(long idTextile_technology);
-        Task<List<Product_variants>> GetByTypeAsyncProductDesigner(long idDesigner, int pageNumber, int pageSize);
-        Task<int> GetTotalCountAsyncProductDesigner(long idDesigner);
         Task<List<Product_variants>> GetByTypeAsyncFilter(List<long?> idDesigner, List<long?> idColor, List<long?> idMaterial, List<long?> idTextile_technology, List<long?> idStyle, List<long?> idSize,List<long?> idCategory, int pageNumber, int pageSize, string searchTerm);
         Task<int> GetTotalCountAsyncFilter(List<long?> idDesigner, List<long?> idColor, List<long?> idMaterial, List<long?> idTextile_technology, List<long?> idStyle, List<long?> idSize, List<long?> idCategory, string searchTerm);
         Task<List<Product_Posts>> GetByTypeAsyncFilter2(string type, List<long?> idDesigner, List<long?> idCategory, int pageNumber, int pageSize, string searchTerm);

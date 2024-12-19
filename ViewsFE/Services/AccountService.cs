@@ -14,14 +14,16 @@ namespace ViewsFE.Services
     {
         private readonly HttpClient _client;
         private readonly ISessionStorageService _sessionStorage;
+        private readonly string _baseUrl;
 
-        public AccountService(HttpClient client , ISessionStorageService sessionStorage)
+        public AccountService(HttpClient client , ISessionStorageService sessionStorage, IConfiguration configuration)
         {
             _client = client;
             _sessionStorage= sessionStorage;
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
         public async Task<List<Account>> GetAll() {
-            string requestURL = "https://localhost:7011/api/Account/GetAll";
+            string requestURL = $"{_baseUrl}/api/Account/GetAll";
             var request =  await _client.GetStringAsync(requestURL);
             var item = JsonConvert.DeserializeObject<List<Account>>(request);
             return item;
@@ -29,7 +31,7 @@ namespace ViewsFE.Services
 
         public async Task<string> SignInAsync(SignInModel model)
         {
-            string requestURL = "https://localhost:7011/api/Account/Login";
+            string requestURL = $"{_baseUrl}/api/Account/Login";
             var response = await _client.PostAsJsonAsync(requestURL, model);
 
             // Đọc nội dung phản hồi  
@@ -77,7 +79,7 @@ namespace ViewsFE.Services
 
         public async Task<IdentityResult> SignUpAsync(SignUpModel model)
         {
-            string requestURL = "https://localhost:7011/api/Account/SignUp";
+            string requestURL = $"{_baseUrl}/api/Account/SignUp";
             var response = await _client.PostAsJsonAsync(requestURL, model);
             if (response.IsSuccessStatusCode)
             {
@@ -88,7 +90,7 @@ namespace ViewsFE.Services
         }
         public async Task SignOutAsync()
         {
-            string requestURL = "https://localhost:7011/api/Account/SignOut";
+            string requestURL = $"{_baseUrl}/api/Account/SignOut";
             var response = await _client.PostAsync(requestURL,null);
             if (!response.IsSuccessStatusCode)
             {
@@ -97,7 +99,7 @@ namespace ViewsFE.Services
         }
         public async Task<IdentityResult> UpdateAccountAsync(Account account, string id)
         {
-            string requestURL = $"https://localhost:7011/api/Account/UpdateAccount/{id}";
+            string requestURL = $"{_baseUrl}/api/Account/UpdateAccount/{id}";
             var jsonContent = JsonConvert.SerializeObject(account);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
             var response = await _client.PutAsync(requestURL, content);
@@ -115,7 +117,7 @@ namespace ViewsFE.Services
         }
         public async Task<IdentityResult> DeleteAccountAsync(string idAccount)
         {
-            string requestURL = $"https://localhost:7011/api/Account/DeleteAccount?idAccount={idAccount}";
+            string requestURL = $"{_baseUrl}/api/Account/DeleteAccount?idAccount={idAccount}";
             var response =  await _client.DeleteAsync(requestURL);
             if (response.IsSuccessStatusCode)
             {
@@ -130,19 +132,19 @@ namespace ViewsFE.Services
         }
         public async Task<Account> GetAccountById(string idAccount)
         {
-            string requestURL = $"https://localhost:7011/api/Account/GetById?idAccount={idAccount}";
+            string requestURL = $"{_baseUrl}/api/Account/GetById?idAccount={idAccount}";
             var response = await _client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<Account>(response);
         }
         public async Task<List<AccountWithRoles>> GetAllAccountsAsync()
         {
-            string requestURL = $"https://localhost:7011/api/Account/GetAllAccount";
+            string requestURL = $"{_baseUrl}/api/Account/GetAllAccount";
             var response = await _client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<AccountWithRoles>>(response);
         }
         public async Task<IdentityResult> ToggleLockAccountAsync(string idAccount)
         {
-            string requestURL = $"https://localhost:7011/api/Account/ToggleLock/{idAccount}";
+            string requestURL = $"{_baseUrl}/api/Account/ToggleLock/{idAccount}";
             var response = await _client.PatchAsync(requestURL, null);
             if (response.IsSuccessStatusCode)
             {
@@ -158,7 +160,7 @@ namespace ViewsFE.Services
 
         public async Task<string> GetPasswordHashByEmail(string email)
         {
-            string requestURL = $"https://localhost:7011/api/Account/GetPasswordHashByEmail?email={email}";
+            string requestURL = $"{_baseUrl}/api/Account/GetPasswordHashByEmail?email={email}";
             var response = await _client.GetAsync(requestURL);
 
             if (response.IsSuccessStatusCode)

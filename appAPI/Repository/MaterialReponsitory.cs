@@ -34,7 +34,7 @@ namespace appAPI.Repository
 
         public async Task<List<Material>> GetAll()
         {
-            return await _context.Materials.Where(p => p.Deleted == false).ToListAsync();
+            return await _context.Materials.Where(p =>   p.Deleted == false).ToListAsync();
         }
 
         public async Task<Material> GetByIdAndType(long id)
@@ -45,7 +45,7 @@ namespace appAPI.Repository
         public async Task<List<Material>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)
         {
             return await _context.Materials
-                  .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) && p.Deleted == false)
+                  .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) &&   p.Deleted == false)
                   .OrderBy(p => p.Id)
                   .Skip((pageNumber - 1) * pageSize)
                   .Take(pageSize)
@@ -56,7 +56,7 @@ namespace appAPI.Repository
         {
             // Lấy tổng số sản phẩm theo loại và tìm kiếm với điều kiện Deleted = false
             return await _context.Materials
-                .CountAsync(p => p.Deleted == false &&
+                .CountAsync(p =>   p.Deleted == false &&
                                 (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
         }
 

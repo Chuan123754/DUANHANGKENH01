@@ -297,7 +297,7 @@
                                                 <td>
                                                     <i class="bi bi-pencil text-success " style="padding-right:10px" @onclick="() => OpenUpdateProductAttributeModal(attributes.Id)"></i>
                                                     @*    <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenUpdateProductAttributeModal(attributes.Id)">Sửa thông tin</button> *@
-                                                    <i class="bi bi-trash3 text-danger" style="cursor: pointer;" @onclick="() => DeleteProductAttribute(attributes.Id)"></i>
+                                             @*        <i class="bi bi-trash3 text-danger" style="cursor: pointer;" @onclick="() => DeleteProductAttribute(attributes.Id)"></i> *@
                                                 </td>
                                             </tr>
                                         }
@@ -329,7 +329,7 @@
                                                         <th style="width: 5%;">Màu sắc</th>
                                                         <th style="width: 9%;">Kích thước</th>
                                                         <th style="width: 10%;">Gía gốc</th>
-                                                        <th style="width: 10%;">Gía giảm</th>
+                                              
                                                         <th style="width: 5%;">Số lượng tồn kho</th>
                                                     </tr>
                                                 </thead>
@@ -382,16 +382,7 @@
                                                                 <span class="input-group-text">VNĐ</span>
                                                             </div>
                                                         </td>
-                                                        <td>
-                                                            <div class="input-group">
-                                                                <input type="text"
-                                                                       class="form-control"
-                                                                       value="@string.Format("{0:N0}", selectedAttribute.Sale_price).Replace(".", ",")"
-                                                                       @oninput="FormatCurrencySale"
-                                                                       @onchange="UpdatePriceSale" />
-                                                                <span class="input-group-text">VNĐ</span>
-                                                            </div>
-                                                        </td>
+                                                     
                                                         <td>
                                                             <input type="text" @bind="@selectedAttribute.Stock" class="form-control" style="max-width: 120px;" />
                                                         </td>
@@ -524,10 +515,9 @@
         if (!string.IsNullOrEmpty(selectedProductId))
         {
             filteredProducts = filteredProducts.Where(post =>
-                post.Posts.Title != null &&
-                post.Posts.Title.Contains(selectedProductId, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+                    post.Posts.Id == long.Parse(selectedProductId)).ToList();
         }
+
 
         // Lọc theo Công nghệ dệt
         if (!string.IsNullOrEmpty(selectedTextileTechnologyId))
@@ -867,20 +857,3 @@
 
 
 }
-@* <script>
-    function openMediaModal() {
-        var modalElement = document.getElementById('mediaModal');
-        if (modalElement) {
-            if (!modalElement._bsModalInstance) {
-                modalElement._bsModalInstance = new bootstrap.Modal(modalElement);
-            }
-            modalElement._bsModalInstance.show();
-        }
-    }
-    function closeMediaModal() {
-        var modalElement = document.getElementById('mediaModal');
-        if (modalElement && modalElement._bsModalInstance) {
-            modalElement._bsModalInstance.hide();
-        }
-    }
-</script> *@

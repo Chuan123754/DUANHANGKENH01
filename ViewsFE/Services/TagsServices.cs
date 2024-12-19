@@ -7,19 +7,21 @@ namespace ViewsFE.Services
     public class TagsServices : ITagsServices
     {
         HttpClient client;
-        public TagsServices()
+        private readonly string _baseUrl;
+        public TagsServices(IConfiguration configuration)
         {
             client = new HttpClient();
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
         public async Task<List<Post_tags>> GetTagByPostId(long postId)
         {
-            string requestURL = $"https://localhost:7011/api/Tags/GetTagByPostId?postId={postId}";
+            string requestURL = $"{_baseUrl}/api/Tags/GetTagByPostId?postId={postId}";
             var response = await client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Post_tags>>(response);
         }
         public async Task Create(Tags tag)
         {
-            var response = await client.PostAsJsonAsync("https://localhost:7011/api/Tags/add", tag);
+            var response = await client.PostAsJsonAsync($"{_baseUrl}/api/Tags/add", tag);
             if (response.IsSuccessStatusCode)
             {
                 // Lấy lại tag đã được tạo từ response
@@ -30,22 +32,22 @@ namespace ViewsFE.Services
 
         public async Task Delete(long id)
         {
-            await client.DeleteAsync("$https://localhost:7011/api/Tags/delete?id={id}");
+            await client.DeleteAsync($"{_baseUrl}/api/Tags/delete?id={id}");
         }
 
         public async Task<Tags> Details(long id)
         {
-            return await client.GetFromJsonAsync<Tags>($"https://localhost:7011/api/Tags/details?id={id}");
+            return await client.GetFromJsonAsync<Tags>($"{_baseUrl}/api/Tags/details?id={id}");
         }
 
         public async Task<List<Tags>> GetAll()
         {
-            return await client.GetFromJsonAsync<List<Tags>>("https://localhost:7011/api/Tags/show");
+            return await client.GetFromJsonAsync<List<Tags>>($"{_baseUrl}/api/Tags/show");
         }
 
         public async Task Update(Tags tag)
         {
-            await client.PutAsJsonAsync("https://localhost:7011/api/Tags/edit", tag);
+            await client.PutAsJsonAsync($"{_baseUrl}/api/Tags/edit", tag);
         }
     }
 }

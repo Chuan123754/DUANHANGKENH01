@@ -31,12 +31,12 @@ namespace appAPI.Repository
 
         public async Task<List<Designer>> GetAll()
         {
-          return await _context.Designer.Where(p => p.Deleted == false).ToListAsync();
+          return await _context.Designer.Where(p =>   p.Deleted == false).ToListAsync();
         }
 
         public async Task<Designer> GetById(long id)
         {
-            return await _context.Designer.Where(p => p.id_Designer == id && p.Deleted == false).FirstOrDefaultAsync();
+            return await _context.Designer.Where(p => p.id_Designer == id &&   p.Deleted == false).FirstOrDefaultAsync();
            
         }
 
@@ -44,7 +44,7 @@ namespace appAPI.Repository
         {
             // Lấy danh sách sản phẩm theo loại, phân trang và tìm kiếm
             return await _context.Designer
-                .Where(p => p.Deleted == false && (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)))
+                .Where(p =>   p.Deleted == false && (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)))
                 .OrderBy(p => p.id_Designer) // Thay đổi theo tiêu chí sắp xếp bạn muốn
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -55,13 +55,13 @@ namespace appAPI.Repository
         {
             // Lấy tổng số sản phẩm theo loại và tìm kiếm
             return await _context.Designer
-                .CountAsync(p =>p.Deleted == false && (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)));
+                .CountAsync(p =>  p.Deleted == false && (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)));
         }
         public async Task<List<Designer>> GetByTypeAsyncClient(int pageNumber, int pageSize, string? searchTerm)
         {
             // Lấy danh sách sản phẩm theo loại, phân trang và tìm kiếm
             return await _context.Designer
-                .Where(p => p.Deleted == false && p.status == "ACTIVE" && (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)))
+                .Where(p =>   p.Deleted == false && p.status == "ACTIVE" && (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)))
                 .OrderBy(p => p.id_Designer) // Thay đổi theo tiêu chí sắp xếp bạn muốn
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -72,7 +72,7 @@ namespace appAPI.Repository
         {
             // Lấy tổng số sản phẩm theo loại và tìm kiếm
             return await _context.Designer
-                .CountAsync(p => p.Deleted == false && p.status == "ACTIVE" && (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)));
+                .CountAsync(p =>   p.Deleted == false && p.status == "ACTIVE" && (string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm)));
         }
 
         public async Task<Designer> Update(Designer at)
@@ -101,12 +101,12 @@ namespace appAPI.Repository
 
         public async Task<List<Designer>> GetAllAC()
         {
-            return await _context.Designer.Where(p => p.Deleted == false && p.status == "ACTIVE").ToListAsync();
+            return await _context.Designer.Where(p =>   p.Deleted == false && p.status == "ACTIVE").ToListAsync();
         }
 
         public async Task<Designer> GetByIdSlug(string slug)
         {
-            return await _context.Designer.Where(p => p.slug == slug && p.Deleted == false).FirstOrDefaultAsync();
+            return await _context.Designer.Where(p => p.slug == slug &&   p.Deleted == false).FirstOrDefaultAsync();
         }
 
         public async Task<bool> CheckSlugForUpdate(string slug, long desiId)

@@ -153,7 +153,7 @@ namespace appAPI.Controllers
             {
                 // Bỏ qua cột Id
                 var filteredItem = item.Where(kv => kv.Key.ToLower() != "id").ToDictionary(kv => kv.Key, kv => kv.Value);
-
+                filteredItem["Create_at"] = DateTime.Now;
                 // Lấy giá trị cột 'Title' để kiểm tra trùng lặp
                 if (!filteredItem.ContainsKey("Title"))
                 {

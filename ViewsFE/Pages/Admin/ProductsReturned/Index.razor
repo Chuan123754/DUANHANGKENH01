@@ -79,7 +79,7 @@
     }
 
     .sku-column {
-        width: 350px; 
+        width: 150px; 
         word-break: break-word;
         white-space: normal; 
     }
@@ -106,7 +106,14 @@
             <tbody>
                 <tr>
                     <td>@Order.Id</td>
-                    <td>@(Order.TotalAmount.HasValue ? Order.TotalAmount.Value.ToString("C") : "N/A")</td>
+                  
+                    <td>
+                            @(Order.TotalAmount.HasValue
+                                ? $"{Order.TotalAmount.Value.ToString("N0", new System.Globalization.CultureInfo("vi-VN"))} VND"
+                                : "N/A")
+                    </td>
+
+                  
                     <td>@Order.Status</td>
                     <td>@(Order.Created_at.HasValue ? Order.Created_at.Value.ToString("dd/MM/yyyy") : "N/A")</td>
                     <td>@Order.Note</td>

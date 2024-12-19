@@ -34,19 +34,19 @@ namespace appAPI.Repository
 
         public async Task<List<Size>> GetAll()
         {
-            return await _context.Sizes.Where(p => p.Deleted == false).ToListAsync();
+            return await _context.Sizes.Where(p =>   p.Deleted == false).ToListAsync();
         }
 
 
         public async Task<Size> GetByIdAndType(long id)
         {
-            return await _context.Sizes.FirstOrDefaultAsync(p => p.Id == id && p.Deleted == false);
+            return await _context.Sizes.FirstOrDefaultAsync(p => p.Id == id &&   p.Deleted == false);
         }
 
         public async Task<List<Size>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)
         {
             return await _context.Sizes
-                .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) && p.Deleted == false)
+                .Where(p => (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) &&   p.Deleted == false)
                 .OrderBy(p => p.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -56,7 +56,7 @@ namespace appAPI.Repository
         public async Task<int> GetTotalCountAsync(string searchTerm)
         {
             return await _context.Sizes
-                .CountAsync(p => p.Deleted == false &&
+                .CountAsync(p =>   p.Deleted == false &&
                                 (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
         }
 

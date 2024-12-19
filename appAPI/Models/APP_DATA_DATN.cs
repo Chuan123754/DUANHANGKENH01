@@ -56,7 +56,6 @@ namespace appAPI.Models
         {
             var connectionString = _configuration.GetConnectionString("DefaultConnection");
             optionsBuilder.UseSqlServer(connectionString);
-
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
