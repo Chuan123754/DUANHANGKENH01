@@ -43,7 +43,7 @@ builder.Services.AddDbContext<APP_DATA_DATN>(options =>
 //    });
 
 builder.Services.AddControllers();
-builder.Services.AddMemoryCache(); // Thêm dịch vụ caching
+/*builder.Services.AddMemoryCache();*/ // Thêm dịch vụ caching
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
@@ -156,10 +156,10 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])),
     };
 });
-builder.Services.AddDbContext<APP_DATA_DATN>(options =>
-    options.UseSqlServer("Server=ADMIN;Database=DUANTOTNGHIEP04;User Id=sa;Password=sa;TrustServerCertificate=True;Max Pool Size=100")
-           .EnableSensitiveDataLogging() // Hiển thị thông tin chi tiết của truy vấn.
-           .LogTo(Console.WriteLine));   // Log tất cả truy vấn ra Console.
+//builder.Services.AddDbContext<APP_DATA_DATN>(options =>
+//    options.UseSqlServer("Server=ADMIN;Database=DUANTOTNGHIEP04;User Id=sa;Password=sa;TrustServerCertificate=True;Max Pool Size=100")
+//           .EnableSensitiveDataLogging() // Hiển thị thông tin chi tiết của truy vấn.
+//           .LogTo(Console.WriteLine));   // Log tất cả truy vấn ra Console.
 
 var app = builder.Build();
 

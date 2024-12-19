@@ -16,11 +16,11 @@
                 <div>
                     <div class="page-body">
                         <div class="container-xl">                      
-                            <form class="dropzone mb-5" id="dropzone-default" enctype="multipart/form-data">
+                         @*    <form class="dropzone mb-5" id="dropzone-default" enctype="multipart/form-data">
                                 <div class="fallback">
                                     <input name="file" type="file" accept="image/*" multiple />
                                 </div>
-                            </form>
+                            </form> *@
                             <div class="card">
                                 <div class="card-body">
                                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
@@ -180,13 +180,13 @@
         StateHasChanged();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await JS.InvokeVoidAsync("initializeDropzone", objRef);
-        }
-    }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //         await JS.InvokeVoidAsync("initializeDropzone", objRef);
+    //     }
+    // }
     public void Dispose()
     {
         objRef?.Dispose();

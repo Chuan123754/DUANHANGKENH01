@@ -3,19 +3,16 @@ using appAPI.IRepository;
 using appAPI.Models;
 using appAPI.Models.DTO;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace appAPI.Repository
 {
     public class ProductAttributesRepository : IProductAttributesRepository
     {
         private readonly APP_DATA_DATN _context;
-        private readonly IMemoryCache _cache;
 
-        public ProductAttributesRepository(APP_DATA_DATN context, IMemoryCache cache)
+        public ProductAttributesRepository(APP_DATA_DATN context)
         {
             _context = context;
-            _cache = cache;
         }
         public async Task Create(Product_Attributes productAttribute)
         {
@@ -57,29 +54,24 @@ namespace appAPI.Repository
 
         public async Task<Product_Attributes> GetProductAttributesById(long id)
         {
-            // Kiểm tra xem dữ liệu đã có trong cache chưa
-            if (!_cache.TryGetValue(id, out Product_Attributes productAttribute))
+            var productAttribute = await _context.Product_Attributes.Where(p => p.Id == id)
+                                                                    .Include(p => p.Color)
+                                                                    .Include(p => p.Size)
+                                                                    .Include(p => p.Product_Variant)
+                                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Style)
+                                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Material)
+                                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Textile_Technology)
+                                                                    .Include(p => p.Product_Variant).ThenInclude(p => p.Posts)
+                                                                    .FirstOrDefaultAsync();
+            if (productAttribute != null)
             {
-                // Nếu không có, thực hiện truy vấn
-                productAttribute = await _context.Product_Attributes
-                    .Where(p => p.Id == id)
-                    .Include(p => p.Color)
-                    .Include(p => p.Size)
-                    .Include(p => p.Product_Variant)
-                    .Include(p => p.Product_Variant).ThenInclude(p => p.Style)
-                    .Include(p => p.Product_Variant).ThenInclude(p => p.Material)
-                    .Include(p => p.Product_Variant).ThenInclude(p => p.Textile_Technology)
-                    .Include(p => p.Product_Variant).ThenInclude(p => p.Posts)
-                    .FirstOrDefaultAsync();
-
-                // Nếu tìm thấy, lưu vào cache
-                if (productAttribute != null)
-                {
-                    _cache.Set(id, productAttribute, TimeSpan.FromMinutes(30)); // Thời gian lưu cache
-                }
+                return productAttribute;
+            }
+            else
+            {
+                throw new NotImplementedException("Not Found");
             }
 
-            return productAttribute;
         }
 
         public async Task<List<Product_Attributes>> GetProductAttributesByProductVarianId(long id)
