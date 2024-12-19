@@ -167,7 +167,7 @@
                             </div>
                             <!-- #endregion -->
                             <!-- Từ khóa -->
-                            <div class="accordion bg-white mb-3">
+                         @*    <div class="accordion bg-white mb-3">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
@@ -198,7 +198,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> *@
                         </div>
                     </div>
                 </div>
@@ -210,7 +210,7 @@
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 
-<Modal @ref="modaltags" title="Thêm thẻ tags" IsVerticallyCentered="true">
+@* <Modal @ref="modaltags" title="Thêm thẻ tags" IsVerticallyCentered="true">
     <BodyTemplate>
         <div class="category-add mt-2">
             <div class="form-group mb-2">
@@ -234,7 +234,7 @@
         <Button class="btn btn-outline-primary" @onclick="SumbitTag">Tạo thẻ tags</Button>
     </FooterTemplate>
 </Modal>
-
+ *@
 @code {
     private Product_Posts Posts = new Product_Posts();
     private Banner banner = new Banner();
@@ -257,22 +257,22 @@
         await modaltags.HideAsync();
     }
 
-    private async void SumbitTag()
-    {
-        try
-        {
-            await stag.Create(tags);
-            await JS.InvokeVoidAsync("toastr.success", "Thêm tags thành công");
-            await LoadPosts();
-            await modaltags.HideAsync();
+    // private async void SumbitTag()
+    // {
+    //     try
+    //     {
+    //         await stag.Create(tags);
+    //         await JS.InvokeVoidAsync("toastr.success", "Thêm tags thành công");
+    //         await LoadPosts();
+    //         await modaltags.HideAsync();
 
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm tags. Vui lòng thử lại.");
-        }
-    }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         Console.WriteLine($"Error: {ex.Message}");
+    //         await JS.InvokeVoidAsync("toastr.error", "Không thể thêm tags. Vui lòng thử lại.");
+    //     }
+    // }
     private async Task HandleImageSelected(string imagePath)
     {
         // Nếu imagePath là null, xóa ảnh đại diện
@@ -312,11 +312,11 @@
                 tinyMCEInitialized = true;
             }
         }
-        if (TagsList?.Count > 0)
-        {
-            await JS.InvokeVoidAsync("initializeTagsList", TagsList);
-            await JS.InvokeVoidAsync("initializeTomSelect", "#tags-selects");
-        }
+        // if (TagsList?.Count > 0)
+        // {
+        //     await JS.InvokeVoidAsync("initializeTagsList", TagsList);
+        //     await JS.InvokeVoidAsync("initializeTomSelect", "#tags-selects");
+        // }
 
     }
     public async ValueTask DisposeAsync()
