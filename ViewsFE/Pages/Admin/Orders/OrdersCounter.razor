@@ -173,8 +173,8 @@
                                                 </td>
                                                 <td>@item.Created_at</td>
                                                 <td>
-                                                    <span class="@GetStatusClass(item.Status)">
-                                                        @item.Status
+                                                    <span class="@GetStatusClass(item.StatusClass)">
+                                                        @item.StatusLabel
                                                     </span>
                                                 </td>
                                                 <td>
@@ -360,7 +360,7 @@
                                 </div>
                             }
 
-                            <div class="mt-4">
+                            <div class="mt-4" style="padding-left: 10px">
                                 <Pagination TItem="Orders" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="lst_Orders.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
                             </div>
                         </div>
@@ -414,11 +414,11 @@
     }
     private string GetStatusClass(string status)
     {
-        if (status == "Hóa đơn treo")
+        if (status == /* "Hóa đơn treo" */ Orders.STATUS_HANGINGINVOICE)
         {
             return "badge bg-danger";
         }
-        else if (status == "Đã thanh toán")
+        else if (status == /* "Hoàn tất đơn" */ Orders.STATUS_COMPLETED)
         {
             return "badge bg-success";
         }
@@ -439,8 +439,8 @@
         lst_Orders = await orderService.GetAll() ?? new List<Orders>();
         lst_Orders = lst_Orders
             .Where(o => o.Note == "Tại quầy")
-            .OrderByDescending(o => o.Status == "Hóa đơn treo")
-            .ThenByDescending(o => o.Status == "Đã thanh toán")
+            .OrderByDescending(o => o.Status == /* "Hóa đơn treo" */ Orders.STATUS_HANGINGINVOICE)
+            .ThenByDescending(o => o.Status == /* "Đã thanh toán" */ Orders.STATUS_PAID)
             .ThenByDescending(o => o.Created_at)
             .ToList();
         LoadPagedOrders();
