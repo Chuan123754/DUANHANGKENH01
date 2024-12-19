@@ -27,7 +27,7 @@ namespace appAPI.Controllers
                 return BadRequest("Slug không được để trống.");
             }
 
-            bool exists = await _context.Designer.Where(p => p.Deleted == false).AnyAsync(x => x.slug == slug);
+            bool exists = await _context.Designer.Where(p =>   p.Deleted == false).AnyAsync(x => x.slug == slug);
             return Ok(!exists);
         }
         [HttpGet("check-slug-for-update")]

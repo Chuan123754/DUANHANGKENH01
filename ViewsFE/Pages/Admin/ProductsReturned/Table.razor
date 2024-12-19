@@ -66,7 +66,7 @@
 
                 </div>
 
-                <div class="col-12">
+                <div class="col-12 " style="max-width: 1245px; margin: 0 auto;">
                     <div class="card">
                         <div class="table-responsive">
                             <table class="table card-table table-vcenter text-nowrap">
@@ -74,9 +74,9 @@
                                     <tr>
                                         <th>ID</th>
                                         <th>Order ID</th> <!-- Thêm cột Order ID -->
-                                        <th>Order Detail ID</th> <!-- Thêm cột Order Detail ID -->
+                                        <th>Order DT ID</th> <!-- Thêm cột Order Detail ID -->
                                         <th>Thông tin sản phẩm</th> <!-- Thêm cột SKU + Size + Color -->
-                                        <th>Lý do trả hàng</th>
+                                        <th>Loại trả hàng</th>
                                         <th>Số lượng</th>
                                         <th>Giá đơn vị</th>
                                         <th>Tổng giá trả lại</th>
@@ -95,7 +95,7 @@
                                                 <td>@item.Id</td> <!-- ID của ProductsReturned -->
                                                 <td>@item.OrderDetails?.Orders?.Id</td> <!-- Hiển thị Order ID -->
                                                 <td>@item.OrderDetails?.Id</td> <!-- Hiển thị Order Detail ID -->
-                                                <td>
+                                                <td style="width: 50px !important; word-break: break-all;">
                                                     @if (item.OrderDetails?.ProductAttributes != null)
                                                     {
                                                         @($"{item.OrderDetails.ProductAttributes.SKU} - {item.OrderDetails.ProductAttributes.Size?.Title} - {item.OrderDetails.ProductAttributes.Color?.Title}")
@@ -141,7 +141,7 @@
                                 </tbody>
 
                             </table>
-                            <div class="mt-4">
+                            <div class="mt-4 " style="padding-left: 10px">
                                 <Pagination TItem="Products_Returned" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="lstProductsReturned.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
                             </div>
                         </div>

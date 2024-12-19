@@ -11,27 +11,28 @@ namespace ViewsFE.Services
     public class AddressService: IAddressServices
     {
         private readonly HttpClient _httpClient;
-
-        public AddressService(HttpClient httpClient)
+        private readonly string _baseUrl;
+        public AddressService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
         public async Task<List<Address>> GetAll()
         {
-            string requestURL = "https://localhost:7011/api/Address/GetAllAddress";
+            string requestURL = $"{_baseUrl}/api/Address/GetAllAddress";
             var response = await _httpClient.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Address>>(response);
         }
         public async Task<List<Address>> GetAddressByUserId(long userId)
         {
 
-            string requestURL = $"https://localhost:7011/api/Address/GetAddressByUserId?userId={userId}";
+            string requestURL = $"{_baseUrl}/api/Address/GetAddressByUserId?userId={userId}";
             var response = await _httpClient.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Address>>(response);
         }
         public async Task<Address> GetAddressById(long id)
         {
-            string requestURL = $"https://localhost:7011/api/Address/GetAddressById?id={id}";
+            string requestURL = $"{_baseUrl}/api/Address/GetAddressById?id={id}";
             var response = await _httpClient.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<Address>(response);
         }
@@ -39,7 +40,7 @@ namespace ViewsFE.Services
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("https://localhost:7011/api/Address/CreateAddress", address);
+                var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/Address/CreateAddress", address);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -64,7 +65,7 @@ namespace ViewsFE.Services
         {
             try
             {
-                var response = await _httpClient.PostAsJsonAsync("https://localhost:7011/api/Address/CreateAddressAndReturn", address);
+                var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/Address/CreateAddressAndReturn", address);
                 if (response.IsSuccessStatusCode)
                 {
                     return await response.Content.ReadFromJsonAsync<Address>(); // Trả về đối tượng Address vừa được tạo
@@ -86,15 +87,15 @@ namespace ViewsFE.Services
 
         public async Task UpdateAddress( Address address, long id)
         {
-            await _httpClient.PutAsJsonAsync($"https://localhost:7011/api/Address/UpdateAddress?id={id}", address);
+            await _httpClient.PutAsJsonAsync($"{_baseUrl}/api/Address/UpdateAddress?id={id}", address);
         }
         public async Task SetAsDefault(long id, Address address)
         {
-            await _httpClient.PutAsJsonAsync($"https://localhost:7011/api/Address/SetAsDefault?id={id}",address);
+            await _httpClient.PutAsJsonAsync($"{_baseUrl}/api/Address/SetAsDefault?id={id}",address);
         }
         public async Task DeleteAddress(long id)
         {
-            await _httpClient.DeleteAsync($"https://localhost:7011/api/Address/DeleteAddress?id={id}");
+            await _httpClient.DeleteAsync($"{_baseUrl}/api/Address/DeleteAddress?id={id}");
         }
         // lấy api địa chỉ Việt Nam từ bên tứ 3
         public async Task<List<Province>> GetProvincesAsync()

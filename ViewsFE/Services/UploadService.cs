@@ -9,10 +9,11 @@ namespace ViewsFE.Services
     public class UploadService : IUploadService
     {
         private readonly HttpClient _httpClient;
-
-        public UploadService(HttpClient httpClient)
+        private readonly string _baseUrl;
+        public UploadService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
 
         public async Task<UploadResponse> UploadExcel(string tableName, IFormFile file)
@@ -22,7 +23,7 @@ namespace ViewsFE.Services
             fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
 
             formData.Add(fileContent, "file", file.FileName);
-            var response = await _httpClient.PostAsync($"https://localhost:7011/api/Upload/upload/{tableName}", formData);
+            var response = await _httpClient.PostAsync($"{_baseUrl}/api/Upload/upload/{tableName}", formData);
 
             // Kiểm tra mã trạng thái phản hồi
             if (!response.IsSuccessStatusCode)
@@ -46,7 +47,7 @@ namespace ViewsFE.Services
         public async Task<byte[]> ExportExcel(string tableName)
         {
             // Export file Excel
-            string requestURL = $"https://localhost:7011/api/Upload/export/{tableName}";
+            string requestURL = $"{_baseUrl}/api/Upload/export/{tableName}";
 
             var response = await _httpClient.GetAsync(requestURL);
             if (!response.IsSuccessStatusCode)

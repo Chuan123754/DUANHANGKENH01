@@ -80,7 +80,7 @@
     </div>
 </div>
 
-<script>
+@* <script>
     window.initializeDropzone = () => {
         if (typeof Dropzone !== 'undefined') {
             if (Dropzone.instances.length > 0) {
@@ -138,7 +138,7 @@
  
 
 </script>
-
+ *@
 @code {
     private DotNetObjectReference<Index> objRef;
 
@@ -169,17 +169,17 @@
         StateHasChanged();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            Console.WriteLine("Khởi tạo Dropzone...");
-            await JS.InvokeVoidAsync("initializeDropzone", objRef);
-        }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //         Console.WriteLine("Khởi tạo Dropzone...");
+    //         await JS.InvokeVoidAsync("initializeDropzone", objRef);
+    //     }
 
-        // Chắc chắn gọi lại LoadPosts nếu cần
-        await LoadPosts();
-    }
+    //     // Chắc chắn gọi lại LoadPosts nếu cần
+    //     await LoadPosts();
+    // }
 
     public void Dispose()
     {

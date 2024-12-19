@@ -66,13 +66,15 @@ namespace ViewsFE.Models
         public const string STATUS_DRAFT = "draft";
         public const string STATUS_PENDING = "pending";
         public const string STATUS_PUBLISH = "publish";
+        public const string STATUS_DELETE = "delete";
 
         // Dictionary to hold status labels
         public static readonly Dictionary<string, string> STATUSES = new Dictionary<string, string>
         {
             { STATUS_DRAFT, "Nháp" },
             { STATUS_PENDING, "Hạ xuống" },
-             { STATUS_PUBLISH, "Công khai" }
+             { STATUS_PUBLISH, "Công khai" },
+             { STATUS_DELETE, "Đã xoá" }
         };
 
         // Dictionary to hold status classes (for styling purposes)
@@ -80,7 +82,8 @@ namespace ViewsFE.Models
         {
            { STATUS_DRAFT, "text-danger" },
             { STATUS_PENDING, "text-warning" },
-             { STATUS_PUBLISH, "text-success" }
+             { STATUS_PUBLISH, "text-success" },
+             { STATUS_DELETE, "text-muted" }
         };
 
         // Get the label for the current status

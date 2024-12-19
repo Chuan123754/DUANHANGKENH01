@@ -190,7 +190,7 @@
                         @foreach (var product in OrderTracking.Products)
                         {
                             <tr>
-                                <td><img src="@product.Image" alt="Hình ảnh" style="width: 80px; height: auto;" /></td>
+                                <td><img src="@product.Image" alt="Hình ảnh" style="width: 80px; height: 105px;" /></td>
                                 <td>@product.SKU </td>
                                 <td>@product.Color</td>
                                 <td>@product.Size</td>
@@ -316,12 +316,12 @@
                     else if (currentModalId == "SuccessPayment")
                     {
                         var confirmedTracking = OrderTracking.OrderTrackings
-                                                .FirstOrDefault(t =>t.Status=="Chờ xác nhận" && t.CreateBy==null || t.Status == "Đã xác nhận" );
+                        .FirstOrDefault(t => t.Status == "Đã xác nhận");
                         var paidTracking = OrderTracking.OrderTrackings
-                        .FirstOrDefault(t => t.Status == "Đã thanh toán" );
-                        var typePayment = OrderTracking.TypePayment == "Chuyển khoản MoMo";
+                        .FirstOrDefault(t => t.Status == "Đã thanh toán");
 
-                        if (confirmedTracking != null && typePayment == null)
+
+                        if (confirmedTracking != null)
                         {
                             <p><strong>Tổng tiền cần thanh toán:</strong> @OrderTracking.TotalMoney.ToString("N0") VND</p>
                             <label for="enteredAmount" class="form-label">Số tiền khách trả:</label>
@@ -336,7 +336,7 @@
                                 <p class="text-danger mt-2">Tiền khách trả không thể lớn hơn tổng tiền</p>
                             }
                         }
-                        else if (paidTracking != null || typePayment != null)
+                        else if (paidTracking != null)
                         {
                             <p><strong>Tổng tiền cần thanh toán:</strong> @OrderTracking.TotalMoney.ToString("N0") VND</p>
                             <p class="text-success mt-2">Khách đã thanh toán đầy đủ.</p>
@@ -623,17 +623,17 @@
         try
         {
             // Lấy trạng thái "Đã xác nhận" và "Đã thanh toán" từ các bản ghi OrderTracking
+            var confirmTracking = OrderTracking.OrderTrackings
+                 .FirstOrDefault(t => t.Status == "Chờ xác nhận");
             var confirmedTracking = OrderTracking.OrderTrackings
-                              .FirstOrDefault(t => t.Status == "Chờ xác nhận" && t.CreateBy == null || t.Status == "Đã xác nhận");
+                .FirstOrDefault(t => t.Status == "Đã xác nhận");
             var paidTracking = OrderTracking.OrderTrackings
-            .FirstOrDefault(t => t.Status == "Đã thanh toán" || t.Note == "Khách đã thanh toán MOMO" && t.Status == "Chờ xác nhận");
-
-            var typePayment = OrderTracking.TypePayment == "Chuyển khoản MoMo";
+                .FirstOrDefault(t => t.Status == "Đã thanh toán");
 
             // Xử lý modal SuccessPayment
             if (currentModalId == "SuccessPayment")
             {
-                if (paidTracking != null || typePayment != null) // Nếu đã thanh toán
+                if (paidTracking != null) // Nếu đã thanh toán
                 {
                     if(Order.CreatedByAdminId != null)
                     {
@@ -654,7 +654,7 @@
                     CloseModal();
                     return;
                 }
-                else if (confirmedTracking != null && typePayment == null) // Nếu đã xác nhận
+                else if (confirmedTracking != null) // Nếu đã xác nhận
                 {
                     if (enteredAmount > OrderTracking.TotalMoney)
                     {

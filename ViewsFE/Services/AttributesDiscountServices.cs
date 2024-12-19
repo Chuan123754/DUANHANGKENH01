@@ -8,13 +8,15 @@ namespace ViewsFE.Services
     public class AttributesDiscountServices : IAttributesDiscountServices
     {
         private readonly HttpClient _httpClient;
-        public AttributesDiscountServices(HttpClient httpClient)
+        private readonly string _baseUrl;
+        public AttributesDiscountServices(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
         public async Task<List<P_attribute_discount>> GetAll()
         {
-            string requestURL = "https://localhost:7011/api/VariantsDiscount/GetAll";
+            string requestURL = $"{_baseUrl}/api/VariantsDiscount/GetAll";
             var request = await _httpClient.GetStringAsync(requestURL);
             var item = JsonConvert.DeserializeObject<List<P_attribute_discount>>(request);
             return item;
@@ -22,7 +24,7 @@ namespace ViewsFE.Services
 
         public async Task<List<Product_Attributes>> GetProductvariants()
         {
-            string requestURL = "https://localhost:7011/api/VariantsDiscount/GetProductvariants";
+            string requestURL = $"{_baseUrl}/api/VariantsDiscount/GetProductvariants";
             var request = await _httpClient.GetStringAsync(requestURL);
             var item = JsonConvert.DeserializeObject<List<Product_Attributes>>(request);
             return item;
@@ -30,21 +32,21 @@ namespace ViewsFE.Services
 
         public async Task<List<Discount>> GetDiscount()
         {
-            string requestURL = "https://localhost:7011/api/VariantsDiscount/GetDiscount";
+            string requestURL = $"{_baseUrl}/api/VariantsDiscount/GetDiscount";
             var request = await _httpClient.GetStringAsync(requestURL);
             var item = JsonConvert.DeserializeObject<List<Discount>>(request);
             return item;
         }
         public async Task<P_attribute_discount> Details(long id)
         {
-            string requestURL = $"https://localhost:7011/api/VariantsDiscount/GetById?id={id}";
+            string requestURL = $"{_baseUrl}/api/VariantsDiscount/GetById?id={id}";
             var request = await _httpClient.GetStringAsync(requestURL);
             var item = JsonConvert.DeserializeObject<P_attribute_discount>(request);
             return item;
         }
         public async Task<P_attribute_discount> Create(P_attribute_discount vd)
         {
-            string requestURL = $"https://localhost:7011/api/VariantsDiscount/Create";
+            string requestURL = $"{_baseUrl}/api/VariantsDiscount/Create";
             var jsonContent = JsonConvert.SerializeObject(vd);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -63,7 +65,7 @@ namespace ViewsFE.Services
               
         public async Task<bool> Update(P_attribute_discount vd)
         {
-            string requestURL = "https://localhost:7011/api/VariantsDiscount";
+            string requestURL = $"{_baseUrl}/api/VariantsDiscount";
             var jsonContent = JsonConvert.SerializeObject(vd);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -79,7 +81,7 @@ namespace ViewsFE.Services
 
         public async Task<bool> Delete(long id)
         {
-            string requestURL = $"https://localhost:7011/api/VariantsDiscount/Delete?id={id}";
+            string requestURL = $"{_baseUrl}/api/VariantsDiscount/Delete?id={id}";
             var request = await _httpClient.DeleteAsync(requestURL);
 
             if (!request.IsSuccessStatusCode)
@@ -98,7 +100,7 @@ namespace ViewsFE.Services
 
         public async Task<List<P_attribute_discount>> GetByIdDiscount(long idDiscount)
         {
-            string requestURL = $"https://localhost:7011/api/VariantsDiscount/GetByDiscountId?discountId={idDiscount}";
+            string requestURL = $"{_baseUrl}/api/VariantsDiscount/GetByDiscountId?discountId={idDiscount}";
             var request = await _httpClient.GetStringAsync(requestURL);
             var item = JsonConvert.DeserializeObject<List<P_attribute_discount>>(request);
             return item;
@@ -106,7 +108,7 @@ namespace ViewsFE.Services
 
         public async Task<List<P_attribute_discount>> GetByIdProduct(long idProduct)
         {
-            string requestURL = $"https://localhost:7011/api/VariantsDiscount/GetByProductId?productId={idProduct}";
+            string requestURL = $"{_baseUrl}/api/VariantsDiscount/GetByProductId?productId={idProduct}";
             var request = await _httpClient.GetStringAsync(requestURL);
             var item = JsonConvert.DeserializeObject<List<P_attribute_discount>>(request);
             return item;

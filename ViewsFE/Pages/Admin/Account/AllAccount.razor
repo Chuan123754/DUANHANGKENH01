@@ -49,7 +49,7 @@
                                     <th>Email</th>
                                     <th>Vai trò</th>
                                     <th>Trạng thái</th>
-                                   
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -62,14 +62,13 @@
                                                 @account.Account.FirstName @account.Account.LastName
                                                 <br />
                                                 <div class="cell-action">
-                                                    <a class="cell-action-edit text-primary" @onclick="() => EditAccount(account.Account.Id)" >Chỉnh sửa</a> 
-                                                    <a class="cell-action-delete text-danger" @onclick="() => DeleteAccount(account.Account.Id)">Xóa</a>
-                                                    <a class="cell-action-delete text-warning" @onclick="() => DeleteAccount(account.Account.Id)">Toggle Lock</a>
+                                                @*     <a class="cell-action-edit text-primary" @onclick="() => EditAccount(account.Account.Id)">Chỉnh sửa</a> *@
+                                                    <a class="cell-action-delete text-warning" @onclick="() => ToggleLock(account.Account.Id)">Toggle Lock</a>
                                                     <a class="cell-action-delete text-green" @onclick="() => NavDetails(account.Account.Id)">Xem chi tiết</a>
                                                 </div>
                                             </td>
                                             <td>
-                                                @account.Account.UserName                                            
+                                                @account.Account.UserName
                                             </td>
                                             <td>@account.Account.Email</td>
                                             <td>
@@ -155,8 +154,16 @@
 
     private async Task ToggleLock(string id)
     {
-        await accountService.ToggleLockAccountAsync(id);
-        await LoadAccounts(); // Tải lại danh sách tài khoản sau khi thực hiện thao tác
+        var confirm = await JS.InvokeAsync<bool>("confirm", "Chắc chắn muốn khoá/ mở khoá tài khoản này?");
+        if (confirm)
+        {
+            await accountService.ToggleLockAccountAsync(id);
+           
+          
+            await JS.InvokeVoidAsync("toastr.success", $"Cập nhật thành công.");        
+            await LoadAccounts(); // Tải lại danh sách tài khoản sau khi thực hiện thao tác
+            StateHasChanged();
+        }
     }
 }
 <style>

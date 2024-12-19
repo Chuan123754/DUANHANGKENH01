@@ -55,7 +55,7 @@ namespace appAPI.Repository
         public async Task<List<Contact>> GetByTypeAsync(int pageNumber, int pageSize, string searchTerm)
         {
                 return await _context.Contacts
-                 .Where(p => p.Deleted == false && (string.IsNullOrEmpty(searchTerm) || p.FullName.Contains(searchTerm) || p.Phone.Contains(searchTerm)))
+                 .Where(p =>   p.Deleted == false && (string.IsNullOrEmpty(searchTerm) || p.FullName.Contains(searchTerm) || p.Phone.Contains(searchTerm)))
                  .OrderBy(p => p.Id)
                  .Skip((pageNumber - 1) * pageSize)
                  .Take(pageSize)
@@ -65,7 +65,7 @@ namespace appAPI.Repository
         public async Task<int> GetTotalCountAsync(string searchTerm)
         {
             return await _context.Contacts
-               .CountAsync(p => p.Deleted == false && (string.IsNullOrEmpty(searchTerm) || p.FullName.Contains(searchTerm) || p.Phone.Contains(searchTerm)));
+               .CountAsync(p =>   p.Deleted == false && (string.IsNullOrEmpty(searchTerm) || p.FullName.Contains(searchTerm) || p.Phone.Contains(searchTerm)));
         }
 
      

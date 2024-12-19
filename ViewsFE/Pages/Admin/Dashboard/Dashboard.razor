@@ -12,7 +12,8 @@
  @inject IJSRuntime JS
  @using System.Text.Json
 @using static ViewsFE.Services.OrderDetailsServices
-
+@inject AuthenticationStateProvider AuthStateProvider
+@inject RoleService RoleService
 
 
 <!-- Page header -->
@@ -373,6 +374,9 @@
     private string selectedTop5User = "top5all";
     private List<CustomerDto> top5Customers = new List<CustomerDto>();
     private List<TopSellingProductDtoSV> topSellingProductDtos = new List<TopSellingProductDtoSV>();
+    private bool isAdmin = false;
+    private bool isEmployee = false;
+
 
     private async Task LoadPosts()
     {
@@ -593,12 +597,25 @@
             {
                 nav.NavigateTo("/admin/login");
             }
+            else
+            {
+                // Kiểm tra vai trò của người dùng
+                isAdmin = await RoleService.UserIsInRoleAsync("Admin");
+
+
+                if (!isAdmin)
+                {
+                    nav.NavigateTo("/admin/sell", true); // Điều hướng đến trang không có quyền
+                    return;
+                }
+            }
             StateHasChanged();
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
+       
         selectedMode = "day";
         selectedModeUser = "dayUser";
         await LoadPosts();

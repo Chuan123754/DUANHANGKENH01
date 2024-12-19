@@ -9,15 +9,16 @@ namespace ViewsFE.Services
     public class DiscountServices : IDiscountServices
     {
         private readonly HttpClient _httpClient;
-
-        public DiscountServices(HttpClient httpClient)
+        private readonly string _baseUrl;
+        public DiscountServices(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
 
         public async Task<List<Discount>> GetAll()
         {
-            string requestURL = "https://localhost:7011/api/Discount";
+            string requestURL = $"{_baseUrl}/api/Discount";
             var response = await _httpClient.GetStringAsync(requestURL);
             var discount = JsonConvert.DeserializeObject<List<Discount>>(response);
             return discount;
@@ -26,7 +27,7 @@ namespace ViewsFE.Services
         public async Task<Discount> Details(long id)
         {
             // Lấy chi tiết Voucher theo ID từ API
-            string requestURL = $"https://localhost:7011/api/Discount/{id}";
+            string requestURL = $"{_baseUrl}/api/Discount/{id}";
             var response = await _httpClient.GetStringAsync(requestURL);
             var discount = JsonConvert.DeserializeObject<Discount>(response);
             return discount;
@@ -35,7 +36,7 @@ namespace ViewsFE.Services
         public async Task<Discount> Create(Discount discount)
         {
             // Tạo mới Voucher
-            string requestURL = "https://localhost:7011/api/Discount/post";
+            string requestURL = $"{_baseUrl}/api/Discount/post";
             var jsonContent = JsonConvert.SerializeObject(discount);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -57,7 +58,7 @@ namespace ViewsFE.Services
         public async Task<bool> Update(Discount discount)
         {
             // Cập nhật Voucher
-            string requestURL = "https://localhost:7011/api/Discount/put";
+            string requestURL = $"{_baseUrl}/api/Discount/put";
             var jsonContent = JsonConvert.SerializeObject(discount);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -73,7 +74,7 @@ namespace ViewsFE.Services
         public async Task<bool> Delete(long id)
         {
             // Xóa Voucher theo ID
-            string requestURL = $"https://localhost:7011/api/Discount/{id}";
+            string requestURL = $"{_baseUrl}/api/Discount/{id}";
             var response = await _httpClient.DeleteAsync(requestURL);
             if (!response.IsSuccessStatusCode)
             {

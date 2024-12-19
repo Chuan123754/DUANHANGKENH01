@@ -71,7 +71,7 @@ namespace appAPI.Repository
         public async Task<List<Categories>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm)
         {
             return await _context.Categories
-                .Where(p => p.Type == type && (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) && p.Deleted == false)
+                .Where(p => p.Type == type && (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) &&   p.Deleted == false)
                 .OrderBy(p => p.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -81,7 +81,7 @@ namespace appAPI.Repository
         public async Task<int> GetTotalCountAsync(string type, string searchTerm)
         {
             return await _context.Categories
-                .CountAsync(p => p.Type == type && p.Deleted == false &&
+                .CountAsync(p => p.Type == type &&   p.Deleted == false &&
                                 (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
         }
 
@@ -104,7 +104,7 @@ namespace appAPI.Repository
 
         public async Task<List<Categories>> GetAllType(string type)
         {
-            return await _context.Categories.Where(p => p.Type == type && p.Deleted == false).ToListAsync();
+            return await _context.Categories.Where(p => p.Type == type &&   p.Deleted == false).ToListAsync();
         }
     }
 }

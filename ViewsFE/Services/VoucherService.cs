@@ -10,16 +10,17 @@ namespace ViewsFE.Services
     public class VoucherService : IVoucherService
     {
         private readonly HttpClient _httpClient;
-
-        public VoucherService(HttpClient httpClient)
+        private readonly string _baseUrl;
+        public VoucherService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
 
         public async Task<List<Vouchers>> GetAll()
         {
             // Lấy danh sách Voucher từ API
-            string requestURL = "https://localhost:7011/api/Vouchers";
+            string requestURL = $"{_baseUrl}/api/Vouchers";
             var response = await _httpClient.GetStringAsync(requestURL);
             var vouchers = JsonConvert.DeserializeObject<List<Vouchers>>(response);
             return vouchers;
@@ -27,14 +28,14 @@ namespace ViewsFE.Services
 
         public async Task<List<Users>> GetUsers()
         {
-            string requestURL = "https://localhost:7011/api/Users/Users-get";
+            string requestURL = $"{_baseUrl}/api/Users/Users-get";
             var response = await _httpClient.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Users>>(response);
         }
 
         public async Task<Vouchers> Details(long id)
         {
-            string requestURL = $"https://localhost:7011/api/Vouchers/{id}";
+            string requestURL = $"{_baseUrl}/api/Vouchers/{id}";
             var response = await _httpClient.GetStringAsync(requestURL);
             var voucher = JsonConvert.DeserializeObject<Vouchers>(response);
             return voucher;
@@ -42,7 +43,7 @@ namespace ViewsFE.Services
 
         public async Task<Vouchers> Create(Vouchers voucher)
         {
-            string requestURL = "https://localhost:7011/api/Vouchers/post";
+            string requestURL = $"{_baseUrl}/api/Vouchers/post";
             var jsonContent = JsonConvert.SerializeObject(voucher);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -63,7 +64,7 @@ namespace ViewsFE.Services
 
         public async Task<bool> Update(Vouchers voucher)
         {
-            string requestURL = "https://localhost:7011/api/Vouchers/put";
+            string requestURL = $"{_baseUrl}/api/Vouchers/put";
             var jsonContent = JsonConvert.SerializeObject(voucher);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -78,7 +79,7 @@ namespace ViewsFE.Services
 
         public async Task<bool> Delete(long id)
         {
-            string requestURL = $"https://localhost:7011/api/Vouchers/{id}";
+            string requestURL = $"{_baseUrl}/api/Vouchers/{id}";
             var response = await _httpClient.DeleteAsync(requestURL);
             if (!response.IsSuccessStatusCode)
             {

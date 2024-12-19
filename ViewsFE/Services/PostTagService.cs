@@ -11,21 +11,23 @@ namespace ViewsFE.Services
     public class PostTagService : IPostTagService
     {
         private readonly HttpClient _httpClient;
-        public PostTagService(HttpClient httpClient)
+        private readonly string _baseUrl;
+        public PostTagService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
 
         public async Task<List<Post_tags>> GetAll()
         {
-            string requestURL = "https://localhost:7011/api/PostTags/posttags-get";
+            string requestURL = $"{_baseUrl}/api/PostTags/posttags-get";
             var response = await _httpClient.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Post_tags>>(response);
         }
 
         public async Task<Post_tags> GetById(long id)
         {
-            string requestURL = $"https://localhost:7011/api/PostTags/posttags-get-id?id={id}";
+            string requestURL = $"{_baseUrl}/api/PostTags/posttags-get-id?id={id}";
             var response = await _httpClient.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<Post_tags>(response);
         }
@@ -40,7 +42,7 @@ namespace ViewsFE.Services
                 Tag_Id = postTag.Tag_Id,                
             };
 
-            string requestURL = "https://localhost:7011/api/PostTags/posttags-post";
+            string requestURL = $"{_baseUrl}/api/PostTags/posttags-post";
             var jsonContent = JsonConvert.SerializeObject(postTagToSend);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -85,7 +87,7 @@ namespace ViewsFE.Services
                 }
             };
 
-            string requestURL = "https://localhost:7011/api/PostTags/posttags-put";
+            string requestURL = $"{_baseUrl}/api/PostTags/posttags-put";
             var jsonContent = JsonConvert.SerializeObject(postTagToSend);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
@@ -100,7 +102,7 @@ namespace ViewsFE.Services
 
         public async Task Delete(long id)
         {
-            string requestURL = $"https://localhost:7011/api/PostTags/posttags-delete?id={id}";
+            string requestURL = $"{_baseUrl}/api/PostTags/posttags-delete?id={id}";
             await _httpClient.DeleteAsync(requestURL);
         }
     }
