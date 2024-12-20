@@ -1,4 +1,4 @@
-﻿@page "/admin/categorie/edit/{id:long}"
+﻿@page "/admin/categorie/editpost/{id:long}"
 @inject ICategoriesServices sev
 @inject NavigationManager nav
 @inject IJSRuntime JS
@@ -144,7 +144,7 @@ else
             await sev.Update(categorie);
             await JS.InvokeVoidAsync("toastr.success", "Sửa danh mục thành công");
             categorie = new Categories(); // Reset lại form
-            nav.NavigateTo("admin/product/categorie"); // Điều hướng lại về danh sách
+            nav.NavigateTo("/admin/post/categorie"); // Điều hướng lại về danh sách
         }
         catch (Exception ex)
         {

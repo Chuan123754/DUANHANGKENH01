@@ -162,13 +162,13 @@
                                                 </div>
                                             </div>
                                         </div>
-                                           
+
                                         <div class="modal-body">
                                             <table class="table table-bordered table-striped table-hover align-middle">
                                                 <thead class="table-light text-center">
                                                     <tr>
                                                         <th>Hình Ảnh</th>
-                                                        <th>Tên Sản Phẩm</th>                                                     
+                                                        <th>Tên Sản Phẩm</th>
                                                         <th>Công Nghệ Dệt</th>
                                                         <th>Phong Cách</th>
                                                         <th>Chất Liệu</th>
@@ -180,7 +180,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach (var product in lst_ProductAttributes.Where(p => p.Product_Variant.Status != "Đã xoá" && p.Product_Variant.Posts.Status !="delete"))
+                                                    @foreach (var product in lst_ProductAttributes.Where(p => p.Product_Variant.Status != "Đã xoá"))
                                                     {
                                                         <tr>
                                                             <td class="text-center">
@@ -188,7 +188,7 @@
                                                             </td>
                                                             <td class="text-truncate" style="max-width: 150px;">
                                                                 @product.Product_Variant.Posts.Title
-                                                            </td>                                                     
+                                                            </td>
                                                             <td class="text-truncate text-center">
                                                                 @product.Product_Variant?.Textile_Technology?.Title
                                                             </td>
@@ -312,7 +312,7 @@
                                             <td>@item.ProductAttributes.Size.Title</td>
                                             <td>
                                                 <button class="btn btn-sm btn-outline-secondary" @onclick="() => UpdateQuantityView(item.Id, item.Quantity - 1)">-</button>
-                                                <span class="mx-2">@item.Quantity</span>               
+                                                <span class="mx-2">@item.Quantity</span>
                                                 <button class="btn btn-sm btn-outline-secondary" @onclick="() => UpdateQuantityView(item.Id, item.Quantity + 1)">+</button>
                                             </td>
                                             <td class="text-start">
@@ -341,7 +341,7 @@
                                             <td class="text-start">
                                                 @if (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
                                                 {
-                                                     <div>
+                                                    <div>
                                                         <span style="text-decoration: line-through; color: gray;">
                                                             @string.Format("{0:N0}", (item.Quantity * item.ProductAttributes.Regular_price)).Replace(".", ",") VNĐ
                                                         </span>
@@ -516,7 +516,7 @@
                                                                                         <label for="name" class="form-label">Tên người nhận</label>
                                                                                         <input type="text" @bind="address.Name" class="form-control" placeholder="Nhập tên người nhận ">
                                                                                     </div>
-                                                                                         <div class="col-md-6">
+                                                                                    <div class="col-md-6">
                                                                                         <label for="name" class="form-label">Số điện thoại</label>
                                                                                         <input type="text" @bind="address.Phone" class="form-control" placeholder="Nhập SĐT người nhận ">
                                                                                     </div>
@@ -761,7 +761,7 @@
                                                     </fieldset>
                                                 </div>
                                             </div>
-                                         
+
                                         </form>
                                     </div>
                                 </div>
@@ -783,7 +783,7 @@
                                             <span class="tooltip-text">Nếu số lượng sản phẩm nhỏ hơn hoặc bằng 10 thì mặc định tiền vận chuyển là 38000VNĐ , nếu lớn hơn 10 và nhỏ hơn hoặc bằng 20 thì cộng thêm 5000 với mỗi sản phẩm, nếu số lượng sản phẩm lớn hơn 20 và nhỏ hơn hoặc bằng 30 thì giảm 30% tiền vận chuyển,  nếu số lượng sản phẩm lớn hơn 30 và nhỏ hơn hoặc bằng 50 thì giảm 50% tiền vận chuyển, nếu số lượng sản phẩm lớn hơn 50 thì giảm 70% tiền vận chuyển.</span>
                                         </span>
                                         Giao hàng
-               
+
                                     </label>
                                 </div>
                             }
@@ -791,7 +791,6 @@
                         <div class="table-responsive">
                             <div class="container px-4 text-center">
                                 <div class="row gx-2 justify-content-between">
-                       
                                 </div>
                             </div>
                             <div class="card-table table-responsive">
@@ -872,11 +871,11 @@
                             </div>
 
                         </div>
-                        @if(modalPayByCash)
+                        @if (modalPayByCash)
                         {
                             <div class="modal fade show d-block" tabindex="-1" role="dialog">
-                                 <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 45%; width: auto;">
-                                     <div class="modal-content">
+                                <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 45%; width: auto;">
+                                    <div class="modal-content">
                                         <div class="modal-header">
                                             <h5 class="modal-title">Thông tin đơn hàng</h5>
                                             <button type="button" class="btn-close" @onclick="CancelPayByCash" aria-label="Close"></button>
@@ -891,13 +890,13 @@
                                                     <div class="mb-2">
                                                         <label class="me-2"><strong>Tổng tiền đã giảm:</strong>@totalAmount.ToString("N0").Replace(".", ",") VNĐ </label>
                                                     </div>
-                                                    @if(isDeliveryVisible)
+                                                    @if (isDeliveryVisible)
                                                     {
                                                         <div class="mb-2">
                                                             <label class="me-2"><strong>Phí giao hàng:</strong> @feeShipping.ToString("N0").Replace(".", ",") VNĐ</label>
                                                         </div>
                                                     }
-                                                       <div class="mb-2">
+                                                    <div class="mb-2">
                                                         <label class="me-2"><strong>Tỏng thanh toán:</strong> @totalMoney.ToString("N0").Replace(".", ",") VNĐ</label>
                                                     </div>
                                                     <div class="mb-2">
@@ -1045,7 +1044,7 @@
         selectedStyleId = e.Value?.ToString() ?? string.Empty;
         await ApplyFilters();
     }
-           
+
     private async Task ApplyFilters()
     {
         // Lọc sản phẩm theo các điều kiện đã chọn
@@ -1096,7 +1095,7 @@
     private async Task CancelMomoPayment()
     {
         var updateitem = await orderService.GetByIdOrders(selectedOrderId);
-        if (updateitem.Status ==/*  "Đã thanh toán" */ Orders.STATUS_PAID)
+        if (updateitem.Status == "Đã thanh toán")
         {
             await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
             isMomoModalVisible = false;
@@ -1115,7 +1114,7 @@
     private async Task ConfirmMomoPayment()
     {
         var updateitem = await orderService.GetByIdOrders(selectedOrderId);
-        if (updateitem.Status ==/*  "Đã thanh toán" */ Orders.STATUS_PAID)
+        if (updateitem.Status == "Đã thanh toán")
         {
             await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
             isMomoModalVisible = false;
@@ -1124,7 +1123,7 @@
         else
         {
             await JS.InvokeVoidAsync("toastr.error", $"Đơn hàng chưa được thanh toán");
-        }     
+        }
 
     }
 
@@ -1285,13 +1284,13 @@
         selectedStyleId = string.Empty;
 
         var currentUserId = await _authStateProvider.GetCurrentUserId();
-        if(currentUserId == null)
+        if (currentUserId == null)
         {
             adminId = null;
         }
         else
         {
-            adminId = currentUserId;            
+            adminId = currentUserId;
         }
         await LoadPosts();
         await LoadOrders();
@@ -1304,7 +1303,7 @@
     private async Task LoadOrders() // lấy ra các hóa đơn treo ( chưa thanh toán )
     {
         var allOrders = await orderService.GetAll();
-        lst_Orders = allOrders.Where(order => order.Status == /* "Hóa đơn treo" */ Orders.STATUS_HANGINGINVOICE).ToList();
+        lst_Orders = allOrders.Where(order => order.Status == "Hóa đơn treo").ToList();
         StateHasChanged();
     }
 
@@ -1406,7 +1405,7 @@
 
     private async Task CreateOrder()
     {
-        var pendingOrders = lst_Orders.Where(order => order.Status == Orders.STATUS_HANGINGINVOICE).ToList();
+        var pendingOrders = lst_Orders.Where(order => order.Status == "Hóa đơn treo").ToList();
 
         if (pendingOrders.Count >= 10)
         {
@@ -1417,7 +1416,7 @@
             {
                 Note = "Tại quầy",
                 CreatedByAdminId = adminId,
-                Status = Orders.STATUS_HANGINGINVOICE
+                Status = "Hóa đơn treo"
             };
         await orderService.Create(newOrder);
         lst_Orders = await orderService.GetAll();
@@ -1861,7 +1860,7 @@
 
     private async Task OpenModalPayByCash()
     {
-        if(lst_OrderDetail.Count==0)
+        if (lst_OrderDetail.Count == 0)
         {
             await JS.InvokeVoidAsync("toastr.warning", "Đơn hàng không có sản phẩm nào");
             return;
@@ -1885,7 +1884,7 @@
 
     private async Task PayByCash()
     {
-        if(khachDua < totalMoney)
+        if (khachDua < totalMoney)
         {
             await JS.InvokeVoidAsync("toastr.warning", "Khách hàng chưa đưa đủ tiền!");
             return;
@@ -1936,13 +1935,13 @@
             orderToUpdate.CreatedByAdminId = adminId;
             if (isDeliveryVisible)
             {
-                orderToUpdate.Status = Orders.STATUS_CONFIREMD;
+                orderToUpdate.Status = "Đã xác nhận";
                 orderToUpdate.FeeShipping = feeShipping;
                 orderToUpdate.Address_Id = selectedAddress?.Id;
             }
             else
             {
-                orderToUpdate.Status = Orders.STATUS_HANGINGINVOICE;
+                orderToUpdate.Status = "Hóa đơn treo";
                 orderToUpdate.FeeShipping = 0;
                 orderToUpdate.Address_Id = null;
             }
@@ -1961,19 +1960,19 @@
                         ShowMomoModal(momoResponse.PayUrl);
                         await orderService.Update(orderToUpdate, orderToUpdate.Id);
 
-                        if (orderToUpdate.Status == Orders.STATUS_CONFIREMD)
+                        if (orderToUpdate.Status == "Đã xác nhận")
                         {
                             var newOrderTracking = new order_trackings
                                 {
                                     OrderId = orderToUpdate.Id,
-                                    Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành"  ,
+                                    Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
                                     Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" : " Đã xác nhận",
                                     Created_at = DateTime.Now,
                                     Created_by = adminId
                                 };
                             await orderTrackingService.AddOrderTracking(newOrderTracking);
                         }
-                      
+
 
                     }
                     else
@@ -1989,7 +1988,7 @@
             else
             {
                 orderToUpdate.TypePayment = "Thanh toán tiền mặt";
-                orderToUpdate.Status =/*  "Đã thanh toán" */ Orders.STATUS_PAID;
+                orderToUpdate.Status = "Đã thanh toán";
                 orderToUpdate.Address_Id = selectedAddress?.Id;
                 await orderService.Update(orderToUpdate, orderToUpdate.Id);
                 await JS.InvokeVoidAsync("toastr.success", "Đơn hàng đã được thanh toán thành công!");
@@ -1999,7 +1998,7 @@
                 var newOrderTracking = new order_trackings
                     {
                         OrderId = orderToUpdate.Id,
-                        Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành" ,
+                        Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
                         Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" : " Đã xác nhận",
                         Created_at = DateTime.Now,
                         Created_by = adminId
@@ -2009,7 +2008,7 @@
 
 
 
-            if (selectedCustomer != null && orderToUpdate.Status==/* "Đã thanh toán" */ Orders.STATUS_PAID)
+            if (selectedCustomer != null && orderToUpdate.Status == "Đã thanh toán")
             {
                 var emailUser = selectedCustomer.Email;
                 string emailSubject = "ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC ĐẶT THÀNH CÔNG";
