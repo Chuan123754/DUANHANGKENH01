@@ -37,19 +37,22 @@ namespace ViewsFE.Models
         // Define constant values for statuses
         public const string STATUS_UNACTIVE = "UNACTIVE";
         public const string STATUS_ACTIVE = "ACTIVE";
+        public const string STATUS_DELETE = "delete";
 
         // Dictionary to hold status labels
         public static readonly Dictionary<string, string> STATUSES = new Dictionary<string, string>
         {
             { STATUS_ACTIVE, "Hoạt động" },
-            { STATUS_UNACTIVE, "Không hoạt động" }
+            { STATUS_UNACTIVE, "Không hoạt động" },
+            { STATUS_DELETE, "Đã xoá" }
         };
 
         // Dictionary to hold status classes (for styling purposes)
         public static readonly Dictionary<string, string> STATUS_CLASSES = new Dictionary<string, string>
         {
             { STATUS_UNACTIVE, "text-danger" },
-            { STATUS_ACTIVE, "text-success" }
+            { STATUS_ACTIVE, "text-success" },
+            { STATUS_DELETE, "text-muted" }
         };
 
         public string StatusLabel => !string.IsNullOrEmpty(status) && STATUSES.ContainsKey(status) ? STATUSES[status] : "Trạng thái không xác định";
