@@ -120,7 +120,13 @@ namespace ViewsFE.Services
 
         public async Task Restore(long id)
         {
-            await _client.DeleteAsync($"{_baseUrl}/api/Product_Post/Restore-post?id={id}");
+            var response = await _client.PutAsync($"{_baseUrl}/api/Product_Post/Restore-post?id={id}", null);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+                throw new Exception(error["message"]);
+            }
         }
 
         public async Task<List<Product_Posts>> GetByTypeAsyncDelete(string type, int pageNumber, int pageSize, string searchTerm)

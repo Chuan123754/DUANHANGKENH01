@@ -177,12 +177,13 @@
             await ProductService.Restore(id);
             await JS.InvokeVoidAsync("toastr.success", "Khôi phục bản ghi thành công!");
             await LoadPosts();
-            StateHasChanged();
         }
         catch (Exception ex)
         {
+            // Xử lý lỗi trả về từ API
             Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể khôi phục bản ghi. Vui lòng thử lại.");
+            await JS.InvokeVoidAsync("toastr.error", ex.Message);
         }
     }
+
 }
