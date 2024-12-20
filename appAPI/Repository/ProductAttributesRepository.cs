@@ -23,10 +23,9 @@ namespace appAPI.Repository
         public async Task Delete(long id)
         {
             var deleteItem = await _context.Product_Attributes.FindAsync(id);
-            _context.Product_Attributes.Remove(deleteItem);
+            deleteItem.Status = "delete";
+            _context.Product_Attributes.Update(deleteItem);
             await _context.SaveChangesAsync();
-
-
         }
 
         public async Task<List<Product_Attributes>> GetAllProductAttributes()
@@ -77,7 +76,7 @@ namespace appAPI.Repository
         public async Task<List<Product_Attributes>> GetProductAttributesByProductVarianId(long id)
         {
             return await _context.Product_Attributes
-                                .Where(p => p.Product_Variant_Id == id)
+                                .Where(p => p.Product_Variant_Id == id && p.Status != "delete")
                                 .Include(p => p.Color)
                                 .Include(p => p.Size)
                                 .Include(p => p.Product_Variant)

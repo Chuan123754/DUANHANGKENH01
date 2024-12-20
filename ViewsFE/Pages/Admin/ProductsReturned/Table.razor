@@ -6,145 +6,118 @@
 @inject IAddressServices AddressService
 @inject IJSRuntime JS
 
-<style>
-    .badge {
-        padding: 0.3em 0.6em;
-        border-radius: 5px;
-        color: white;
-        font-size: 14px;
-    }
-
-    .bg-new {
-        background-color: #17a2b8;
-    }
-
-    .bg-instock {
-        background-color: #28a745;
-    }
-
-    .bg-damaged {
-        background-color: #dc3545;
-    }
-
-    td span {
-        word-wrap: break-word;
-        white-space: normal;
-    }
-</style>
-
 <div class="page-wrapper">
     <div class="page-header d-print-none">
         <div class="container-xl">
             <div class="row g-2 align-items-center">
                 <div class="col">
                     <h2 class="page-title">DANH SÁCH SẢN PHẨM TRẢ LẠI</h2>
-                </div>      
+                </div>
             </div>
         </div>
     </div>
 
     <div class="page-body">
         <div class="container-xl">
-            <div class="row row-deck row-cards">
-                <div class="form-group d-flex justify-content-start mb-4">
-                    <div>
-                        <select class="form-select" @onchange="(e) => OnSearchTextChanged(e.Value.ToString())">
-                            <option value="">Tất cả lý do</option>
-                            <option value="Trả sản phẩm">Trả sản phẩm</option>
-                            <option value="Đổi sản phẩm">Đổi sản phẩm</option>
-                        </select>
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-group d-flex justify-content-start mb-4">
+                        <div>
+                            <select class="form-select" @onchange="(e) => OnSearchTextChanged(e.Value.ToString())">
+                                <option value="">Tất cả lý do</option>
+                                <option value="Trả sản phẩm">Trả sản phẩm</option>
+                                <option value="Đổi sản phẩm">Đổi sản phẩm</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select class="form-select" @onchange="(e) => OnStatusChanged(e.Value.ToString())">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="Mới">Mới</option>
+                                <option value="Xem xét">Xem xét</option>
+                                <option value="Nhập kho">Nhập kho</option>
+                                <option value="Hỏng">Hỏng</option>
+                            </select>
+                        </div>
+
                     </div>
-                    <div>
-                        <select class="form-select" @onchange="(e) => OnStatusChanged(e.Value.ToString())">
-                            <option value="">Tất cả trạng thái</option>
-                            <option value="Mới">Mới</option>
-                            <option value="Xem xét">Xem xét</option>
-                            <option value="Nhập kho">Nhập kho</option>
-                            <option value="Hỏng">Hỏng</option>
-                        </select>
-                    </div>
 
-                </div>
-
-                <div class="col-12 " style="max-width: 1245px; margin: 0 auto;">
-                    <div class="card">
-                        <div class="table-responsive">
-                            <table class="table card-table table-vcenter text-nowrap">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Order ID</th> <!-- Thêm cột Order ID -->
-                                        <th>Order DT ID</th> <!-- Thêm cột Order Detail ID -->
-                                        <th>Thông tin sản phẩm</th> <!-- Thêm cột SKU + Size + Color -->
-                                        <th>Loại trả hàng</th>
-                                        <th>Số lượng</th>
-                                        <th>Giá đơn vị</th>
-                                        <th>Tổng giá trả lại</th>
-                                        <th>Tình trạng</th>
-                                        <th>Ngày trả hàng</th>
-                                        <th>Note</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (pagedProductsReturned.Any())
-                                    {
-                                        foreach (var item in pagedProductsReturned)
-                                        {
-                                            <tr>
-                                                <td>@item.Id</td> <!-- ID của ProductsReturned -->
-                                                <td>@item.OrderDetails?.Orders?.Id</td> <!-- Hiển thị Order ID -->
-                                                <td>@item.OrderDetails?.Id</td> <!-- Hiển thị Order Detail ID -->
-                                                <td style="width: 50px !important; word-break: break-all;">
-                                                    @if (item.OrderDetails?.ProductAttributes != null)
-                                                    {
-                                                        @($"{item.OrderDetails.ProductAttributes.SKU} - {item.OrderDetails.ProductAttributes.Size?.Title} - {item.OrderDetails.ProductAttributes.Color?.Title}")
-                                                    }
-                                                    else
-                                                    {
-                                                        <span>Không có thông tin sản phẩm</span>
-                                                    }
-                                                </td>
-
-                                                <td>@item.ReturnReason</td>
-                                                <td>@item.Quantity</td>
-                                                <td>@string.Format("{0:N0}", item.UnitPrice) VNĐ</td>
-                                                <td>@string.Format("{0:N0}", item.TotalPrice) VNĐ</td>
-                                                <td>
-                                                    <span class="badge @GetStatusClass(item.Condition)">@item.Condition</span>
-                                                </td>
-                                                <td>@item.ReturnDate.ToString("dd/MM/yyyy")</td>
-                                                <td>
-                                                    @if (!string.IsNullOrEmpty(item.Notes))
-                                                    {
-                                                        <span style="white-space: normal;">@((MarkupString)FormatNote(item.Notes))</span>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @if (item.Condition != "Nhập kho")
-                                                    {
-                                                        <button class="btn btn-sm btn-outline-primary" @onclick="() => ShowUpdateQuantityModal(item.Id, item.Quantity)">
-                                                            Cập nhật
-                                                        </button>
-                                                    }
-                                                </td>
-
-                                            </tr>
-                                        }
-                                    }
-                                    else
+                    <div id="table-default" class="table-responsive">
+                        <table class="table ">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Order ID</th> <!-- Thêm cột Order ID -->
+                                    <th>Order DT ID</th> <!-- Thêm cột Order Detail ID -->
+                                    <th>Thông tin sản phẩm</th> <!-- Thêm cột SKU + Size + Color -->
+                                    <th>Loại trả hàng</th>
+                                    <th>Số lượng</th>
+                                    <th>Giá đơn vị</th>
+                                    <th>Tổng giá trả lại</th>
+                                    <th>Tình trạng</th>
+                                    <th>Ngày trả hàng</th>
+                                    <th>Note</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (pagedProductsReturned.Any())
+                                {
+                                    foreach (var item in pagedProductsReturned)
                                     {
                                         <tr>
-                                            <td colspan="11" class="text-center">Không có dữ liệu.</td>
+                                            <td>@item.Id</td> <!-- ID của ProductsReturned -->
+                                            <td>@item.OrderDetails?.Orders?.Id</td> <!-- Hiển thị Order ID -->
+                                            <td>@item.OrderDetails?.Id</td> <!-- Hiển thị Order Detail ID -->
+                                            <td style="width: 50px !important; word-break: break-all;">
+                                                @if (item.OrderDetails?.ProductAttributes != null)
+                                                {
+                                                    @($"{item.OrderDetails.ProductAttributes.SKU} - {item.OrderDetails.ProductAttributes.Size?.Title} - {item.OrderDetails.ProductAttributes.Color?.Title}")
+                                                }
+                                                else
+                                                {
+                                                    <span>Không có thông tin sản phẩm</span>
+                                                }
+                                            </td>
+
+                                            <td>@item.ReturnReason</td>
+                                            <td>@item.Quantity</td>
+                                            <td>@string.Format("{0:N0}", item.UnitPrice) VNĐ</td>
+                                            <td>@string.Format("{0:N0}", item.TotalPrice) VNĐ</td>
+                                            <td>
+                                                <span class="badge @GetStatusClass(item.Condition)">@item.Condition</span>
+                                            </td>
+                                            <td>@item.ReturnDate.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(item.Notes))
+                                                {
+                                                    <span style="white-space: normal;">@((MarkupString)FormatNote(item.Notes))</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (item.Condition != "Nhập kho")
+                                                {
+                                                    <button class="btn btn-sm btn-outline-primary" @onclick="() => ShowUpdateQuantityModal(item.Id, item.Quantity)">
+                                                        Cập nhật
+                                                    </button>
+                                                }
+                                            </td>
+
                                         </tr>
                                     }
-                                </tbody>
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="11" class="text-center">Không có dữ liệu.</td>
+                                    </tr>
+                                }
+                            </tbody>
 
-                            </table>
-                            <div class="mt-4 " style="padding-left: 10px">
-                                <Pagination TItem="Products_Returned" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="lstProductsReturned.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
-                            </div>
+                        </table>
+                        <div class="mt-4 " style="padding-left: 10px">
+                            <Pagination TItem="Products_Returned" PageNumber="currentPage" TotalPages="totalPages" PageSize="pageSize" TotalItems="lstProductsReturned.Count" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
                         </div>
+
                     </div>
                 </div>
             </div>
@@ -291,7 +264,7 @@
         totalPages = (int)Math.Ceiling((double)lstProductsReturned.Count / pageSize);
 
         pagedProductsReturned = lstProductsReturned
-            .OrderByDescending(p => p.ReturnDate) 
+            .OrderByDescending(p => p.ReturnDate)
             .Skip((currentPage - 1) * pageSize)
             .Take(pageSize)
             .ToList();
@@ -316,7 +289,7 @@
         lstProductsReturned = allProducts
             .Where(p => (string.IsNullOrEmpty(searchText) || p.ReturnReason == searchText) &&
                         (string.IsNullOrEmpty(selectedStatus) || p.Condition == selectedStatus))
-            .OrderByDescending(p => p.ReturnDate) 
+            .OrderByDescending(p => p.ReturnDate)
             .ToList();
 
         currentPage = 1;
@@ -382,5 +355,5 @@
         LoadPagedProductsReturned();
     }
 
-   
+
 }
