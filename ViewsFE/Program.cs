@@ -83,7 +83,6 @@ builder.Services.AddIdentity<Account, IdentityRole>()
 builder.Services.AddAuthenticationCore();
 builder.Services.AddHttpClient<IAddressServices, AddressService>();
 builder.Services.AddScoped<IAddressServices, AddressService>();
-builder.Services.AddScoped<ILogActivityHistoryService, LogActivityHistoryService>();
 builder.Services.AddScoped<CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 builder.Services.AddScoped<IAccountService, AccountService>();
@@ -100,7 +99,6 @@ builder.Services.AddScoped<IUserVoucherService, UserVoucherService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<FilesIServices, FilesServices>();
 builder.Services.AddScoped<IDesignerServices, DesignerServices>();
-builder.Services.AddScoped<IOptionsServices, OptionServices>();
 builder.Services.AddScoped<IPostSer, PostServices>();
 builder.Services.AddScoped<IColorServices, ColorServices>();
 builder.Services.AddScoped<ISizeServices, SizeServices>();

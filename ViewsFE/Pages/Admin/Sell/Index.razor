@@ -1933,6 +1933,7 @@
             orderToUpdate.TotalPrincipal = totalPrincipal; // Tổng tiền hàng chưa giảm
             orderToUpdate.Totalmoney = totalMoney; // tổng cần thanh toán ( nếu có ship )
             orderToUpdate.CreatedByAdminId = adminId;
+            orderToUpdate.Created_at = DateTime.Now;
             if (isDeliveryVisible)
             {
                 orderToUpdate.Status = "Đã xác nhận";

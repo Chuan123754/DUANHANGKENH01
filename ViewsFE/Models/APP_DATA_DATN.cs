@@ -9,7 +9,6 @@ namespace ViewsFE.Models
         {
             _configuration = configuration;
         }
-        public DbSet<Activity_history> Activity_history { get; set; }
         public DbSet<Address> Address { get; set; }
         public DbSet<Banner> Banner { get; set; }
         public DbSet<Carts> Carts { get; set; }
@@ -19,9 +18,6 @@ namespace ViewsFE.Models
         public DbSet<Designer> Designer { get; set; }
         public DbSet<Discount> Discount { get; set; }
         public DbSet<Files> Files { get; set; }
-        public DbSet<Menus> Menus { get; set; }
-        public DbSet<Menu_items> Menu_items { get; set; }
-        public DbSet<Options> Options { get; set; }
         public DbSet<Orders> Orders { get; set; }
         public DbSet<order_trackings> Order_Trackings { get; set; }
         public DbSet<Order_details> Order_Details { get; set; }
