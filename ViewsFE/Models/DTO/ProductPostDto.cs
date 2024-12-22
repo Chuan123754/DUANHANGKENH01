@@ -23,7 +23,7 @@
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public List<PostTagDto>? Tags { get; set; } = new List<PostTagDto>();
-        public List<Product_variants>? ProductVariants { get; set; } = new List<Product_variants>();
+        public List<Product_Attributes>? Product_Attributes { get; set; } = new List<Product_Attributes>();
         public List<Post_categories>? PostCategories { get; set; } = new List<Post_categories>();
 
     }

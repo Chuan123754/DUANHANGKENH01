@@ -35,7 +35,7 @@ namespace appAPI.Controllers
             return NotFound();
         }
         [HttpPost("CreateWLP")]
-        public async Task Create(Product_variants_wishlist pwl)
+        public async Task Create(ProductAttributes_wishlist pwl)
         {
             await _reponsitory.Create(pwl);
         }

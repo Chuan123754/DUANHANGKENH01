@@ -51,7 +51,10 @@ namespace appAPI.Controllers
                                                             od => od.ProductAttributes,
                                                             od => od.ProductAttributes.Color,
                                                             od => od.ProductAttributes.Size,
-                                                            od => od.ProductAttributes.Product_Variant.Posts).ToList();
+                                                            od => od.ProductAttributes.Material,
+                                                            od => od.ProductAttributes.Textile_Technology,
+                                                            od => od.ProductAttributes.Style,
+                                                            od => od.ProductAttributes.Posts).ToList();
 
             // Lấy thông tin lịch sử trạng thái từ bảng OrderTrackings
             var orderTrackings = _orderTrackingsRepository.Find(ot => ot.OrderId == orderId).ToList();

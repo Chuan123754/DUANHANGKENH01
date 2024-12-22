@@ -270,7 +270,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var item in lst_ProductAtribites.Where(p => p.Product_Variant.Status != "Đã xoá"))
+                                    @foreach (var item in lst_ProductAtribites.Where(p => p.Status != "Đã xoá"))
                                     {
                                         <tr>
                                             <td>

@@ -15,7 +15,7 @@
 @inject IOrderIServices orderService
 @inject OrderDetailsIServices orderDetailService
 @inject IProductAttributeServices productAttributeService
-@inject IProductVariantServices productVariantService
+@* @inject IProductVariantServices productVariantService *@
 @inject MomoService momoService
 @inject IOrderTrackingService orderTrackingService
 @inject IJSRuntime JS
@@ -180,23 +180,23 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach (var product in lst_ProductAttributes.Where(p => p.Product_Variant.Status != "Đã xoá"))
+                                                    @foreach (var product in lst_ProductAttributes.Where(p => p.Status != "Đã xoá"))
                                                     {
                                                         <tr>
                                                             <td class="text-center">
                                                                 <img src="@product.Image" alt="Hình ảnh" style="width: 80px; height: 105px !important; object-fit: cover; border-radius: 4px;" />
                                                             </td>
                                                             <td class="text-truncate" style="max-width: 150px;">
-                                                                @product.Product_Variant.Posts.Title
+                                                                @product.Posts.Title
+                                                            </td>                                                     
+                                                            <td class="text-truncate text-center">
+                                                                @product.Textile_Technology?.Title
                                                             </td>
                                                             <td class="text-truncate text-center">
-                                                                @product.Product_Variant?.Textile_Technology?.Title
+                                                                @product?.Style?.Title
                                                             </td>
                                                             <td class="text-truncate text-center">
-                                                                @product.Product_Variant?.Style?.Title
-                                                            </td>
-                                                            <td class="text-truncate text-center">
-                                                                @product.Product_Variant?.Material?.Title
+                                                                @product?.Material?.Title
                                                             </td>
                                                             <td class="text-center">@product.Size?.Title</td>
                                                             <td class="text-center">
@@ -1053,7 +1053,7 @@
         if (!string.IsNullOrEmpty(selectedProductId))
         {
             filteredProducts = filteredProducts.Where(post =>
-                    post.Product_Variant.Posts.Id == long.Parse(selectedProductId)).ToList();
+                    post.Posts.Id == long.Parse(selectedProductId)).ToList();
         }
 
 
@@ -1061,21 +1061,21 @@
         if (!string.IsNullOrEmpty(selectedTextileTechnologyId))
         {
             filteredProducts = filteredProducts.Where(post =>
-                post.Product_Variant.Textile_technology_id == long.Parse(selectedTextileTechnologyId)).ToList();
+                post.Textile_technology_id == long.Parse(selectedTextileTechnologyId)).ToList();
         }
 
         // Lọc theo Chất liệu
         if (!string.IsNullOrEmpty(selectedMaterialId))
         {
             filteredProducts = filteredProducts.Where(post =>
-                post.Product_Variant.Material_id == long.Parse(selectedMaterialId)).ToList();
+                post.Material_id == long.Parse(selectedMaterialId)).ToList();
         }
 
         // Lọc theo Phong cách
         if (!string.IsNullOrEmpty(selectedStyleId))
         {
             filteredProducts = filteredProducts.Where(post =>
-                post.Product_Variant.Style_id == long.Parse(selectedStyleId)).ToList();
+                post.Style_id == long.Parse(selectedStyleId)).ToList();
         }
 
         lst_ProductAttributes = filteredProducts;
@@ -1933,6 +1933,7 @@
             orderToUpdate.TotalPrincipal = totalPrincipal; // Tổng tiền hàng chưa giảm
             orderToUpdate.Totalmoney = totalMoney; // tổng cần thanh toán ( nếu có ship )
             orderToUpdate.CreatedByAdminId = adminId;
+            orderToUpdate.Created_at = DateTime.Now;
             if (isDeliveryVisible)
             {
                 orderToUpdate.Status = "Đã xác nhận";

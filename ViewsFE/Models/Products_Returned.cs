@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Newtonsoft.Json;
 
 namespace ViewsFE.Models
 {
     [Table("products_returned")]
     public class Products_Returned
     {
-        [Key]
         public long Id { get; set; }
         [Required]
         public long OrderDetailId { get; set; }
@@ -16,7 +16,7 @@ namespace ViewsFE.Models
         public string ReturnReason { get; set; } = string.Empty; // Lý do trả hàng
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
-        public decimal? TotalPrice { get; set; }
+        public decimal TotalPrice { get; set; }
 
         [Required]
         [StringLength(50)]
@@ -32,6 +32,7 @@ namespace ViewsFE.Models
         public DateTime? Update_at { get; set; }
 
         [ForeignKey("OrderDetailId")]
+        [JsonIgnore]
         public virtual Order_details? OrderDetails { get; set; }
     }
 }

@@ -17,7 +17,7 @@ namespace appAPI.Controllers
         private readonly IPostReponsetory _postRepository;
         private readonly IBannerRepository _bannerRepository;
         APP_DATA_DATN _context;
-        public Product_PostController(APP_DATA_DATN context,IPostReponsetory postRepository, IBannerRepository bannerRepository)
+        public Product_PostController(APP_DATA_DATN context, IPostReponsetory postRepository, IBannerRepository bannerRepository)
         {
             _postRepository = postRepository;
             _bannerRepository = bannerRepository;
@@ -48,7 +48,7 @@ namespace appAPI.Controllers
             return await _postRepository.GetAll();
         }
         [HttpGet("GetAllByClient")]
-        public async Task<List<Product_variants>> GetAllByClient()
+        public async Task<List<Product_Posts>> GetAllByClient()
         {
             return await _postRepository.GetAllByClient();
         }
@@ -59,7 +59,7 @@ namespace appAPI.Controllers
         }
         [HttpGet("Get-all-type")]
         public async Task<IActionResult> GetAllType(string type)
-        {     
+        {
             var list = await _postRepository.GetAllByType(type);
             return Ok(list);
         }
@@ -82,7 +82,7 @@ namespace appAPI.Controllers
             return Ok(list);
         }
         [HttpGet("GetCountByTypeDesigner")]
-        public async Task<IActionResult> GetCountByTypeDesigner( long designerId)
+        public async Task<IActionResult> GetCountByTypeDesigner(long designerId)
         {
             var list = await _postRepository.GetCountByTypeDesigner(designerId);
             return Ok(list);
@@ -102,8 +102,8 @@ namespace appAPI.Controllers
                 return BadRequest("Slug không được để trống.");
             }
 
-            bool exists = await _context.Posts.Where(p =>   p.Deleted == false).AnyAsync(x => x.Slug == slug);
-            return Ok(!exists); 
+            bool exists = await _context.Posts.Where(p => p.Status == "delete").AnyAsync(x => x.Slug == slug);
+            return Ok(!exists);
         }
 
 
@@ -181,7 +181,7 @@ namespace appAPI.Controllers
                 return BadRequest("Invalid post data.");
             }
 
-           var updateProducpost = await _postRepository.Updatetagcate(post, tagIds, categoryIds);
+            var updateProducpost = await _postRepository.Updatetagcate(post, tagIds, categoryIds);
             return Ok(new { message = "Sửa thành công", Post_Id = updateProducpost.Id });
         }
 
@@ -217,7 +217,7 @@ namespace appAPI.Controllers
                 return BadRequest("Page number and page size must be greater than 0.");
             }
 
-            var list = await _postRepository.GetByTypeAsync(type, pageNumber, pageSize, searchTerm);        
+            var list = await _postRepository.GetByTypeAsync(type, pageNumber, pageSize, searchTerm);
             return Ok(list);
         }
         [HttpGet("Get-Total-Count")]
@@ -302,7 +302,7 @@ namespace appAPI.Controllers
         {
             return await _postRepository.GetNameDesigner(id);
         }
-     
+
 
         [HttpGet("get-by-product-filter")]
         public async Task<IActionResult> GetByProductFilter([FromQuery] List<long?> idDesigner, [FromQuery] List<long?> idColor, [FromQuery] List<long?> idMaterial, [FromQuery] List<long?> idTextile_technology, [FromQuery] List<long?> idStyle, [FromQuery] List<long?> idSize, [FromQuery] List<long?> idCategory, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
@@ -322,7 +322,7 @@ namespace appAPI.Controllers
             return Ok(totalCount);
         }
         [HttpGet("get-by-product-filter2")]
-        public async Task<IActionResult> GetByProductFilter2([FromQuery] string type,[FromQuery] List<long?> idDesigner, [FromQuery] List<long?> idCategory, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
+        public async Task<IActionResult> GetByProductFilter2([FromQuery] string type, [FromQuery] List<long?> idDesigner, [FromQuery] List<long?> idCategory, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
         {
             if (pageNumber < 1 || pageSize < 1)
             {
@@ -333,7 +333,7 @@ namespace appAPI.Controllers
             return Ok(list);
         }
         [HttpGet("Get-Total-Count-Product-Filter2")]
-        public async Task<IActionResult> GetTotalCountProductFilter2([FromQuery] string type,[FromQuery] List<long?> idDesigner, [FromQuery] List<long?> idCategory, [FromQuery] string? searchTerm = null)
+        public async Task<IActionResult> GetTotalCountProductFilter2([FromQuery] string type, [FromQuery] List<long?> idDesigner, [FromQuery] List<long?> idCategory, [FromQuery] string? searchTerm = null)
         {
             var totalCount = await _postRepository.GetTotalCountAsyncFilter2(type, idDesigner, idCategory, searchTerm);
             return Ok(totalCount);

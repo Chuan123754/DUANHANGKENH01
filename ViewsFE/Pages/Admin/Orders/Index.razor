@@ -257,7 +257,7 @@
     private int orderShippingComplete = 0; // đơn hàng hoàn thành
     private int orderCounterComplete = 0; // đơn hàng hoàn thành
     private int totalComplete = 0; // đơn hàng hoàn thành
-    private int canceledOrders = 0; // bị hủy
+    private decimal canceledOrders = 0; // bị hủy
 
     private DateTime? startDate;
     private DateTime? endDate;
@@ -348,7 +348,9 @@
 
         // Tính toán thống kê
         totalOrders = lst_Orders.Count;
-        canceledOrders = lst_Orders.Count(o => o.Status == "Đơn hủy");
+        canceledOrders = lst_Orders
+    .Where(o => o.Status == "Đơn hủy")
+    .Sum(o => o.Totalmoney ?? 0);
         orderShippingComplete = lst_Orders.Count(o => o.Status == "Hoàn tất đơn");
         orderCounterComplete = lst_Orders.Where(o => o.Status == "Đã thanh toán").Where(o=>o.Note=="Tại quầy").Count();
         totalComplete = orderShippingComplete + orderCounterComplete;
