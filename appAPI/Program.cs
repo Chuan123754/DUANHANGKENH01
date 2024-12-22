@@ -90,21 +90,16 @@ builder.Services.AddScoped<ISizeReponsitory, SizeReponsitory>();
 builder.Services.AddScoped<ITextile_technologyReponsitory, Textile_technologyReponsitory>();
 builder.Services.AddScoped<FilesIRepository, FilesReponsetory>();
 builder.Services.AddScoped<IBannerRepository, BannerRepository>();
-builder.Services.AddScoped<SeoIReponsitory, SeoReponsitory>();
 builder.Services.AddScoped<OrderIReponsitory, OrderReponsitory>();
 builder.Services.AddScoped<OrderDetailsIReponsitory, OrderDetailsReponsitory>();
-builder.Services.AddScoped<MenuIReponsitory, MenuReponsitory>();
 builder.Services.AddScoped<IDesignerRepon, DesignerRepon>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IProductAttributesRepository, ProductAttributesRepository>();
-builder.Services.AddScoped<IProductVariantsRepository, ProductVariantsRepository>();
 builder.Services.AddScoped<IProductAttributeDiscountRepository, ProductAttributeDiscount>();
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
 builder.Services.AddScoped<IAccsessViewsRepon,  AccsessViewsRepon>();  
 builder.Services.AddScoped<IMomoRepository, MomoRepository>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
-builder.Services.AddScoped<IAdminRepo, AdminRep>();
 builder.Services.AddScoped<IProduct_variants_wishlist_Reponsitory, Product_variants_wishlist_Reponsitory>();
 
 builder.Services.AddControllers(options =>

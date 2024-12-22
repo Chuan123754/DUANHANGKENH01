@@ -10,7 +10,6 @@ namespace appAPI.Models
         {
             _configuration = configuration;
         }
-        public DbSet<Activity_history> Activity_history { get; set; }
         public DbSet<Address> Address { get; set; }
         public DbSet<Banner> Banner { get; set; }
         public DbSet<Carts> Carts { get; set; }
@@ -20,21 +19,16 @@ namespace appAPI.Models
         public DbSet<Designer> Designer { get; set; }
         public DbSet<Discount> Discount { get; set; }
         public DbSet<Files>  Files { get; set; }
-        public DbSet<Menus> Menus { get; set; }
-        public DbSet<Menu_items> Menu_items { get; set; }
-        public DbSet<Options> Options { get; set; }
         public DbSet<Orders> Orders { get; set; }
         public DbSet<order_trackings> Order_Trackings { get; set; }
         public DbSet<Order_details> Order_Details { get; set; }
         public DbSet<Order_Vouchers> OrderVouchers { get; set; }
-        public DbSet<P_attribute_discount> p_Variants_Discounts { get; set; }
+        public DbSet<P_attribute_discount> ProductAttribute_Discounts { get; set; }
         public DbSet<Post_categories> Post_Categories { get; set; }
         public DbSet<Post_tags> Post_Tags { get; set; }
         public DbSet<Product_Posts> Posts { get; set; }
-        public DbSet<Product_variants> product_variants { get; set; }
-        public DbSet<Product_variants_wishlist> Product_Variants_Wishlists { get; set; }
+        public DbSet<ProductAttributes_wishlist> ProductAttribute_Wishlists { get; set; }
         public DbSet<Q_A> Q_As { get; set; }
-        public DbSet<Seo> Seo { get; set; }
         public DbSet<Tags> Tags { get; set; }
         public DbSet<Users> Users { get; set; }
         public DbSet<Wishlist> Wishlist { get; set; }
@@ -45,73 +39,20 @@ namespace appAPI.Models
         public DbSet<Material> Materials { get; set; }
         public DbSet<Textile_technology> Textile_Technologies { get; set; }
         public DbSet<Product_Attributes> Product_Attributes { get; set; }
-        public DbSet<Payment> Payment { get; set; }
         public DbSet<UserVouchers> userVouchers { get; set; }
         public DbSet<Contact> Contacts { get; set; }
         public DbSet<AccessView> AccessViews { get; set; }
-        public DbSet<Admin> Admins { get; set; }
         public DbSet<Products_Returned> Products_Returned { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var connectionString = _configuration.GetConnectionString("DefaultConnection");
             optionsBuilder.UseSqlServer(connectionString);
+
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity("appAPI.Models.AccessView", b =>
-            {
-                b.Property<long>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasColumnType("bigint");
-
-                SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
-                b.Property<DateTime>("AccessDate")
-                    .HasColumnType("datetime2");
-
-                b.Property<long>("TotalViews")
-                    .HasColumnType("bigint");
-
-                b.HasKey("Id");
-
-                b.ToTable("AccessViews");
-            });
-            modelBuilder.Entity<Payment>().HasData(
-                  new Payment
-                  {
-                      Id = 1,
-                      Name = "Tiền mặt",
-                      Description = "Thanh toán bằng tiền mặt"
-                  },
-                  new Payment
-                  {
-                      Id = 2,
-                      Name = "Chuyển khoản",
-                      Description = "Thanh toán qua chuyển khoản ngân hàng"
-                  }
-            );
-            modelBuilder.Entity<IdentityRole>().HasData(
-                new IdentityRole
-                {
-                    Id = "ADMIN_ROLE_ID",
-                    Name = "Admin",
-                    NormalizedName = "ADMIN"
-                },
-                new IdentityRole
-                {
-                    Id = "EMPLOYEE_ROLE_ID",
-                    Name = "Employee",
-                    NormalizedName = "EMPLOYEE"
-                },
-                new IdentityRole
-                {
-                    Id = "DESIGNER_ROLE_ID",
-                    Name = "Designer",
-                NormalizedName = "DESIGNER"
-                }
-            );
         }
     }
 }

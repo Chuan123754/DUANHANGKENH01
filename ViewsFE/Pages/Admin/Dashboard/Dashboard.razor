@@ -1,7 +1,7 @@
 ﻿ @page "/"
  @using BlazorBootstrap
  @inject IPostSer sev
- @inject IProductVariantServices varian
+ @* @inject IProductVariantServices varian *@
  @inject IAccountService accountService
  @inject IOrderIServices orde
  @inject OrderDetailsIServices ordedatil
@@ -382,7 +382,7 @@
     {
         totalPost = await sev.GetTotalType("post");
         totalProjetc = await sev.GetTotalType("project");
-        totalProduct = await varian.GetTotal();
+        // totalProduct = await varian.GetTotal();
         totalOrder = await orde.GetTotal();
         totalOrderToday = await orde.GetTotalToday();
         totalPiceToday = await orde.GetTotalPiceToday();

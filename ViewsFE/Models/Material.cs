@@ -1,4 +1,5 @@
 ﻿
+using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 namespace ViewsFE.Models
@@ -16,6 +17,8 @@ namespace ViewsFE.Models
         public DateTime Create_at { get; set; }
         public DateTime Update_at { get; set; }
         public DateTime Delete_at { get; set; }
+        [JsonIgnore]
+        public virtual ICollection<Product_Attributes> Product_Attributes { get; set; } = new List<Product_Attributes>();
         public virtual ICollection<Product_Posts> Product_Posts { get; set; } = new List<Product_Posts>();
     }
 }

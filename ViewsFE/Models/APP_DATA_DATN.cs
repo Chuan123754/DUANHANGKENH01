@@ -30,8 +30,7 @@ namespace ViewsFE.Models
         public DbSet<Post_categories> Post_Categories { get; set; }
         public DbSet<Post_tags> Post_Tags { get; set; }
         public DbSet<Product_Posts> Posts { get; set; }
-        public DbSet<Product_variants> product_variants { get; set; }
-        public DbSet<Product_variants_wishlist> Product_Variants_Wishlists { get; set; }
+        public DbSet<ProductAttributes_wishlist> Product_Variants_Wishlists { get; set; }
         public DbSet<Q_A> Q_As { get; set; }
         public DbSet<Seo> Seo { get; set; }
         public DbSet<Tags> Tags { get; set; }

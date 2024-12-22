@@ -25,20 +25,20 @@ namespace appAPI.Controllers
             }
             return NotFound();
         }
-        [HttpGet("GetProductAttributesByProductVariantId")]
+        [HttpGet("GetProductAttributesByPostId")]
         public async Task<IActionResult> GetProductAttributesByProductVariantId(long id)
         {
-            var result = await _repo.GetProductAttributesByProductVarianId(id);
+            var result = await _repo.GetProductAttributesByPostId(id);
             if (result != null)
             {
                 return Ok(result);
             }
             return NotFound();
         }
-        [HttpGet("GetProductAttributesByProductVarianIdClient")]
+        [HttpGet("GetProductAttributesByPostIdClient")]
         public async Task<IActionResult> GetProductAttributesByProductVarianIdClient(long id)
         {
-            var result = await _repo.GetProductAttributesByProductVarianIdClient(id);
+            var result = await _repo.GetProductAttributesByPostIdClient(id);
             if (result != null)
             {
                 return Ok(result);

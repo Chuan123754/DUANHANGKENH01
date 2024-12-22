@@ -17,10 +17,10 @@ namespace appAPI.Repository
         {
             try
             {
-                await _context.Orders.AddAsync(orders);
+                 _context.Orders.Add(orders);
                 await _context.SaveChangesAsync();
             }
-            catch (DbUpdateException ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.InnerException?.Message);
                 throw;
@@ -43,11 +43,10 @@ namespace appAPI.Repository
         }
         public async Task<List<Orders>> GetAll()
         {
-            return await _context.Orders
-                 .Include(o => o.Admin)
-                 .Include(o => o.Users)
-                 .Include(o => o.Payment)
-                 .ToListAsync();
+           return await _context.Orders
+                .Include(o=>o.Admin)
+                .Include(o=>o.Users)
+                .ToListAsync();
         }
 
         public async Task<Orders> GetByIdOrders(long id)
@@ -55,7 +54,6 @@ namespace appAPI.Repository
             return await _context.Orders
                 .Include(o => o.Admin)
                 .Include(o => o.Users)
-                .Include(o => o.Payment)
                 .FirstOrDefaultAsync(o => o.Id == id); // Trả về null nếu không tìm thấy
         }
 

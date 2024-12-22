@@ -17,15 +17,14 @@ namespace ViewsFE.Models
         public long OrderId { get; set; }
         public long Product_Attribute_Id { get; set; }
         public int Quantity { get; set; }
-        public decimal? UnitPrice { get; set; }
-        public long? TotalDiscount { get; set; }
+        public decimal? UnitPrice { get; set; } // giá bán ban đầu
+        public decimal? TotalDiscount { get; set; } // giá bán sau giảm
         [ForeignKey("OrderId")]
-        [JsonPropertyName("orders")]
         public virtual Orders? Orders { get; set; }
         [ForeignKey("Product_Attribute_Id")]
-        [JsonPropertyName("productAttributes")]
         public virtual Product_Attributes? ProductAttributes { get; set; }
-        public virtual Products_Returned ProductsReturned { get; set; } = new Products_Returned();
+        [JsonIgnore]
+        public virtual ICollection<Products_Returned>? ProductsReturned { get; set; }
 
         [NotMapped]
         public bool IsSelected { get; set; } = false; //tích

@@ -4,22 +4,21 @@ using System.Text.Json.Serialization;
 
 namespace appAPI.Models
 {
-    public class Product_variants_wishlist
+    public class ProductAttributes_wishlist
     {
         [Key]
         public long Id { get; set; }
-        public long Product_variants_id { get; set; }
+        public long Product_Posts_Id { get; set; }
         [NotMapped]
         public long? MinPrice { get; set; }
 
         [NotMapped]
         public long? MaxPrice { get; set; }
         public long Wishlist_id { get; set; }
-        [ForeignKey("Product_variants_id")]
+        [ForeignKey("Product_Posts_Id")]
   
-        public virtual Product_variants? Product_Variants { get; set; }
+        public virtual Product_Posts? Product_Posts { get; set; }
         [ForeignKey("Wishlist_id")]
-
         public virtual Wishlist? Wishlist {  get; set; }
 
     }

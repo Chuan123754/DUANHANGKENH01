@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace appAPI.Models
 {
+    [Table("ProductAttributes_Discount")]
     public class P_attribute_discount
     {
         [Key]
