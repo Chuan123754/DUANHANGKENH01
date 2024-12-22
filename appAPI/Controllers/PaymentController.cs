@@ -107,19 +107,18 @@ namespace appAPI.Controllers
                 var orderIdFromInfo = ExtractOrderIdFromInfo(orderInfo);       
 
                 // Sử dụng OrderRepository để cập nhật trạng thái đơn hàng
-                var order = await _repo.GetByIdOrders(orderIdFromInfo.Value); // Lấy Order từ Repository
+                var order = await _repo.GetByIdOrders(orderIdFromInfo.Value); 
                 if (order != null)
                 {
                     if (errorCode == "0") // Thanh toán thành công
                     {
-                        if(order.CreatedByAdminId == null )
+                        if(order.CreatedByAdminId == null ) // đơn online
                         {
-                            order.Status = "Chờ xác nhận";
+                            order.Status = "Đã xác nhận";
                         }    
-                        else if(order.CreatedByAdminId != null || order.Note=="Tại quầy")
+                        else if(order.CreatedByAdminId != null || order.Note=="Tại quầy") // đơn tại quầy
                         {
                             order.Status = "Đã thanh toán";
-
                         }
                     }
                     else

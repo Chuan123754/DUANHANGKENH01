@@ -14,20 +14,20 @@ namespace appAPI.Repository
         }
         public async Task Create(P_attribute_discount attributeDiscount)
         {
-            await _context.p_Variants_Discounts.AddAsync(attributeDiscount);
+            await _context.ProductAttribute_Discounts.AddAsync(attributeDiscount);
             await _context.SaveChangesAsync();
         }
 
         public async Task Delete(long id)
         {
-            var deleteItem = await _context.p_Variants_Discounts.FindAsync(id);
-            _context.p_Variants_Discounts.Remove(deleteItem);
+            var deleteItem = await _context.ProductAttribute_Discounts.FindAsync(id);
+            _context.ProductAttribute_Discounts.Remove(deleteItem);
             await _context.SaveChangesAsync();
         }
 
         public async Task<List<P_attribute_discount>> GetAll()
         {
-            return await _context.p_Variants_Discounts
+            return await _context.ProductAttribute_Discounts
                 .Include(a => a.ProductAttributes)
                 .Include(a => a.Discount)
                 .ToListAsync();
@@ -35,7 +35,7 @@ namespace appAPI.Repository
 
         public async Task<P_attribute_discount> GetByIdAndType(long id)
         {
-            return await _context.p_Variants_Discounts
+            return await _context.ProductAttribute_Discounts
                 .Include(a => a.ProductAttributes)
                 .Include(a => a.Discount)
                 .FirstOrDefaultAsync(a => a.Id == id);
@@ -43,7 +43,7 @@ namespace appAPI.Repository
 
         public async Task<List<P_attribute_discount>> GetByIdDiscount(long idDiscount)
         {
-            return await _context.p_Variants_Discounts
+            return await _context.ProductAttribute_Discounts
                 .Where(a=>a.Discount_Id==idDiscount)   
                 .Include(a => a.ProductAttributes)
                 .Include(a => a.Discount)
@@ -52,7 +52,7 @@ namespace appAPI.Repository
 
         public async Task<List<P_attribute_discount>> GetByIdProduct(long idProduct)
         {
-            return await _context.p_Variants_Discounts
+            return await _context.ProductAttribute_Discounts
               .Where(a => a.P_attribute_Id == idProduct)
               .Include(a => a.ProductAttributes)
               .Include(a => a.Discount)

@@ -47,9 +47,15 @@ namespace ViewsFE.Services
             return JsonConvert.DeserializeObject<Product_Attributes>(response);
         }
 
-        public async Task<List<Product_Attributes>> GetProductAttributesByProductVarianId(long id)
+        public async Task<List<Product_Attributes>> GetProductAttributesByPostId(long id)
         {
-            string requestURL = $"{_baseUrl}/api/ProductAttributes/GetProductAttributesByProductVariantId?id={id}";
+            string requestURL = $"{_baseUrl}/api/ProductAttributes/GetProductAttributesByPostId?id={id}";
+            var response = await _client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<List<Product_Attributes>>(response);
+        }
+        public async Task<List<Product_Attributes>> GetProductAttributesByPostIdClient(long id)
+        {
+            string requestURL = $"{_baseUrl}/api/ProductAttributes/GetProductAttributesByPostIdClient?id={id}";
             var response = await _client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Product_Attributes>>(response);
         }
@@ -58,24 +64,16 @@ namespace ViewsFE.Services
         {
             var url = $"{_baseUrl}/api/ProductAttributes/Get-Total-Count?searchTerm={Uri.EscapeDataString(searchTerm)}";
 
-            // Gọi API và nhận tổng số lượng bài viết
             var response = await _client.GetAsync(url);
-            response.EnsureSuccessStatusCode(); // Kiểm tra xem phản hồi có thành công hay không
+            response.EnsureSuccessStatusCode();
 
             var count = await response.Content.ReadFromJsonAsync<int>();
             return count;
-        }
-
-        public Task<List<Product_Attributes_DTO>> GetVariantByProductVariantId(List<long> variantIds)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task Update(Product_Attributes productAttribute, long id)
         {
             await _client.PutAsJsonAsync($"{_baseUrl}/api/ProductAttributes/UpdateProductAttrubutes?id={id}", productAttribute);
         }
-
-
     }
 }

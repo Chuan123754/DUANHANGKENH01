@@ -20,7 +20,7 @@ namespace appAPI.Repository
         // Hàm tạo bài viết chung cho nhiều loại (post, page, product, project)
         private async Task<Product_Posts> CreatePostInternal(Product_Posts post, List<long> tagIds, List<long> categoryIds, string type)
         {
-            post.Type = type;           
+            post.Type = type;
             post.Created_at = DateTime.Now;
             post.Post_date = DateTime.Now;
 
@@ -194,43 +194,37 @@ namespace appAPI.Repository
                 .OrderByDescending(p => p.Id)
                 .ToListAsync();
         }
-        public async Task<List<Product_variants>> GetAllByClient()
+        public async Task<List<Product_Posts>> GetAllByClient()
         {
-            return await _context.product_variants
-                .Where(p => p.Posts.Status == "publish")
-                .Include(p => p.Posts) // Bao gồm bảng Posts
-                    .ThenInclude(pc => pc.Post_categories) // Bao gồm bảng Post_categories từ Posts
-                        .ThenInclude(pc => pc.Categories) // Bao gồm Categories từ Post_categories
-                .Include(p => p.Posts)
-                    .ThenInclude(pt => pt.Post_tags) // Bao gồm bảng Post_tags từ Posts
-                        .ThenInclude(pt => pt.Tag) // Bao gồm Tags từ Post_tags
-                .Include(p => p.Product_Attributes) // Bao gồm Product_Attributes từ Product_variants
-                    .ThenInclude(ps => ps.Size) // Bao gồm Size từ Product_Attributes
-                .Include(p => p.Product_Attributes)
-                    .ThenInclude(pl => pl.Color) // Bao gồm Color từ Product_Attributes
-                .Include(p => p.Posts)
-                    .ThenInclude(pd => pd.Designer) // Bao gồm Designer từ Posts
-                .Include(p => p.Material) // Bao gồm Material
-                .Include(p => p.Textile_Technology) // Bao gồm Textile_Technology
-                .Include(p => p.Style) // Bao gồm Style
+            return await _context.Posts
+                .Where(p => p.Status == "publish")
+                .Include(pc => pc.Post_categories).ThenInclude(pc => pc.Categories) // Bao gồm Categories từ Post_categories
+                .Include(pt => pt.Post_tags).ThenInclude(pt => pt.Tag) // Bao gồm Tags từ Post_tags
+                .Include(pd => pd.Designer) // Bao gồm Designer từ Posts
+                .Include(p => p.Product_Attributes).ThenInclude(ps => ps.Size) // Bao gồm Size từ Product_Attributes
+                .Include(p => p.Product_Attributes).ThenInclude(pl => pl.Color) // Bao gồm Color từ Product_Attributes
+
+                .Include(p => p.Product_Attributes).ThenInclude(pm => pm.Material) // Bao gồm Material
+                .Include(p => p.Product_Attributes).ThenInclude(pt => pt.Textile_Technology) // Bao gồm Textile_Technology
+                .Include(p => p.Product_Attributes).ThenInclude(ps => ps.Style) // Bao gồm Style
                 .OrderByDescending(p => p.Created_at) // Sắp xếp giảm dần theo Created_at
-                 .Select(p => new Product_variants
+                 .Select(p => new Product_Posts
                  {
                      Id = p.Id,
-                     Post_Id = p.Post_Id,
-                     Image = p.Image,
+                     STT = p.STT,
+                     Title = p.Title,
+                     Slug = p.Slug,
                      Status = p.Status,
+                     AuthorId = p.Designer.id_Designer,
+                     Type = p.Type,
+                     Short_description = p.Short_description,
                      Description = p.Description,
-                     Textile_technology_id = p.Textile_technology_id,
-                     Material_id = p.Material_id,
-                     Style_id = p.Style_id,
+                     Image_library = p.Image_library,
+                     Feature_image = p.Feature_image,
+                     Post_date = p.Post_date,
                      Created_at = p.Created_at,
                      Updated_at = p.Updated_at,
                      Deleted_at = p.Deleted_at,
-                     Posts = p.Posts,
-                     Material = p.Material,
-                     Textile_Technology = p.Textile_Technology,
-                     Style = p.Style,
                      Product_Attributes = p.Product_Attributes, // Bao gồm thuộc tính
                      MinPrice = p.Product_Attributes.Min(pa => pa.Sale_price ?? pa.Regular_price), // Giá thấp nhất
                      MaxPrice = p.Product_Attributes.Max(pa => pa.Sale_price ?? pa.Regular_price)  // Giá cao nhất
@@ -276,57 +270,48 @@ namespace appAPI.Repository
                 .CountAsync(p => p.Type == type && p.Status != "delete");
         }
 
-        public async Task<List<Product_variants>> GetByTypeAsyncProduct(string type, int pageNumber, int pageSize, string? searchTerm)
+        public async Task<List<Product_Posts>> GetByTypeAsyncProduct(string type, int pageNumber, int pageSize, string? searchTerm)
         {
-            return await _context.product_variants
-                  .Where(p => p.Posts.Type == type && (string.IsNullOrEmpty(searchTerm) || p.Posts.Title.Contains(searchTerm))  && p.Posts.Status == "publish")
-                   .Include(p => p.Posts) // Bao gồm bảng Posts
-                       .ThenInclude(pc => pc.Post_categories) // Bao gồm bảng Post_categories từ Posts
-                           .ThenInclude(pc => pc.Categories) // Bao gồm Categories từ Post_categories
-                   .Include(p => p.Posts)
-                       .ThenInclude(pt => pt.Post_tags) // Bao gồm bảng Post_tags từ Posts
-                           .ThenInclude(pt => pt.Tag) // Bao gồm Tags từ Post_tags
-                   .Include(p => p.Product_Attributes) // Bao gồm Product_Attributes từ Product_variants
-                       .ThenInclude(ps => ps.Size) // Bao gồm Size từ Product_Attributes
-                   .Include(p => p.Product_Attributes)
-                       .ThenInclude(pl => pl.Color) // Bao gồm Color từ Product_Attributes
-                   .Include(p => p.Posts)
-                       .ThenInclude(pd => pd.Designer) // Bao gồm Designer từ Posts
-                   .Include(p => p.Material) // Bao gồm Material
-                   .Include(p => p.Textile_Technology) // Bao gồm Textile_Technology
-                   .Include(p => p.Style) // Bao gồm Style
-                   .OrderByDescending(p => p.Created_at) // Sắp xếp giảm dần theo Created_at
-                    .Select(p => new Product_variants
-                    {
-                        Id = p.Id,
-                        Post_Id = p.Post_Id,
-                        Image = p.Image,
-                        Status = p.Status,
-                        Description = p.Description,
-                        Textile_technology_id = p.Textile_technology_id,
-                        Material_id = p.Material_id,
-                        Style_id = p.Style_id,
-                        Created_at = p.Created_at,
-                        Updated_at = p.Updated_at,
-                        Deleted_at = p.Deleted_at,
-                        Posts = p.Posts,
-                        Material = p.Material,
-                        Textile_Technology = p.Textile_Technology,
-                        Style = p.Style,
-                        Product_Attributes = p.Product_Attributes, // Bao gồm thuộc tính
-                        MinPrice = p.Product_Attributes.Min(pa => pa.Sale_price ?? pa.Regular_price), // Giá thấp nhất
-                        MaxPrice = p.Product_Attributes.Max(pa => pa.Sale_price ?? pa.Regular_price)  // Giá cao nhất
-                    })
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                   .ToListAsync();
+            return await _context.Posts
+             .Where(p => p.Status == "publish")
+             .Include(pc => pc.Post_categories).ThenInclude(pc => pc.Categories) // Bao gồm Categories từ Post_categories
+             .Include(pt => pt.Post_tags).ThenInclude(pt => pt.Tag) // Bao gồm Tags từ Post_tags
+             .Include(pd => pd.Designer) // Bao gồm Designer từ Posts
+             .Include(p => p.Product_Attributes).ThenInclude(ps => ps.Size) // Bao gồm Size từ Product_Attributes
+             .Include(p => p.Product_Attributes).ThenInclude(pl => pl.Color) // Bao gồm Color từ Product_Attributes
+             .Include(p => p.Product_Attributes).ThenInclude(pm => pm.Material) // Bao gồm Material
+             .Include(p => p.Product_Attributes).ThenInclude(pt => pt.Textile_Technology) // Bao gồm Textile_Technology
+             .Include(p => p.Product_Attributes).ThenInclude(ps => ps.Style) // Bao gồm Style
+             .OrderByDescending(p => p.Created_at) // Sắp xếp giảm dần theo Created_at
+              .Select(p => new Product_Posts
+              {
+                  Id = p.Id,
+                  STT = p.STT,
+                  Title = p.Title,
+                  Slug = p.Slug,
+                  Status = p.Status,
+                  AuthorId = p.Designer.id_Designer,
+                  Type = p.Type,
+                  Short_description = p.Short_description,
+                  Description = p.Description,
+                  Image_library = p.Image_library,
+                  Feature_image = p.Feature_image,
+                  Post_date = p.Post_date,
+                  Created_at = p.Created_at,
+                  Updated_at = p.Updated_at,
+                  Deleted_at = p.Deleted_at,
+                  Product_Attributes = p.Product_Attributes, // Bao gồm thuộc tính
+                  MinPrice = p.Product_Attributes.Min(pa => pa.Sale_price ?? pa.Regular_price), // Giá thấp nhất
+                  MaxPrice = p.Product_Attributes.Max(pa => pa.Sale_price ?? pa.Regular_price)  // Giá cao nhất
+              })
+             .ToListAsync();
         }
 
         public async Task<int> GetTotalCountAsyncProduct(string type, string searchTerm)
         {
-            return await _context.product_variants
-                  .CountAsync(p => p.Posts.Type == type && p.Posts.Status == "publish" && 
-                                (string.IsNullOrEmpty(searchTerm) || p.Posts.Title.Contains(searchTerm)));
+            return await _context.Posts
+                  .CountAsync(p => p.Type == type && p.Status == "publish" &&
+                                (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
         }
         public async Task<List<Product_Posts>> GetByTypeAsyncDelete(string type, int pageNumber, int pageSize, string searchTerm)
         {
@@ -380,7 +365,6 @@ namespace appAPI.Repository
             item.Feature_image = post.Feature_image;
             item.Description = post.Description;
             item.Short_description = post.Short_description;
-            item.Updated_by = post.Updated_by;
             item.Updated_at = DateTime.Now;
 
             _context.Posts.Update(item);
@@ -407,7 +391,6 @@ namespace appAPI.Repository
             item.Description = post.Description;
             item.Short_description = post.Short_description;
             item.STT = post.STT;
-            item.Updated_by = post.Updated_by;
             item.Updated_at = DateTime.Now;
             item.Post_date = DateTime.Now;
 
@@ -442,97 +425,89 @@ namespace appAPI.Repository
                                  .FirstOrDefaultAsync();
         }
 
-        public async Task<List<Product_variants>> GetCountByTypeDesigner(long designerId)
+        public async Task<List<Product_Posts>> GetCountByTypeDesigner(long designerId)
         {
-            return await _context.product_variants
-                .Where(p => p.Posts.AuthorId == designerId && p.Posts.Status == "publish" )
-                  .Include(p => p.Posts) // Bao gồm bảng Posts
-                      .ThenInclude(pc => pc.Post_categories) // Bao gồm bảng Post_categories từ Posts
+            return await _context.Posts
+                .Where(p => p.AuthorId == designerId && p.Status == "publish")
+                  .Include(pc => pc.Post_categories) // Bao gồm bảng Post_categories từ Posts
                           .ThenInclude(pc => pc.Categories) // Bao gồm Categories từ Post_categories
-                  .Include(p => p.Posts)
-                      .ThenInclude(pt => pt.Post_tags) // Bao gồm bảng Post_tags từ Posts
+                  .Include(pt => pt.Post_tags) // Bao gồm bảng Post_tags từ Posts
                           .ThenInclude(pt => pt.Tag) // Bao gồm Tags từ Post_tags
-                  .Include(p => p.Product_Attributes) // Bao gồm Product_Attributes từ Product_variants
-                      .ThenInclude(ps => ps.Size) // Bao gồm Size từ Product_Attributes
-                  .Include(p => p.Product_Attributes)
-                      .ThenInclude(pl => pl.Color) // Bao gồm Color từ Product_Attributes
-                  .Include(p => p.Posts)
-                      .ThenInclude(pd => pd.Designer) // Bao gồm Designer từ Posts
-                  .Include(p => p.Material) // Bao gồm Material
-                  .Include(p => p.Textile_Technology) // Bao gồm Textile_Technology
-                  .Include(p => p.Style) // Bao gồm Style
+                  .Include(pd => pd.Designer) // Bao gồm Designer từ Posts
+                  .Include(p => p.Product_Attributes).ThenInclude(pm => pm.Material) // Bao gồm Material
+                  .Include(p => p.Product_Attributes).ThenInclude(pt => pt.Textile_Technology) // Bao gồm Textile_Technology
+                  .Include(p => p.Product_Attributes).ThenInclude(ps => ps.Style) // Bao gồm Style
+                  .Include(p => p.Product_Attributes).ThenInclude(ps => ps.Size) // Bao gồm Style
+                  .Include(p => p.Product_Attributes).ThenInclude(ps => ps.Color) // Bao gồm Style
                   .OrderByDescending(p => p.Created_at) // Sắp xếp giảm dần theo Created_at                 
                   .ToListAsync();
         }
 
-        public async Task<List<Product_variants>> GetByTypeAsyncFilter(List<long?> idDesigner, List<long?> idColor, List<long?> idMaterial, List<long?> idTextile_technology, List<long?> idStyle, List<long?> idSize, List<long?> idCategory, int pageNumber, int pageSize, string searchTerm)
+        public async Task<List<Product_Posts>> GetByTypeAsyncFilter(List<long?> idDesigner, List<long?> idColor, List<long?> idMaterial, List<long?> idTextile_technology, List<long?> idStyle, List<long?> idSize, List<long?> idCategory, int pageNumber, int pageSize, string searchTerm)
         {
-            return await _context.product_variants
+            return await _context.Posts
                         .Where(p =>
-                        (idDesigner == null || !idDesigner.Any() || idDesigner.Contains(p.Posts.AuthorId)) && // Lọc theo danh sách tác giả
-                        (idTextile_technology == null || !idTextile_technology.Any() || idTextile_technology.Contains(p.Textile_technology_id)) &&
-                        (idStyle == null || !idStyle.Any() || idStyle.Contains(p.Style_id)) &&
-                        (idMaterial == null || !idMaterial.Any() || idMaterial.Contains(p.Material_id)) &&
+                        (idDesigner == null || !idDesigner.Any() || idDesigner.Contains(p.AuthorId)) && // Lọc theo danh sách tác giả
+                        (idTextile_technology == null || !idTextile_technology.Any() || p.Product_Attributes.Any(a => idTextile_technology.Contains(a.Textile_technology_id))) &&
+                        (idStyle == null || !idStyle.Any() || p.Product_Attributes.Any(a => idStyle.Contains(a.Style_id))) &&
+                        (idMaterial == null || !idMaterial.Any() || p.Product_Attributes.Any(a => idMaterial.Contains(a.Material_id))) &&
                         (idSize == null || !idSize.Any() || p.Product_Attributes.Any(a => idSize.Contains(a.Size_Id))) &&
                         (idColor == null || !idColor.Any() || p.Product_Attributes.Any(a => idColor.Contains(a.Color_Id))) &&
-                        (idCategory == null || !idCategory.Any() || p.Posts.Post_categories.Any(a => idCategory.Contains(a.Category_Id))) &&
-                        (string.IsNullOrEmpty(searchTerm) || p.Posts.Title.Contains(searchTerm)) &&
-                        p.Posts.Status == "publish")
-                        .Include(p => p.Posts) // Bao gồm bảng Posts
-                    .ThenInclude(pc => pc.Post_categories) // Bao gồm bảng Post_categories từ Posts
+                        (idCategory == null || !idCategory.Any() || p.Post_categories.Any(a => idCategory.Contains(a.Category_Id))) &&
+                        (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) &&
+                        p.Status == "publish")
+                        .Include(pc => pc.Post_categories) // Bao gồm bảng Post_categories từ Posts
                         .ThenInclude(pc => pc.Categories) // Bao gồm Categories từ Post_categories
-                .Include(p => p.Posts)
-                    .ThenInclude(pt => pt.Post_tags) // Bao gồm bảng Post_tags từ Posts
+                    .Include(pt => pt.Post_tags) // Bao gồm bảng Post_tags từ Posts
                         .ThenInclude(pt => pt.Tag) // Bao gồm Tags từ Post_tags
-                .Include(p => p.Product_Attributes) // Bao gồm Product_Attributes từ Product_variants
-                    .ThenInclude(ps => ps.Size) // Bao gồm Size từ Product_Attributes
-                .Include(p => p.Product_Attributes)
-                    .ThenInclude(pl => pl.Color) // Bao gồm Color từ Product_Attributes
-                .Include(p => p.Posts)
-                    .ThenInclude(pd => pd.Designer) // Bao gồm Designer từ Posts
-                .Include(p => p.Material) // Bao gồm Material
-                .Include(p => p.Textile_Technology) // Bao gồm Textile_Technology
-                .Include(p => p.Style) // Bao gồm Style
-                .OrderByDescending(p => p.Created_at) // Sắp xếp giảm dần theo Created_at
-                 .Select(p => new Product_variants
+                        .Include(pd => pd.Designer) // Bao gồm Designer từ Posts
+                      .Include(p => p.Product_Attributes).ThenInclude(ps => ps.Size) // Bao gồm Size từ Product_Attributes
+                     .Include(p => p.Product_Attributes).ThenInclude(pl => pl.Color) // Bao gồm Color từ Product_Attributes
+                     .Include(p => p.Product_Attributes).ThenInclude(pm => pm.Material) // Bao gồm Material
+                     .Include(p => p.Product_Attributes).ThenInclude(pt => pt.Textile_Technology) // Bao gồm Textile_Technology
+                     .Include(p => p.Product_Attributes).ThenInclude(ps => ps.Style) // Bao gồm Style
+                     .OrderByDescending(p => p.Created_at) // Sắp xếp giảm dần theo Created_at
+                 .Select(p => new Product_Posts
                  {
                      Id = p.Id,
-                     Post_Id = p.Post_Id,
-                     Image = p.Image,
+                     STT = p.STT,
+                     Title = p.Title,
+                     Slug = p.Slug,
                      Status = p.Status,
+                     AuthorId = p.Designer.id_Designer,
+                     Type = p.Type,
+                     Short_description = p.Short_description,
                      Description = p.Description,
-                     Textile_technology_id = p.Textile_technology_id,
-                     Material_id = p.Material_id,
-                     Style_id = p.Style_id,
+                     Image_library = p.Image_library,
+                     Feature_image = p.Feature_image,
+                     Post_date = p.Post_date,
                      Created_at = p.Created_at,
                      Updated_at = p.Updated_at,
                      Deleted_at = p.Deleted_at,
-                     Posts = p.Posts,
-                     Material = p.Material,
-                     Textile_Technology = p.Textile_Technology,
-                     Style = p.Style,
                      Product_Attributes = p.Product_Attributes, // Bao gồm thuộc tính
                      MinPrice = p.Product_Attributes.Min(pa => pa.Sale_price ?? pa.Regular_price), // Giá thấp nhất
                      MaxPrice = p.Product_Attributes.Max(pa => pa.Sale_price ?? pa.Regular_price)  // Giá cao nhất
                  })
                  .Skip((pageNumber - 1) * pageSize)
                  .Take(pageSize)
-                .ToListAsync();
+                 .ToListAsync();
+
+
         }
 
         public async Task<int> GetTotalCountAsyncFilter(List<long?> idDesigner, List<long?> idColor, List<long?> idMaterial, List<long?> idTextile_technology, List<long?> idStyle, List<long?> idSize, List<long?> idCategory, string searchTerm)
         {
-            return await _context.product_variants
+            return await _context.Posts
               .CountAsync(p =>
-                        (idDesigner == null || !idDesigner.Any() || idDesigner.Contains(p.Posts.AuthorId)) && // Lọc theo danh sách tác giả
-                        (idTextile_technology == null || !idTextile_technology.Any() || idTextile_technology.Contains(p.Textile_technology_id)) &&
-                        (idStyle == null || !idStyle.Any() || idStyle.Contains(p.Style_id)) &&
-                        (idMaterial == null || !idMaterial.Any() || idMaterial.Contains(p.Material_id)) &&
+                        (idDesigner == null || !idDesigner.Any() || idDesigner.Contains(p.AuthorId)) && // Lọc theo danh sách tác giả
+                        (idTextile_technology == null || !idTextile_technology.Any() || p.Product_Attributes.Any(a => idTextile_technology.Contains(a.Textile_technology_id))) &&
+                        (idStyle == null || !idStyle.Any() || p.Product_Attributes.Any(a => idStyle.Contains(a.Style_id))) &&
+                        (idMaterial == null || !idMaterial.Any() || p.Product_Attributes.Any(a => idMaterial.Contains(a.Material_id))) &&
                         (idSize == null || !idSize.Any() || p.Product_Attributes.Any(a => idSize.Contains(a.Size_Id))) &&
                         (idColor == null || !idColor.Any() || p.Product_Attributes.Any(a => idColor.Contains(a.Color_Id))) &&
-                        (idCategory == null || !idCategory.Any() || p.Posts.Post_categories.Any(a => idCategory.Contains(a.Category_Id))) &&
-                        p.Posts.Status == "publish" &&
-                        (string.IsNullOrEmpty(searchTerm) || p.Posts.Title.Contains(searchTerm)));
+                        (idCategory == null || !idCategory.Any() || p.Post_categories.Any(a => idCategory.Contains(a.Category_Id))) &&
+                        p.Status == "publish" &&
+                        (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
         }
 
         public async Task<List<Product_Posts>> GetByTypeAsyncFilter2(string type, List<long?> idDesigner, List<long?> idCategory, int pageNumber, int pageSize, string searchTerm)
@@ -555,7 +530,7 @@ namespace appAPI.Repository
         public async Task<int> GetTotalCountAsyncFilter2(string type, List<long?> idDesigner, List<long?> idCategory, string searchTerm)
         {
             return await _context.Posts
-            .CountAsync(p => p.Type == type &&   p.Status == "publish" &&
+            .CountAsync(p => p.Type == type && p.Status == "publish" &&
             (idDesigner == null || !idDesigner.Any() || idDesigner.Contains(p.AuthorId)) &&
             (idCategory == null || !idCategory.Any() || p.Post_categories.Any(pc => idCategory.Contains(pc.Category_Id))) &&
                      (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));

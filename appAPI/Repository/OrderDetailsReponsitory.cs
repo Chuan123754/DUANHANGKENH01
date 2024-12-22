@@ -48,10 +48,10 @@ namespace appAPI.Repository
                 .Include(o => o.Orders).ThenInclude(od => od.Users)
                 .Include(o=>o.ProductAttributes).ThenInclude(o=>o.Color)
                 .Include(o=>o.ProductAttributes).ThenInclude(o=>o.Size)
-                .Include(o=>o.ProductAttributes).ThenInclude(o=>o.Product_Variant.Material)
-                .Include(o=>o.ProductAttributes).ThenInclude(o=>o.Product_Variant.Textile_Technology)
-                .Include(o=>o.ProductAttributes).ThenInclude(o=>o.Product_Variant.Style)
-                .Include(o=>o.ProductAttributes).ThenInclude(o=>o.Product_Variant.Posts)
+                .Include(o=>o.ProductAttributes).ThenInclude(o=>o.Material)
+                .Include(o=>o.ProductAttributes).ThenInclude(o=>o.Textile_Technology)
+                .Include(o=>o.ProductAttributes).ThenInclude(o=>o.Style)
+                .Include(o=>o.ProductAttributes).ThenInclude(o=>o.Posts)
                 .Include(o=>o.Orders)
                 .ToListAsync();
         }
@@ -85,6 +85,7 @@ namespace appAPI.Repository
             if (updateItem != null)
             {
                 updateItem.Quantity = orderdetails.Quantity;
+                updateItem.UnitPrice = orderdetails.UnitPrice;
                 updateItem.TotalDiscount = orderdetails.TotalDiscount;
                 _context.Order_Details.Update(updateItem);
                 await _context.SaveChangesAsync();
@@ -108,7 +109,7 @@ namespace appAPI.Repository
         public async Task<List<TopSellingProductDto>> GetTop5SellingProductsAsync()
         {
             var topSellingProducts = await _context.Order_Details
-                .GroupBy(od => od.ProductAttributes.Product_Variant.Post_Id) // Nhóm theo Post_Id của Product_Variant
+                .GroupBy(od => od.ProductAttributes.Post_Id) // Nhóm theo Post_Id của Product_Variant
                 .Select(group => new
                 {
                     PostId = group.Key,

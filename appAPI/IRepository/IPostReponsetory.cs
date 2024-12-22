@@ -12,7 +12,7 @@ namespace appAPI.IRepository
         Task<List<Product_Posts>> GetAllByType(string type);
         Task<List<Product_Posts>> GetAllByClientTypeCate(string type, string cate);
         Task<List<Product_Posts>> GetCountByType(string type, long designerId);
-        Task<List<Product_variants>> GetCountByTypeDesigner(long designerId);
+        Task<List<Product_Posts>> GetCountByTypeDesigner(long designerId);
         Task<List<Product_Posts>> GetAllProductDelete();
         Task Restore(long id);
         Task<string?> GetNameDesigner(long id);
@@ -26,7 +26,7 @@ namespace appAPI.IRepository
         // Lấy tổng số bài viết theo type và tìm kiếm
         Task<int> GetTotalCountAsync(string type, string searchTerm);
         Task<int> GetTotalType(string type);
-        Task<List<Product_variants>> GetByTypeAsyncProduct(string type, int pageNumber, int pageSize, string searchTerm);
+        Task<List<Product_Posts>> GetByTypeAsyncProduct(string type, int pageNumber, int pageSize, string searchTerm);
         // Lấy tổng số bài viết theo type và tìm kiếm
         Task<int> GetTotalCountAsyncProduct(string type, string searchTerm);
         Task<List<Product_Posts>> GetByTypeAsyncDelete(string type, int pageNumber, int pageSize, string searchTerm);
@@ -58,8 +58,8 @@ namespace appAPI.IRepository
 
         // Xóa bài viết
         Task Delete(long id);
-        Task<List<Product_variants>> GetAllByClient();
-        Task<List<Product_variants>> GetByTypeAsyncFilter(List<long?> idDesigner, List<long?> idColor, List<long?> idMaterial, List<long?> idTextile_technology, List<long?> idStyle, List<long?> idSize,List<long?> idCategory, int pageNumber, int pageSize, string searchTerm);
+        Task<List<Product_Posts>> GetAllByClient();
+        Task<List<Product_Posts>> GetByTypeAsyncFilter(List<long?> idDesigner, List<long?> idColor, List<long?> idMaterial, List<long?> idTextile_technology, List<long?> idStyle, List<long?> idSize,List<long?> idCategory, int pageNumber, int pageSize, string searchTerm);
         Task<int> GetTotalCountAsyncFilter(List<long?> idDesigner, List<long?> idColor, List<long?> idMaterial, List<long?> idTextile_technology, List<long?> idStyle, List<long?> idSize, List<long?> idCategory, string searchTerm);
         Task<List<Product_Posts>> GetByTypeAsyncFilter2(string type, List<long?> idDesigner, List<long?> idCategory, int pageNumber, int pageSize, string searchTerm);
         Task<int> GetTotalCountAsyncFilter2(string type, List<long?> idDesigner, List<long?> idCategory, string searchTerm);

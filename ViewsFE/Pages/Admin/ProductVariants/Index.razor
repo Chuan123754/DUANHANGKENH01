@@ -3,7 +3,7 @@
 @using System.Globalization
 @using System.Text.RegularExpressions
 @inject NavigationManager Navigation
-@inject IProductVariantServices productVariansService
+@* @inject IProductVariantServices productVariansService *@
 @inject IProductAttributeServices productAttributeService
 @inject IStyleServices StyleServices
 @inject ISizeServices SizeServices
@@ -79,7 +79,7 @@
 
                     <!-- Product Table -->
                     <div id="table-default" class="table-responsive">
-                        @if (product_Varians_list != null && product_Varians_list.Any())
+                        @if (productAttributesList != null && productAttributesList.Any())
                         {
                             <table class="table">
                                 <thead>
@@ -112,7 +112,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var post in product_Varians_list)
+                                    @foreach (var post in productAttributesList)
                                     {
                                         <tr class="post-row">
                                             <td>@post.Id</td>
@@ -145,9 +145,9 @@
                                     }
                                 </tbody>
                             </table>
-                            <div class="mt-4">
+@*                             <div class="mt-4">
                                 <Pagination TItem="Product_variants" PageNumber="page_number" TotalPages="total_pages" PageSize="page_size" TotalItems="totalItems" OnPageChanged="GoToPage" OnPageSizeChanged="OnPageSizeChanged" />
-                            </div>
+                            </div> *@
                         }
                         else
                         {
@@ -411,7 +411,7 @@
 
 
 @code {
-    private List<Product_variants> product_Varians_list = new List<Product_variants>();
+    // private List<Product_variants> product_Varians_list = new List<Product_variants>();
     private List<Size> Size_list = new List<Size>();
     private List<Material> Material_list = new List<Material>();
     private List<Textile_technology> TextileTechnology_list = new List<Textile_technology>();
@@ -426,7 +426,7 @@
     private Dictionary<long, bool> sizeSelections = new();
     private Media_modal mediaModalRef;
     private List<Product_Posts> product_posts_list = new List<Product_Posts>();
-    private Product_variants product_Variant = new Product_variants();
+    // private Product_variants product_Variant = new Product_variants();
 
     private long selectedPostId;
     private bool showAttributes = false;
@@ -499,9 +499,9 @@
 
             if (selectedProduct != null)
             {
-                product_Variant.Post_Id = selectedProduct.Id;
-                product_Variant.Posts = selectedProduct;
-                product_Variant.Posts.Feature_image = selectedProduct.Feature_image;
+                selectedAttribute.Post_Id = selectedProduct.Id;
+                selectedAttribute.Posts = selectedProduct;
+                selectedAttribute.Posts.Feature_image = selectedProduct.Feature_image;
             }
         }
         StateHasChanged();
@@ -510,7 +510,7 @@
     private async Task ApplyFilters()
     {
         // Lọc sản phẩm theo các điều kiện đã chọn
-        var filteredProducts = await productVariansService.GetAllProductVarians();
+        var filteredProducts = await productAttributeService.GetAllProductAttributes();
 
         if (!string.IsNullOrEmpty(selectedProductId))
         {
@@ -540,7 +540,7 @@
                 post.Style_id == long.Parse(selectedStyleId)).ToList();
         }
 
-        product_Varians_list = filteredProducts;
+        productAttributesList = filteredProducts;
         StateHasChanged();
     }
 
@@ -599,7 +599,7 @@
             return;
         }
 
-        var productVariant = await productVariansService.GetProductVariantsById(selectedPostId);
+        var productVariant = await productAttributeService.GetProductAttributesById(selectedPostId);
         if (productVariant == null)
         {
             await JS.InvokeVoidAsync("toastr.error", "Không tìm thấy biến thể sản phẩm.");
@@ -607,7 +607,7 @@
         }
 
         // Lấy danh sách biến thể sản phẩm hiện tại (dù có hay không có biến thể nào)
-        var existingVariants = await productAttributeService.GetProductAttributesByProductVarianId(selectedPostId);
+        var existingVariants = await productAttributeService.GetProductAttributesByPostId(selectedPostId);
 
         foreach (var colorId in selectedColors)
         {
@@ -664,7 +664,6 @@
                 // Tạo biến thể mới
                 var productAttribute = new Product_Attributes
                     {
-                        Product_Variant_Id = productVariant.Id,
                         Color_Id = colorId,
                         Size_Id = sizeId,
                         Status = selectedAttribute.Stock == 0 ? "Hết hàng" : "Còn hàng",
@@ -758,8 +757,8 @@
     }
     private async Task ShowAttributes(long productVariantId)
     {
-        productAttributesList = await productAttributeService.GetProductAttributesByProductVarianId(productVariantId);
-        var selectedVariant = product_Varians_list.FirstOrDefault(v => v.Id == productVariantId);
+        productAttributesList = await productAttributeService.GetProductAttributesByPostId(productVariantId);
+        var selectedVariant = productAttributesList.FirstOrDefault(v => v.Id == productVariantId);
         if (selectedVariant != null)
         {
             productPostTitle = selectedVariant.Posts.Title;
@@ -770,7 +769,7 @@
     private async Task LoadPosts()
     {
         string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        product_Varians_list = await productVariansService.GetAllProductVarians();
+        productAttributesList = await productAttributeService.GetAllProductAttributes();
 
         Size_list = await SizeServices.GetAll();
         Material_list = await MaterialService.GetAll();
@@ -778,7 +777,7 @@
         Style_list = await StyleServices.GetAll();
 
 
-        totalItems = await productVariansService.GetTotalCountAsync("product", searchTerm);
+        // totalItems = await productAttributeService.GetTotalCountAsync("product", searchTerm);
         total_pages = (int)Math.Ceiling((double)totalItems / page_size);
         StateHasChanged();
     }
@@ -791,7 +790,7 @@
     }
     private async Task ConfirmDelete(long id)
     {
-        await productVariansService.Delete(id);
+        await productAttributeService.Delete(id);
         await JS.InvokeVoidAsync("toastr.success", "Xóa thành công sản phẩm ");
         await LoadPosts();
     }
@@ -827,7 +826,6 @@
             await productAttributeService.Update(selectedAttribute, selectedAttribute.Id);
             await JS.InvokeVoidAsync("toastr.success", "Cập nhật thông tin sản phẩm thành công");
             isUpdateProductAttributeModal = false;
-            await ShowAttributes(selectedAttribute.Product_Variant_Id);
             LoadPosts();
         }
     }
@@ -853,7 +851,4 @@
             Console.WriteLine($"Lỗi khi xóa sản phẩm: {ex.Message}");
         }
     }
-
-
-
 }

@@ -51,7 +51,7 @@ namespace ViewsFE.Models
 
         public DateTime? Updated_at { get; set; }
         [JsonIgnore]
-        public virtual ICollection<Product_variants> Product_Variants { get; set; } = new List<Product_variants>();
+        public virtual ICollection<Product_Attributes> Product_Attributes { get; set; } = new List<Product_Attributes>();
 
         public virtual List<Post_tags> Post_tags { get; set; } = new List<Post_tags>();
 
