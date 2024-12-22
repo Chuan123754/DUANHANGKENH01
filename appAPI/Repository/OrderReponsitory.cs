@@ -22,7 +22,7 @@ namespace appAPI.Repository
             }
             catch (DbUpdateException ex)
             {
-                Console.WriteLine(ex.InnerException?.Message); 
+                Console.WriteLine(ex.InnerException?.Message);
                 throw;
             }
         }
@@ -35,7 +35,7 @@ namespace appAPI.Repository
         }
         public async Task<List<Orders>> GetOrderByIdAdmin(string idAdmin)
         {
-            return await _context.Orders.Where(o=>o.CreatedByAdminId == idAdmin).ToListAsync();
+            return await _context.Orders.Where(o => o.CreatedByAdminId == idAdmin).ToListAsync();
         }
         public async Task<List<Orders>> GetOrderByIdUser(long idUser)
         {
@@ -43,11 +43,11 @@ namespace appAPI.Repository
         }
         public async Task<List<Orders>> GetAll()
         {
-           return await _context.Orders
-                .Include(o=>o.Admin)
-                .Include(o=>o.Users)
-                .Include(o=>o.Payment)
-                .ToListAsync();
+            return await _context.Orders
+                 .Include(o => o.Admin)
+                 .Include(o => o.Users)
+                 .Include(o => o.Payment)
+                 .ToListAsync();
         }
 
         public async Task<Orders> GetByIdOrders(long id)
@@ -119,8 +119,8 @@ namespace appAPI.Repository
             var updateItem = await _context.Orders.FindAsync(id);
             if (updateItem != null)
             {
-               
-                updateItem.Status = orders.Status;           
+
+                updateItem.Status = orders.Status;
                 updateItem.Update_at = DateTime.Now;
 
                 _context.Orders.Update(updateItem);
@@ -132,7 +132,7 @@ namespace appAPI.Repository
         public async Task<int> GetTotal()
         {
             return await _context.Orders
-               .CountAsync(p => p.Status != "Hóa đơn treo" && p.Status !="Chờ xác nhận" && p.Status !="Đơn huỷ");
+               .CountAsync(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đơn huỷ");
         }
         public async Task<int> GetTotalToday()
         {
@@ -159,7 +159,7 @@ namespace appAPI.Repository
             var endOfWeek = startOfWeek.AddDays(6); // Lấy ngày cuối tuần (Chủ nhật)
 
             return await _context.Orders
-                .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đơn hu" &&
+                .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đơn huỷ" && p.Status != "Giao thất bại" && 
                             p.Created_at.HasValue &&
                             p.Created_at.Value.Date >= startOfWeek &&
                             p.Created_at.Value.Date <= endOfWeek) // Lọc các hóa đơn trong tuần hiện tại
@@ -173,7 +173,7 @@ namespace appAPI.Repository
             var endOfMonth = startOfMonth.AddMonths(1).AddDays(-1); // Ngày cuối cùng của tháng hiện tại
 
             return await _context.Orders
-                .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đã huỷ" &&
+                .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đơn huỷ" && p.Status != "Giao thất bại" &&
                             p.Created_at.HasValue &&
                             p.Created_at.Value.Date >= startOfMonth &&
                             p.Created_at.Value.Date <= endOfMonth) // Lọc hóa đơn trong tháng hiện tại
@@ -182,7 +182,7 @@ namespace appAPI.Repository
         public async Task<Dictionary<int, decimal>> GetTotalRevenuePerYear()
         {
             var orders = await _context.Orders
-                .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đã huỷ" && p.Created_at.HasValue) // Lọc theo trạng thái và chắc chắn có giá trị ngày tạo
+                .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đã huỷ" && p.Status != "Giao thất bại" && p.Created_at.HasValue) // Lọc theo trạng thái và chắc chắn có giá trị ngày tạo
                 .GroupBy(p => p.Created_at.Value.Year) // Nhóm theo năm của ngày tạo
                 .Select(g => new
                 {
@@ -220,7 +220,7 @@ namespace appAPI.Repository
                 .ToDictionary(x => x.YearMonth, x => x.TotalOrders);
 
             return result;
-        }     
+        }
 
     }
 }

@@ -5,7 +5,6 @@
 
 <EditForm Model="categories" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
-    <ValidationSummary />
     <div class="page-wrapper">
         <div class="page-header d-print-none">
             <div class="container-xl">
@@ -26,9 +25,8 @@
                             <div class="card-body">
 
                                 <div class="form-group mb-3">
-                                    <label for="categories-short-title" class="form-label">Tiêu đề ngắn <span class="text-danger">*</span></label>
-                                    <InputText id="categories-short-title" class="form-control" @bind-Value="categories.Short_title" />
-                                    <ValidationMessage For="@(() => categories.Short_title)" />
+                                    <label for="categories-short-title" class="form-label">Tiêu đề ngắn</label>
+                                   <InputText id="categories-short-title" class="form-control" @bind-Value="categories.Short_title" />                               
                                 </div>
                                 <div class="form-group mb-3">
                                     <label for="categories-title" class="form-label">Tiêu đề <span class="text-danger">*</span></label>
@@ -37,9 +35,10 @@
                                 </div>
 
                                 <div class="form-group mb-3">
-                                    <label for="categories-slug" class="form-label">Đường dẫn</label>
+                                    <label for="categories-slug" class="form-label">Đường dẫn<span class="text-danger">*</span></label>
                                     <InputText id="categories-slug" class="form-control" @bind-Value="categories.Slug" />
                                     <small class="text-gray-100">“slug” là đường dẫn thân thiện của tên. Nó thường chỉ bao gồm kí tự viết thường, số và dấu gạch ngang, không dùng tiếng Việt.</small>
+                                    <ValidationMessage For="@(() => categories.Slug)" />
                                 </div>
                             
                                 <div class="form-group mb-3">

@@ -193,14 +193,21 @@ namespace appAPI.Controllers
             return Ok(new { message = "Xoá thành công" });
         }
 
-
-        // Xoá bài viết
-        [HttpDelete("Restore-post")]
+        [HttpPut("Restore-post")]
         public async Task<IActionResult> Restore(long id)
         {
-            await _postRepository.Restore(id);
-            return Ok(new { message = "Khôi phục thành công" });
+            try
+            {
+                await _postRepository.Restore(id);
+                return Ok(new { message = "Khôi phục thành công" });
+            }
+            catch (Exception ex)
+            {
+                // Trả về lỗi 400 kèm thông báo lỗi
+                return BadRequest(new { message = ex.Message });
+            }
         }
+
 
         [HttpGet("get-by-type")]
         public async Task<IActionResult> GetByType([FromQuery] string type, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)

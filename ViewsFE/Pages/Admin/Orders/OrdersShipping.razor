@@ -7,12 +7,14 @@
     .text-bold {
         font-weight: bold; /* Làm chữ "Tất cả" đậm */
     }
+
     .badge {
         padding: 0.3em 0.6em;
         border-radius: px;
         color: white;
         font-size: 14px;
     }
+
     .customer-badge {
         display: inline-block;
         padding: 0.5em 1em;
@@ -22,15 +24,17 @@
         font-size: 14px;
         color: #333;
     }
+
     .bg-taiquay {
         background-color: #CCCC99;
-        color:black;
+        color: black;
     }
 
     .bg-giaohang {
         background-color: #FFCC99;
         color: black;
     }
+
     .bg-danger {
         background-color: red;
     }
@@ -63,7 +67,7 @@
                         </button>
                     </div>
                 </div>
-            </div>           
+            </div>
         </div>
     </div>
 
@@ -71,7 +75,7 @@
     <div class="page-body">
         <div class="container-xl">
             <div class="row row-deck row-cards">
-                
+
                 <!-- Input tìm kiếm -->
                 <div class="form-group d-flex justify-content-end">
                     <div class="d-flex gap-2" style="width: 40%;">
@@ -85,91 +89,91 @@
                         </button>
                     </div>
                 </div>
-               <div class="col-12">
-                    <div class="card">     
+                <div class="col-12">
+                    <div class="card">
                         <div class="card-header">
-                            <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" >
-                            <li class="nav-item">
-                                <a @onclick="async () => await ListOrder()"
-                                    class="order-tab-click nav-link"
-                                    data-bs-toggle="tab">
-                                    <strong>Tất cả</strong>
+                            <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs">
+                                <li class="nav-item">
+                                    <a @onclick="async () => await ListOrder()"
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Tất cả</strong>
                                         <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
                                             @totalOrders
                                         </span>
-   
-                                </a>
-                            </li>
-                            <li class="nav-item">
+
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a @onclick="async () => await GetPendingOrders()"
-                                    class="order-tab-click nav-link"
-                                    data-bs-toggle="tab">
-                                    <strong>Chờ xác nhận</strong>
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Chờ xác nhận</strong>
                                         <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
-                                        @pendingOrders
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
+                                            @pendingOrders
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a @onclick="async () => await GetConfirmOrder()"
-                                    class="order-tab-click nav-link"
-                                    data-bs-toggle="tab">
-                                    <strong>Đã xác nhận</strong>
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Đã xác nhận</strong>
                                         <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
-                                        @confirmedOrders
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
+                                            @confirmedOrders
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a @onclick="async () => await GetPreparedOrders()"
-                                    class="order-tab-click nav-link"
-                                    data-bs-toggle="tab">
-                                    <strong>Đã chuẩn bị hàng</strong>
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Đã chuẩn bị hàng</strong>
                                         <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
-                                        @preparedOrders
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
+                                            @preparedOrders
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a @onclick="async () => await GetPickedOrders()"
-                                    class="order-tab-click nav-link"
-                                    data-bs-toggle="tab">
-                                    <strong>Đã lấy hàng</strong>
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Đã lấy hàng</strong>
                                         <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
-                                        @pickedOrders
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
+                                            @pickedOrders
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a @onclick="async () => await GetShippingOrders()"
-                                    class="order-tab-click nav-link"
-                                    data-bs-toggle="tab">
-                                    <strong>Đang vận chuyển</strong>
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Đang vận chuyển</strong>
                                         <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
-                                        @shippingOrders
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
+                                            @shippingOrders
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a @onclick="async () => await GetSuccessfulOrders()"
-                                    class="order-tab-click nav-link"
-                                    data-bs-toggle="tab">
-                                    <strong>Giao thành công</strong>
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Giao thành công</strong>
                                         <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
-                                        @successfulOrders
-                                    </span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
+                                            @successfulOrders
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a @onclick="async () => await GetFailedOrders()"
-                                    class="order-tab-click nav-link"
-                                    data-bs-toggle="tab">
-                                    <strong>Giao thất bại</strong>
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Giao thất bại</strong>
                                         <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
-                                        @failedOrders
-                                    </span>
-                                </a>
-                            </li>
+                                            @failedOrders
+                                        </span>
+                                    </a>
+                                </li>
                                 <li class="nav-item">
                                     <a @onclick="async () => await GetCompleteOrders()"
                                        class="order-tab-click nav-link"
@@ -180,20 +184,20 @@
                                         </span>
                                     </a>
                                 </li>
-                            <li class="nav-item">
+                                <li class="nav-item">
                                     <a @onclick="async () => await GetCanceledOrders()"
-                                    class="order-tab-click nav-link"
-                                    data-bs-toggle="tab">
-                                    <strong>Đơn hủy</strong>
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Đơn hủy</strong>
                                         <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
-                                        @canceledOrders
-                                    </span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>  
+                                            @canceledOrders
+                                        </span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                         <div class="table-responsive">
-                            <div class="search-box d-flex align-items-center justify-content-between mb-3">                    
+                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
                             </div>
                             <table class="table card-table table-vcenter text-nowrap datatable">
                                 <thead>
@@ -271,8 +275,8 @@
                                     else
                                     {
                                         <tr>
-                                                                                      
-                                           <td colspan="9" class="text-center">Không có dữ liệu để hiển thị.</td>
+
+                                            <td colspan="9" class="text-center">Không có dữ liệu để hiển thị.</td>
                                         </tr>
                                     }
                                 </tbody>
@@ -301,7 +305,7 @@
     private int pendingOrders = 0; // chờ xác nhận
     private int confirmedOrders = 0; // đã xác nhận
     private int preparedOrders = 0; // chuẩn bị hàng
-    private int pickedOrders = 0; // đã lấy hàng 
+    private int pickedOrders = 0; // đã lấy hàng
     private int shippingOrders = 0; // đang giao
     private int failedOrders = 0; // giao thất bại
     private int successfulOrders = 0; // giao thành công
@@ -343,13 +347,13 @@
     {
         if (status == "Hóa đơn treo")
         {
-            return "badge bg-danger"; 
+            return "badge bg-danger";
         }
         else if (status == "Hoàn tất đơn")
         {
-            return "badge bg-success"; 
+            return "badge bg-success";
         }
-        return "badge bg-secondary"; 
+        return "badge bg-secondary";
     }
     private void NavigateToSell()
     {
@@ -367,8 +371,8 @@
         nav.NavigateTo($"/ordertracking/{orderId}");
     }
 
-   public async Task ListOrder()
-{
+    public async Task ListOrder()
+    {
         var lst_OrdersShipping = await orderService.GetAll();
         // sắp xếp
         lst_Orders = lst_OrdersShipping
@@ -387,26 +391,26 @@
        .ThenByDescending(o => o.Created_at)
        .ToList();
 
-    // Tính toán các thống kê
-    totalOrders = lst_Orders.Where(o=>o.Note=="Giao hàng").Count();
-    pendingOrders = lst_Orders.Count(o => o.Status == "Chờ xác nhận");
-    confirmedOrders = lst_Orders.Count(o => o.Status == "Đã xác nhận");
-    preparedOrders = lst_Orders.Count(o => o.Status == "Đã chuẩn bị hàng");
-    pickedOrders = lst_Orders.Count(o => o.Status == "Đã lấy hàng");
-    shippingOrders = lst_Orders.Count(o => o.Status == "Đang vận chuyển");
-    failedOrders = lst_Orders.Count(o => o.Status == "Giao thất bại");
-    successfulOrders = lst_Orders.Count(o => o.Status == "Giao thành công");
-    completeOrders = lst_Orders.Count(o => o.Status == "Hoàn tất đơn");
-    canceledOrders = lst_Orders.Count(o => o.Status == "Đơn hủy");
+        // Tính toán các thống kê
+        totalOrders = lst_Orders.Where(o => o.Note == "Giao hàng").Count();
+        pendingOrders = lst_Orders.Count(o => o.Status == "Chờ xác nhận");
+        confirmedOrders = lst_Orders.Count(o => o.Status == "Đã xác nhận");
+        preparedOrders = lst_Orders.Count(o => o.Status == "Đã chuẩn bị hàng");
+        pickedOrders = lst_Orders.Count(o => o.Status == "Đã lấy hàng");
+        shippingOrders = lst_Orders.Count(o => o.Status == "Đang vận chuyển");
+        failedOrders = lst_Orders.Count(o => o.Status == "Giao thất bại");
+        successfulOrders = lst_Orders.Count(o => o.Status == "Giao thành công");
+        completeOrders = lst_Orders.Count(o => o.Status == "Hoàn tất đơn");
+        canceledOrders = lst_Orders.Count(o => o.Status == "Đơn hủy");
 
-    LoadPagedOrders();
-}
+        LoadPagedOrders();
+    }
 
     private async Task GetPendingOrders()
     {
         var lstOrders = await orderService.GetAll();
         lst_Orders = lstOrders.Where(o => o.Status == "Chờ xác nhận").Where(o => o.Note == "Giao hàng").ToList();
-        LoadPagedOrders(); 
+        LoadPagedOrders();
     }
     private async Task GetConfirmOrder()
     {
@@ -418,19 +422,19 @@
     {
         var lstOrders = await orderService.GetAll();
         lst_Orders = lstOrders.Where(o => o.Status == "Đã chuẩn bị hàng").Where(o => o.Note == "Giao hàng").ToList();
-        LoadPagedOrders(); 
+        LoadPagedOrders();
     }
     private async Task GetPickedOrders()
     {
         var lstOrders = await orderService.GetAll();
         lst_Orders = lstOrders.Where(o => o.Status == "Đã lấy hàng").Where(o => o.Note == "Giao hàng").ToList();
-        LoadPagedOrders(); 
+        LoadPagedOrders();
     }
     private async Task GetShippingOrders()
     {
         var lstOrders = await orderService.GetAll();
         lst_Orders = lstOrders.Where(o => o.Status == "Đang vận chuyển").Where(o => o.Note == "Giao hàng").ToList();
-        LoadPagedOrders(); 
+        LoadPagedOrders();
     }
     private async Task GetFailedOrders()
     {
@@ -454,7 +458,7 @@
     {
         var lstOrders = await orderService.GetAll();
         lst_Orders = lstOrders.Where(o => o.Status == "Đơn hủy").Where(o => o.Note == "Giao hàng").ToList();
-        LoadPagedOrders(); 
+        LoadPagedOrders();
     }
 
     private async Task SearchOrders(ChangeEventArgs e)

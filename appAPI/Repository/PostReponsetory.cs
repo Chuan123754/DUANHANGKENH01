@@ -128,12 +128,34 @@ namespace appAPI.Repository
 
         public async Task Restore(long id)
         {
+            // Tìm bài viết dựa trên ID
             var post = await _context.Posts.FindAsync(id);
+
+            if (post == null)
+            {
+                throw new Exception("Bài viết không tồn tại.");
+            }
+
+            // Kiểm tra xem đường dẫn đã tồn tại hay chưa
+            bool isSlugExist = await _context.Posts
+                .AnyAsync(p => p.Slug == post.Slug && p.Id != id && p.Status != "delete");
+
+            if (isSlugExist)
+            {
+                // Trả lỗi chi tiết
+                throw new Exception("Đường dẫn bài viết đã tồn tại.");
+            }
+
+            // Khôi phục bài viết
             post.Status = "publish";
             post.Deleted_at = null;
+
+            // Lưu thay đổi
             _context.Posts.Update(post);
             await _context.SaveChangesAsync();
         }
+
+
         // Lấy tất cả bài viết theo loại
         public async Task<List<Product_Posts>> GetAllByType(string type)
         {
@@ -555,7 +577,7 @@ namespace appAPI.Repository
 
             // Tìm kiếm Slug trùng lặp nhưng bỏ qua chính bản ghi hiện tại
             return await _context.Posts
-                .AnyAsync(p => p.Slug == slug && p.Id != postId);
+                .AnyAsync(p => p.Slug == slug && p.Status != "delete" && p.Id != postId);
         }
 
     }
