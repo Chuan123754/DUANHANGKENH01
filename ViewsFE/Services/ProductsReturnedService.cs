@@ -6,17 +6,15 @@ namespace ViewsFE.Services
     public class ProductsReturnedService : IProductsReturnedService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUrl;
 
-        public ProductsReturnedService(IHttpClientFactory httpClientFactory, IConfiguration configuration)
+        public ProductsReturnedService(IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient();
-            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl");
         }
 
         public async Task<List<Products_Returned>> GetAllAsync()
         {
-            var response = await _httpClient.GetAsync($"{_baseUrl}/api/ProductsReturned");
+            var response = await _httpClient.GetAsync("https://localhost:7011/api/ProductsReturned");
 
             if (response.IsSuccessStatusCode)
             {
@@ -27,7 +25,7 @@ namespace ViewsFE.Services
                 {
                     if (item.OrderDetailId > 0)
                     {
-                        var orderDetail = await _httpClient.GetFromJsonAsync<Order_details>($"{_baseUrl}/api/OrderDetails/Details?id={item.OrderDetailId}");
+                        var orderDetail = await _httpClient.GetFromJsonAsync<Order_details>($"https://localhost:7011/api/OrderDetails/Details?id={item.OrderDetailId}");
                         item.OrderDetails = orderDetail;
                     }
                 }
@@ -42,7 +40,7 @@ namespace ViewsFE.Services
 
         public async Task<List<Products_Returned>> GetAllWithDetailsAsync()
         {
-            var response = await _httpClient.GetAsync($"{_baseUrl}/api/ProductsReturned");
+            var response = await _httpClient.GetAsync("https://localhost:7011/api/ProductsReturned");
 
             if (response.IsSuccessStatusCode)
             {
@@ -52,7 +50,7 @@ namespace ViewsFE.Services
                 {
                     if (item.OrderDetailId > 0)
                     {
-                        var orderDetail = await _httpClient.GetFromJsonAsync<Order_details>($"{_baseUrl}/api/OrderDetails/GetOrderAndReturnedProductsById?orderId={item.OrderDetailId}");
+                        var orderDetail = await _httpClient.GetFromJsonAsync<Order_details>($"https://localhost:7011/api/OrderDetails/GetOrderAndReturnedProductsById?orderId={item.OrderDetailId}");
                         item.OrderDetails = orderDetail;
                     }
                 }
@@ -70,14 +68,14 @@ namespace ViewsFE.Services
 
         public async Task<Products_Returned?> GetByIdAsync(long id)
         {
-            var response = await _httpClient.GetAsync($"{_baseUrl}/api/ProductsReturned/{id}");
+            var response = await _httpClient.GetAsync($"https://localhost:7011/api/ProductsReturned/{id}");
 
             return await response.Content.ReadFromJsonAsync<Products_Returned>();
         }
 
         public async Task<List<Products_Returned>> GetByOrderDetailIdAsync(long orderDetailId)
         {
-            var response = await _httpClient.GetAsync($"{_baseUrl}/api/ProductsReturned/GetByOrderDetailId?orderDetailId={orderDetailId}");
+            var response = await _httpClient.GetAsync($"https://localhost:7011/api/ProductsReturned/GetByOrderDetailId?orderDetailId={orderDetailId}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -92,7 +90,7 @@ namespace ViewsFE.Services
 
         public async Task<Products_Returned> CreateAsync(Products_Returned productReturned)
         {
-            var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/api/ProductsReturned/Post", productReturned);
+            var response = await _httpClient.PostAsJsonAsync($"https://localhost:7011/api/ProductsReturned/Post", productReturned);
 
             if (response.IsSuccessStatusCode)
             {
@@ -112,7 +110,7 @@ namespace ViewsFE.Services
 
         public async Task<bool> ProcessReturnAsync(long id)
         {
-            var response = await _httpClient.PutAsync($"{_baseUrl}/api/ProductsReturned/ProcessReturn/{id}", null);
+            var response = await _httpClient.PutAsync($"https://localhost:7011/api/ProductsReturned/ProcessReturn/{id}", null);
 
             if (response.IsSuccessStatusCode)
             {
@@ -123,9 +121,10 @@ namespace ViewsFE.Services
                 var errorContent = await response.Content.ReadAsStringAsync();
                 throw new Exception($"Lỗi: {response.StatusCode} - {errorContent}");
             }
-        }public async Task<bool> ProcessbackAsync(long id)
+        }
+        public async Task<bool> ProcessbackAsync(long id)
         {
-            var response = await _httpClient.PutAsync($"{_baseUrl}/api/ProductsReturned/Processback/{id}", null);
+            var response = await _httpClient.PutAsync($"https://localhost:7011/api/ProductsReturned/Processback/{id}", null);
 
             if (response.IsSuccessStatusCode)
             {
@@ -138,11 +137,11 @@ namespace ViewsFE.Services
             }
         }
 
-        public async Task<bool> ProcessReturnQuantityAsync(long orderDetailId, int returnQuantity)
+        public async Task<bool> ProcessReturnQuantityAsync(long orderDetailId, int returnQuantity, long roductReturnedId)
         {
             var response = await _httpClient.PutAsJsonAsync(
-                $"{_baseUrl}/api/ProductsReturned/ProcessReturnQuantity",
-                new { OrderDetailId = orderDetailId, ReturnQuantity = returnQuantity }
+                $"https://localhost:7011/api/ProductsReturned/ProcessReturnQuantity",
+                new { OrderDetailId = orderDetailId, ReturnQuantity = returnQuantity, ProductReturnedId = roductReturnedId }
             );
 
             if (response.IsSuccessStatusCode)
@@ -156,11 +155,11 @@ namespace ViewsFE.Services
             }
         }
 
-        public async Task<bool> ProcessRefundQuantityAsync(long orderDetailId, int returnQuantity)
+        public async Task<bool> ProcessRefundQuantityAsync(long orderDetailId, int returnQuantity, long roductReturnedId)
         {
             var response = await _httpClient.PutAsJsonAsync(
-                $"{_baseUrl}/api/ProductsReturned/ProcessRefundQuantity",
-                new { OrderDetailId = orderDetailId, ReturnQuantity = returnQuantity }
+                $"https://localhost:7011/api/ProductsReturned/ProcessRefundQuantity",
+                new { OrderDetailId = orderDetailId, ReturnQuantity = returnQuantity, ProductReturnedId = roductReturnedId }
             );
 
             if (response.IsSuccessStatusCode)
@@ -176,7 +175,7 @@ namespace ViewsFE.Services
 
         public async Task<Products_Returned?> UpdateAsync(Products_Returned productReturned)
         {
-            var response = await _httpClient.PutAsJsonAsync($"{_baseUrl}/api/ProductsReturned/put", productReturned);
+            var response = await _httpClient.PutAsJsonAsync($"https://localhost:7011/api/ProductsReturned/put", productReturned);
 
             if (response.IsSuccessStatusCode)
             {
@@ -192,7 +191,7 @@ namespace ViewsFE.Services
         public async Task<bool> UpdateReturnQuantityAsync(long id, int quantityToStock)
         {
             var response = await _httpClient.PutAsJsonAsync(
-                $"{_baseUrl}/api/ProductsReturned/UpdateReturnQuantity/{id}",
+                $"https://localhost:7011/api/ProductsReturned/UpdateReturnQuantity/{id}",
                 new { QuantityToStock = quantityToStock }
             );
 
@@ -210,7 +209,7 @@ namespace ViewsFE.Services
 
         public async Task<bool> DeleteAsync(long id)
         {
-            var response = await _httpClient.DeleteAsync($"{_baseUrl}/api/ProductsReturned/{id}");
+            var response = await _httpClient.DeleteAsync($"https://localhost:7011/api/ProductsReturned/{id}");
 
             if (response.IsSuccessStatusCode)
             {

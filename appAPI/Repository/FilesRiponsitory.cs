@@ -13,8 +13,8 @@ namespace appAPI.Repository
         private string _getfilePath = $@"https://localhost:7011/FileMedia/";
 
         //private string _uploadFolderPath = $@"E:\HangKenh\appAPI\FileMedia";
-        private string _uploadFolderPath = $@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia";
-        //private string _uploadFolderPath = $@"I:\VIs Stu fille\DATN\DATN-Blazon\appAPI\FileMedia";
+        //private string _uploadFolderPath = $@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia";
+        private string _uploadFolderPath = $@"I:\VIs Stu fille\DATN\DATN-Blazon\appAPI\FileMedia";
 
 
         public FilesReponsetory(APP_DATA_DATN context)

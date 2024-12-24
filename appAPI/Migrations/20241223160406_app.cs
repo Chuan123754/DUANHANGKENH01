@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace appAPI.Migrations
 {
-    public partial class update : Migration
+    public partial class app : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -803,11 +803,11 @@ namespace appAPI.Migrations
                     CreatedByAdminId = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     TotalPrincipal = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    TotlaVoucher = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalVoucher = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     FeeShipping = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     Totalmoney = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
                     User_id = table.Column<long>(type: "bigint", nullable: true),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TypePayment = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Approved_at = table.Column<DateTime>(type: "datetime2", nullable: true),
