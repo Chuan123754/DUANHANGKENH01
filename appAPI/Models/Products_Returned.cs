@@ -9,9 +9,9 @@ namespace appAPI.Models
     public class Products_Returned
     {
         [Key]
-        public long Id { get; set; } 
+        public long Id { get; set; }
         [Required]
-        public long OrderDetailId { get; set; } 
+        public long OrderDetailId { get; set; }
 
         [Required]
         [StringLength(255)]
