@@ -23,14 +23,13 @@ namespace ViewsFE.Models
         public virtual Orders? Orders { get; set; }
         [ForeignKey("Product_Attribute_Id")]
         public virtual Product_Attributes? ProductAttributes { get; set; }
-        [JsonIgnore]
-        public virtual ICollection<Products_Returned>? ProductsReturned { get; set; }
+        public virtual Products_Returned ProductsReturned { get; set; } = new Products_Returned();
 
         [NotMapped]
         public bool IsSelected { get; set; } = false; //tích
 
         [NotMapped]
-        public int ReturnQuantity { get; set; } = 1;// Số lượng muốn đổi
+        public int ReturnQuantity { get; set; } = 0;// Số lượng muốn đổi
 
 
     }
