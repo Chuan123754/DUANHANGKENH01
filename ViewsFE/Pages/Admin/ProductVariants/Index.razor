@@ -1,4 +1,4 @@
-﻿@page "/admin/productVarians"
+﻿@page "/Admin/ProductAttributes/{postId:long}"
 @using System.Text
 @using System.Globalization
 @using System.Text.RegularExpressions
@@ -22,7 +22,7 @@
         <div class="container-xl">
             <div class="row g-2 align-items-center">
                 <div class="col d-flex gap-3">
-                    <h2 class="page-title">Danh sách sản phẩm chi tiết</h2>
+                    <h2 class="page-title">Danh sách sản phẩm chi tiết của @product_posts.Title</h2>
                     <a href="/Admin/productVariant/Create" class="btn btn-sm btn-outline-primary">
                         Thêm sản phẩm chi tiết
                     </a>
@@ -40,13 +40,6 @@
                     <div class="search-box d-flex align-items-center justify-content-between mb-3">
                         <div class="form-group d-flex gap-2">
                             <div class="form-group d-flex gap-2">
-                                <select class="form-select" @onchange="(e) => HandleProductNameChange(e)">
-                                    <option value="">Chọn sản phẩm</option>
-                                    @foreach (var item in product_posts_list)
-                                    {
-                                        <option value="@item.Id">@item.Title</option>
-                                    }
-                                </select>
                                 <select class="form-select" @onchange="(e) => HandleTextileChange(e)">
                                     <option value="">Chọn Công nghệ dệt</option>
                                     @foreach (var tech in TextileTechnology_list)
@@ -70,6 +63,20 @@
                                         <option value="@style.Id">@style.Title</option>
                                     }
                                 </select>
+                                <select class="form-select" @onchange="(e) => HandleColorChange(e)">
+                                    <option value="">Chọn màu sắc</option>
+                                    @foreach (var color in Color_list)
+                                    {
+                                        <option value="@color.Id">@color.Title</option>
+                                    }
+                                </select>
+                                <select class="form-select" @onchange="(e) => HandleSizeChange(e)">
+                                    <option value="">Chọn kích thước</option>
+                                    @foreach (var size in Size_list)
+                                    {
+                                        <option value="@size.Id">@size.Title</option>
+                                    }
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -84,15 +91,12 @@
                             <table class="table">
                                 <thead>
                                     <tr>
-                                        <th>ID sản phẩm</th>
+                                        <th>ID</th>
                                         <th>
                                             <button class="table-sort">Hình ảnh</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort">Tên sản phẩm</button>
-                                        </th>
-                                        <th>
-                                            <button class="table-sort">Mô tả</button>
+                                            <button class="table-sort">Sản phẩm</button>
                                         </th>
                                         <th>
                                             <button class="table-sort">Công nghệ dệt</button>
@@ -102,6 +106,21 @@
                                         </th>
                                         <th>
                                             <button class="table-sort">Phong cách</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Màu sắc</button>
+                                        </th>
+                                                   <th>
+                                            <button class="table-sort">Kích thước</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Gía bán</button>
+                                        </th>
+                                                   <th>
+                                            <button class="table-sort">Gía giảm</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Kho</button>
                                         </th>
                                         <th>
                                             <button class="table-sort">Trạng thái</button>
@@ -116,7 +135,7 @@
                                     {
                                         <tr class="post-row">
                                             <td>@post.Id</td>
-                                            <td><img src="@post.Posts.Feature_image" alt="Hình ảnh" style="width: 80px; height: 80px;" /></td>
+                                            <td><img src="@post.Image" alt="Hình ảnh" style="width: 80px; height: 105px;" /></td>
                                             <td>
                                                 @post.Posts.Title
                                                 <br />
@@ -125,7 +144,6 @@
                                                     <a class="cell-action-delete text-danger" @onclick="() => ConfirmDelete(post.Id)">Xóa</a>
                                                 </div>
                                             </td>
-                                            <td>@post.Description</td>
                                             <td class="sort-type">
                                                 @(TextileTechnology_list.FirstOrDefault(t => t.Id == post.Textile_technology_id)?.Title ?? "N/A")
                                             </td>
@@ -135,11 +153,45 @@
                                             <td class="sort-tags">
                                                 @(Style_list.FirstOrDefault(s => s.Id == post.Style_id)?.Title ?? "N/A")
                                             </td>
+                                            <td class="text-center">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <span class="text-truncate">@post.Color?.Title</span>
+                                                    <div class="color-preview"
+                                                         style="width: 16px; height: 16px; background-color: @post.Color?.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>@post.Size?.Title</td>
+                                            <td>@string.Format("{0:N0}", post.Regular_price).Replace(".", ",") VNĐ</td>
+                                            <td>
+                                                @if (post.Sale_price.HasValue)
+                                                {
+                                                    @string.Format("{0:N0}", post.Sale_price.Value).Replace(".", ",")      <span>VNĐ</span>
+
+                                                }
+                                                else
+                                                {
+                                                    <span>#N/A</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (post.Stock == 0 || post.Stock == null)
+                                                {
+                                                    <span style="color: red;">Hết hàng</span>
+                                                }
+                                                else
+                                                {
+                                                    @post.Stock
+                                                }
+                                            </td>
                                             <td class="sort-status">
                                                 <span class="@post.Status">@post.Status</span>
                                             </td>
                                             <td>
-                                                <button class="btn btn-sm btn-outline-primary" @onclick="() => ShowAttributes(post.Id)">DS biến thể</button>
+                                                <i class="bi bi-pencil text-success " style="padding-right:10px" @onclick="() => OpenUpdateProductAttributeModal(post.Id)"></i>
+                                                <i class="bi bi-trash3 text-danger" style="cursor: pointer;" @onclick="() => DeleteProductAttribute(post.Id)"></i>
+                       
+                       
                                             </td>
                                         </tr>
                                     }
@@ -235,172 +287,89 @@
                         </div>
                         <div class="modal-backdrop fade show"></div>
                     }
-                    @if (showAttributes)
+                    @if (isUpdateProductAttributeModal)
                     {
-                        @if (productAttributesList != null && productAttributesList.Any())
-                        {
-                            <div class="mt-4">
-                                <h3>Danh sách các biến thể của sản phẩm " @productPostTitle " </h3>
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>ID biến thể</th>
-                                            <th>Hình ảnh</th>
-                                            <th>SKU</th>
-                                            <th>Gía gốc</th>
-                                            <th>Gía khuyến mãi</th>
-                                            <th>Số lượng kho</th>
-                                            <th>Màu sắc</th>
-                                            <th>Kích thước</th>
-                                            <th>Hành động</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach (var attributes in productAttributesList)
-                                        {
-                                            <tr>
-                                                <td>@attributes.Id</td>
-                                                <td><img src="@attributes.Image" alt="Hình ảnh" style="width: 80px; height: 80px;" /></td>
-                                                <td>@attributes.SKU</td>
-                                                <td>@string.Format("{0:N0}", attributes.Regular_price).Replace(".", ",") VNĐ</td>
-                                                <td>
-                                                    @if (attributes.Sale_price.HasValue)
-                                                    {
-                                                        @string.Format("{0:N0}", attributes.Sale_price.Value).Replace(".", ",")      <span>VNĐ</span>
+                        <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                            <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 80%; width: auto;">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Cập nhật thông tin biến thể của @productPostTitle</h5>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table class="table table-bordered table-striped align-middle">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 8%;">Hình ảnh</th>
+                                                    <th style="width: 5%;">Màu sắc</th>
+                                                    <th style="width: 9%;">Kích thước</th>
+                                                    <th style="width: 10%;">Gía gốc</th>
 
-                                                    }
-                                                    else
-                                                    {
-                                                        <span>#N/A</span>
-                                                    }
-                                                </td>
-                                                <td>
-                                                    @if (attributes.Stock == 0)
-                                                    {
-                                                        <span style="color: red;">Hết hàng</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        @attributes.Stock
-                                                    }
-                                                </td>
-
-                                                <td class="text-center">
-                                                    <div class="d-flex align-items-center justify-content-center">
-                                                        <span class="text-truncate">@attributes.Color?.Title</span>
-                                                        <div class="color-preview"
-                                                             style="width: 16px; height: 16px; background-color: @attributes.Color?.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>@attributes.Size?.Title</td>
-                                                <td>
-                                                    <i class="bi bi-pencil text-success " style="padding-right:10px" @onclick="() => OpenUpdateProductAttributeModal(attributes.Id)"></i>
-                                                    @*    <button class="btn btn-sm btn-outline-primary" @onclick="() => OpenUpdateProductAttributeModal(attributes.Id)">Sửa thông tin</button> *@
-                                                    <i class="bi bi-trash3 text-danger" style="cursor: pointer;" @onclick="() => DeleteProductAttribute(attributes.Id)"></i>
-                                                </td>
-                                            </tr>
-                                        }
-                                    </tbody>
-                                </table>
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="mt-4">
-                                <h3>Danh sách Product Attributes</h3>
-                                <div class="text-center">Không có dữ liệu</div>
-                            </div>
-                        }
-                        @if (isUpdateProductAttributeModal)
-                        {
-                            <div class="modal fade show d-block" tabindex="-1" role="dialog">
-                                <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 80%; width: auto;">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Cập nhật thông tin biến thể của @productPostTitle</h5>
-                                        </div>
-                                        <div class="modal-body">
-                                            <table class="table table-bordered table-striped align-middle">
-                                                <thead>
-                                                    <tr>
-                                                        <th style="width: 8%;">Hình ảnh</th>
-                                                        <th style="width: 8%;">SKU</th>
-                                                        <th style="width: 5%;">Màu sắc</th>
-                                                        <th style="width: 9%;">Kích thước</th>
-                                                        <th style="width: 10%;">Gía gốc</th>
-                                              
-                                                        <th style="width: 5%;">Số lượng tồn kho</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            <div style="width: 80px; height: 80px; aspect-ratio: 1 / 1; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
-                                                                 id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
-                                                                 data-multiple="false" data-refer-id="#feature_image" onclick="openMediaModal()">
-                                                                @if (!string.IsNullOrEmpty(selectedAttribute.Image))
-                                                                {
-                                                                    <img src="@selectedAttribute.Image" class="w-100 h-100 object-cover" />
-                                                                }
-                                                                else
-                                                                {
-                                                                    <div class="icon d-flex align-items-center justify-content-center">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
-                                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                            <path d="M12 5v14" />
-                                                                            <path d="M5 12h14" />
-                                                                        </svg>
-                                                                    </div>
-                                                                }
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <input type="text" @bind="@selectedAttribute.SKU" class="form-control" readonly />
-                                                        </td>
-
-                                                        <td>
-                                                            <div class="d-flex align-items-center justify-content-center">
-                                                                <span class="text-truncate">@selectedAttribute.Color?.Title</span>
-                                                                <div class="color-preview"
-                                                                     style="width: 16px; height: 16px; background-color: @selectedAttribute.Color?.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
+                                                    <th style="width: 5%;">Số lượng tồn kho</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <div style="width: 80px; height: 80px; aspect-ratio: 1 / 1; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                                                             id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
+                                                             data-multiple="false" data-refer-id="#feature_image" onclick="openMediaModal()">
+                                                            @if (!string.IsNullOrEmpty(selectedAttribute.Image))
+                                                            {
+                                                                <img src="@selectedAttribute.Image" class="w-100 h-100 object-cover" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="icon d-flex align-items-center justify-content-center">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
+                                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                                        <path d="M12 5v14" />
+                                                                        <path d="M5 12h14" />
+                                                                    </svg>
                                                                 </div>
+                                                            }
+                                                        </div>
+                                                    </td>
+
+                                                    <td>
+                                                        <div class="d-flex align-items-center justify-content-center">
+                                                            <span class="text-truncate">@selectedAttribute.Color?.Title</span>
+                                                            <div class="color-preview"
+                                                                 style="width: 16px; height: 16px; background-color: @selectedAttribute.Color?.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
                                                             </div>
-                                                        </td>
-                                                        <td>
-                                                            <div style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
-                                                                @selectedAttribute.Size?.Title
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div class="input-group">
-                                                                <input type="text"
-                                                                       class="form-control"
-                                                                       value="@string.Format("{0:N0}", selectedAttribute.Regular_price).Replace(".", ",")"
-                                                                       @oninput="FormatCurrencyRegular"
-                                                                       @onchange="UpdatePriceRegular" />
-                                                                <span class="input-group-text">VNĐ</span>
-                                                            </div>
-                                                        </td>
-                                                     
-                                                        <td>
-                                                            <input type="text" @bind="@selectedAttribute.Stock" class="form-control" style="max-width: 120px;" />
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div class="modal-footer d-flex justify-content-between">
-                                            <button type="button" class="btn btn-primary" @onclick="UpdateProductAttribute">Xác nhận</button>
-                                            <button type="button" class="btn btn-secondary" @onclick="CloseUpdateProductAttributeModal">Hủy</button>
-                                        </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                                                            @selectedAttribute.Size?.Title
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="input-group">
+                                                            <input type="text"
+                                                                   class="form-control"
+                                                                   value="@string.Format("{0:N0}", selectedAttribute.Regular_price).Replace(".", ",")"
+                                                                   @oninput="FormatCurrencyRegular"
+                                                                   @onchange="UpdatePriceRegular" />
+                                                            <span class="input-group-text">VNĐ</span>
+                                                        </div>
+                                                    </td>
+
+                                                    <td>
+                                                        <input type="text" @bind="@selectedAttribute.Stock" class="form-control" style="max-width: 120px;" />
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="modal-footer d-flex justify-content-between">
+                                        <button type="button" class="btn btn-primary" @onclick="UpdateProductAttribute">Xác nhận</button>
+                                        <button type="button" class="btn btn-secondary" @onclick="CloseUpdateProductAttributeModal">Hủy</button>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                        }
                     }
-
                 </div>
             </div>
         </div>
@@ -412,10 +381,13 @@
 
 @code {
     // private List<Product_variants> product_Varians_list = new List<Product_variants>();
+    [Parameter] public long PostId { get; set; }
     private List<Size> Size_list = new List<Size>();
+    private List<Color> Color_list = new List<Color>();
     private List<Material> Material_list = new List<Material>();
     private List<Textile_technology> TextileTechnology_list = new List<Textile_technology>();
     private List<Style> Style_list = new List<Style>();
+
     private List<Product_Attributes> productAttributesList = new List<Product_Attributes>();
     private Product_Attributes selectedAttribute = new Product_Attributes();
     private Product_Posts product_posts = new Product_Posts();
@@ -445,10 +417,18 @@
     private string selectedMaterialId = string.Empty;
     private string selectedStyleId = string.Empty;
     private string selectedProductId = string.Empty;
+    private string selectedSizeId = string.Empty;
+    private string selectedColorId = string.Empty;
 
-    private async Task HandleProductNameChange(ChangeEventArgs e)
+
+    private async Task HandleSizeChange(ChangeEventArgs e)
     {
-        selectedProductId = e.Value?.ToString() ?? string.Empty;
+        selectedSizeId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+    private async Task HandleColorChange(ChangeEventArgs e)
+    {
+        selectedColorId = e.Value?.ToString() ?? string.Empty;
         await ApplyFilters();
     }
 
@@ -470,9 +450,6 @@
         await ApplyFilters();
     }
 
-
-
-
     protected override async Task OnInitializedAsync()
     {
 
@@ -483,12 +460,27 @@
         TextileTechnology_list = await Textile_technologyServices.GetAll();
         Style_list = await StyleServices.GetAll();
         product_posts_list = await post.GetByTypeAsync("product", page_number, page_size, search_query);
-
+        product_posts = await post.GetByIdType(PostId,"product");
         selectedTextileTechnologyId = string.Empty;
         selectedMaterialId = string.Empty;
         selectedStyleId = string.Empty;
     }
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        productAttributesList = await productAttributeService.GetProductAttributesByPostId(PostId);
 
+        Color_list = await colorService.GetAll();
+        Size_list = await SizeServices.GetAll();
+        Material_list = await MaterialService.GetAll();
+        TextileTechnology_list = await Textile_technologyServices.GetAll();
+        Style_list = await StyleServices.GetAll();
+
+
+        // totalItems = await productAttributeService.GetTotalCountAsync("product", searchTerm);
+        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
+        StateHasChanged();
+    }
     private async Task OnProductChange(ChangeEventArgs e)
     {
         var selectedProductIdString = e.Value?.ToString();
@@ -540,6 +532,22 @@
                 post.Style_id == long.Parse(selectedStyleId)).ToList();
         }
 
+        if (!string.IsNullOrEmpty(selectedStyleId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Style_id == long.Parse(selectedStyleId)).ToList();
+        }
+        if (!string.IsNullOrEmpty(selectedColorId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Color_Id == long.Parse(selectedColorId)).ToList();
+        }
+        if (!string.IsNullOrEmpty(selectedSizeId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Size_Id == long.Parse(selectedSizeId)).ToList();
+        }
+
         productAttributesList = filteredProducts;
         StateHasChanged();
     }
@@ -549,26 +557,27 @@
         await ApplyFilters();
     }
 
-
     private async Task HandleImageSelected(string imagePath)
     {
         selectedAttribute.Image = imagePath ?? string.Empty;
         StateHasChanged(); // Cập nhật giao diện
         await JS.InvokeVoidAsync("closeMediaModal"); // Gọi hàm JavaScript để đóng modal
     }
+
     private void OnColorSelectionChanged(long colorId, object isChecked)
     {
         colorSelections[colorId] = (bool)isChecked;
         updateVariants();
     }
+
     private void OnSizeSelectionChanged(long sizeId, object isChecked)
     {
         sizeSelections[sizeId] = (bool)isChecked;
         updateVariants();
     }
+
     private void updateVariants()
     {
-        // xử lý khi các tùy chọn màu và kích thước được thay đổi
         var selectedColors = colorSelections
             .Where(c => c.Value)
             .Select(c => colorList.FirstOrDefault(color => color.Id == c.Key)?.Title)
@@ -580,6 +589,7 @@
             .ToList();
 
     }
+
     public string RemoveDiacritics(string text)
     {
         var chars = text.Normalize(System.Text.NormalizationForm.FormD)
@@ -587,6 +597,7 @@
                         .ToArray();
         return new string(chars).Normalize(System.Text.NormalizationForm.FormC);
     }
+
     private async Task CreateProductAttributes()
     {
         var selectedColors = colorSelections.Where(c => c.Value).Select(c => c.Key).ToList();
@@ -631,43 +642,12 @@
                 {
                     continue;
                 }
-
-                string productName = productVariant.Posts.Title;
-                string textileTechnologyTitle = productVariant.Textile_Technology.Title;
-                string styleTitle = productVariant.Style.Title;
-                string materialTitle = productVariant.Material.Title;
-
-                // Tạo tên viết tắt của sản phẩm
-                string productAbbreviation = string.Concat(productName
-                                .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                                .Select(word => word[0].ToString().ToUpper()));
-
-
-                string CleanTitle(string title)
-                {
-                    // Xóa dấu
-                    string normalizedString = new string(title.Normalize(NormalizationForm.FormD)
-                        .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                        .ToArray());
-
-                    // Xóa ký tự đặc biệt và chuyển về chữ hoa
-                    return Regex.Replace(normalizedString, @"[^A-Za-z0-9]", "").ToUpper();
-                }
-                // Lấy 3 ký tự đầu của các tiêu đề (nếu có)
-                string textileAbbreviation = CleanTitle(textileTechnologyTitle);
-                string styleAbbreviation = CleanTitle(styleTitle);
-                string materialAbbreviation = CleanTitle(materialTitle);
-
-                // Tạo mã SKU
-                string sku = $"{productAbbreviation}-{textileAbbreviation}-{styleAbbreviation}-{materialAbbreviation}";
-
                 // Tạo biến thể mới
                 var productAttribute = new Product_Attributes
                     {
                         Color_Id = colorId,
                         Size_Id = sizeId,
-                        Status = selectedAttribute.Stock == 0 ? "Hết hàng" : "Còn hàng",
-                        SKU = sku,
+                        Status = selectedAttribute.Stock == 0 ? "Hết hàng" : "Còn hàng"
                     };
 
 
@@ -677,7 +657,6 @@
                 var createdColorTitle = colorList.FirstOrDefault(c => c.Id == colorId)?.Title ?? "Không rõ";
                 var createdSizeTitle = sizeList.FirstOrDefault(s => s.Id == sizeId)?.Title ?? "Không rõ";
                 await JS.InvokeVoidAsync("toastr.success", $"Tạo thành công biến thể size '{createdSizeTitle}' và color '{createdColorTitle}'.");
-                await ShowAttributes(productVariant.Id);
                 colorSelections.Clear();
                 sizeSelections.Clear();
                 CloseModalAddAttribute();
@@ -732,18 +711,12 @@
         selectedPostId = postId;
         isModalAddAttributeVisiable = true;
     }
+
     private void CloseModalAddAttribute()
     {
         isModalAddAttributeVisiable = false;
     }
-    private void UpdatePrice(ChangeEventArgs e)
-    {
-        var input = e.Value?.ToString().Replace(",", "").Replace(".", "");
-        if (decimal.TryParse(input, out var parsedPrice))
-        {
-            selectedAttribute.Regular_price = (long?)Convert.ToInt64(parsedPrice);
-        }
-    }
+
     private async Task GoToPage(int page)
     {
         page_number = page;
@@ -755,54 +728,26 @@
         page_number = 1;
         await LoadPosts();
     }
-    private async Task ShowAttributes(long productVariantId)
-    {
-        productAttributesList = await productAttributeService.GetProductAttributesByPostId(productVariantId);
-        var selectedVariant = productAttributesList.FirstOrDefault(v => v.Id == productVariantId);
-        if (selectedVariant != null)
-        {
-            productPostTitle = selectedVariant.Posts.Title;
-        }
-        showAttributes = true;
-        StateHasChanged();
-    }
-    private async Task LoadPosts()
-    {
-        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
-        productAttributesList = await productAttributeService.GetAllProductAttributes();
+  
 
-        Size_list = await SizeServices.GetAll();
-        Material_list = await MaterialService.GetAll();
-        TextileTechnology_list = await Textile_technologyServices.GetAll();
-        Style_list = await StyleServices.GetAll();
-
-
-        // totalItems = await productAttributeService.GetTotalCountAsync("product", searchTerm);
-        total_pages = (int)Math.Ceiling((double)totalItems / page_size);
-        StateHasChanged();
-    }
-
-
-
-    private async Task NavEditCtgr(long id)
-    {
-        Navigation.NavigateTo($"/Admin/productVariant/Update/{id}");
-    }
     private async Task ConfirmDelete(long id)
     {
         await productAttributeService.Delete(id);
         await JS.InvokeVoidAsync("toastr.success", "Xóa thành công sản phẩm ");
         await LoadPosts();
     }
+
     private async Task OpenUpdateProductAttributeModal(long productAttributeId)
     {
         selectedAttribute = await productAttributeService.GetProductAttributesById(productAttributeId);
         isUpdateProductAttributeModal = true;
     }
+
     private void CloseUpdateProductAttributeModal()
     {
         isUpdateProductAttributeModal = false;
     }
+
     private async Task UpdateProductAttribute()
     {
         if (selectedAttribute.Stock <= 0)
@@ -829,11 +774,13 @@
             LoadPosts();
         }
     }
+
     private async Task SelectProductAttribute(Product_Attributes attribute)
     {
         selectedAttribute = attribute;
         await JS.InvokeVoidAsync("openMediaModal");
     }
+
     private async Task DeleteProductAttribute(long id)
     {
         try

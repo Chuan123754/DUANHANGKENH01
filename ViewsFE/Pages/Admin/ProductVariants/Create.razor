@@ -210,7 +210,7 @@
                             <thead>
                                 <tr>
                                     <th>Id</th>
-                                    <th>SKU</th>
+                                    <th>Tên Sản Phẩm</th>
                                     <th>Màu Sắc</th>
                                     <th>Kích Thước</th>
                                     <th>Hình Ảnh</th>
@@ -224,7 +224,7 @@
                                 {
                                     <tr>
                                         <td>@item.Id </td>
-                                        <td>@item.SKU </td>
+                                        <td>@item.Posts.Title </td>
                                         <td class="text-center">
                                             <div class="d-flex align-items-center justify-content-center">
                                                 <span class="text-truncate">@item.Color?.Title</span>
@@ -581,18 +581,6 @@
     }
     protected override async Task OnInitializedAsync()
     {
-
-        // var uri = new Uri(nav.Uri);
-        // var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        // if (query["postId"] != null && long.TryParse(query["postId"], out var postId))
-        // {
-        //     PostId = postId;
-        // }
-        // else
-        // {
-        //     PostId = 0; 
-        // }
-
         product_posts_list = await post.GetByTypeAsync("product", page_number, page_size, search_query);
         colorList = await color.GetAll();
         sizeList = await size.GetAll();
@@ -698,19 +686,6 @@
                     return;
                 }
 
-                // Kiểm tra biến thể đã tồn tại
-                // var existingVariant = await productAttributesServices.FindVariant(
-                //     product_Attributes.Post_Id,
-                //     (byte)product_Attributes.Textile_technology_id,
-                //     (byte)product_Attributes.Style_id,
-                //     (byte)product_Attributes.Material_id);
-
-                // if (existingVariant != null)
-                // {
-                //     await JS.InvokeVoidAsync("toastr.warning", "Sản phẩm với các thuộc tính này đã tồn tại");
-                //     return;
-                // }
-
                 var selectedColors = colorSelections.Where(c => c.Value).Select(c => c.Key).ToList();
                 var selectedSizes = sizeSelections.Where(s => s.Value).Select(s => s.Key).ToList();
 
@@ -725,36 +700,7 @@
                 {
                     foreach (var sizeId in selectedSizes)
                     {
-
                         var post_Product = product_posts_list.FirstOrDefault(p => p.Id == PostId);
-
-                        // string productName = post_Product.Title;
-                        // string textileTechnologyTitle = product_Attributes.Textile_Technology.Title;
-                        // string styleTitle = product_Attributes.Style.Title;
-                        // string materialTitle = product_Attributes.Material.Title;
-
-                        // // Tạo tên viết tắt của sản phẩm
-                        // string productAbbreviation = string.Concat(productName
-                        //     .Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                        //     .Select(word => word[0].ToString().ToUpper()));
-                        // string CleanTitle(string title)
-                        // {
-                        //     // Xóa dấu
-                        //     string normalizedString = new string(title.Normalize(NormalizationForm.FormD)
-                        //         .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                        //         .ToArray());
-
-                        //     // Xóa ký tự đặc biệt và chuyển về chữ hoa
-                        //     return Regex.Replace(normalizedString, @"[^A-Za-z0-9]", "").ToUpper();
-                        // }
-
-                        // string textileAbbreviation = CleanTitle(textileTechnologyTitle);
-                        // string styleAbbreviation = CleanTitle(styleTitle);
-                        // string materialAbbreviation = CleanTitle(materialTitle);
-
-                        // // Tạo mã SKU
-                        // string sku = $"{productAbbreviation}-{textileAbbreviation}-{styleAbbreviation}-{materialAbbreviation}";
-
                         var productAttribute = new Product_Attributes
                             {
                                 Post_Id = CurrentProduct.Id,
@@ -765,7 +711,6 @@
                                 Size_Id = sizeId,
                                 Status = product_Attributes.Stock == 0 ? "Hết hàng" : "Còn hàng"
                             };
-
                         await productAttributesServices.Create(productAttribute);
                         LST_ProductAttributes = await productAttributesServices.GetProductAttributesByPostId(selectedPostProductId);
                         isProductAttributesCreated = true;
@@ -783,7 +728,6 @@
         }
 
     }
-
     private async Task UpdateProductAttributes()
     {
         foreach (var item in LST_ProductAttributes)
