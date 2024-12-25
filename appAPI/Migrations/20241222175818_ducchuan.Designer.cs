@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241221034526_ud")]
-    partial class ud
+    [Migration("20241222175818_ducchuan")]
+    partial class ducchuan
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -781,8 +781,7 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("TotalAmount")
                         .HasColumnType("decimal(18,2)");

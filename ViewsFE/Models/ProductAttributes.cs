@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
-using appAPI.Models;
+using ViewsFE.Models;
 
 namespace ViewsFE.Models
 {
@@ -44,7 +44,7 @@ namespace ViewsFE.Models
         [JsonIgnore]
         public virtual ICollection<P_attribute_discount> ProductAttribute_Discount { get; set; } = new List<P_attribute_discount>();
         [JsonIgnore]
-        public virtual ICollection<appAPI.Models.ProductAttributes_wishlist> ProductAttributes_Wishlists { get; set; } = new List<appAPI.Models.ProductAttributes_wishlist>();
+        public virtual ICollection<ProductAttributes_wishlist> ProductAttributes_Wishlists { get; set; } = new List<ProductAttributes_wishlist>();
 
     }
 }

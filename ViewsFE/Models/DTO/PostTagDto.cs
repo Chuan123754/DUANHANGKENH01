@@ -1,4 +1,4 @@
-﻿using appAPI.Models.DTO;
+﻿using ViewsFE.Models.DTO;
 
 namespace ViewsFE.Models.DTO
 {

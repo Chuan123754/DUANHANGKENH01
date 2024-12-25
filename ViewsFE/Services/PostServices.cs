@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using Microsoft.Extensions.Configuration;
+using System.Net.Http;
 using ViewsFE.IServices;
 using ViewsFE.Models;
 
@@ -11,7 +12,7 @@ namespace ViewsFE.Services
         public PostServices(IConfiguration configuration)
         {
             _client = new HttpClient();
-            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl"); // Lấy URL từ appsettings.json
+            _baseUrl = configuration.GetValue<string>("ApiSettings:BaseUrl"); // Lấy URL từ appsettings.json         
         }
 
         public async Task<long> CreatePage(Product_Posts post, List<long> tagIds)
