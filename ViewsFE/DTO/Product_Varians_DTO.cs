@@ -1,4 +1,4 @@
-﻿namespace appAPI.DTO
+﻿namespace ViewsFE.DTO
 {
     public class Product_Varians_DTO
     {

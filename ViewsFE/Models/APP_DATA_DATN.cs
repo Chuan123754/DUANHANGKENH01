@@ -28,7 +28,6 @@ namespace ViewsFE.Models
         public DbSet<Product_Posts> Posts { get; set; }
         public DbSet<ProductAttributes_wishlist> Product_Variants_Wishlists { get; set; }
         public DbSet<Q_A> Q_As { get; set; }
-        public DbSet<Seo> Seo { get; set; }
         public DbSet<Tags> Tags { get; set; }
         public DbSet<Users> Users { get; set; }
         public DbSet<Wishlist> Wishlist { get; set; }

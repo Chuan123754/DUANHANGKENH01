@@ -1,5 +1,4 @@
-﻿using appAPI.IRepository;
-using ViewsFE.IServices;
+﻿using ViewsFE.IServices;
 using ViewsFE.Models;
 
 namespace ViewsFE.Services

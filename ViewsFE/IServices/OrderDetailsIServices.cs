@@ -1,5 +1,4 @@
 ﻿using ViewsFE.Models;
-using static appAPI.Repository.OrderDetailsReponsitory;
 using static ViewsFE.Services.OrderDetailsServices;
 
 namespace ViewsFE.IServices

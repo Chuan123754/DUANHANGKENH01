@@ -1,4 +1,4 @@
-﻿namespace appAPI.Models
+﻿namespace ViewsFE.Models
 {
     public class MomoCreatePaymentResponseModel
     {
