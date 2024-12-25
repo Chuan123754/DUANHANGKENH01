@@ -157,6 +157,9 @@ namespace appAPI.Migrations
                     b.Property<string>("District")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("DistrictId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
@@ -183,6 +186,9 @@ namespace appAPI.Migrations
 
                     b.Property<long?>("User_Id")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("WardCode")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Ward_commune")
                         .HasColumnType("nvarchar(max)");
@@ -779,8 +785,7 @@ namespace appAPI.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("TotalAmount")
                         .HasColumnType("decimal(18,2)");

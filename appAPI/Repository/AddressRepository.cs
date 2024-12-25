@@ -45,6 +45,7 @@ namespace appAPI.Repository
         public async Task CreateAddress(Address address)
         {
             address.Set_as_default = 1;
+
             _context.Address.Add(address);
             await _context.SaveChangesAsync();
         }
@@ -71,6 +72,8 @@ namespace appAPI.Repository
             if (updateItem != null)
             {
                 updateItem.Name = address.Name;
+                updateItem.WardCode = address.WardCode;
+                updateItem.DistrictId = address.DistrictId;
                 updateItem.Phone = address.Phone;
                 updateItem.Email = address.Email;
                 updateItem.Street = address.Street;

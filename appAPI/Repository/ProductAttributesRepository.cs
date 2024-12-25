@@ -3,6 +3,9 @@ using appAPI.IRepository;
 using appAPI.Models;
 using appAPI.Models.DTO;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text.RegularExpressions;
+using System.Text;
 
 namespace appAPI.Repository
 {

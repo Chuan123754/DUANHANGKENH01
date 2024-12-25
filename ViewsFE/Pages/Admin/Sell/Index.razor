@@ -6,16 +6,14 @@
 @inject IPostSer post
 @inject IStyleServices StyleServices
 @inject ISizeServices SizeServices
+@inject IColorServices ColorServices
 @inject IMaterialServices MaterialService
 @inject ITextile_technologyServices Textile_technologyServices
-@inject IColorServices colorService
-@inject ISizeServices sizeService
 @inject IUserService userService
 @inject IAddressServices addressService
 @inject IOrderIServices orderService
 @inject OrderDetailsIServices orderDetailService
 @inject IProductAttributeServices productAttributeService
-@* @inject IProductVariantServices productVariantService *@
 @inject MomoService momoService
 @inject IOrderTrackingService orderTrackingService
 @inject IJSRuntime JS
@@ -122,48 +120,55 @@
                                         </div>
                                         <div class="modal-body">
                                             <div class="search-box mb-4">
-                                                <div class="row g-2 align-items-center">
-                                                    <div class="col-lg-3 col-md-6">
-                                                        <select class="form-select" @onchange="(e) => HandleProductNameChange(e)">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <div class="dropdowns-container d-flex gap-2">
+                                                        <select class="form-select form-select-sm" @onchange="(e) => HandleProductNameChange(e)">
                                                             <option value="">Chọn sản phẩm</option>
                                                             @foreach (var item in product_posts_list)
                                                             {
                                                                 <option value="@item.Id">@item.Title</option>
                                                             }
                                                         </select>
-                                                    </div>
-                                                    <div class="col-lg-3 col-md-6">
-                                                        <select class="form-select" @onchange="(e) => HandleTextileChange(e)">
+                                                        <select class="form-select form-select-sm" @onchange="(e) => HandleTextileChange(e)">
                                                             <option value="">Chọn Công nghệ dệt</option>
                                                             @foreach (var tech in TextileTechnology_list)
                                                             {
                                                                 <option value="@tech.Id">@tech.Title</option>
                                                             }
                                                         </select>
-                                                    </div>
-                                                    <div class="col-lg-3 col-md-6">
-                                                        <select class="form-select" @onchange="(e) => HandleMaterialChange(e)">
+                                                        <select class="form-select form-select-sm" @onchange="(e) => HandleMaterialChange(e)">
                                                             <option value="">Chọn Chất liệu</option>
                                                             @foreach (var material in Material_list)
                                                             {
                                                                 <option value="@material.Id">@material.Title</option>
                                                             }
                                                         </select>
-                                                    </div>
-                                                    <div class="col-lg-3 col-md-6">
-                                                        <select class="form-select" @onchange="(e) => HandleStyleChange(e)">
+                                                        <select class="form-select form-select-sm" @onchange="(e) => HandleStyleChange(e)">
                                                             <option value="">Chọn Phong cách</option>
                                                             @foreach (var style in Style_list)
                                                             {
                                                                 <option value="@style.Id">@style.Title</option>
                                                             }
                                                         </select>
+                                                        <select class="form-select form-select-sm" @onchange="(e) => HandleColorChange(e)">
+                                                            <option value="">Chọn màu sắc</option>
+                                                            @foreach (var color in Color_list)
+                                                            {
+                                                                <option value="@color.Id">@color.Title</option>
+                                                            }
+                                                        </select>
+                                                        <select class="form-select form-select-sm" @onchange="(e) => HandleSizeChange(e)">
+                                                            <option value="">Chọn kích thước</option>
+                                                            @foreach (var size in Size_list)
+                                                            {
+                                                                <option value="@size.Id">@size.Title</option>
+                                                            }
+                                                        </select>
                                                     </div>
+
+                                                    <input type="text" class="form-control w-25" placeholder="Tìm kiếm" aria-label="Tìm kiếm">
                                                 </div>
                                             </div>
-                                        </div>
-
-                                        <div class="modal-body">
                                             <table class="table table-bordered table-striped table-hover align-middle">
                                                 <thead class="table-light text-center">
                                                     <tr>
@@ -251,7 +256,6 @@
                                                 </tbody>
                                             </table>
                                         </div>
-
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-outline-secondary" @onclick="CloseAddProductModal">Đóng</button>
                                         </div>
@@ -531,7 +535,7 @@
                                                                                             {
                                                                                                 @foreach (var province in provinces)
                                                                                                 {
-                                                                                                    <option value="@province.Id">@province.Name</option>
+                                                                                                    <option value="@province.ProvinceID">@province.ProvinceName</option>
                                                                                                 }
                                                                                             }
                                                                                         </select>
@@ -544,7 +548,7 @@
                                                                                             {
                                                                                                 @foreach (var district in districts)
                                                                                                 {
-                                                                                                    <option value="@district.Id">@district.Name</option>
+                                                                                                    <option value="@district.DistrictID">@district.DistrictName</option>
                                                                                                 }
                                                                                             }
                                                                                         </select>
@@ -557,7 +561,7 @@
                                                                                             {
                                                                                                 @foreach (var ward in wards)
                                                                                                 {
-                                                                                                    <option value="@ward.Id">@ward.Name</option>
+                                                                                                    <option value="@ward.WardCode">@ward.WardName</option>
                                                                                                 }
                                                                                             }
                                                                                         </select>
@@ -909,7 +913,7 @@
                                                             <span class="input-group-text">VNĐ</span>
                                                         </div>
                                                     </div>
-
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -924,7 +928,6 @@
                                     </div>
 
                                 </div>
-                            </div>
                         }
                         @if (isMomoModalVisible)
                         {
@@ -1010,6 +1013,7 @@
                                              // Hiển thị modal QR MoMo
 
     private List<Size> Size_list = new List<Size>();
+    private List<Color> Color_list = new List<Color>();
     private List<Material> Material_list = new List<Material>();
     private List<Textile_technology> TextileTechnology_list = new List<Textile_technology>();
     private List<Style> Style_list = new List<Style>();
@@ -1017,6 +1021,8 @@
     private string searchFilter = "product_name";
 
     private string selectedTextileTechnologyId = string.Empty;
+    private string selectedColorId = string.Empty;
+    private string selectedSizeId = string.Empty;
     private string selectedMaterialId = string.Empty;
     private string selectedStyleId = string.Empty;
     private string selectedProductId = string.Empty;
@@ -1027,6 +1033,16 @@
         await ApplyFilters();
     }
 
+      private async Task HandleSizeChange(ChangeEventArgs e)
+    {
+        selectedSizeId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+    private async Task HandleColorChange(ChangeEventArgs e)
+    {
+        selectedColorId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
     private async Task HandleTextileChange(ChangeEventArgs e)
     {
         selectedTextileTechnologyId = e.Value?.ToString() ?? string.Empty;
@@ -1047,7 +1063,6 @@
 
     private async Task ApplyFilters()
     {
-        // Lọc sản phẩm theo các điều kiện đã chọn
         var filteredProducts = await productAttributeService.GetAllProductAttributes();
 
         if (!string.IsNullOrEmpty(selectedProductId))
@@ -1056,26 +1071,32 @@
                     post.Posts.Id == long.Parse(selectedProductId)).ToList();
         }
 
-
-        // Lọc theo Công nghệ dệt
         if (!string.IsNullOrEmpty(selectedTextileTechnologyId))
         {
             filteredProducts = filteredProducts.Where(post =>
                 post.Textile_technology_id == long.Parse(selectedTextileTechnologyId)).ToList();
         }
 
-        // Lọc theo Chất liệu
         if (!string.IsNullOrEmpty(selectedMaterialId))
         {
             filteredProducts = filteredProducts.Where(post =>
                 post.Material_id == long.Parse(selectedMaterialId)).ToList();
         }
 
-        // Lọc theo Phong cách
         if (!string.IsNullOrEmpty(selectedStyleId))
         {
             filteredProducts = filteredProducts.Where(post =>
                 post.Style_id == long.Parse(selectedStyleId)).ToList();
+        }
+            if (!string.IsNullOrEmpty(selectedColorId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Color_Id == long.Parse(selectedColorId)).ToList();
+        }
+        if (!string.IsNullOrEmpty(selectedSizeId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Size_Id == long.Parse(selectedSizeId)).ToList();
         }
 
         lst_ProductAttributes = filteredProducts;
@@ -1276,6 +1297,8 @@
     {
         Material_list = await MaterialService.GetAll();
         TextileTechnology_list = await Textile_technologyServices.GetAll();
+        Color_list = await ColorServices.GetAll();
+        Size_list = await SizeServices.GetAll();
         Style_list = await StyleServices.GetAll();
         product_posts_list = await post.GetByTypeAsync("product", page_number, page_size, search_query);
 
@@ -1599,7 +1622,7 @@
         discountAmount = totalPrincipal - totalAmount;
 
         totalQuantity = lst_OrderDetail.Sum(item => item.Quantity);
-        feeShipping = CalculateShippingFee();
+        // feeShipping = CalculateShippingFee();
 
         totalMoney = isDeliveryVisible ? (feeShipping + totalAmount) : totalAmount;
     }
@@ -1676,33 +1699,33 @@
     }
 
     // tính tiền vận chuyển
-    private decimal CalculateShippingFee()
-    {
-        const decimal baseShippingFee = 38000m;
-        feeShipping = baseShippingFee;
+    // private decimal CalculateShippingFee()
+    // {
+    //     const decimal baseShippingFee = 38000m;
+    //     feeShipping = baseShippingFee;
 
-        if (totalQuantity > 10 && totalQuantity <= 20)
-        {
-            feeShipping += (totalQuantity - 10) * 5000m;
-        }
-        else if (totalQuantity > 20 && totalQuantity <= 30)
-        {
-            feeShipping += (totalQuantity - 10) * 5000m;
-            feeShipping -= feeShipping * 0.30m;
-        }
-        else if (totalQuantity > 30 && totalQuantity <= 50)
-        {
-            feeShipping += (totalQuantity - 10) * 5000m;
-            feeShipping -= feeShipping * 0.50m;
-        }
-        else if (totalQuantity > 50)
-        {
-            feeShipping += (totalQuantity - 10) * 5000m;
-            feeShipping -= feeShipping * 0.70m;
-        }
+    //     if (totalQuantity > 10 && totalQuantity <= 20)
+    //     {
+    //         feeShipping += (totalQuantity - 10) * 5000m;
+    //     }
+    //     else if (totalQuantity > 20 && totalQuantity <= 30)
+    //     {
+    //         feeShipping += (totalQuantity - 10) * 5000m;
+    //         feeShipping -= feeShipping * 0.30m;
+    //     }
+    //     else if (totalQuantity > 30 && totalQuantity <= 50)
+    //     {
+    //         feeShipping += (totalQuantity - 10) * 5000m;
+    //         feeShipping -= feeShipping * 0.50m;
+    //     }
+    //     else if (totalQuantity > 50)
+    //     {
+    //         feeShipping += (totalQuantity - 10) * 5000m;
+    //         feeShipping -= feeShipping * 0.70m;
+    //     }
 
-        return feeShipping;
-    }
+    //     return feeShipping;
+    // }
 
     private async Task ShowAddress()
     {
@@ -1753,12 +1776,16 @@
             if (address.Type == null) address.Type = "";
             if (address.Status == null) address.Status = "";
 
-            var province = provinces.FirstOrDefault(p => p.Id == address.Province_city);
-            var district = districts.FirstOrDefault(d => d.Id == address.District);
-            var ward = wards.FirstOrDefault(w => w.Id == address.Ward_commune);
-            address.Province_city = province.Name;
-            address.District = district?.Name;
-            address.Ward_commune = ward?.Name;
+            var province = provinces.FirstOrDefault(p => p.ProvinceID.ToString() == address.Province_city);
+            var district = districts.FirstOrDefault(d => d.DistrictID.ToString() == address.District);
+            var ward = wards.FirstOrDefault(w => w.WardCode.ToString() == address.Ward_commune);
+            var codeWard = wards.FirstOrDefault(w => w.WardCode.ToString() == address.Ward_commune);
+            var districtId = districts.FirstOrDefault(w => w.DistrictID.ToString() == address.District);
+            address.Province_city = province.ProvinceName;
+            address.District = district?.DistrictName;
+            address.Ward_commune = ward?.WardName;
+            address.WardCode = codeWard?.WardCode;
+            address.DistrictId = districtId?.DistrictID;
 
             var result = await addressService.CreateAddress(address);
 
@@ -1785,21 +1812,24 @@
     }
 
     // tách được đoạn code này ra chỗ khác thì càng tốt
-    private List<Province> provinces = new List<Province>();
-    private List<Districted> districts = new List<Districted>();
-    private List<Ward> wards = new List<Ward>();
+    private List<Provinces> provinces = new List<Provinces>();
+    private List<Districts> districts = new List<Districts>();
+    private List<Wards> wards = new List<Wards>();
     private Address address = new Address();
     private bool hasDistricts = false;
     private bool hasWards = false;
+    private string selectedProvinceId;
+    private string selectedDistrictId;
+    private string selectedWardId;
     [Inject] private AddressService address_Service { get; set; }
     private async Task OnProvinceChange(ChangeEventArgs e)
     {
-        var selectedProvinceId = e.Value?.ToString();
+        selectedProvinceId = e.Value?.ToString();
         if (!string.IsNullOrEmpty(selectedProvinceId))
         {
             // Thiết lập tỉnh hiện tại và xóa các quận huyện, xã
             address.Province_city = selectedProvinceId;
-            districts = await address_Service.GetDistrictsAsync(int.Parse(selectedProvinceId));
+            districts = await address_Service.GetDistrictsByProvinceAsync(int.Parse(selectedProvinceId));
             hasDistricts = districts.Count > 0;
             wards.Clear();
             hasWards = false;
@@ -1807,17 +1837,17 @@
     }
     private async Task OnDistrictChange(ChangeEventArgs e)
     {
-        var selectedDistrictId = e.Value?.ToString();
+        selectedDistrictId = e.Value?.ToString();
         if (!string.IsNullOrEmpty(selectedDistrictId))
         {
             address.District = selectedDistrictId;
-            wards = await address_Service.GetWardsAsync(int.Parse(selectedDistrictId));
+            wards = await address_Service.GetWardsByDistrictAsync(int.Parse(selectedDistrictId));
             hasWards = wards.Count > 0;
         }
     }
     private async Task OnWardChange(ChangeEventArgs e)
     {
-        var selectedWardId = e.Value?.ToString();
+        selectedWardId = e.Value?.ToString();
         if (!string.IsNullOrEmpty(selectedWardId))
         {
             address.Ward_commune = selectedWardId;
@@ -1847,6 +1877,22 @@
         order.CreatedByAdminId = adminId;
         isChooseAddress = false;
         await orderService.Update(order, selectedOrderId);
+        var shippingRequest = new ShippingRequest
+            {
+                service_type_id = 2, 
+                to_district_id = address.DistrictId, 
+                to_ward_code = address.WardCode.ToString(), 
+                length = 100, 
+                width = 80,
+                height = 5,
+                weight = 1000, 
+                insurance_value = 500000,
+                coupon = null,
+                cod_failed_amount = null,
+                cod_value = null
+            };
+        feeShipping = await address_Service.CalculateShippingFee(shippingRequest);
+        CalculateTotalMoney();
     }
     private void ClearInfoAddress()
     {

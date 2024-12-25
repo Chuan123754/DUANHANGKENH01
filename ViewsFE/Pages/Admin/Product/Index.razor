@@ -46,7 +46,7 @@
                                             <button class="table-sort">Hình ảnh</button>
                                         </th>
                                         <th>
-                                            <button class="table-sort">Tiêu đề</button>
+                                            <button class="table-sort">Tiêu sản phẩm</button>
                                         </th>
                                         <th>
                                             <button class="table-sort">Tác giả</button>
@@ -63,9 +63,9 @@
                                         <th>
                                             <button class="table-sort">Ngày tạo</button>
                                         </th>
-                  @*                       <th>
+                                        <th>
                                             <button class="table-sort">Action</button>
-                                        </th> *@
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -75,7 +75,7 @@
                                     @foreach (var post in product_posts_list)
                                     {
                                         <tr class="post-row">
-                                            <td>@stt</td>
+                                            <td>@post.Id</td>
                                             <td><img src="@post.Feature_image" alt="Hình ảnh" style="width: 80px; height: 80px;" /></td>
                                             <td>
                                                 @post.Title
@@ -117,9 +117,9 @@
                                             <td class="sort-date">
                                                 @post.Created_at?.ToString("dd/MM/yyyy HH:mm:ss")
                                             </td>
-@*                                             <td>
-                                                <button class="btn btn-sm btn-outline-primary">DS Sản phẩm chi tiết</button>
-                                            </td> *@
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary" @onclick="() => ToListProduct(post.Id)">DS Sản phẩm chi tiết</button>
+                                            </td>
                                         </tr>
                                         stt++;
                                     }
@@ -187,6 +187,10 @@
     private async Task NavEditCtgr(long id)
     {
         Navigation.NavigateTo($"/admin/product/edit/{id}", forceLoad: true);
+    }
+    private async Task ToListProduct(long id)
+    {
+        Navigation.NavigateTo($"/Admin/ProductAttributes/{id}");
     }
 
     private async Task ConfirmDelete(long id)

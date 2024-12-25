@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using ViewsFE.Models;
 using Newtonsoft.Json;
 using ViewsFE.IServices;
+using static ViewsFE.Services.PostServices;
+using System.Text;
 
 namespace ViewsFE.Services
 {
@@ -12,6 +14,7 @@ namespace ViewsFE.Services
     {
         private readonly HttpClient _httpClient;
         private readonly string _baseUrl;
+        private const string ApiToken123 = "3ddaa952-b6c6-11ef-96fc-be30eacd7c1b";
         public AddressService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
@@ -98,72 +101,244 @@ namespace ViewsFE.Services
             await _httpClient.DeleteAsync($"{_baseUrl}/api/Address/DeleteAddress?id={id}");
         }
         // lấy api địa chỉ Việt Nam từ bên tứ 3
-        public async Task<List<Province>> GetProvincesAsync()
+        public async Task<List<Provinces>> GetProvincesAsync()
         {
-            string url = "https://open.oapi.vn/location/provinces?size=100"; 
-            var response = await _httpClient.GetFromJsonAsync<ProvinceResponse>(url);
+            string apiUrl = "https://online-gateway.ghn.vn/shiip/public-api/master-data/province";
+            string token = "3ddaa952-b6c6-11ef-96fc-be30eacd7c1b"; // Đảm bảo Token đúng
 
-            return response?.Data ?? new List<Province>();
+            try
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Get, apiUrl))
+                {
+                    request.Headers.Add("Token", token);
+
+                    // Gửi Request
+                    var response = await _httpClient.SendAsync(request);
+
+                    // Kiểm tra Response
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string jsonResponse = await response.Content.ReadAsStringAsync();
+                        var apiResponse = JsonConvert.DeserializeObject<OKAPI>(jsonResponse);
+                        return apiResponse?.Data ?? new List<Provinces>();
+                    }
+                    else
+                    {
+                        throw new Exception($"API call failed with status code: {response.StatusCode}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return new List<Provinces>();
+            }
         }
-        public async Task<List<Districted>> GetDistrictsAsync(int idProvince)
-        {
-            string url = $"https://open.oapi.vn/location/districts/{idProvince}?size=100";
-            var response = await _httpClient.GetFromJsonAsync<DistrictResponse>(url);
 
-            return response?.Data ?? new List<Districted>();
+
+        public async Task<List<Districts>> GetDistrictsByProvinceAsync(int provinceId)
+        {
+            string apiUrl = "https://online-gateway.ghn.vn/shiip/public-api/master-data/district";
+            string token = "3ddaa952-b6c6-11ef-96fc-be30eacd7c1b"; // Replace with your actual token
+
+            try
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Post, apiUrl)) 
+                {
+                    request.Headers.Add("Token", token);
+
+                    var requestBody = new { province_id = provinceId };
+                    request.Content = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+
+                    var response = await _httpClient.SendAsync(request);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string jsonResponse = await response.Content.ReadAsStringAsync();
+                        var apiResponse = JsonConvert.DeserializeObject<OKAPI_District>(jsonResponse); // Modify according to your response model
+                        return apiResponse?.Data ?? new List<Districts>();
+                    }
+                    else
+                    {
+                        throw new Exception($"API call failed with status code: {response.StatusCode}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return new List<Districts>();
+            }
         }
 
-        public async Task<List<Ward>> GetWardsAsync(int idDistrict)
-        {
-            string url = $"https://open.oapi.vn/location/wards/{idDistrict}";
-            var response = await _httpClient.GetFromJsonAsync<WardResponse>(url); 
 
-            return response?.Data ?? new List<Ward>();
+        public async Task<List<Wards>> GetWardsByDistrictAsync(int districtId)
+        {
+            string apiUrl = $"https://online-gateway.ghn.vn/shiip/public-api/master-data/ward?district_id={districtId}";
+            string token = "3ddaa952-b6c6-11ef-96fc-be30eacd7c1b"; // Đảm bảo Token đúng
+
+            try
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Get, apiUrl))
+                {
+                    // Thêm Header Token
+                    request.Headers.Add("Token", token);
+
+                    // Gửi Request
+                    var response = await _httpClient.SendAsync(request);
+
+                    // Kiểm tra Response
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string jsonResponse = await response.Content.ReadAsStringAsync();
+                        var apiResponse = JsonConvert.DeserializeObject<OKAPI_Ward>(jsonResponse);
+                        return apiResponse?.Data ?? new List<Wards>();
+                    }
+                    else
+                    {
+                        throw new Exception($"API call failed with status code: {response.StatusCode}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                return new List<Wards>();
+            }
+        }
+        public async Task<decimal> CalculateShippingFee(ShippingRequest request)
+        {
+            var url = "https://online-gateway.ghn.vn/shiip/public-api/v2/shipping-order/fee";
+            string token = "01ce57f1-bdf0-11ef-a5c1-de81edc738f2";
+            int shopId = 5534739;
+
+            decimal feeShipping = 0;
+
+            try
+            {
+                using (var httpRequest = new HttpRequestMessage(HttpMethod.Post, url))
+                {
+                    httpRequest.Headers.Add("Token", token);
+                    httpRequest.Headers.Add("ShopId", shopId.ToString());
+
+                    var jsonContent = JsonConvert.SerializeObject(request);
+                    var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+                    httpRequest.Content = content;
+
+                    var response = await _httpClient.SendAsync(httpRequest);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string responseContent = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine("Phí dịch vụ: " + responseContent);
+
+                        var jsonResponse = JsonConvert.DeserializeObject<dynamic>(responseContent);
+                        feeShipping = Convert.ToDecimal(jsonResponse.data.total); // Chuyển đổi thành decimal  
+
+                        Console.WriteLine($"Phí shipping: {feeShipping}");
+                    }
+                    else
+                    {
+                        string errorContent = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"Lỗi khi gọi API: {response.ReasonPhrase} - Content: {errorContent}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
+            return feeShipping;
         }
 
     }
-    // Định nghĩa cấu trúc dữ liệu phản hồi từ API
-    public class ProvinceResponse
+
+    public class OKAPI
     {
-        public List<Province> Data { get; set; } 
+        public int Code { get; set; }
+        public string Message { get; set; }
+        public List<Provinces> Data { get; set; }
+    }
+
+    public class OKAPI_District
+    {
+        public int Code { get; set; }
+        public string Message { get; set; }
+        public List<Districts> Data { get; set; }
+    }
+
+    public class OKAPI_Ward
+    {
+        public int Code { get; set; }
+        public string Message { get; set; }
+        public List<Wards> Data { get; set; }
+    }
+
+    public class Provinces
+    {
+        public int ProvinceID { get; set; }
+        public string ProvinceName { get; set; }
         public string Code { get; set; }
     }
-    public class DistrictResponse
+
+    public class Districts
     {
-        public List<Districted> Data { get; set; }
+        public int DistrictID { get; set; }
+        public int ProvinceID { get; set; }
+        public string DistrictName { get; set; }
         public string Code { get; set; }
-    }
-
-    public class WardResponse
-    {
-        public List<Ward> Data { get; set; }
-        public string Code { get; set; }
-    }
-
-    public class Province
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
         public int Type { get; set; }
-        public string TypeText { get; set; }
-        public string Slug { get; set; }
-    }
-    public class Districted
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string ProvinceId { get; set; } // Để tham chiếu đến tỉnh
-        public int Type { get; set; }
-        public string TypeText { get; set; }
+        public int SupportType { get; set; }
     }
 
-    public class Ward
+    public class Wards
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string DistrictId { get; set; } // Để tham chiếu đến huyện
-        public int Type { get; set; }
-        public string TypeText { get; set; }
+        public string WardCode { get; set; }
+        public int DistrictID { get; set; }
+        public string WardName { get; set; }
     }
 
+    public class ShippingRequest
+    {
+        public int? service_type_id { get; set; }
+        public int? insurance_value { get; set; }
+        public string? coupon { get; set; }
+        public int? cod_failed_amount { get; set; }
+        public int? from_district_id { get; set; }
+        public string? from_ward_code { get; set; }
+        public int? to_district_id { get; set; }
+        public string? to_ward_code { get; set; }
+        public int? weight { get; set; }
+        public int? length { get; set; }
+        public int? width { get; set; }
+        public int? height { get; set; }
+
+
+
+
+        public int? cod_value { get; set; }
+        public Item[]? items { get; set; }
+    }
+
+    public class Item
+    {
+        public string? name { get; set; }
+        public string? code { get; set; }
+        public int? quantity { get; set; }
+        public int? length { get; set; }
+        public int? width { get; set; }
+        public int? height { get; set; }
+        public int? weight { get; set; }
+    }
+
+    public class ResponseAPI
+    {
+        public int Code { get; set; }
+        public string Message { get; set; }
+        public Response Data { get; set; }
+    }
+    public class Response
+    {
+
+    }
 }
