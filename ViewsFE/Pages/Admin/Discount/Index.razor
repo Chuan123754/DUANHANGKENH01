@@ -6,6 +6,12 @@
 @inject IProductAttributeServices productAttributeService
 @inject IAttributesDiscountServices AttributeDiscountService
 @inject IJSRuntime JS
+@inject IPostSer postServices
+@inject IMaterialServices MaterialtServices
+@inject ITextile_technologyServices TextileServices
+@inject IStyleServices StyleServices
+@inject ISizeServices SizetServices
+@inject IColorServices ColorServices
 @inject AuthenticationStateProvider AuthStateProvider
 @inject RoleService RoleService
  @inject NavigationManager nav
@@ -243,14 +249,40 @@
                 <div class="col-12 mt-3">
                     <div class="card">
                         <div class="card-body">
-                            <div class="search-box d-flex align-items-center justify-content-between mb-3">
-                                <div></div>
-                                <EditForm EditContext="editContext" OnValidSubmit="@SearchProducts">
-                                    <div class="form-group d-flex gap-2">
-                                        <InputText id="searchInputProduct" class="form-control" style="width: 300px" @bind-Value="searchProductText" placeholder="Tìm kiếm sản phẩm theo SKU, Color, Size" />
-                                        <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                            <div class="search-box mb-6">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="dropdowns-container d-flex ">
+                                        <select class="form-select form-select" @onchange="(e) => HandleProductNameChange(e)">
+                                            <option value="">Chọn sản phẩm</option>
+                                            @foreach (var item in postProduct_List)
+                                            {
+                                                <option value="@item.Id">@item.Title</option>
+                                            }
+                                        </select> 
+                                        <select class="form-select form-select" @onchange="(e) => HandleColorChange(e)">
+                                            <option value="">Chọn màu sắc</option>
+                                            @foreach (var color in color_List)
+                                            {
+                                                <option value="@color.Id">@color.Title</option>
+                                            }
+                                        </select>
+                                        <select class="form-select form-select" @onchange="(e) => HandleSizeChange(e)">
+                                            <option value="">Chọn kích thước</option>
+                                            @foreach (var size in size_List)
+                                            {
+                                                <option value="@size.Id">@size.Title</option>
+                                            }
+                                        </select>
                                     </div>
-                                </EditForm>
+                                    <EditForm EditContext="editContext" OnValidSubmit="@SearchProducts">
+                                        <div class="form-group d-flex gap-2">
+                                            <InputText id="searchInputProduct" class="form-control" style="width: 300px" @bind-Value="searchProductText" placeholder="Tìm kiếm sản phẩm" />
+                                            <button type="submit" class="btn btn-outline-primary">Tìm kiếm</button>
+                                        </div>
+                                    </EditForm>
+                                </div>
+                    
+                            </div>
                             </div>
                             <h3>Danh Sách Sản Phẩm</h3>
                             <table class="table table-striped">
@@ -259,10 +291,10 @@
                                         <th>
                                             <input type="checkbox" checked="@isAllSelected" @onchange="ToggleSelectAll" />
                                             <label>All</label>
-                                        </th>                                     
+                                        </th>
+                                        <th>Id</th>
                                         <th>Hình ảnh</th>
-                                        <th>Mã Sản Phẩm</th>
-                                        <th>SKU</th>
+                                        <th>Tên sản phẩm</th>
                                         <th>Màu sắc</th>
                                         <th>Kích thước</th>
                                         <th>Gía bán</th>
@@ -273,12 +305,14 @@
                                     @foreach (var item in lst_ProductAtribites.Where(p => p.Status != "Đã xoá"))
                                     {
                                         <tr>
+                                   
                                             <td>
                                                 <input type="checkbox" checked="@selectedProductIds.Contains(item.Id)" @onchange="@(e => OnCheckboxChange(e, item.Id))" />
                                             </td>
-                                            <td><img src="@item.Image" alt="Hình ảnh" style="width: 80px; height: 105px;" /></td>
                                             <td>@item.Id</td>
-                                            <td>@item.SKU</td>
+                                            <td><img src="@item.Image" alt="Hình ảnh" style="width: 80px; height: 105px;" /></td>
+
+                                            <td>@item.Posts.Title</td>
                                             <td class="text-center">
                                                 <div class="d-flex ">
                                                     <span class="text-truncate">@item.Color?.Title</span>
@@ -307,9 +341,6 @@
                             <div class="mt-4">
                                 <Pagination TItem="Product_Attributes" PageNumber="currentProductPage" TotalPages="totalProductPages" PageSize="productPageSize" TotalItems="lst_ProductAtribites.Count" OnPageChanged="GoToProductPage" OnPageSizeChanged="OnProductPageSizeChanged" />
                             </div>
-
-
-                        </div>
                     </div>
                 </div>
             </div>
@@ -334,8 +365,16 @@
     private string searchText = string.Empty;
     private string errorMessage = string.Empty;
     private int currentPage = 1;
-    private int pageSize = 10;
+    private int pageSize = 5;
     private int totalPages = 1;
+
+    private List<Color> color_List = new List<Color>();
+    private List<Size> size_List = new List<Size>();
+    private List<Product_Posts> postProduct_List = new List<Product_Posts>();
+    private string searchFilter = "product_name";
+    private string selectedColorId = string.Empty;
+    private string selectedSizeId = string.Empty;
+    private string selectedProductId = string.Empty;
 
     private DateTime? startDate
     {
@@ -348,7 +387,10 @@
         get => discount.End_date;
         set => discount.End_date = value ?? DateTime.Now;
     }
-
+    private string search_query = string.Empty;
+    private int page_number = 1;
+    private int total_pages = 1;
+    private int page_size = 10;
     private string searchDiscountText = string.Empty; // Tìm kiếm khuyến mãi
     private string searchProductText = string.Empty; // Tìm kiếm sản phẩm
     private int currentProductPage = 1;
@@ -360,6 +402,47 @@
     protected override void OnInitialized()
     {
         editContext = new EditContext(discount);
+    }
+    private async Task HandleProductNameChange(ChangeEventArgs e)
+    {
+        selectedProductId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+
+    private async Task HandleSizeChange(ChangeEventArgs e)
+    {
+        selectedSizeId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+    private async Task HandleColorChange(ChangeEventArgs e)
+    {
+        selectedColorId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+  
+    private async Task ApplyFilters()
+    {
+        var filteredProducts = await productAttributeService.GetAllProductAttributes();
+
+        if (!string.IsNullOrEmpty(selectedProductId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                    post.Posts.Id == long.Parse(selectedProductId)).ToList();
+        }
+
+        if (!string.IsNullOrEmpty(selectedColorId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Color_Id == long.Parse(selectedColorId)).ToList();
+        }
+        if (!string.IsNullOrEmpty(selectedSizeId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Size_Id == long.Parse(selectedSizeId)).ToList();
+        }
+
+        lst_ProductAtribites = filteredProducts;
+        StateHasChanged();
     }
 
     private void OnTypeOfPromotionChange(ChangeEventArgs e)
@@ -476,6 +559,11 @@
         lst_attributeDiscount = await AttributeDiscountService.GetAll();
         discounts = await DiscountService.GetAll();
         totalPages = Math.Max(1, (int)Math.Ceiling((double)discounts.Count / pageSize));
+
+        color_List = await ColorServices.GetAll();
+        size_List = await SizetServices.GetAll();
+        postProduct_List = await postServices.GetByTypeAsync("product", page_number, page_size, search_query);
+
         LoadPagedDiscounts();
         LoadProductAttribute();
     }
@@ -954,7 +1042,7 @@
         {
             // Thực hiện tìm kiếm dựa trên danh sách đã được làm mới
             lst_ProductAtribites = lst_ProductAtribites
-                .Where(p => p.SKU.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) ||
+                .Where(p => p.Posts?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true ||
                             p.Color?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true ||
                             p.Size?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true)
                 .ToList();

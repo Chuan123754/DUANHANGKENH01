@@ -62,7 +62,7 @@ namespace appAPI.Controllers
                 PdfFont fontNormal = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
                 PdfFont fontBold = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
 
-                string imagePath = @"D:\DATN\DUANHANGKENH01\appAPI\FileMedia\Logohk.jpg"; 
+                string imagePath = @"E:\HangKenh\appAPI\FileMedia\Logohk.jpg"; 
                 if (!System.IO.File.Exists(imagePath)) return BadRequest("Hình ảnh không tồn tại tại đường dẫn: " + imagePath);
 
                 Image logoImage = new Image(ImageDataFactory.Create(imagePath)).SetWidth(50).SetHeight(50);
@@ -107,7 +107,7 @@ namespace appAPI.Controllers
 
                 Table itemTable = new Table(new float[] { 0.7f, 1.5f, 1.2f, 1.2f, 1, 1.5f, 1, 1.5f }).UseAllAvailableWidth();
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("STT").SetFont(fontBold).SetFontSize(9)));
-                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Mã sản phẩm").SetFont(fontBold).SetFontSize(9)));
+                itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Tên sản phẩm").SetFont(fontBold).SetFontSize(9)));
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Màu sắc").SetFont(fontBold).SetFontSize(9)));
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Size").SetFont(fontBold).SetFontSize(9)));
                 itemTable.AddHeaderCell(new Cell().Add(new Paragraph("Đơn giá").SetFont(fontBold).SetFontSize(9)));
@@ -142,7 +142,7 @@ namespace appAPI.Controllers
                         decimal discountAmount = (unitPrice - discountPrice) * detail.Quantity;
 
                         itemTable.AddCell(new Cell().Add(new Paragraph(index.ToString()).SetFont(fontNormal).SetFontSize(9)));
-                        itemTable.AddCell(new Cell().Add(new Paragraph(product.SKU).SetFont(fontNormal).SetFontSize(9)));
+                        itemTable.AddCell(new Cell().Add(new Paragraph(product.Posts.Title).SetFont(fontNormal).SetFontSize(9)));
                         itemTable.AddCell(new Cell().Add(new Paragraph(product.Color.Title).SetFont(fontNormal).SetFontSize(9)));
                         itemTable.AddCell(new Cell().Add(new Paragraph(product.Size.Title).SetFont(fontNormal).SetFontSize(9)));
                         itemTable.AddCell(new Cell().Add(new Paragraph($"{unitPrice:0,0}").SetFont(fontNormal).SetFontSize(9)));
