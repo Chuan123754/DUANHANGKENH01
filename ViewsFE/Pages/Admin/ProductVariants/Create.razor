@@ -109,23 +109,30 @@
 
                                 <div class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
                                     <div class="accordion-body pt-0">
-                                        <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
-                                             onclick="openMediaModal()">
-                                            @if (product_Attributes?.Posts?.Feature_image != null && !string.IsNullOrEmpty(product_Attributes.Posts.Feature_image))
-                                            {
-                                                <img src="@product_Attributes.Posts.Feature_image" class="w-100 h-100 object-cover" />
-                                            }
-                                            else
-                                            {
-                                                <div class="icon d-flex align-items-center justify-content-center">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
-                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                        <path d="M12 5v14" />
-                                                        <path d="M5 12h14" />
-                                                    </svg>
-                                                </div>
-                                            }
-                                        </div>
+                                        @if (CurrentProduct == null)
+                                        {
+                                            <div>Đang tải hoặc không tìm thấy sản phẩm...</div>
+                                        }
+                                        else
+                                        {
+                                            <div id="feature_image" class="image-post-box d-flex align-items-center justify-content-center"
+                                                 onclick="openMediaModal()">
+                                                @if (!string.IsNullOrEmpty(CurrentProduct.Feature_image))
+                                                {
+                                                    <img src="@CurrentProduct.Feature_image" class="w-100 h-100 object-cover" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="icon d-flex align-items-center justify-content-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" stroke-width="1" stroke="currentColor" fill="none">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                            <path d="M12 5v14" />
+                                                            <path d="M5 12h14" />
+                                                        </svg>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
                                     </div>
                                 </div>
                                     <div class="accordion bg-white mb-3">
@@ -281,7 +288,7 @@
                             </tbody>
                         </table>
 
-                        <button class="btn btn-primary" @onclick="UpdateProductAttributes" >Xác Nhận</button>
+                        <button class="btn btn-primary" @onclick="UpdateProductAttributes">Xác Nhận</button>
                     </div>
                 }
 
@@ -712,14 +719,12 @@
                                 Status = product_Attributes.Stock == 0 ? "Hết hàng" : "Còn hàng"
                             };
                         await productAttributesServices.Create(productAttribute);
-                        LST_ProductAttributes = await productAttributesServices.GetProductAttributesByPostId(selectedPostProductId);
-                        isProductAttributesCreated = true;
-                        StateHasChanged();
-                        await JS.InvokeVoidAsync("toastr.success", "Tạo sản phẩm thành công!");
-
                     }
                 } 
-
+                LST_ProductAttributes = await productAttributesServices.GetProductAttributesByPostId(PostId);
+                isProductAttributesCreated = true;
+                StateHasChanged();
+                await JS.InvokeVoidAsync("toastr.success", "Tạo sản phẩm thành công!");
             }
             catch (Exception ex)
             {
@@ -761,7 +766,7 @@
             await productAttributesServices.Update(item, item.Id);
         }
         await JS.InvokeVoidAsync("toastr.success", "Thêm thông tin cho các biến thể thành công");
-        nav.NavigateTo("/admin/productVarians");
+        nav.NavigateTo("/admin/product");
     }
 
     private async Task DeleteProductAttribute(long id)
