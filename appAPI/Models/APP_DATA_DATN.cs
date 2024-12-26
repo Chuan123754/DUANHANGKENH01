@@ -15,7 +15,6 @@ namespace appAPI.Models
         public DbSet<Carts> Carts { get; set; }
         public DbSet<Cart_details> Cart_Details { get; set; }
         public DbSet<Categories> Categories { get; set; }
-        public DbSet<Comments> Comments { get; set; }
         public DbSet<Designer> Designer { get; set; }
         public DbSet<Discount> Discount { get; set; }
         public DbSet<Files>  Files { get; set; }
@@ -27,7 +26,7 @@ namespace appAPI.Models
         public DbSet<Post_categories> Post_Categories { get; set; }
         public DbSet<Post_tags> Post_Tags { get; set; }
         public DbSet<Product_Posts> Posts { get; set; }
-        public DbSet<ProductAttributes_wishlist> ProductAttribute_Wishlists { get; set; }
+        public DbSet<Product_wishlist> Product_Wishlists { get; set; }
         public DbSet<Q_A> Q_As { get; set; }
         public DbSet<Tags> Tags { get; set; }
         public DbSet<Users> Users { get; set; }

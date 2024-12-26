@@ -43,8 +43,6 @@ namespace ViewsFE.Models
         public virtual Color? Color { get; set; }
         [JsonIgnore]
         public virtual ICollection<P_attribute_discount> ProductAttribute_Discount { get; set; } = new List<P_attribute_discount>();
-        [JsonIgnore]
-        public virtual ICollection<ProductAttributes_wishlist> ProductAttributes_Wishlists { get; set; } = new List<ProductAttributes_wishlist>();
-
+    
     }
 }

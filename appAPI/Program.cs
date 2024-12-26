@@ -93,14 +93,13 @@ builder.Services.AddScoped<IBannerRepository, BannerRepository>();
 builder.Services.AddScoped<OrderIReponsitory, OrderReponsitory>();
 builder.Services.AddScoped<OrderDetailsIReponsitory, OrderDetailsReponsitory>();
 builder.Services.AddScoped<IDesignerRepon, DesignerRepon>();
-builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<IProductAttributesRepository, ProductAttributesRepository>();
 builder.Services.AddScoped<IProductAttributeDiscountRepository, ProductAttributeDiscount>();
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
-builder.Services.AddScoped<IAccsessViewsRepon,  AccsessViewsRepon>();  
+builder.Services.AddScoped<IAccsessViewsRepon, AccsessViewsRepon>();
 builder.Services.AddScoped<IMomoRepository, MomoRepository>();
 builder.Services.AddScoped<IVnPayService, VnPayService>();
-builder.Services.AddScoped<IProduct_variants_wishlist_Reponsitory, Product_variants_wishlist_Reponsitory>();
+builder.Services.AddScoped<IProduct_wishlist_Reponsitory, Product_wishlist_Reponsitory>();
 
 builder.Services.AddControllers(options =>
 {
@@ -184,10 +183,8 @@ app.UseStaticFiles();
 
 app.UseStaticFiles(new StaticFileOptions
 {
-
-
-    FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
-    // FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
+    //FileProvider = new PhysicalFileProvider(@"E:\HangKenh\appAPI\FileMedia"),
+    FileProvider = new PhysicalFileProvider(@"D:\DATN\DUANHANGKENH01\appAPI\FileMedia"),
    // FileProvider = new PhysicalFileProvider(@"I:\VIs Stu fille\DATN\DATN-Blazon\appAPI\FileMedia\"),
     RequestPath = "/FileMedia"
 });

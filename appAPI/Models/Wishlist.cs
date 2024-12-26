@@ -19,7 +19,7 @@ namespace appAPI.Models
         public DateTime? Updated_at { get; set; }
         public DateTime? Delete_at { get; set; }
         [JsonIgnore]
-        public virtual ICollection<ProductAttributes_wishlist> Product_Attributes { get; set; } = new List<ProductAttributes_wishlist>();
+        public virtual ICollection<Product_wishlist> Product_Attributes { get; set; } = new List<Product_wishlist>();
         [ForeignKey("User_id")]
         [JsonIgnore]
         public virtual Users? Users { get; set; }

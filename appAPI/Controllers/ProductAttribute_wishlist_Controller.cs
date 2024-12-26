@@ -9,8 +9,8 @@ namespace appAPI.Controllers
     [ApiController]
     public class ProductAttribute_wishlist_Controller : ControllerBase
     {
-        private readonly IProductAttribute_wishlist_Reponsitory _reponsitory;
-        public ProductAttribute_wishlist_Controller(IProductAttribute_wishlist_Reponsitory reponsitory)
+        private readonly IProduct_wishlist_Reponsitory _reponsitory;
+        public ProductAttribute_wishlist_Controller(IProduct_wishlist_Reponsitory reponsitory)
         {
             _reponsitory = reponsitory;
         }
@@ -35,19 +35,20 @@ namespace appAPI.Controllers
             return NotFound();
         }
         [HttpPost("CreateWLP")]
-        public async Task Create(ProductAttributes_wishlist pwl)
+        public async Task Create(Product_wishlist pwl)
         {
             await _reponsitory.Create(pwl);
         }
         [HttpDelete("DeletePWL")]
         public async Task<IActionResult> Delete(long id)
         {
-            var result = _reponsitory.Delete(id);
-            if (result != null)
+            var result = await _reponsitory.Delete(id); // Đảm bảo hàm Delete là async
+            if (result == "Xoá sản phẩm trong wishlist thành công")
             {
-                return Ok();
+                return Ok(result); // Trả về thông báo thành công
             }
-            return BadRequest();
+            return BadRequest(result); // Trả về thông báo lỗi
         }
+
     }
 }

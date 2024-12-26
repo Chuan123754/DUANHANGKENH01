@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace appAPI.Migrations
 {
-    public partial class app : Migration
+    public partial class chuan : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -373,29 +373,6 @@ namespace appAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Activity_history",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Log_name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Descripcion = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Subject_type = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Time = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AccountId = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Activity_history", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Activity_history_AspNetUsers_AccountId",
-                        column: x => x.AccountId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
@@ -525,6 +502,8 @@ namespace appAPI.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     User_Id = table.Column<long>(type: "bigint", nullable: true),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    WardCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DistrictId = table.Column<int>(type: "int", nullable: true),
                     Phone = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Street = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -647,40 +626,6 @@ namespace appAPI.Migrations
                         column: x => x.ProductPostId,
                         principalTable: "Product_post",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Comments",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Post_id = table.Column<long>(type: "bigint", nullable: false),
-                    User_id = table.Column<long>(type: "bigint", nullable: false),
-                    User_admin_id = table.Column<long>(type: "bigint", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Author_IP = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    Parent = table.Column<long>(type: "bigint", nullable: false),
-                    Type = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    Status = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    Created_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Updated_at = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Comments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Comments_Product_post_Post_id",
-                        column: x => x.Post_id,
-                        principalTable: "Product_post",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Comments_users_User_id",
-                        column: x => x.User_id,
-                        principalTable: "users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -837,6 +782,32 @@ namespace appAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Product_Wishlists",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Product_Posts_Id = table.Column<long>(type: "bigint", nullable: false),
+                    Wishlist_id = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Product_Wishlists", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Product_Wishlists_Product_post_Product_Posts_Id",
+                        column: x => x.Product_Posts_Id,
+                        principalTable: "Product_post",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Product_Wishlists_wishlist_Wishlist_id",
+                        column: x => x.Wishlist_id,
+                        principalTable: "wishlist",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Cartdetails",
                 columns: table => new
                 {
@@ -860,38 +831,6 @@ namespace appAPI.Migrations
                         column: x => x.Product_id,
                         principalTable: "Product_attributes",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductAttribute_Wishlists",
-                columns: table => new
-                {
-                    Id = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Product_Posts_Id = table.Column<long>(type: "bigint", nullable: false),
-                    Wishlist_id = table.Column<long>(type: "bigint", nullable: false),
-                    Product_AttributesId = table.Column<long>(type: "bigint", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductAttribute_Wishlists", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProductAttribute_Wishlists_Product_attributes_Product_AttributesId",
-                        column: x => x.Product_AttributesId,
-                        principalTable: "Product_attributes",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_ProductAttribute_Wishlists_Product_post_Product_Posts_Id",
-                        column: x => x.Product_Posts_Id,
-                        principalTable: "Product_post",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProductAttribute_Wishlists_wishlist_Wishlist_id",
-                        column: x => x.Wishlist_id,
-                        principalTable: "wishlist",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1031,11 +970,6 @@ namespace appAPI.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Activity_history_AccountId",
-                table: "Activity_history",
-                column: "AccountId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Address_User_Id",
                 table: "Address",
                 column: "User_Id");
@@ -1107,16 +1041,6 @@ namespace appAPI.Migrations
                 name: "IX_carts_UserId",
                 table: "carts",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Comments_Post_id",
-                table: "Comments",
-                column: "Post_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Comments_User_id",
-                table: "Comments",
-                column: "User_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_order_details_OrderId",
@@ -1219,18 +1143,13 @@ namespace appAPI.Migrations
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductAttribute_Wishlists_Product_AttributesId",
-                table: "ProductAttribute_Wishlists",
-                column: "Product_AttributesId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductAttribute_Wishlists_Product_Posts_Id",
-                table: "ProductAttribute_Wishlists",
+                name: "IX_Product_Wishlists_Product_Posts_Id",
+                table: "Product_Wishlists",
                 column: "Product_Posts_Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductAttribute_Wishlists_Wishlist_id",
-                table: "ProductAttribute_Wishlists",
+                name: "IX_Product_Wishlists_Wishlist_id",
+                table: "Product_Wishlists",
                 column: "Wishlist_id");
 
             migrationBuilder.CreateIndex(
@@ -1271,9 +1190,6 @@ namespace appAPI.Migrations
                 name: "AccessViews");
 
             migrationBuilder.DropTable(
-                name: "Activity_history");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
             migrationBuilder.DropTable(
@@ -1295,9 +1211,6 @@ namespace appAPI.Migrations
                 name: "Cartdetails");
 
             migrationBuilder.DropTable(
-                name: "Comments");
-
-            migrationBuilder.DropTable(
                 name: "Contacts");
 
             migrationBuilder.DropTable(
@@ -1316,7 +1229,7 @@ namespace appAPI.Migrations
                 name: "post_tags");
 
             migrationBuilder.DropTable(
-                name: "ProductAttribute_Wishlists");
+                name: "Product_Wishlists");
 
             migrationBuilder.DropTable(
                 name: "ProductAttributes_Discount");
