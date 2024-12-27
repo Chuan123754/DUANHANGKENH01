@@ -12,8 +12,8 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
-    [Migration("20241223160406_app")]
-    partial class app
+    [Migration("20241226092839_chuan")]
+    partial class chuan
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -114,40 +114,6 @@ namespace appAPI.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("appAPI.Models.Activity_history", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
-                    b.Property<string>("AccountId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Descripcion")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Log_name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Subject_type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Time")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.ToTable("Activity_history");
-                });
-
             modelBuilder.Entity("appAPI.Models.Address", b =>
                 {
                     b.Property<long>("Id")
@@ -158,6 +124,9 @@ namespace appAPI.Migrations
 
                     b.Property<string>("District")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("DistrictId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
@@ -185,6 +154,9 @@ namespace appAPI.Migrations
 
                     b.Property<long?>("User_Id")
                         .HasColumnType("bigint");
+
+                    b.Property<string>("WardCode")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Ward_commune")
                         .HasColumnType("nvarchar(max)");
@@ -392,57 +364,6 @@ namespace appAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Color");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Comments", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
-                    b.Property<string>("Author_IP")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("Created_at")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("Parent")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("Post_id")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Status")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<DateTime?>("Updated_at")
-                        .HasColumnType("datetime2");
-
-                    b.Property<long>("User_admin_id")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("User_id")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Post_id");
-
-                    b.HasIndex("User_id");
-
-                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("appAPI.Models.Contact", b =>
@@ -1030,16 +951,13 @@ namespace appAPI.Migrations
                     b.ToTable("Product_post");
                 });
 
-            modelBuilder.Entity("appAPI.Models.ProductAttributes_wishlist", b =>
+            modelBuilder.Entity("appAPI.Models.Product_wishlist", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"), 1L, 1);
-
-                    b.Property<long?>("Product_AttributesId")
-                        .HasColumnType("bigint");
 
                     b.Property<long>("Product_Posts_Id")
                         .HasColumnType("bigint");
@@ -1049,13 +967,11 @@ namespace appAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Product_AttributesId");
-
                     b.HasIndex("Product_Posts_Id");
 
                     b.HasIndex("Wishlist_id");
 
-                    b.ToTable("ProductAttribute_Wishlists");
+                    b.ToTable("Product_Wishlists");
                 });
 
             modelBuilder.Entity("appAPI.Models.Products_Returned", b =>
@@ -1573,17 +1489,6 @@ namespace appAPI.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("appAPI.Models.Activity_history", b =>
-                {
-                    b.HasOne("appAPI.Models.Account", "Account")
-                        .WithMany("Activity_history")
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Account");
-                });
-
             modelBuilder.Entity("appAPI.Models.Address", b =>
                 {
                     b.HasOne("appAPI.Models.Users", "User")
@@ -1628,25 +1533,6 @@ namespace appAPI.Migrations
                     b.HasOne("appAPI.Models.Users", "Users")
                         .WithMany()
                         .HasForeignKey("UserId");
-
-                    b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("appAPI.Models.Comments", b =>
-                {
-                    b.HasOne("appAPI.Models.Product_Posts", "Post")
-                        .WithMany()
-                        .HasForeignKey("Post_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("appAPI.Models.Users", "Users")
-                        .WithMany()
-                        .HasForeignKey("User_id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
 
                     b.Navigation("Users");
                 });
@@ -1828,14 +1714,10 @@ namespace appAPI.Migrations
                     b.Navigation("Designer");
                 });
 
-            modelBuilder.Entity("appAPI.Models.ProductAttributes_wishlist", b =>
+            modelBuilder.Entity("appAPI.Models.Product_wishlist", b =>
                 {
-                    b.HasOne("appAPI.Models.Product_Attributes", null)
-                        .WithMany("ProductAttributes_Wishlists")
-                        .HasForeignKey("Product_AttributesId");
-
                     b.HasOne("appAPI.Models.Product_Posts", "Product_Posts")
-                        .WithMany()
+                        .WithMany("Product_Wishlists")
                         .HasForeignKey("Product_Posts_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1945,8 +1827,6 @@ namespace appAPI.Migrations
 
             modelBuilder.Entity("appAPI.Models.Account", b =>
                 {
-                    b.Navigation("Activity_history");
-
                     b.Navigation("CreatedOrders");
 
                     b.Navigation("Posts");
@@ -2001,8 +1881,6 @@ namespace appAPI.Migrations
             modelBuilder.Entity("appAPI.Models.Product_Attributes", b =>
                 {
                     b.Navigation("ProductAttribute_Discount");
-
-                    b.Navigation("ProductAttributes_Wishlists");
                 });
 
             modelBuilder.Entity("appAPI.Models.Product_Posts", b =>
@@ -2014,6 +1892,8 @@ namespace appAPI.Migrations
                     b.Navigation("Post_tags");
 
                     b.Navigation("Product_Attributes");
+
+                    b.Navigation("Product_Wishlists");
                 });
 
             modelBuilder.Entity("appAPI.Models.Size", b =>

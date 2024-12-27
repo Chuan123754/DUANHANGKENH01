@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace ViewsFE.Models
 {
-    public class ProductAttributes_wishlist
+    public class Product_wishlist
     {
         [Key]
         public long Id { get; set; }
