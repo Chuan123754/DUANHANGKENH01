@@ -716,6 +716,7 @@
                                 Style_id = product_Attributes.Style_id,
                                 Color_Id = colorId,
                                 Size_Id = sizeId,
+                                SKU = CurrentProduct.Title,
                                 Status = product_Attributes.Stock == 0 ? "Hết hàng" : "Còn hàng"
                             };
                         await productAttributesServices.Create(productAttribute);
