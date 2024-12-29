@@ -20,12 +20,10 @@ namespace appAPI.Models
 
         public DateTime Update_at { get; set; }
 
-        // Navigation properties
         [ForeignKey("UserId")]
         [JsonIgnore]
         public virtual Users? Users { get; set; }
         [ForeignKey("VoucherId")]
-        [JsonIgnore]
         public virtual Vouchers? Vouchers { get; set; }
     }
 }

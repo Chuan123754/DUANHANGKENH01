@@ -99,6 +99,7 @@ namespace appAPI.Controllers
                 }).ToList(),
                 TotalPrincipal = order.TotalPrincipal ?? 0,
                 TotalAmount = order.TotalAmount ?? 0,
+                TotalVoucher = order.TotalVoucher ?? 0,
                 TypePayment=order.TypePayment,
                 TotalDiscount = (order.TotalPrincipal ?? 0) - (order.TotalAmount ?? 0),
                 FeeShipping = order.FeeShipping ?? 0,

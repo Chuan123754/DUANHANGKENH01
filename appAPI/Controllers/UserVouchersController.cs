@@ -21,7 +21,11 @@ namespace appAPI.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok(_userVoucherRepository.GetAll());
+             var userVouchers = _userVoucherRepository.GetAll()
+                                                     .Include(uv => uv.Vouchers)
+                                                     .ToList();
+
+            return Ok(userVouchers);
         }
 
         // Lấy UserVoucher theo Id
@@ -36,8 +40,8 @@ namespace appAPI.Controllers
         [HttpGet("byVoucher/{voucherId}")]
         public IActionResult GetByVoucherId(long voucherId)
         {
-            // Lấy danh sách UserVouchers từ repository theo VoucherId
             var userVouchers = _userVoucherRepository.GetAll()
+                                                     .Include(uv => uv.Vouchers)
                                                      .Where(uv => uv.VoucherId == voucherId)
                                                      .ToList();
 
