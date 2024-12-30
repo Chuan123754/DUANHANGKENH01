@@ -82,8 +82,22 @@ namespace appAPI.Controllers
         }
 
         // PUT api/<OrdersController>/5
+        [HttpPut("UpdateStrees")]
+        public async Task<IActionResult> PutStrees(Orders orders,long id)
+        {
+            try
+            {
+                await _repo.UpdateSrees(orders, id);
+                return Ok(orders);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        // PUT api/<OrdersController>/5
         [HttpPut("Update")]
-        public async Task<IActionResult> Put(Orders orders,long id)
+        public async Task<IActionResult> Put(Orders orders, long id)
         {
             try
             {
@@ -95,7 +109,6 @@ namespace appAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
         [HttpPut("UpdateStatus")]
         public async Task<IActionResult> PutStatus(Orders orders, long id)
         {

@@ -774,7 +774,7 @@
     {
         try
         {
-            await productAttributesServices.Delete(id);
+            await productAttributesServices.DeleteCung(id);
             var attributeToRemove = LST_ProductAttributes.FirstOrDefault(attr => attr.Id == id);
             if (attributeToRemove != null)
             {

@@ -1032,7 +1032,7 @@
         await ApplyFilters();
     }
 
-      private async Task HandleSizeChange(ChangeEventArgs e)
+    private async Task HandleSizeChange(ChangeEventArgs e)
     {
         selectedSizeId = e.Value?.ToString() ?? string.Empty;
         await ApplyFilters();
@@ -1087,7 +1087,7 @@
             filteredProducts = filteredProducts.Where(post =>
                 post.Style_id == long.Parse(selectedStyleId)).ToList();
         }
-            if (!string.IsNullOrEmpty(selectedColorId))
+        if (!string.IsNullOrEmpty(selectedColorId))
         {
             filteredProducts = filteredProducts.Where(post =>
                 post.Color_Id == long.Parse(selectedColorId)).ToList();
@@ -1984,6 +1984,7 @@
                 orderToUpdate.Status = "Đã xác nhận";
                 orderToUpdate.FeeShipping = feeShipping;
                 orderToUpdate.Address_Id = selectedAddress?.Id;
+                orderToUpdate.Strees = $"{selectedAddress.Street} - {selectedAddress.Ward_commune} - {selectedAddress.District} - {selectedAddress.Province_city}";
             }
             else
             {

@@ -11,6 +11,7 @@ namespace appAPI.IRepository
         Task<List<Orders>> GetOrderByIdUser(long  idUser);
         Task Create(Orders orders);
         Task Update(Orders orders , long id);
+        Task UpdateSrees(Orders orders , long id);
         Task UpdateStatus(Orders orders, long id);
         Task Delete(long id);
         Task<int> GetTotal();

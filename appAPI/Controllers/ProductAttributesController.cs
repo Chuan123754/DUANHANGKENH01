@@ -25,6 +25,16 @@ namespace appAPI.Controllers
             }
             return NotFound();
         }
+        [HttpGet("GetAllProductAttributesDelete")]
+        public async Task<IActionResult> GetAllProductAttributesDelete()
+        {
+            var result = await _repo.GetAllProductAttributesDelete();
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return NotFound();
+        }
         [HttpGet("GetProductAttributesByPostId")]
         public async Task<IActionResult> GetProductAttributesByProductVariantId(long id)
         {
@@ -94,6 +104,34 @@ namespace appAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [HttpDelete("DeleteProductAttributeCung")]
+        public async Task<IActionResult> DeleteCung(long id)
+        {
+            try
+            {
+                await _repo.DeleteCung(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPut("Restore-productattribute")]
+        public async Task<IActionResult> Restore(long id)
+        {
+            try
+            {
+                await _repo.Restore(id);
+                return Ok(new { message = "Khôi phục thành công" });
+            }
+            catch (Exception ex)
+            {
+                // Trả về lỗi 400 kèm thông báo lỗi
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpGet("get-by-type")]
         public async Task<IActionResult> GetByType([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] string? searchTerm = null)
         {
