@@ -16,6 +16,7 @@
         public decimal TotalPrincipal { get; set; }
         public decimal TotalAmount { get; set; }
         public decimal TotalDiscount { get; set; }
+        public decimal TotalVoucher { get; set; }
         public decimal FeeShipping { get; set; }
         public decimal TotalMoney { get; set; }
         public long Created_by { get; set; }

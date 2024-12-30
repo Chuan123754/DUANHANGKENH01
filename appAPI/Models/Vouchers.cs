@@ -12,62 +12,35 @@ namespace appAPI.Models
         [Key]
         public long Id { get; set; }
         [Required(ErrorMessage = "Mã voucher là bắt buộc.")]
-        [StringLength(20, MinimumLength = 5, ErrorMessage = "Mã voucher phải có độ dài từ 5 đến 20 ký tự.")]
         public string? Code { get; set; }
-
-        [StringLength(255, ErrorMessage = "Mô tả không được vượt quá 255 ký tự.")]
         public string? Description { get; set; }
-
-        [Range(0, int.MaxValue, ErrorMessage = "Số lượng phải là một số dương.")]
         public string? Quantity { get; set; }
-
         public string? Percent { get; set; }
-
-        [Range(0, double.MaxValue, ErrorMessage = "Giá trị giảm tối đa phải là một số dương.")]
         public string? MaxDiscountValue { get; set; }
-
-        [Range(0, double.MaxValue, ErrorMessage = "Điều kiện phải là một số dương.")]
         public string? Condition { get; set; }
         public DateTime Create_at { get; set; }
-
         public DateTime Update_at { get; set; }
-
-        [Required(ErrorMessage = "Thời gian bắt đầu là bắt buộc.")]
         public DateTime Start_time { get; set; }
-
-        [Required(ErrorMessage = "Thời gian kết thúc là bắt buộc.")]
-        [DateGreaterThan("Start_time", ErrorMessage = "Thời gian kết thúc phải sau thời gian bắt đầu.")]
         public DateTime End_time { get; set; }
-
-        [Required(ErrorMessage = "Trạng thái là bắt buộc.")]
         public string? Status { get; set; }
 
     }
+        //[Key]
+        //public long Id { get; set; }
+        //public string? Code { get; set; }
+        //public string? Description { get; set; }
+        //public int? Quantity { get; set; }
+        //public string? Percent { get; set; }
+        //public decimal? MaxDiscountValue { get; set; } // Giá trị giảm tối đa (nếu là %)
+        //public string? Condition { get; set; } // Điều kiện áp dụng voucher
+        //public DateTime? Create_at { get; set; }
+        //public DateTime? Update_at { get; set; }
+        //public DateTime? Start_time { get; set; }
+        //public DateTime? End_time { get; set; }
+        //public string? Status { get; set; }
+        //[JsonIgnore]
+        //public virtual ICollection<UserVouchers> UserVouchers { get; set; } = new List<UserVouchers>();
 
-    // Custom validation attribute để kiểm tra thời gian kết thúc phải lớn hơn thời gian bắt đầu
-    public class DateGreaterThanAttribute : ValidationAttribute
-    {
-        private readonly string _startDatePropertyName;
-
-        public DateGreaterThanAttribute(string startDatePropertyName)
-        {
-            _startDatePropertyName = startDatePropertyName;
-        }
-
-        protected override ValidationResult IsValid(object value, ValidationContext validationContext)
-        {
-            var endDate = (DateTime)value;
-
-            var startDateProperty = validationContext.ObjectType.GetProperty(_startDatePropertyName);
-            if (startDateProperty == null)
-                return new ValidationResult($"Không tìm thấy thuộc tính {_startDatePropertyName}");
-
-            var startDate = (DateTime)startDateProperty.GetValue(validationContext.ObjectInstance);
-
-            if (endDate <= startDate)
-                return new ValidationResult(ErrorMessage);
-
-            return ValidationResult.Success;
-        }
-    }
+        //[JsonIgnore]
+        //public virtual ICollection<Order_Vouchers> OrderVouchers { get; set; } = new List<Order_Vouchers>(); // Quan hệ với OrderVoucher
 }
