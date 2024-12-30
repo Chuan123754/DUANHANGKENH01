@@ -7,7 +7,7 @@ namespace appAPI.Repository
 {
     public interface IRepository<T> where T : class
     {
-        IEnumerable<T> GetAll();
+        IQueryable<T> GetAll();
         T GetById(long id);
         IEnumerable<T> GetPaged(int pageIndex, int pageSize);
         IEnumerable<T> Find(Expression<Func<T, bool>> predicate);

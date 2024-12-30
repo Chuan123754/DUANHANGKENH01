@@ -55,6 +55,7 @@ namespace ViewsFE.Services
                 TypePayment=tracking.TypePayment,
                 TotalPrincipal = tracking.TotalPrincipal,
                 TotalAmount = tracking.TotalAmount,
+                TotalVoucher = tracking.TotalVoucher,
                 TotalDiscount = tracking.TotalDiscount,
                 FeeShipping = tracking.FeeShipping,
                 TotalMoney = tracking.TotalMoney,

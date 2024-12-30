@@ -100,6 +100,7 @@ namespace appAPI.Repository
                 updateItem.Status = orders.Status;
                 updateItem.Note = orders.Note;
                 updateItem.TotalAmount = orders.TotalAmount;
+                updateItem.TotalVoucher = orders.TotalVoucher;
                 updateItem.Totalmoney = orders.Totalmoney;
                 updateItem.TotalPrincipal = orders.TotalPrincipal;
                 updateItem.FeeShipping = orders.FeeShipping;

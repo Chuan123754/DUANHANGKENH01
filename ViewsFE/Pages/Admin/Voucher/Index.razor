@@ -68,7 +68,8 @@
 
                                 <!-- Các trường thông tin voucher -->
                                 <div class="form-group mb-1">
-                                    <label for="voucherCode">Mã Voucher
+                                    <label for="voucherCode">
+                                        Mã Voucher
                                         <span class="info-icon">
                                             <i class="fas fa-info-circle fa-sm"></i>
                                             <span class="tooltip-text">Mã voucher phải lớn hơn 5 ký tự</span>
@@ -79,15 +80,36 @@
                                 </div>
 
                                 <div class="form-group mb-1">
-                                    <label for="description">Mô Tả
-                                        
-                                    </label>
-                                    <input type="text" id="description" @bind="voucher.Description" class="form-control" placeholder="Mô tả voucher" />
-                                    <ValidationMessage For="@(() => voucher.Description)" />
+                                    <label for="typeOfPromotion">Loại Voucher</label>
+                                    <select id="typeOfPromotion" @bind="selectedTypeVoucher" class="form-control">
+                                        <option value="Percentage">Giảm theo phần trăm</option>
+                                        <option value="Fixed">Giảm giá cố định</option>
+                                        <option value="Shipping">Miễn phí giao hàng</option>
+                                    </select>
                                 </div>
 
+                                @* Chỉ hiển thị khi không phải là miễn phí giao hàng *@
+                                @if (selectedTypeVoucher != "Shipping")
+                                {
+                                    <div class="form-group mb-1">
+                                        <label for="discountValue">Giá trị Voucher</label>
+                                        <div class="input-group">
+                                            <input type="number" id="discountValue"
+                                                   @bind="voucherValue"
+                                                   class="form-control"
+                                                   placeholder="Nhập giá trị khuyến mãi"
+                                                   @oninput="ValidateVoucherValue" />
+                                            <span class="input-group-text">
+                                                @((selectedTypeVoucher == "Percentage") ? "%" : "VNĐ")
+                                            </span>
+                                        </div>
+                                        <ValidationMessage For="@(() => voucherValue)" />
+                                    </div>
+                                }
+
                                 <div class="form-group mb-1">
-                                    <label for="quantity">Số Lượng
+                                    <label for="quantity">
+                                        Số Lượng
                                         <span class="info-icon">
                                             <i class="fas fa-info-circle fa-sm"></i>
                                             <span class="tooltip-text">Nếu tích khách hàng, số lượng mặc định là số khách hàng được tích</span>
@@ -97,30 +119,24 @@
                                     <ValidationMessage For="@(() => voucher.Quantity)" />
                                 </div>
 
+                                @* Chỉ hiển thị khi giảm giá theo phần trăm *@
+                                @if (selectedTypeVoucher == "Percentage")
+                                {
+                                    <div class="form-group mb-1">
+                                        <label for="maxDiscountValue">
+                                            Giá Trị Giảm Tối Đa
+                                            <span class="info-icon">
+                                                <i class="fas fa-info-circle fa-sm"></i>
+                                                <span class="tooltip-text">Giá trị giảm tối đa theo "VND" luôn bằng "Phần trăm giảm giá"</span>
+                                            </span>
+                                        </label>
+                                        <input type="number" id="maxDiscountValue" @bind="voucher.MaxDiscountValue" class="form-control" placeholder="Giá trị giảm tối đa" />
+                                        <ValidationMessage For="@(() => voucher.MaxDiscountValue)" />
+                                    </div>
+                                }
                                 <div class="form-group mb-1">
-                                    <label for="percent">Phần Trăm Giảm Giá (% || VND)
-                                        <span class="info-icon">
-                                            <i class="fas fa-info-circle fa-sm"></i>
-                                            <span class="tooltip-text">Giảm theo phần trăm phải có ký tự "%"</span>
-                                        </span>
-                                    </label>
-                                    <input type="text" id="percent" @bind="voucher.Percent" class="form-control" placeholder="Phần trăm giảm giá" />
-                                    <ValidationMessage For="@(() => voucher.Percent)" />
-                                </div>
-
-                                <div class="form-group mb-1">
-                                    <label for="maxDiscountValue">Giá Trị Giảm Tối Đa
-                                        <span class="info-icon">
-                                            <i class="fas fa-info-circle fa-sm"></i>
-                                            <span class="tooltip-text">Giá trị giảm tối đa theo "VND" luôn bằng "Phần trăm giảm giá"</span>
-                                        </span>
-                                    </label>
-                                    <input type="number" id="maxDiscountValue" @bind="voucher.MaxDiscountValue" class="form-control" placeholder="Giá trị giảm tối đa" />
-                                    <ValidationMessage For="@(() => voucher.MaxDiscountValue)" />
-                                </div>
-
-                                <div class="form-group mb-1">
-                                    <label for="Condition">Điều kiện
+                                    <label for="Condition">
+                                        Điều kiện
                                         <span class="info-icon">
                                             <i class="fas fa-info-circle fa-sm"></i>
                                             <span class="tooltip-text">Lưu ý: Nếu giảm theo "VND" Thì "Điều kiện" luôn phải lớn hơn "Phần trăm giảm giá"</span>
@@ -218,7 +234,24 @@
                                                 <tr>
                                                     <td>@(++index + (currentPage - 1) * pageSize)</td>
                                                     <td>@voucher.Code</td>
-                                                    <td>@voucher.Description</td>
+                                                    <td>
+                                                        @if (voucher.Description == "Percentage")
+                                                        {
+                                                            <span>Giảm theo phần trăm</span>
+                                                        }
+                                                        else if (voucher.Description == "Fixed")
+                                                        {
+                                                            <span>Giảm giá cố định</span>
+                                                        }
+                                                        else if (voucher.Description == "Shipping")
+                                                        {
+                                                            <span>Miễn phí giao hàng</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Loại voucher không xác định.</span>
+                                                        }
+                                                    </td>
                                                     <td>@voucher.Percent</td>
                                                     <td>@voucher.MaxDiscountValue</td>
                                                     <td>@voucher.Condition</td>
@@ -330,7 +363,8 @@
 
     private string searchText = string.Empty;
     private string searchTextUser = string.Empty;
-
+    private string selectedTypeVoucher = "";
+    private decimal voucherValue;
 
     private string errorMessage = string.Empty;
     private int selectedUserCount = 0;
@@ -518,35 +552,9 @@
             {
                 errorMessage = "Voucher đang không hoạt động. Không thể thêm khách hàng.";
                 return;
-            }
+            } 
 
-            // Kiểm tra "Type_of_promotion" chỉ chứa số hoặc ký tự "%"
-            if (!Regex.IsMatch(voucher.Percent, @"^\d+%?$"))
-            {
-                errorMessage = "Loại khuyến mãi phải là số hoặc số kèm ký tự '%'!";
-                return;
-            }
-
-            // Kiểm tra chỉ chứa số
-            if (!Regex.IsMatch(voucher.Quantity, @"^\d+$"))
-            {
-                errorMessage = "Số lượng chỉ chứ số!";
-                return;
-            }
-
-            if (!Regex.IsMatch(voucher.MaxDiscountValue, @"^\d+$"))
-            {
-                errorMessage = "Phần trăm giảm tối thiểu chỉ chứa số!";
-                return;
-            }
-
-            if (!Regex.IsMatch(voucher.Condition, @"^\d+$"))
-            {
-                errorMessage = "Điều kiện chỉ chứa số!";
-                return;
-            }
-
-            var today = DateTime.Today;
+            var today = DateTime.Now;
             if (voucher.End_time < today)
             {
                 voucher.Status = "Đã kết thúc";
@@ -568,9 +576,9 @@
                 var userVoucher = new Vouchers
                     {
                         Code = voucher.Code,
-                        Description = voucher.Description,
+                        Description = selectedTypeVoucher,
                         Quantity = voucher.Quantity,
-                        Percent = voucher.Percent,
+                        Percent = voucherValue.ToString(),
                         MaxDiscountValue = voucher.MaxDiscountValue,
                         Condition = voucher.Condition,
                         Start_time = voucher.Start_time,
@@ -667,6 +675,38 @@
         }
     }
 
+    private void ValidateVoucherValue(ChangeEventArgs e)
+    {
+        if (decimal.TryParse(e.Value?.ToString(), out var value))
+        {
+            if (selectedTypeVoucher == "Percentage")
+            {
+                if (value <= 0 || value > 100)
+                {
+                    errorMessage = "Giảm theo phần trăm phải lớn hơn 0 và không quá 100!";
+                    voucherValue = 0;
+                    return;
+                }
+            }
+            else if (selectedTypeVoucher == "Fixed")
+            {
+                if (value <= 0)
+                {
+                    errorMessage = "Giảm giá cố định phải lớn hơn 0!";
+                    voucherValue = 0; // Reset giá trị nếu không hợp lệ
+                    return;
+                }
+            }
+            errorMessage = null;
+            voucherValue = value;
+        }
+        else
+        {
+            errorMessage = "Giá trị không hợp lệ!";
+            voucherValue = 0;
+        }
+    }
+
 
     private void UpdateInitialUserIds()
     {
@@ -696,33 +736,7 @@
                 return;
             }
 
-            // Kiểm tra "Type_of_promotion" chỉ chứa số hoặc ký tự "%"
-            if (!Regex.IsMatch(voucher.Percent, @"^\d+%?$"))
-            {
-                errorMessage = "Loại khuyến mãi phải là số hoặc số kèm ký tự '%'!";
-                return;
-            }
-
-            // Kiểm tra chỉ chứa số
-            if (!Regex.IsMatch(voucher.Quantity, @"^\d+$"))
-            {
-                errorMessage = "Số lượng chỉ chứ số!";
-                return;
-            }
-
-            if (!Regex.IsMatch(voucher.MaxDiscountValue, @"^\d+$"))
-            {
-                errorMessage = "Phần trăm giảm tối thiểu chỉ chứa số!";
-                return;
-            }
-
-            if (!Regex.IsMatch(voucher.Condition, @"^\d+$"))
-            {
-                errorMessage = "Điều kiện chỉ chứa số!";
-                return;
-            }
-
-            var today = DateTime.Today;
+            var today = DateTime.Now;
             if (voucher.End_time < today)
             {
                 voucher.Status = "Đã kết thúc";
@@ -740,7 +754,7 @@
             if (voucher.Status == "Không hoạt động")
             {
                 // Chỉ cập nhật trạng thái và các thông tin khác, không xử lý thêm/bỏ khách hàng
-                await VoucherService.Update(voucher);
+                // await VoucherService.Update(voucher);
 
                 await LoadVouchers();
                 voucher = new Vouchers
@@ -801,6 +815,9 @@
             await LoadVouchers();
             voucher = new Vouchers
                 {
+                    Description = selectedTypeVoucher,
+                    Percent = voucherValue.ToString(),
+                    Condition = voucher.Condition,
                     Start_time = DateTime.Now,
                     End_time = DateTime.Now.AddDays(1),
                     Status = "Hoạt động"
@@ -822,38 +839,38 @@
 
     private async Task HandleSubmit()
     {
-        // Kiểm tra giá trị giảm giá
-        if (voucher.Percent.Contains("%"))
-        {
-            // Loại bỏ ký tự "%" để kiểm tra giá trị số
-            var percentValue = double.TryParse(voucher.Percent.Replace("%", "").Trim(), out double percent) ? percent : -1;
+        // // Kiểm tra giá trị giảm giá
+        // if (voucher.Percent.Contains("%"))
+        // {
+        //     // Loại bỏ ký tự "%" để kiểm tra giá trị số
+        //     var percentValue = double.TryParse(voucher.Percent.Replace("%", "").Trim(), out double percent) ? percent : -1;
 
-            if (percent <= 0 || percent >= 100)
-            {
-                errorMessage = "Phần trăm giảm giá phải lớn hơn 0 và nhỏ hơn 100.";
-                return;
-            }
-        }
-        else
-        {
-            // Giá trị dạng VND
-            var discountValue = double.TryParse(voucher.Percent.Trim(), out double value) ? value : -1;
+        //     if (percent <= 0 || percent >= 100)
+        //     {
+        //         errorMessage = "Phần trăm giảm giá phải lớn hơn 0 và nhỏ hơn 100.";
+        //         return;
+        //     }
+        // }
+        // else
+        // {
+        //     // Giá trị dạng VND
+        //     var discountValue = double.TryParse(voucher.Percent.Trim(), out double value) ? value : -1;
 
-            if (value <= 0)
-            {
-                errorMessage = "Giá trị giảm giá phải lớn hơn 0.";
-                return;
-            }
+        //     if (value <= 0)
+        //     {
+        //         errorMessage = "Giá trị giảm giá phải lớn hơn 0.";
+        //         return;
+        //     }
 
-            // Gán Giá trị giảm tối đa = Giá trị giảm theo VND
-            voucher.MaxDiscountValue = value.ToString();
+        //     // Gán Giá trị giảm tối đa = Giá trị giảm theo VND
+        //     voucher.MaxDiscountValue = value.ToString();
 
-            if (double.TryParse(voucher.Condition.ToString(), out double conditionValue) && conditionValue <= value)
-            {
-                errorMessage = "Điều kiện phải lớn hơn giá trị giảm.";
-                return;
-            }
-        }
+        //     if (double.TryParse(voucher.Condition.ToString(), out double conditionValue) && conditionValue <= value)
+        //     {
+        //         errorMessage = "Điều kiện phải lớn hơn giá trị giảm.";
+        //         return;
+        //     }
+        // }
 
         if (voucher.Id == 0)
         {

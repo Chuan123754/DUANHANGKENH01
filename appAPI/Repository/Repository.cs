@@ -18,9 +18,9 @@ namespace appAPI.Repository
             _entities = context.Set<T>();
         }
 
-        public IEnumerable<T> GetAll()
+        public IQueryable<T> GetAll()
         {
-            return _entities.ToList();
+            return _entities;
         }
 
         public T GetById(long id)
