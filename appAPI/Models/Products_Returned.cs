@@ -30,7 +30,7 @@ namespace appAPI.Models
         public string? Notes { get; set; }
         public bool? IsReturn { get; set; }
         public DateTime? Created_at { get; set; } = DateTime.Now;
-        public long? Created_by { get; set; }
+        public string? Created_by { get; set; }
         public DateTime? Update_at { get; set; }
 
         [ForeignKey("OrderDetailId")]

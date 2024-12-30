@@ -4,6 +4,7 @@
 @inject OrderDetailsIServices OrderDetailsServices
 @inject IAddressServices AddressService
 @inject IJSRuntime JSRuntime
+@inject CustomAuthenticationStateProvider _authStateProvider;
 
 @if (!string.IsNullOrEmpty(ErrorMessage))
 {
@@ -457,6 +458,7 @@
     private bool isRefundModalVisible = false;
     private decimal TotalRefundAmount = 0;
 
+    string adminId;
     private async Task<bool> ShowConfirmation(string message)
     {
         return await JSRuntime.InvokeAsync<bool>("confirm", message);
@@ -493,6 +495,15 @@
                     Notes = "",
                     Condition = ""
                 };
+        }
+        var currentUserId = await _authStateProvider.GetCurrentUserId();
+        if (currentUserId == null)
+        {
+            adminId = null;
+        }
+        else
+        {
+            adminId = currentUserId;
         }
     }
 
@@ -625,6 +636,7 @@
                         productReturned.Quantity = productReturnQuantity;
                         productReturned.TotalPrice = productReturned.UnitPrice * productReturned.Quantity;
                         productReturned.ReturnDate = DateTime.Now;
+                        productReturned.Created_by = adminId;
 
                         var createdProductReturned = await ProductsReturnedService.CreateAsync(productReturned);
                         if (createdProductReturned != null)
@@ -647,6 +659,7 @@
                         existingProductReturned.Quantity += productReturnQuantity;
                         existingProductReturned.UnitPrice = detail.TotalDiscount ?? detail.UnitPrice ?? 0;
                         existingProductReturned.TotalPrice = existingProductReturned.UnitPrice * existingProductReturned.Quantity;
+                        existingProductReturned.Created_by = adminId;
                         existingProductReturned.Notes = $", Cập nhật số lượng trả thêm: {productReturnQuantity}";
 
                         var updateResult = await ProductsReturnedService.UpdateAsync(existingProductReturned);
@@ -685,6 +698,138 @@
             ErrorMessage = $"Lỗi khi xử lý trả sản phẩm: {ex.Message}";
         }
     }
+
+    private async Task ConfirmProcessReturn()
+    {
+        if (!SelectedOrderDetails.Any())
+        {
+            await ShowToast("error", $"Không có sản phẩm nào được chọn để đổi trả.");
+            return;
+        }
+
+        var isConfirmed = await ShowConfirmation("Bạn có chắc chắn muốn đổi các sản phẩm đã chọn không?");
+        if (!isConfirmed)
+        {
+            return;
+        }
+
+        foreach (var detail in SelectedOrderDetails)
+        {
+
+            try
+            {
+                var productReturned = detail.ProductsReturned;
+                var productReturnQuantity = detail.ReturnQuantity;
+
+                if (productReturned == null)
+                {
+                    await ShowToast("error", $"Dữ liệu đổi trả không hợp lệ cho sản phẩm ID {detail.Id}.");
+                    return;
+                }
+
+                if (detail.ReturnQuantity <= 0)
+                {
+                    await ShowToast("error", $"Số lượng phải lớn hơn 0");
+                    return;
+                }
+
+                // Kiểm tra số lượng đổi trả
+                var returnedQuantity = ProductsReturned
+                    .Where(p => p.OrderDetailId == detail.Id && p.IsReturn == true)
+                    .Sum(p => p.Quantity);
+
+                if (productReturnQuantity + returnedQuantity > detail.Quantity)
+                {
+                    await ShowToast("error", $"Số lượng đổi trả vượt quá số lượng trong hóa đơn ({detail.Quantity}).");
+                    return;
+                }
+
+                // Kiểm tra lý do đổi trả
+                if (string.IsNullOrWhiteSpace(productReturned.Notes))
+                {
+                    await ShowToast("warning", $"Vui lòng nhập lý do đổi cho sản phẩm ID {detail.Id}.");
+                    return;
+                }
+
+                // Kiểm tra tình trạng
+                if (string.IsNullOrWhiteSpace(productReturned.Condition))
+                {
+                    await ShowToast("warning", $"Vui lòng chọn tình trạng cho sản phẩm ID {detail.Id}.");
+                    return;
+                }
+
+
+                // Kiểm tra xem sản phẩm đổi trả đã tồn tại chưa
+                var existingReturnedProducts = await ProductsReturnedService.GetByOrderDetailIdAsync(detail.Id);
+                // Tìm sản phẩm có cùng trạng thái và là đổi
+                var existingProductReturned = existingReturnedProducts
+                    .FirstOrDefault(p => p.Condition == productReturned.Condition && p.IsReturn == true);
+
+                // Nếu không tìm thấy sản phẩm có trạng thái phù hợp, tạo mới
+                if (existingProductReturned == null)
+                {
+                    productReturned.Id = 0;
+                    productReturned.OrderDetailId = detail.Id;
+                    productReturned.ReturnReason = "Đổi sản phẩm";
+                    productReturned.IsReturn = true;
+                    productReturned.UnitPrice = 0;
+                    productReturned.TotalPrice = 0;
+                    productReturned.ReturnDate = DateTime.Now;
+                    productReturned.Quantity = productReturnQuantity;
+                    productReturned.Created_by = adminId;
+
+                    var createdProductReturned = await ProductsReturnedService.CreateAsync(productReturned);
+                    if (createdProductReturned != null)
+                    {
+                        detail.ProductsReturned = createdProductReturned;
+                    }
+
+                    // Cập nhật kho
+                    var processResult = await ProductsReturnedService.ProcessReturnAsync(detail.ProductsReturned.Id);
+                    if (!processResult)
+                    {
+                        ErrorMessage = $"Không thể cập nhật tồn kho cho sản phẩm ID {detail.Id}.";
+                        return;
+                    }
+                    await ShowToast("success", "Đổi sản phẩm thành công!");
+                }
+                else
+                {
+                    // Nếu tìm thấy sản phẩm có trạng thái phù hợp, cập nhật
+                    existingProductReturned.Quantity += productReturnQuantity;
+                    existingProductReturned.Created_by += adminId;
+                    existingProductReturned.Notes = $", Cập nhật số lượng đổi: {productReturnQuantity}";
+
+                    var updateResult = await ProductsReturnedService.UpdateAsync(existingProductReturned);
+                    if (updateResult == null)
+                    {
+                        ErrorMessage = $"Không thể cập nhật sản phẩm đổi trả ID {existingProductReturned.Id}.";
+                        return;
+                    }
+
+                    // Cập nhật tồn kho cho sản phẩm đổi
+                    var processResult = await ProductsReturnedService.ProcessReturnQuantityAsync(detail.Id, productReturnQuantity, existingProductReturned.Id);
+                    if (!processResult)
+                    {
+                        ErrorMessage = $"Không thể cập nhật tồn kho cho sản phẩm ID {detail.Id}.";
+                        return;
+                    }
+                    await ShowToast("success", "Đổi sản phẩm thành công!");
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Lỗi khi xử lý đổi trả cho sản phẩm ID {detail.Id}: {ex.Message}";
+                return;
+            }
+        }
+
+        ErrorMessage = null;
+        isModalVisible = false;
+        await LoadOrderDetails();
+        StateHasChanged();
+    }
+
 
 
     private async Task LoadOrderDetails()
@@ -792,135 +937,7 @@
     }
 
 
-    private async Task ConfirmProcessReturn()
-    {
-        if (!SelectedOrderDetails.Any())
-        {
-            await ShowToast("error", $"Không có sản phẩm nào được chọn để đổi trả.");
-            return;
-        }
-
-        var isConfirmed = await ShowConfirmation("Bạn có chắc chắn muốn đổi các sản phẩm đã chọn không?");
-        if (!isConfirmed)
-        {
-            return;
-        }
-
-        foreach (var detail in SelectedOrderDetails)
-        {
-
-            try
-            {
-                var productReturned = detail.ProductsReturned;
-                var productReturnQuantity = detail.ReturnQuantity;
-
-                if (productReturned == null)
-                {
-                    await ShowToast("error", $"Dữ liệu đổi trả không hợp lệ cho sản phẩm ID {detail.Id}.");
-                    return;
-                }
-
-                if (detail.ReturnQuantity <= 0)
-                {
-                    await ShowToast("error", $"Số lượng phải lớn hơn 0");
-                    return;
-                }
-
-                // Kiểm tra số lượng đổi trả
-                var returnedQuantity = ProductsReturned
-                    .Where(p => p.OrderDetailId == detail.Id && p.IsReturn == true)
-                    .Sum(p => p.Quantity);
-
-                if (productReturnQuantity + returnedQuantity > detail.Quantity)
-                {
-                    await ShowToast("error", $"Số lượng đổi trả vượt quá số lượng trong hóa đơn ({detail.Quantity}).");
-                    return;
-                }
-
-                // Kiểm tra lý do đổi trả
-                if (string.IsNullOrWhiteSpace(productReturned.Notes))
-                {
-                    await ShowToast("warning", $"Vui lòng nhập lý do đổi cho sản phẩm ID {detail.Id}.");
-                    return;
-                }
-
-                // Kiểm tra tình trạng
-                if (string.IsNullOrWhiteSpace(productReturned.Condition))
-                {
-                    await ShowToast("warning", $"Vui lòng chọn tình trạng cho sản phẩm ID {detail.Id}.");
-                    return;
-                }
-
-
-                // Kiểm tra xem sản phẩm đổi trả đã tồn tại chưa
-                var existingReturnedProducts = await ProductsReturnedService.GetByOrderDetailIdAsync(detail.Id);
-                // Tìm sản phẩm có cùng trạng thái và là đổi
-                var existingProductReturned = existingReturnedProducts
-                    .FirstOrDefault(p => p.Condition == productReturned.Condition && p.IsReturn == true);
-
-                // Nếu không tìm thấy sản phẩm có trạng thái phù hợp, tạo mới
-                if (existingProductReturned == null)
-                {
-                    productReturned.Id = 0;
-                    productReturned.OrderDetailId = detail.Id;
-                    productReturned.ReturnReason = "Đổi sản phẩm";
-                    productReturned.IsReturn = true;
-                    productReturned.UnitPrice = 0;
-                    productReturned.TotalPrice = 0;
-                    productReturned.ReturnDate = DateTime.Now;
-                    productReturned.Quantity = productReturnQuantity;
-
-                    var createdProductReturned = await ProductsReturnedService.CreateAsync(productReturned);
-                    if (createdProductReturned != null)
-                    {
-                        detail.ProductsReturned = createdProductReturned;
-                    }
-
-                    // Cập nhật kho
-                    var processResult = await ProductsReturnedService.ProcessReturnAsync(detail.ProductsReturned.Id);
-                    if (!processResult)
-                    {
-                        ErrorMessage = $"Không thể cập nhật tồn kho cho sản phẩm ID {detail.Id}.";
-                        return;
-                    }
-                    await ShowToast("success", "Đổi sản phẩm thành công!");
-                }
-                else
-                {
-                    // Nếu tìm thấy sản phẩm có trạng thái phù hợp, cập nhật
-                    existingProductReturned.Quantity += productReturnQuantity;
-                    existingProductReturned.Notes = $", Cập nhật số lượng đổi: {productReturnQuantity}";
-
-                    var updateResult = await ProductsReturnedService.UpdateAsync(existingProductReturned);
-                    if (updateResult == null)
-                    {
-                        ErrorMessage = $"Không thể cập nhật sản phẩm đổi trả ID {existingProductReturned.Id}.";
-                        return;
-                    }
-
-                    // Cập nhật tồn kho cho sản phẩm đổi
-                    var processResult = await ProductsReturnedService.ProcessReturnQuantityAsync(detail.Id, productReturnQuantity, existingProductReturned.Id);
-                    if (!processResult)
-                    {
-                        ErrorMessage = $"Không thể cập nhật tồn kho cho sản phẩm ID {detail.Id}.";
-                        return;
-                    }
-                    await ShowToast("success", "Đổi sản phẩm thành công!");
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Lỗi khi xử lý đổi trả cho sản phẩm ID {detail.Id}: {ex.Message}";
-                return;
-            }
-        }
-
-        ErrorMessage = null;
-        isModalVisible = false;
-        await LoadOrderDetails();
-        StateHasChanged();
-    }
-
+   
     private async Task LoadProductsReturned()
     {
         try
