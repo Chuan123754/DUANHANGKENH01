@@ -84,7 +84,6 @@
                                     <select id="typeOfPromotion" @bind="selectedTypeVoucher" class="form-control">
                                         <option value="Percentage">Giảm theo phần trăm</option>
                                         <option value="Fixed">Giảm giá cố định</option>
-                                        <option value="Shipping">Miễn phí giao hàng</option>
                                     </select>
                                 </div>
 
@@ -242,10 +241,6 @@
                                                         else if (voucher.Description == "Fixed")
                                                         {
                                                             <span>Giảm giá cố định</span>
-                                                        }
-                                                        else if (voucher.Description == "Shipping")
-                                                        {
-                                                            <span>Miễn phí giao hàng</span>
                                                         }
                                                         else
                                                         {
