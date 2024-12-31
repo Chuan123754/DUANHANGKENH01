@@ -2275,6 +2275,7 @@
                 orderToUpdate.Status = "Đã xác nhận";
                 orderToUpdate.FeeShipping = feeShipping;
                 orderToUpdate.Address_Id = selectedAddress?.Id;
+                orderToUpdate.Strees = $"{selectedAddress.Street} - {selectedAddress.Ward_commune} - {selectedAddress.District} - {selectedAddress.Province_city}";
             }
             else
             {

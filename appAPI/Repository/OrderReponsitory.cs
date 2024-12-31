@@ -107,7 +107,7 @@ namespace appAPI.Repository
                 updateItem.Update_at = DateTime.Now;
                 updateItem.Created_at = DateTime.Now;
                 updateItem.TypePayment = orders.TypePayment;
-
+                updateItem.Strees = orders.Strees;
                 _context.Orders.Update(updateItem);
                 await _context.SaveChangesAsync();
 
@@ -222,5 +222,16 @@ namespace appAPI.Repository
             return result;
         }
 
+        public async Task UpdateSrees(Orders orders, long id)
+        {
+            var updateItem = await _context.Orders.FindAsync(id);
+            if (updateItem != null)
+            {           
+                updateItem.Strees = orders.Strees;
+                _context.Orders.Update(updateItem);
+                await _context.SaveChangesAsync();
+
+            }
+        }
     }
 }

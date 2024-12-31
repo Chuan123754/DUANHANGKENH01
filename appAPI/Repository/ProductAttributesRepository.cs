@@ -26,8 +26,31 @@ namespace appAPI.Repository
         public async Task Delete(long id)
         {
             var deleteItem = await _context.Product_Attributes.FindAsync(id);
-            deleteItem.Status = "delete";
+            deleteItem.Status = "Đã xoá";
+            deleteItem.Deleted_at = DateTime.Now;
             _context.Product_Attributes.Update(deleteItem);
+            await _context.SaveChangesAsync();
+        }
+        public async Task Restore(long id)
+        {
+            var post = await _context.Product_Attributes.FindAsync(id);
+
+            if (post == null)
+            {
+                throw new Exception("Sản phẩm không tồn tại");
+            }
+            if (post.Stock <= 0)
+            {
+                post.Status = "Hết hàng";
+            }
+            else
+            {
+                post.Status = "Còn hàng";
+            }
+            post.Deleted_at = null;
+
+            // Lưu thay đổi
+            _context.Product_Attributes.Update(post);
             await _context.SaveChangesAsync();
         }
 
@@ -37,6 +60,7 @@ namespace appAPI.Repository
             {
 
                 return await _context.Product_Attributes
+                                    .Where(p => p.Status != "Đã xoá")
                                     .Include(p => p.Size)
                                     .Include(p => p.Color)
                                     .Include(p => p.Style)
@@ -44,15 +68,7 @@ namespace appAPI.Repository
                                     .Include(p => p.Textile_Technology)
                                     .Include(p => p.Posts)
                                     .ToListAsync();
-                //return await _context.Product_Attributes
-                //                     .Include(p => p.Size)
-                //                     .Include(p => p.Color)
-                //                     .Include(p=>p.Product_Variant)
-                //                     .Include(p => p.Product_Variant).ThenInclude(p => p.Style)
-                //                     .Include(p => p.Product_Variant).ThenInclude(p => p.Material)
-                //                     .Include(p => p.Product_Variant).ThenInclude(p => p.Textile_Technology)
-                //                     .Include(p => p.Product_Variant).ThenInclude(p => p.Posts)
-                //                     .ToListAsync();
+              
             }
             catch (Exception ex)
             {
@@ -65,7 +81,7 @@ namespace appAPI.Repository
 
         public async Task<Product_Attributes> GetProductAttributesById(long id)
         {
-            var productAttribute = await _context.Product_Attributes.Where(p => p.Id == id)
+            var productAttribute = await _context.Product_Attributes.Where(p => p.Id == id && p.Status != "Đã xoá")
                                                                                 .Include(p => p.Size)
                                                                                 .Include(p => p.Color)
                                                                                 .Include(p => p.Style)
@@ -74,15 +90,6 @@ namespace appAPI.Repository
                                                                                 .Include(p => p.Posts)
                                                                                 .FirstOrDefaultAsync();
 
-            //var productAttribute = await _context.Product_Attributes.Where(p => p.Id == id)
-            //                                                        .Include(p => p.Color)
-            //                                                        .Include(p => p.Size)
-            //                                                        .Include(p => p.Product_Variant)
-            //                                                        .Include(p => p.Product_Variant).ThenInclude(p => p.Style)
-            //                                                        .Include(p => p.Product_Variant).ThenInclude(p => p.Material)
-            //                                                        .Include(p => p.Product_Variant).ThenInclude(p => p.Textile_Technology)
-            //                                                        .Include(p => p.Product_Variant).ThenInclude(p => p.Posts)
-            //                                                        .FirstOrDefaultAsync();
             if (productAttribute != null)
             {
                 return productAttribute;
@@ -97,7 +104,7 @@ namespace appAPI.Repository
         public async Task<List<Product_Attributes>> GetProductAttributesByPostId(long id)
         {
             return await _context.Product_Attributes
-                                .Where(p => p.Post_Id == id)
+                                .Where(p => p.Post_Id == id && p.Status != "Đã xoá")
                                 .Include(p => p.Posts)
                                 .Include(p => p.Color)
                                 .Include(p => p.Size)
@@ -109,7 +116,7 @@ namespace appAPI.Repository
         public async Task<List<Product_Attributes>> GetProductAttributesByPostIdClient(long id)
         {
             return await _context.Product_Attributes
-                                .Where(p => p.Post_Id == id)
+                                .Where(p => p.Post_Id == id && p.Status != "Đã xoá")
                                 .Include(p => p.Posts)
                                 .Include(p => p.Color)
                                 .Include(p => p.Size)
@@ -241,6 +248,35 @@ namespace appAPI.Repository
                        || p.Textile_Technology.Title.Contains(searchTerm) ||
                        _context.Posts.Any(post => post.Id == p.Post_Id && post.Title.Contains(searchTerm)
                        || p.Size.Title.Contains(searchTerm) || p.Color.Title.Contains(searchTerm))));
+        }
+
+        public async Task<List<Product_Attributes>> GetAllProductAttributesDelete()
+        {
+            try
+            {
+                return await _context.Product_Attributes
+                                    .Where(p => p.Status == "Đã xoá")
+                                    .Include(p => p.Size)
+                                    .Include(p => p.Color)
+                                    .Include(p => p.Style)
+                                    .Include(p => p.Material)
+                                    .Include(p => p.Textile_Technology)
+                                    .Include(p => p.Posts)
+                                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log lỗi, ví dụ:
+                Console.WriteLine("Error in GetAllProductAttributes: " + ex.Message);
+                return new List<Product_Attributes>();
+            }
+        }
+
+        public async Task DeleteCung(long id)
+        {
+            var deleteItem = await _context.Product_Attributes.FindAsync(id);           
+            _context.Product_Attributes.Remove(deleteItem);
+            await _context.SaveChangesAsync();
         }
     }
 }

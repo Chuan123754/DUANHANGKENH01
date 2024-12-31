@@ -1,0 +1,412 @@
+﻿@page "/admin/productattributes/delete"
+@using System.Text
+@using System.Globalization
+@using System.Text.RegularExpressions
+@inject NavigationManager Navigation
+@inject IProductAttributeServices productAttributeService
+@inject IStyleServices StyleServices
+@inject ISizeServices SizeServices
+@inject IMaterialServices MaterialService
+@inject ITextile_technologyServices Textile_technologyServices
+@inject IColorServices colorService
+@inject ISizeServices sizeService
+@inject IPostSer post
+@inject IJSRuntime JS
+@inject CustomAuthenticationStateProvider _authStateProvider;
+
+
+<div class="page-wrapper">
+    <!-- Page header -->
+    <div class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col d-flex gap-3">
+                    <h2 class="page-title">Danh sách sản phẩm chi tiết đã xoá</h2>                
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page body -->
+    <div class="page-body">
+        <div class="container-xl">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Search form -->
+                    <div class="search-box d-flex align-items-center justify-content-between mb-3">
+                        <div class="form-group d-flex gap-2">
+                            <div class="form-group d-flex gap-2">
+                                <select class="form-select" @onchange="(e) => HandleTextileChange(e)">
+                                    <option value="">Chọn Công nghệ dệt</option>
+                                    @foreach (var tech in TextileTechnology_list)
+                                    {
+                                        <option value="@tech.Id">@tech.Title</option>
+                                    }
+                                </select>
+
+                                <select class="form-select" @onchange="(e) => HandleMaterialChange(e)">
+                                    <option value="">Chọn Chất liệu</option>
+                                    @foreach (var material in Material_list)
+                                    {
+                                        <option value="@material.Id">@material.Title</option>
+                                    }
+                                </select>
+
+                                <select class="form-select" @onchange="(e) => HandleStyleChange(e)">
+                                    <option value="">Chọn Phong cách</option>
+                                    @foreach (var style in Style_list)
+                                    {
+                                        <option value="@style.Id">@style.Title</option>
+                                    }
+                                </select>
+                                <select class="form-select" @onchange="(e) => HandleColorChange(e)">
+                                    <option value="">Chọn màu sắc</option>
+                                    @foreach (var color in Color_list)
+                                    {
+                                        <option value="@color.Id">@color.Title</option>
+                                    }
+                                </select>
+                                <select class="form-select" @onchange="(e) => HandleSizeChange(e)">
+                                    <option value="">Chọn kích thước</option>
+                                    @foreach (var size in Size_list)
+                                    {
+                                        <option value="@size.Id">@size.Title</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-group d-flex gap-2">
+                                <input id="searchInputProduct"
+                                       class="form-control"
+                                       style="width: 300px"
+                                       @bind="searchProductText"
+                                       @oninput="SearchProducts"
+                                       placeholder="Tìm kiếm sản phẩm" />
+                                <button type="button"
+                                        class="btn btn-outline-primary"
+                                        @onclick="SearchProducts">
+                                    Tìm kiếm
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                    <!-- Product Table -->
+                    <div id="table-default" class="table-responsive">
+                        @if (productAttributesList != null && productAttributesList.Any())
+                        {
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>
+                                            <button class="table-sort">Hình ảnh</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Sản phẩm</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Công nghệ dệt</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Chất liệu</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Phong cách</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Màu sắc</button>
+                                        </th>
+                                                   <th>
+                                            <button class="table-sort">Kích thước</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Gía bán</button>
+                                        </th>
+                                                   <th>
+                                            <button class="table-sort">Gía giảm</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Kho</button>
+                                        </th>
+                                        <th>
+                                            <button class="table-sort">Trạng thái</button>
+                                        </th>
+                                       
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var post in productAttributesList)
+                                    {
+                                        <tr class="post-row">
+                                            <td>@post.Id</td>
+                                            <td><img src="@post.Image" alt="Hình ảnh" style="width: 80px; height: 105px;" /></td>
+                                            <td>
+                                                @post.Posts.Title
+                                                <br />
+                                                <div class="cell-action">
+                                                    <a class="cell-action-delete text-danger" @onclick="() => ConfirmRestore(post.Id)">Khôi phục</a>
+                                                </div>
+                                            </td>
+                                            <td class="sort-type">
+                                                @(TextileTechnology_list.FirstOrDefault(t => t.Id == post.Textile_technology_id)?.Title ?? "N/A")
+                                            </td>
+                                            <td class="sort-tags">
+                                                @(Material_list.FirstOrDefault(m => m.Id == post.Material_id)?.Title ?? "N/A")
+                                            </td>
+                                            <td class="sort-tags">
+                                                @(Style_list.FirstOrDefault(s => s.Id == post.Style_id)?.Title ?? "N/A")
+                                            </td>
+                                            <td class="text-center">
+                                                <div class="d-flex align-items-center justify-content-center">
+                                                    <span class="text-truncate">@post.Color?.Title</span>
+                                                    <div class="color-preview"
+                                                         style="width: 16px; height: 16px; background-color: @post.Color?.Color_code; border-radius: 50%; border: 1px solid #ddd; margin-left: 8px;">
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>@post.Size?.Title</td>
+                                            <td>@string.Format("{0:N0}", post.Regular_price).Replace(".", ",") VNĐ</td>
+                                            <td>
+                                                @if (post.Sale_price.HasValue)
+                                                {
+                                                    @string.Format("{0:N0}", post.Sale_price.Value).Replace(".", ",")      <span>VNĐ</span>
+
+                                                }
+                                                else
+                                                {
+                                                    <span>#N/A</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (post.Stock == 0 || post.Stock == null)
+                                                {
+                                                    <span style="color: red;">Hết hàng</span>
+                                                }
+                                                else
+                                                {
+                                                    @post.Stock
+                                                }
+                                            </td>
+                                            <td class="sort-status">
+                                                <span class="@post.Status">@post.Status</span>
+                                            </td>                                         
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center">Không có dữ liệu</td>
+                            </tr>
+                        }
+
+                    </div>                
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+    // private List<Product_variants> product_Varians_list = new List<Product_variants>();
+    [Parameter] public long PostId { get; set; }
+    private List<Size> Size_list = new List<Size>();
+    private List<Color> Color_list = new List<Color>();
+    private List<Material> Material_list = new List<Material>();
+    private List<Textile_technology> TextileTechnology_list = new List<Textile_technology>();
+    private List<Style> Style_list = new List<Style>();
+
+    private List<Product_Attributes> originalProductAttributesList = new(); // Lưu trữ danh sách gốc
+    private List<Product_Attributes> productAttributesList = new(); // Danh sách hiện tại
+    private Product_Attributes selectedAttribute = new Product_Attributes();
+    private Product_Posts product_posts = new Product_Posts();
+
+    private List<Size> sizeList = new List<Size>();
+    private List<Color> colorList = new List<Color>();
+    private Dictionary<long, bool> colorSelections = new();
+    private Dictionary<long, bool> sizeSelections = new();
+    private Media_modal mediaModalRef;
+    private List<Product_Posts> product_posts_list = new List<Product_Posts>();
+    // private Product_variants product_Variant = new Product_variants();
+
+    private long selectedPostId;
+    private bool showAttributes = false;
+    private bool isUpdateProductAttributeModal = false;
+    private string productPostTitle;
+    private bool isModalAddAttributeVisiable = false;
+    private string search_query = string.Empty;
+    private bool isAuthenticated;
+    private string searchFilter = "product_name";
+    private string searchProductText = string.Empty; // Tìm kiếm sản phẩm
+    private string selectedTextileTechnologyId = string.Empty;
+    private string selectedMaterialId = string.Empty;
+    private string selectedStyleId = string.Empty;
+    private string selectedProductId = string.Empty;
+    private string selectedSizeId = string.Empty;
+    private string selectedColorId = string.Empty;
+
+
+    private async Task HandleSizeChange(ChangeEventArgs e)
+    {
+        selectedSizeId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+    private async Task HandleColorChange(ChangeEventArgs e)
+    {
+        selectedColorId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+
+    private async Task HandleTextileChange(ChangeEventArgs e)
+    {
+        selectedTextileTechnologyId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+
+    private async Task HandleMaterialChange(ChangeEventArgs e)
+    {
+        selectedMaterialId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+
+    private async Task HandleStyleChange(ChangeEventArgs e)
+    {
+        selectedStyleId = e.Value?.ToString() ?? string.Empty;
+        await ApplyFilters();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        await LoadPosts();
+        colorList = await colorService.GetAll();
+        sizeList = await sizeService.GetAll();
+        Material_list = await MaterialService.GetAll();
+        TextileTechnology_list = await Textile_technologyServices.GetAll();
+        Style_list = await StyleServices.GetAll();        
+        selectedTextileTechnologyId = string.Empty;
+        selectedMaterialId = string.Empty;
+        selectedStyleId = string.Empty;
+    }
+    private async Task LoadPosts()
+    {
+        string searchTerm = string.IsNullOrEmpty(search_query) ? "" : search_query;
+        originalProductAttributesList = await productAttributeService.GetAllProductAttributesDelete();
+        productAttributesList = originalProductAttributesList;
+        Color_list = await colorService.GetAll();
+        Size_list = await SizeServices.GetAll();
+        Material_list = await MaterialService.GetAll();
+        TextileTechnology_list = await Textile_technologyServices.GetAll();
+        Style_list = await StyleServices.GetAll();    
+        StateHasChanged();
+    }
+    private async Task SearchProducts()
+    {
+        if (!string.IsNullOrEmpty(searchProductText))
+        {
+            productAttributesList = productAttributesList.Where(p => p.Post_Id == PostId)
+                .Where(p => p.Posts?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true ||
+                            p.Textile_Technology?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true ||
+                            p.Material?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true ||
+                            p.Style?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true ||
+                            p.Color?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true ||
+                            p.Size?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true)
+                .ToList();
+        }
+    }
+    private async Task ApplyFilters()
+    {
+        // Lọc sản phẩm theo các điều kiện đã chọn
+        var filteredProducts = await productAttributeService.GetAllProductAttributes();
+
+        if (!string.IsNullOrEmpty(selectedProductId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                    post.Posts.Id == long.Parse(selectedProductId) && post.Post_Id == PostId).ToList();
+        }
+
+        // Lọc theo Công nghệ dệt
+        if (!string.IsNullOrEmpty(selectedTextileTechnologyId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Textile_technology_id == long.Parse(selectedTextileTechnologyId) && post.Post_Id == PostId).ToList();
+        }
+
+        // Lọc theo Chất liệu
+        if (!string.IsNullOrEmpty(selectedMaterialId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Material_id == long.Parse(selectedMaterialId) && post.Post_Id == PostId).ToList();
+        }
+
+        // Lọc theo Phong cách
+        if (!string.IsNullOrEmpty(selectedStyleId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Style_id == long.Parse(selectedStyleId) && post.Post_Id == PostId).ToList();
+        }
+
+        if (!string.IsNullOrEmpty(selectedStyleId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Style_id == long.Parse(selectedStyleId) && post.Post_Id == PostId).ToList();
+        }
+        if (!string.IsNullOrEmpty(selectedColorId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Color_Id == long.Parse(selectedColorId) && post.Post_Id == PostId).ToList();
+        }
+        if (!string.IsNullOrEmpty(selectedSizeId))
+        {
+            filteredProducts = filteredProducts.Where(post =>
+                post.Size_Id == long.Parse(selectedSizeId)&& post.Post_Id == PostId).ToList();
+        }
+
+        productAttributesList = filteredProducts;
+        StateHasChanged();
+    }
+
+    private async Task OnSearch()
+    {
+        await ApplyFilters();
+    }
+
+    private void FormatCurrencyRegular(ChangeEventArgs e)
+    {
+        var input = e.Value?.ToString() ?? string.Empty;
+        input = new string(input.Where(char.IsDigit).ToArray());
+        if (long.TryParse(input, out var parsedValue))
+        {
+            selectedAttribute.Regular_price = parsedValue;
+        }
+    }
+
+    private void FormatCurrencySale(ChangeEventArgs e)
+    {
+        var input = e.Value?.ToString() ?? string.Empty;
+        input = new string(input.Where(char.IsDigit).ToArray());
+        if (long.TryParse(input, out var parsedValue))
+        {
+            selectedAttribute.Sale_price = parsedValue;
+        }
+    }
+
+  
+    private async Task ConfirmRestore(long id)
+    {
+        await productAttributeService.Restore(id);
+        await JS.InvokeVoidAsync("toastr.success", "Khôi phục thành công sản phẩm ");
+        await LoadPosts();
+    }
+
+    private async Task SelectProductAttribute(Product_Attributes attribute)
+    {
+        selectedAttribute = attribute;
+        await JS.InvokeVoidAsync("openMediaModal");
+    }
+
+}

@@ -25,9 +25,21 @@ namespace ViewsFE.Services
             await _client.DeleteAsync($"{_baseUrl}/api/ProductAttributes/DeleteProductAttribute?id={id}");
         }
 
+        public async Task DeleteCung(long id)
+        {
+            await _client.DeleteAsync($"{_baseUrl}/api/ProductAttributes/DeleteProductAttributeCung?id={id}");
+        }
+
         public async Task<List<Product_Attributes>> GetAllProductAttributes()
         {
             string requestURL = $"{_baseUrl}/api/ProductAttributes/GetAllProductAttributes";
+            var response = await _client.GetStringAsync(requestURL);
+            return JsonConvert.DeserializeObject<List<Product_Attributes>>(response);
+        }
+
+        public async Task<List<Product_Attributes>> GetAllProductAttributesDelete()
+        {
+            string requestURL = $"{_baseUrl}/api/ProductAttributes/GetAllProductAttributesDelete";
             var response = await _client.GetStringAsync(requestURL);
             return JsonConvert.DeserializeObject<List<Product_Attributes>>(response);
         }
@@ -69,6 +81,22 @@ namespace ViewsFE.Services
 
             var count = await response.Content.ReadFromJsonAsync<int>();
             return count;
+        }
+
+        public async Task Restore(long id)
+        {
+            var response = await _client.PutAsync($"{_baseUrl}/api/ProductAttributes/Restore-productattribute?id={id}", null);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadFromJsonAsync<ApiResponse>();
+                throw new Exception(error?.Message ?? "Có lỗi xảy ra");
+            }
+        }
+
+        public class ApiResponse
+        {
+            public string Message { get; set; }
         }
 
         public async Task Update(Product_Attributes productAttribute, long id)

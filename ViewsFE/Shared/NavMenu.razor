@@ -270,6 +270,13 @@
                                         Sản phẩm đã xoá
                                     </a>
                                 }
+                                @if (isAdmin)
+                                {
+                                    <a class="dropdown-item "
+                                       href="/admin/productattributes/delete">
+                                        Sản phẩm biến thể đã xoá
+                                    </a>
+                                }
                                 <a class="dropdown-item "
                                    href="/admin/productsreturned">
                                     Sản phẩm đổi trả
