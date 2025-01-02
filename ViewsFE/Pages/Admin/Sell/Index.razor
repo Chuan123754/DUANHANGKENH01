@@ -847,28 +847,26 @@
 
                                                     // format percent
                                                     decimal percentValue = 0m; 
-                                                     if (!string.IsNullOrEmpty(item.Vouchers.Percent) && item.Vouchers.Percent.Contains("%"))  
+                                                    if (decimal.TryParse(item.Vouchers.Percent, out percentValue))  
                                                     {  
-                                                        formattedPercent = item.Vouchers.Percent; // Giữ nguyên nếu chứa ký tự %
-                                                    }  
-                                                    else if (decimal.TryParse(item.Vouchers.Percent, out percentValue))  
-                                                    {  
-                                                        formattedPercent = percentValue.ToString("N0") + " VNĐ"; // Định dạng lại nếu không chứa ký tự %
+                                                        formattedPercent = percentValue.ToString("N0") ; // Định dạng lại nếu không chứa ký tự %
                                                     } 
 
                                                     <div style="background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 15px;">  
                                                         <div style="background: #3366CC; color: white; padding: 10px; border-radius: 10px 10px 0 0;">  
                                                             <span style="font-weight: bold;">@item.Vouchers.Code</span>  
                                                         </div>  
-                                                        @if(item.Vouchers.Description=="Shipping")
+                                                        @if(item.Vouchers.Description=="Percentage")
                                                         {
-                                                              <h2 style="margin: 0; font-size: 18px; color: #333;">Miễn phí phí giao hàng cho đơn hàng đạt tối thiểu @conditionValue.ToString("N0") VNĐ</h2>  
+                                                               <h2 style="margin: 0; font-size: 18px; color: #333;">Giảm @formattedPercent % cho đơn hàng đạt tối thiểu @conditionValue.ToString("N0") VNĐ</h2>  
+                                                                <p style="margin: 8px 0; color: #666; font-size: 15px">Giảm tối đa @maxDiscountValue.ToString("N0") VNĐ</p>  
                                                         }
                                                         else
                                                         {
-                                                              <h2 style="margin: 0; font-size: 18px; color: #333;">Giảm @formattedPercent cho đơn hàng đạt tối thiểu @conditionValue.ToString("N0") VNĐ</h2>  
+                                                              <h2 style="margin: 0; font-size: 18px; color: #333;">Giảm @formattedPercent VNĐ cho đơn hàng đạt tối thiểu @conditionValue.ToString("N0") VNĐ</h2>  
+                                                             
                                                         }
-                                                        <p style="margin: 8px 0; color: #666; font-size: 15px">Giảm tối đa @maxDiscountValue.ToString("N0") VNĐ</p>  
+
                                                         <p style="margin: 8px 0; color: red; font-size: 15px"><small>Hết hạn lúc: @item.Vouchers.End_time</small></p>  
                                                         <div style="margin-top: 10px; text-align: left;">
                                                             @if (suggestBuy > 0)  
@@ -1259,6 +1257,23 @@
         {
             await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
             isMomoModalVisible = false;
+
+            var appliedVouchers = orderVouchers[selectedOrderId];
+            foreach (var voucherId in appliedVouchers)
+            {
+                var voucher = await userVoucherServies.GetByVoucherIdAndUserId(voucherId,selectedCustomer.Id);
+                if (voucher != null)
+                {
+                    voucher.IsApplied = true;
+                    await userVoucherServies.Update(voucher); // Cập nhật trạng thái `IsApplied`
+                }
+            }
+            var allVouchers = await userVoucherServies.GetAll();
+            userVouchers_lst = allVouchers
+                .Where(v => v.UserId == selectedCustomer.Id && v.IsApplied == false)
+                .ToList();
+            StateHasChanged();
+
             await ResetViewState();
         }
         else
@@ -1278,6 +1293,21 @@
         {
             await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
             isMomoModalVisible = false;
+            var appliedVouchers = orderVouchers[selectedOrderId];
+            foreach (var voucherId in appliedVouchers)
+            {
+                var voucher = await userVoucherServies.GetByVoucherIdAndUserId(voucherId,selectedCustomer.Id);
+                if (voucher != null)
+                {
+                    voucher.IsApplied = true;
+                    await userVoucherServies.Update(voucher); // Cập nhật trạng thái `IsApplied`
+                }
+            }
+            var allVouchers = await userVoucherServies.GetAll();
+            userVouchers_lst = allVouchers
+                .Where(v => v.UserId == selectedCustomer.Id && v.IsApplied == false)
+                .ToList();
+            StateHasChanged();
             await ResetViewState();
         }
         else
@@ -1300,6 +1330,7 @@
         discountAmount = 0;
         voucherAmount = 0;
         isCustomerAdded = false;
+        orderVouchers.Clear();
         lst_OrderDetail.Clear();
         isAddProductModalVisible = false;
         isAddCustomerModalVisible = false;
@@ -1350,7 +1381,7 @@
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         orders = await orderService.GetByIdOrders(selectedOrderId);
         var allVoucher  = await userVoucherServies.GetAll();
-        userVouchers_lst = allVoucher.Where(v => v.UserId == orderToUpdate.User_id).ToList();
+        userVouchers_lst = allVoucher.Where(v => v.UserId == orderToUpdate.User_id && v.IsApplied==false).ToList();
         if (orderToUpdate?.User_id != null)
         {
             IsDeliveryVisible = orderToUpdate.Note == "Giao hàng";
@@ -1398,6 +1429,7 @@
             ClearInfoAddress();
         }
         await LoadOrderDetails();
+        StateHasChanged();
     }
 
     private void ShowAddProductDetailModal()
@@ -1740,14 +1772,15 @@
         customerName = selectedCustomer.Name;
         isCustomerAdded = true;
         ClearInfoAddress();
+        orderVouchers.Clear();
 
         var allVoucher  = await userVoucherServies.GetAll();
-        userVouchers_lst = allVoucher.Where(v => v.UserId == selectedCustomer.Id).ToList();
-
+        userVouchers_lst = allVoucher.Where(v => v.UserId == selectedCustomer.Id && v.IsApplied==false).ToList();
         // Cập nhật lại thông tin đơn hàng
         lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
         await LoadOrders();
         CalculateTotalMoney();
+        StateHasChanged();
     }
 
     private async Task OpenVoucher()
@@ -1760,19 +1793,30 @@
         modalVoucher = false;
     }
 
-    private async Task SelectedVoucher(long id)
+   private async Task SelectedVoucher(long id)
     {
         if (!orderVouchers.ContainsKey(selectedOrderId))
         {
-            orderVouchers[selectedOrderId] = new List<long>();
+            orderVouchers[selectedOrderId] = new List<long>(); 
         }
 
         var vouchers = orderVouchers[selectedOrderId];
-        var voucherDetail = await voucherServices.Details(id);
+        var voucherDetail = await voucherServices.Details(id); 
+
+        if (totalAmount < Convert.ToDecimal(voucherDetail.Condition ?? "0"))
+        {
+            if (vouchers.Contains(id))
+            {
+                vouchers.Remove(id); 
+                voucherAmount -= CalculateVoucher(voucherDetail); 
+            }
+            return; 
+        }
+
         if (vouchers.Contains(id))
         {
             vouchers.Remove(id);
-            voucherAmount -= CalculateVoucher(voucherDetail);
+            voucherAmount -= CalculateVoucher(voucherDetail); 
         }
         else
         {
@@ -1785,8 +1829,9 @@
             voucherAmount = 0;
         }
         CalculateTotalMoney();
-
+        StateHasChanged(); 
     }
+
 
     private async Task RecalculateVoucherAmount()
     {
@@ -1795,18 +1840,40 @@
             voucherAmount = 0;
             return;
         }
-            voucherAmount = 0; 
-        foreach (var voucherId in orderVouchers[selectedOrderId])
+
+        var vouchers = orderVouchers[selectedOrderId].ToList(); // Tạo bản sao để tránh sửa đổi trực tiếp
+        var invalidVouchers = new List<long>();
+        voucherAmount = 0;
+
+        foreach (var voucherId in vouchers)
         {
             var voucher = await voucherServices.Details(voucherId);
-            voucherAmount += CalculateVoucher(voucher);
+
+            // Kiểm tra điều kiện của voucher
+            if (totalAmount < Convert.ToDecimal(voucher.Condition ?? "0"))
+            {
+                invalidVouchers.Add(voucherId); // Thêm vào danh sách xóa
+            }
+            else
+            {
+                voucherAmount += CalculateVoucher(voucher);
+            }
+        }
+
+        // Xóa các voucher không hợp lệ
+        foreach (var invalidVoucherId in invalidVouchers)
+        {
+            orderVouchers[selectedOrderId].Remove(invalidVoucherId);
         }
 
         if (voucherAmount < 0)
         {
             voucherAmount = 0;
         }
+
+        StateHasChanged();
     }
+
 
     private decimal CalculateVoucher(Vouchers voucher)
     {
@@ -1820,15 +1887,16 @@
         {
             case "Percentage":
                 discount = (totalAmount * percentValue / 100);
+                if(discount >= Convert.ToDecimal(voucher.MaxDiscountValue ?? "0"))
+                {
+                    discount = Convert.ToDecimal(voucher.MaxDiscountValue ?? "0");
+                }
                 break;
 
             case "Fixed":
                 discount = percentValue;
                 break;
 
-            case "Shipping":
-                discount = feeShipping;
-                break;
             default:
                 break;
         }
@@ -1861,6 +1929,7 @@
         discountAmount = totalPrincipal - totalAmount;
         totalQuantity = lst_OrderDetail.Sum(item => item.Quantity);
         totalMoney = isDeliveryVisible ? (feeShipping + totalAmount  - voucherAmount) : (totalAmount - voucherAmount);
+        StateHasChanged();
     }
 
     private async void CreateCustomer()
@@ -2099,6 +2168,7 @@
             };
         feeShipping = await address_Service.CalculateShippingFee(shippingRequest);
         CalculateTotalMoney();
+               StateHasChanged();
     }
     private void ClearInfoAddress()
     {
@@ -2144,16 +2214,30 @@
         }
         else
         {
+            CheckOut("cash");
             bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận in hóa đơn cho khách hàng không ?");
             if (confirmed)
             {
                 DownloadInvoice(selectedOrderId);
             }
-            CheckOut("cash");
-            modalPayByCash = false;
+            var appliedVouchers = orderVouchers[selectedOrderId];
+            foreach (var voucherId in appliedVouchers)
+            {
+                var voucher = await userVoucherServies.GetByVoucherIdAndUserId(voucherId,selectedCustomer.Id);
+                if (voucher != null)
+                {
+                    voucher.IsApplied = true;
+                    await userVoucherServies.Update(voucher); // Cập nhật trạng thái `IsApplied`
+                }
+            }
+             var allVouchers = await userVoucherServies.GetAll();
+                userVouchers_lst = allVouchers
+                    .Where(v => v.UserId == selectedCustomer.Id && v.IsApplied == false)
+                    .ToList();
 
+                // Cập nhật giao diện
+            StateHasChanged();
         }
-
     }
 
     private async Task PayByMomo()

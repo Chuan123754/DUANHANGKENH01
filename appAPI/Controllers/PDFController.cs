@@ -171,6 +171,7 @@ namespace appAPI.Controllers
                 totalTable.AddCell(new Cell().Add(new Paragraph($"Cộng tiền hàng đã giảm giá (Total amount): {totalAmount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 totalTable.AddCell(new Cell().Add(new Paragraph($"Tổng tiền được chiết khấu : {totalDiscount:0,0} VND").SetFont(fontNormal).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 totalTable.AddCell(new Cell().Add(new Paragraph($"Phí giao hàng ( FeeShipping): {order.FeeShipping:0,0} VND").SetFont(fontBold).SetFontSize(9)).SetBorder(Border.NO_BORDER));
+                totalTable.AddCell(new Cell().Add(new Paragraph($"Giảm giá từ Voucher ( Voucher): {order.TotalVoucher:0,0} VND").SetFont(fontBold).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 totalTable.AddCell(new Cell().Add(new Paragraph($"Tổng cộng tiền thanh toán (Total payment): {order.Totalmoney:0,0} VND").SetFont(fontBold).SetFontSize(9)).SetBorder(Border.NO_BORDER));
                 document.Add(totalTable);
 
