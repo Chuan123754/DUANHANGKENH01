@@ -51,7 +51,7 @@ namespace appAPI.Controllers
             try
             {
                 await _repo.CreateAddress(address);
-                return Ok();
+                return Ok(address);
             }
             catch (Exception ex)
             {
