@@ -38,15 +38,23 @@ namespace appAPI.Controllers
         {
             try
             {
+                // Kiểm tra xem wishlist đã tồn tại chưa
+                var existingWishlist = context.Wishlist.FirstOrDefault(w => w.User_id == wishlist.User_id);
+                if (existingWishlist != null)
+                {
+                    return Ok(new { message = "Sản phẩm đã tồn tại trong danh sách yêu thích. Không cần thêm mới." });
+                }
+
                 context.Wishlist.Add(wishlist);
                 context.SaveChanges();
                 return Ok(new { message = "Thêm vào danh sách yêu thích thành công" });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return BadRequest();
+                return BadRequest(new { message = ex.Message });
             }
         }
+
 
         [HttpPut("wishlist-put")]
         public IActionResult Put(Wishlist wishlist)

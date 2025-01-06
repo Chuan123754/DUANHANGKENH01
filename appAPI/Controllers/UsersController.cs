@@ -136,6 +136,54 @@ namespace appAPI.Controllers
             return Ok(new { message = "Đăng ký thành công", user });
         }
 
+        [HttpPost("register-sync")]
+        public IActionResult RegisterSync([FromBody] Users user)
+        {
+            if (string.IsNullOrEmpty(user.Phone))
+            {
+                return BadRequest(new { message = "Số điện thoại không được để trống." });
+            }
+
+            // Kiểm tra nếu số điện thoại đã tồn tại
+            var existingUser = context.Users.FirstOrDefault(u => u.Phone == user.Phone);
+
+            if (existingUser != null)
+            {
+                if (string.IsNullOrEmpty(existingUser.Password))
+                {
+                    // Nếu mật khẩu là null, cập nhật mật khẩu mới
+                    existingUser.Password = user.Password;
+                    existingUser.Email = user.Email;
+                    existingUser.Updated_at = DateTime.Now;
+                    context.SaveChanges();
+
+                    return Ok(new { message = "Cập nhật tài khoản thành công.", existingUser.Id});
+                }
+                else
+                {
+                    return BadRequest(new { message = "Số điện thoại đã tồn tại và tài khoản đã có mật khẩu." });
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(user.Password))
+                {
+                    // Nếu số điện thoại không tồn tại và mật khẩu được cung cấp, tạo mới bản ghi
+                    context.Users.Add(user);
+                    context.SaveChanges();
+
+                    return Ok(new { message = "Tài khoản mới đã được tạo thành công.", user });
+                }
+                else
+                {
+                    return BadRequest(new { message = "Dữ liệu không hợp lệ. Vui lòng cung cấp mật khẩu." });
+                }
+            }
+        }
+
+
+
+
         [HttpGet("GetByPhoneNumber")]
         public IActionResult GetByPhoneNumber(string phoneNumber)
         {
@@ -146,6 +194,23 @@ namespace appAPI.Controllers
             }
             return Ok(user);
         }
+
+
+        [HttpGet("GetUserByPhone")]
+        public IActionResult GetUserByPhone(string phone)
+        {
+            var user = context.Users.FirstOrDefault(u => u.Phone == phone);
+            if (user != null && !string.IsNullOrEmpty(user.Password))
+            {
+                // Nếu tìm thấy và có mật khẩu
+                return Ok(new { exists = true});
+            }
+
+            // Không tìm thấy hoặc không có mật khẩu
+            return Ok(new { exists = false});
+        }
+
+
 
         [HttpPut("UpdatePassword")]
         public IActionResult UpdatePassword(long userId, [FromBody] string newPassword)
@@ -196,26 +261,6 @@ namespace appAPI.Controllers
             if (verificationResult == PasswordVerificationResult.Failed)
             {
                 return Unauthorized(new { message = "Mật khẩu không đúng." });
-            }
-
-            if (loginRequest.RememberMe)
-            {
-                // Tạo RememberToken
-                user.RememberToken = Guid.NewGuid().ToString();
-                context.SaveChanges();
-
-                // Lưu RememberToken vào Cookie
-                var cookieOptions = new CookieOptions
-                {
-                    HttpOnly = true,
-                    Expires = DateTime.Now.AddDays(30),
-                    Path = "/",
-                    SameSite = SameSiteMode.None, // Cho phép cookie hoạt động trên nhiều site
-                    Secure = false // Không yêu cầu HTTPS
-                };
-
-                Response.Cookies.Append("RememberToken", user.RememberToken, cookieOptions);
-
             }
 
             return Ok(user);
