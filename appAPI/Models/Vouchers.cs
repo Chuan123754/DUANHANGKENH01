@@ -11,7 +11,6 @@ namespace appAPI.Models
     {
         [Key]
         public long Id { get; set; }
-        [Required(ErrorMessage = "Mã voucher là bắt buộc.")]
         public string? Code { get; set; }
         public string? Description { get; set; }
         public string? Quantity { get; set; }

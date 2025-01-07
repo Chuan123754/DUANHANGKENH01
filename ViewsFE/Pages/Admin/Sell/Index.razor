@@ -822,7 +822,7 @@
                                                         <input type="text" id="searchCustomer" class="form-control" style="width: 250px;" placeholder="CODE">
                                                     </div>
                                                 </div>
-                                                @foreach (var item in userVouchers_lst)  
+                                                @foreach (var item in userVouchers_lst.Where(v => v.Vouchers.Status == "Đang diễn ra"))
                                                 {  
                                                     decimal suggestBuy = 0;  
                                                     decimal conditionValue = 0m;  
@@ -869,45 +869,40 @@
 
                                                         <p style="margin: 8px 0; color: red; font-size: 15px"><small>Hết hạn lúc: @item.Vouchers.End_time</small></p>  
                                                         <div style="margin-top: 10px; text-align: left;">
-                                                            @if (suggestBuy > 0)  
-                                                            {  
-                                                                <button class="btn btn-outline-warning">
-                                                                    Mua thêm @suggestBuy.ToString("N0") VNĐ để sử dụng
-                                                                </button>
-                                                            }  
-                                                            else  
-                                                            {  
-                                                                <button class="btn btn-outline-success" @onclick="() => SelectedVoucher(item.VoucherId)">
-                                                                    @if (orderVouchers.ContainsKey(selectedOrderId) && orderVouchers[selectedOrderId].Contains(item.VoucherId))
-                                                                    {
-                                                                        <span>Đã áp dụng</span>
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        <span>Áp dụng</span>
-                                                                    }
-                                                                </button>
-                                                            }  
+
+                                                            @if(item.Vouchers.End_time<=DateTime.Now)
+                                                            {
+                                                                <div style="margin-top: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;">  
+                                                                    <strong>Trạng thái:</strong>    
+                                                                    <span style="color: red;">Hết hiệu lực</span>   
+                                                                </div>  
+                                                            }
+                                                            else
+                                                            {
+                                                                 @if (suggestBuy > 0)  
+                                                                {  
+                                                                    <button class="btn btn-outline-warning">
+                                                                        Mua thêm @suggestBuy.ToString("N0") VNĐ để sử dụng
+                                                                    </button>
+                                                                }  
+                                                                else  
+                                                                {  
+                                                                    <button class="btn btn-outline-success" @onclick="() => SelectedVoucher(item.VoucherId)">
+                                                                        @if (orderVouchers.ContainsKey(selectedOrderId) && orderVouchers[selectedOrderId].Contains(item.VoucherId))
+                                                                        {
+                                                                            <span>Đã áp dụng</span>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <span>Áp dụng</span>
+                                                                        }
+                                                                    </button>
+                                                                }        
+                                                            }                                              
                                                         </div>  
-                                                        <div style="margin-top: 10px; padding: 10px; border: 1px solid #ccc; border-radius: 5px; background-color: #f9f9f9;">  
-                                                            <strong>Trạng thái:</strong>   
-                                                            @if (item.Vouchers.Status == "Đang diễn ra")  
-                                                            {  
-                                                                <span style="color: green;">Còn hiệu lực</span>  
-                                                            } 
-                                                            else if(item.IsApplied)
-                                                            {  
-                                                                <span style="color: red;">Đã sử dụng</span>  
-                                                            }  
-                                                            else  
-                                                            {  
-                                                                <span style="color: red;">Hết hiệu lực</span>  
-                                                            }  
-                                                        </div>  
+                                                        
                                                     </div>  
                                                 }
-
-
                                             </div>
                                         </div>
 
@@ -1270,7 +1265,7 @@
             }
             var allVouchers = await userVoucherServies.GetAll();
             userVouchers_lst = allVouchers
-                .Where(v => v.UserId == selectedCustomer.Id && v.IsApplied == false)
+                .Where(v => v.UserId == orders.User_id && v.IsApplied == false)
                 .ToList();
             StateHasChanged();
 
@@ -1305,7 +1300,7 @@
             }
             var allVouchers = await userVoucherServies.GetAll();
             userVouchers_lst = allVouchers
-                .Where(v => v.UserId == selectedCustomer.Id && v.IsApplied == false)
+                .Where(v => v.UserId == orders.User_id && v.IsApplied == false)
                 .ToList();
             StateHasChanged();
             await ResetViewState();
@@ -2223,7 +2218,7 @@
             var appliedVouchers = orderVouchers[selectedOrderId];
             foreach (var voucherId in appliedVouchers)
             {
-                var voucher = await userVoucherServies.GetByVoucherIdAndUserId(voucherId,selectedCustomer.Id);
+                var voucher = await userVoucherServies.GetByVoucherIdAndUserId(voucherId,orders.User_id??0);
                 if (voucher != null)
                 {
                     voucher.IsApplied = true;
@@ -2232,10 +2227,11 @@
             }
              var allVouchers = await userVoucherServies.GetAll();
                 userVouchers_lst = allVouchers
-                    .Where(v => v.UserId == selectedCustomer.Id && v.IsApplied == false)
+                    .Where(v => v.UserId == orders.User_id && v.IsApplied == false)
                     .ToList();
 
                 // Cập nhật giao diện
+            modalPayByCash = false;
             StateHasChanged();
         }
     }

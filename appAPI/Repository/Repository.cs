@@ -108,5 +108,17 @@ namespace appAPI.Repository
             _context.SaveChanges();
         }
 
+        public async Task BatchUpdateAsync(IEnumerable<T> entities)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                foreach (var entity in entities)
+                {
+                    _context.Set<T>().Update(entity);
+                }
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+        }
     }
 }

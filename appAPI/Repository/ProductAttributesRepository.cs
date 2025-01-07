@@ -22,6 +22,19 @@ namespace appAPI.Repository
             await _context.Product_Attributes.AddAsync(productAttribute);
             await _context.SaveChangesAsync();
         }
+        public async Task BatchUpdateAsync(IEnumerable<Product_Attributes> productAttributes)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                foreach (var product in productAttributes)
+                {
+                    _context.Product_Attributes.Update(product);
+                }
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+        }
+
 
         public async Task Delete(long id)
         {
