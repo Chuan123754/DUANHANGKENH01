@@ -45,7 +45,7 @@ namespace ViewsFE.Services
             {
                 throw new Exception("Email đã tồn tại.");
             }
-            string userRequestURL = $"{_baseUrl}/api/Users/Users-post";
+            string userRequestURL = $"{_baseUrl}/api/Users/register-sync";
             var userJsonContent = JsonConvert.SerializeObject(user);
             var userContent = new StringContent(userJsonContent, Encoding.UTF8, "application/json");
             var userResponse = await _httpClient.PostAsync(userRequestURL, userContent);

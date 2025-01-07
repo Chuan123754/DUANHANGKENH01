@@ -14,18 +14,21 @@ namespace appAPI.Controllers
         private readonly IRepository<Order_details> _orderDetailsRepository;
         private readonly IRepository<Product_Attributes> _productAttributeRepository;
         private readonly IRepository<Orders> _ordersRepository;
+        private readonly IRepository<order_trackings> _ordersTracking;
 
         public ProductsReturnedController(
             IRepository<Products_Returned> repository,
             IRepository<Order_details> orderDetailsRepository,
             IRepository<Product_Attributes> productAttributeRepository,
-            IRepository<Orders> ordersRepository
+            IRepository<Orders> ordersRepository,
+            IRepository<order_trackings> ordersTracking
             )
         {
             _repository = repository;
             _orderDetailsRepository = orderDetailsRepository;
             _productAttributeRepository = productAttributeRepository;
             _ordersRepository = ordersRepository;
+            _ordersTracking = ordersTracking;
         }
 
         // GET: api/ProductsReturned
@@ -71,8 +74,112 @@ namespace appAPI.Controllers
                 return BadRequest(ModelState);
             }
 
+            // Tìm thông tin sản phẩm từ OrderDetail
+            var orderDetail = _orderDetailsRepository.Find(od => od.Id == productReturned.OrderDetailId).FirstOrDefault();
+            if (orderDetail == null)
+            {
+                return NotFound(new { message = "Không tìm thấy thông tin chi tiết hóa đơn." });
+            }
+
+            // Tìm SKU từ ProductAttributes
+            var productAttribute = _productAttributeRepository.Find(pa => pa.Id == orderDetail.Product_Attribute_Id).FirstOrDefault();
+            if (productAttribute == null)
+            {
+                return NotFound(new { message = "Không tìm thấy thông tin sản phẩm." });
+            }
+
+            // Thêm bản ghi vào Products_Returned
             _repository.Add(productReturned);
+
+            // Xác định Status dựa trên IsReturn
+            var status = productReturned.IsReturn == true ? "Đổi sản phẩm" : "Trả sản phẩm";
+            var note = $"Sản phẩm SKU: {productAttribute.SKU}, Số lượng: {productReturned.Quantity}";
+
+            // Thêm bản ghi vào Order_Tracking
+            var newTracking = new order_trackings
+            {
+                OrderId = orderDetail.OrderId,
+                Status = status,
+                Note = note,
+                Created_at = DateTime.Now,
+                Created_by = productReturned.Created_by
+            };
+
+            _ordersTracking.Add(newTracking);
+
             return CreatedAtAction(nameof(GetById), new { id = productReturned.Id }, productReturned);
+        }
+
+
+
+        // PUT: api/ProductsReturned/put
+        // PUT: api/ProductsReturned/put
+        [HttpPut("put")]
+        public IActionResult Update([FromBody] Products_Returned productReturned)
+        {
+            if (productReturned == null || productReturned.Id <= 0)
+            {
+                return BadRequest(new { message = "Thông tin sản phẩm trả lại không hợp lệ." });
+            }
+
+            // Tìm sản phẩm trả lại hiện có
+            var existingProductReturned = _repository.Find(p => p.Id == productReturned.Id).FirstOrDefault();
+            if (existingProductReturned == null)
+            {
+                return NotFound(new { message = "Sản phẩm trả lại không tồn tại." });
+            }
+
+            // Tìm thông tin sản phẩm từ OrderDetail
+            var orderDetail = _orderDetailsRepository.Find(od => od.Id == existingProductReturned.OrderDetailId).FirstOrDefault();
+            if (orderDetail == null)
+            {
+                return NotFound(new { message = "Không tìm thấy thông tin chi tiết hóa đơn." });
+            }
+
+            // Tìm SKU từ ProductAttributes
+            var productAttribute = _productAttributeRepository.Find(pa => pa.Id == orderDetail.Product_Attribute_Id).FirstOrDefault();
+            if (productAttribute == null)
+            {
+                return NotFound(new { message = "Không tìm thấy thông tin sản phẩm." });
+            }
+
+            // Cập nhật thông tin cơ bản
+            existingProductReturned.Quantity = productReturned.Quantity;
+            existingProductReturned.ReturnReason = productReturned.ReturnReason;
+            existingProductReturned.Condition = productReturned.Condition;
+            existingProductReturned.ReturnDate = productReturned.ReturnDate;
+            existingProductReturned.Created_by = productReturned.Created_by;
+            if (productReturned.ReturnReason == "Đổi sản phẩm")
+            {
+                existingProductReturned.UnitPrice = 0;
+                existingProductReturned.TotalPrice = 0;
+            }
+            else
+            {
+                existingProductReturned.UnitPrice = productReturned.UnitPrice;
+                existingProductReturned.TotalPrice = productReturned.TotalPrice;
+            }
+            existingProductReturned.Notes += productReturned.Notes;
+
+            _repository.Update(existingProductReturned);
+
+            // Xác định Status dựa trên IsReturn
+            var status = productReturned.IsReturn == true ? "Cập nhật đổi sản phẩm" : "Cập nhật trả sản phẩm";
+            var note = $"Cập nhật Sản phẩm SKU: {productAttribute.SKU}, Số lượng: {productReturned.Quantity}";
+
+            // Thêm bản ghi vào Order_Tracking
+            var newTracking = new order_trackings
+            {
+                OrderId = orderDetail.OrderId,
+                Status = status,
+                Note = note,
+                Created_at = DateTime.Now,
+                Created_by = productReturned.Created_by
+            };
+
+            _ordersTracking.Add(newTracking);
+
+            return Ok(new { message = "Cập nhật thành công." });
         }
 
 
@@ -257,41 +364,7 @@ namespace appAPI.Controllers
         }
 
 
-        // PUT: api/ProductsReturned/put
-        [HttpPut("put")]
-        public IActionResult Update([FromBody] Products_Returned productReturned)
-        {
-            if (productReturned == null || productReturned.Id <= 0)
-            {
-                return BadRequest(new { message = "Thông tin sản phẩm trả lại không hợp lệ." });
-            }
-
-            var existingProductReturned = _repository.Find(p => p.Id == productReturned.Id).FirstOrDefault();
-            if (existingProductReturned == null)
-            {
-                return NotFound(new { message = "Sản phẩm trả lại không tồn tại." });
-            }
-
-            // Cập nhật thông tin cơ bản
-            existingProductReturned.Quantity = productReturned.Quantity;
-            existingProductReturned.ReturnReason = productReturned.ReturnReason;
-            existingProductReturned.Condition = productReturned.Condition;
-            existingProductReturned.ReturnDate = productReturned.ReturnDate;
-            if (productReturned.ReturnReason == "Đổi sản phẩm")
-            {
-                existingProductReturned.UnitPrice = 0;
-                existingProductReturned.TotalPrice = 0;
-            } else
-            {
-                existingProductReturned.UnitPrice = productReturned.UnitPrice;
-                existingProductReturned.TotalPrice = productReturned.TotalPrice;
-            }
-            existingProductReturned.Notes += productReturned.Notes;
-
-            _repository.Update(existingProductReturned);
-
-            return Ok(new { message = "Cập nhật thành công." });
-        }
+        
 
 
 

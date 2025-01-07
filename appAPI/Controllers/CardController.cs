@@ -54,20 +54,28 @@ namespace appAPI.Controllers
         {
             try
             {
-                var existingUser = _userRepository.GetById(cart.UserId??0); // Sử dụng UserId thay vì đối tượng Users
+                var existingUser = _userRepository.GetById(cart.UserId ?? 0); // Kiểm tra UserId
                 if (existingUser == null)
                 {
                     return NotFound(new { message = "Người dùng không tồn tại" });
                 }
 
+                // Kiểm tra xem cart đã tồn tại chưa
+                var existingCart = _cartRepository.Find(c => c.UserId == cart.UserId);
+                if (existingCart != null)
+                {
+                    return Ok(new { message = "Giỏ hàng đã tồn tại. Không cần thêm mới." });
+                }
+
                 _cartRepository.Add(cart);
-                return Ok();
+                return Ok(new { message = "Thêm vào giỏ hàng thành công." });
             }
             catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
         }
+
 
 
         // PUT: api/carts-put

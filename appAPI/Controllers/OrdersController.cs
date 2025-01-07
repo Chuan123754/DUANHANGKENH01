@@ -72,7 +72,7 @@ namespace appAPI.Controllers
             try
             {
                 await _repo.Create(orders);
-                return Ok();
+                return Ok(orders);
             }
             catch (Exception ex)
             {
@@ -109,6 +109,30 @@ namespace appAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("Update-Pending")]
+        public async Task<IActionResult> UpdatePendingOrderUserId(Orders orders, long id)
+        {
+            try
+            {
+                var existingOrder = await _repo.GetByIdOrders(id);
+                if (existingOrder == null)
+                {
+                    return NotFound("Đơn hàng không tồn tại.");
+                }
+
+                existingOrder.User_id = orders.User_id;
+
+                await _repo.Update(existingOrder, id);
+                return Ok(existingOrder);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         [HttpPut("UpdateStatus")]
         public async Task<IActionResult> PutStatus(Orders orders, long id)
         {
