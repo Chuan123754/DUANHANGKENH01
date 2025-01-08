@@ -242,7 +242,7 @@
                                                             ? $"{voucher.Percent}%"
                                                             : $"{voucher.Percent:#,##0} VNĐ")
                                                     </td>
-                                                    <td>@(int.TryParse(voucher.MaxDiscountValue, out var maxValue) ? maxValue.ToString("N0").Replace(".", ",") : "Invalid") VNĐ</td>
+                                                    <td>@(int.TryParse(voucher.MaxDiscountValue, out var maxValue) ? maxValue.ToString("N0").Replace(".", ",") : "%") </td>
                                                     <td>@(int.TryParse(voucher.Condition, out var condition) ? condition.ToString("N0").Replace(".", ",") : "Invalid") VNĐ</td>
                                @*                      <td>@voucher.Quantity</td> *@
                                                     <td>@voucher.Status</td>
