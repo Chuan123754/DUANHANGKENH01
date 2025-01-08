@@ -2,7 +2,7 @@
 @inject ICategoriesServices sev
 @inject NavigationManager nav
 @inject IJSRuntime JS
-
+@using BlazorBootstrap
 
 @if (isDataLoaded)
 {
@@ -67,7 +67,7 @@ else
 {
     <p>Đang tải dữ liệu...</p>
 }
-
+<ConfirmDialog @ref="dialog" />
 @code {
     [Parameter]
     public Categories categorie { get; set; } // Nhận dữ liệu từ trang Index
@@ -76,6 +76,7 @@ else
     public long Id { get; set; }
     private List<Categories> categoriesList = new();
     private bool isDataLoaded = false;
+    private ConfirmDialog dialog = default!;
     private void GenerateSlug(ChangeEventArgs e)
     {
         if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
@@ -139,17 +140,36 @@ else
 
     private async Task SubmitForm()
     {
-        try
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
+
+        var confirmation = await dialog.ShowAsync(
+            title: "Đưa ra sự lựa chọn",
+            message1: "Bạn có muốn sửa danh mục?",
+            confirmDialogOptions: options);
+        if (confirmation)
         {
-            await sev.Update(categorie);
-            await JS.InvokeVoidAsync("toastr.success", "Sửa danh mục thành công");
-            categorie = new Categories(); // Reset lại form
-            nav.NavigateTo("/admin/post/categorie"); // Điều hướng lại về danh sách
+            try
+            {
+                await sev.Update(categorie);
+                await JS.InvokeVoidAsync("toastr.success", "Sửa danh mục thành công");
+                categorie = new Categories(); // Reset lại form
+                nav.NavigateTo("/admin/post/categorie"); // Điều hướng lại về danh sách
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                await JS.InvokeVoidAsync("toastr.error", "Không thể sửa danh mục. Vui lòng thử lại.");
+            }
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể sửa danh mục. Vui lòng thử lại.");
+            return;
         }
     }
 }

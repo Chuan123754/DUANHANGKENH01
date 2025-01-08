@@ -132,13 +132,13 @@ namespace appAPI.Repository
         public async Task<int> GetTotal()
         {
             return await _context.Orders
-               .CountAsync(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đơn huỷ");
+               .CountAsync(p => p.Status != "Hóa đơn treo");
         }
         public async Task<int> GetTotalToday()
         {
             var today = DateTime.Today; // Lấy ngày hiện tại (00:00:00)
             return await _context.Orders
-                .CountAsync(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đơn huỷ" &&
+                .CountAsync(p => p.Status != "Hóa đơn treo" &&
                                  p.Created_at.HasValue && // Kiểm tra không null
                                  p.Created_at.Value.Date == today); // So sánh chỉ phần ngày
         }
@@ -147,7 +147,7 @@ namespace appAPI.Repository
         {
             var today = DateTime.Today; // Lấy ngày hiện tại (00:00:00)
             return await _context.Orders
-                .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đơn hủy" &&
+                .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Đơn hủy" && p.Status != "Giao thất bại" &&
                             p.Created_at.HasValue &&
                             p.Created_at.Value.Date == today) // So sánh phần ngày
                 .SumAsync(p => p.TotalAmount ?? 0); // Tổng giá trị TotalAmount, mặc định là 0 nếu null
@@ -207,7 +207,7 @@ namespace appAPI.Repository
             var currentYear = DateTime.Now.Year;
 
             var orders = await _context.Orders
-                .Where(o => o.Created_at != null && o.Created_at.Value.Year == currentYear)
+                .Where(o => o.Status != "Hóa đơn treo" && o.Created_at != null && o.Created_at.Value.Year == currentYear)
                 .ToListAsync();
 
             var result = orders

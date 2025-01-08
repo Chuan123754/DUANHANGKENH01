@@ -1,7 +1,7 @@
 ﻿@page "/admin/qa/create"
 @inject IQaService QaService
 @inject NavigationManager Navigation
-
+ @using BlazorBootstrap
 <h1>Tạo Câu Hỏi Mới</h1>
 
 <div class="form-group mb-4">
@@ -18,32 +18,51 @@
 
 <button @onclick="Createt" class="btn btn-primary">Tạo</button>
 <button @onclick="Cancel" class="btn btn-secondary">Hủy</button>
-
+<ConfirmDialog @ref="dialog" />
 @code {
     private Q_A qa = new Q_A();
     private Dictionary<string, string> validationErrors = new Dictionary<string, string>();
-
+    private ConfirmDialog dialog = default!;
     private async Task Createt()
     {
-        validationErrors.Clear();
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
 
-        if (string.IsNullOrWhiteSpace(qa.Question))
+        var confirmation = await dialog.ShowAsync(
+            title: "Đưa ra sự lựa chọn",
+            message1: "Bạn có muốn thêm câu hỏi?",
+            confirmDialogOptions: options);
+        if (confirmation)
         {
-            validationErrors["Question"] = "Câu hỏi là bắt buộc.";
-        }
+            validationErrors.Clear();
 
-        if (string.IsNullOrWhiteSpace(qa.Answer))
-        {
-            validationErrors["Answer"] = "Câu trả lời là bắt buộc.";
-        }
+            if (string.IsNullOrWhiteSpace(qa.Question))
+            {
+                validationErrors["Question"] = "Câu hỏi là bắt buộc.";
+            }
 
-        if (validationErrors.Any())
+            if (string.IsNullOrWhiteSpace(qa.Answer))
+            {
+                validationErrors["Answer"] = "Câu trả lời là bắt buộc.";
+            }
+
+            if (validationErrors.Any())
+            {
+                return;
+            }
+
+            await QaService.Create(qa);
+            Navigation.NavigateTo("/admin/qa");
+        }
+        else
         {
             return;
         }
-
-        await QaService.Create(qa);
-        Navigation.NavigateTo("/admin/qa");
     }
 
     private void Cancel()

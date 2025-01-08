@@ -2,7 +2,7 @@
 @inject NavigationManager nav
 @inject ITextile_technologyServices sev
 @inject IJSRuntime JS
-
+ @using BlazorBootstrap
 <EditForm Model="technology" OnValidSubmit="SubmitForm" FormName="textiletechnologyadd">
     <DataAnnotationsValidator></DataAnnotationsValidator>
     <ValidationSummary></ValidationSummary>
@@ -55,11 +55,12 @@
         </div>
     </div>
 </EditForm>
-
+<ConfirmDialog @ref="dialog" />
 @code {
     [Parameter]
     public long Id { get; set; }
     private Textile_technology technology = new Textile_technology();
+    private ConfirmDialog dialog = default!;
     protected async override Task OnInitializedAsync()
     {
         technology = await sev.Details(Id);
@@ -103,16 +104,35 @@
     }
     private async Task SubmitForm()
     {
-        try
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
+
+        var confirmation = await dialog.ShowAsync(
+            title: "Đưa ra sự lựa chọn",
+            message1: "Bạn có muốn sửa công nghệ dệt?",
+            confirmDialogOptions: options);
+        if (confirmation)
         {
-            await sev.Update(technology); // Gọi API để tạo thuộc tính
-            await JS.InvokeVoidAsync("toastr.success", "Công nghệ dệt đã được sửa thành công"); // Hiển thị thông báo thành công
-            nav.NavigateTo("/admin/textiletechnology"); // Điều hướng sau khi thành công
+            try
+            {
+                await sev.Update(technology); // Gọi API để tạo thuộc tính
+                await JS.InvokeVoidAsync("toastr.success", "Công nghệ dệt đã được sửa thành công"); // Hiển thị thông báo thành công
+                nav.NavigateTo("/admin/textiletechnology"); // Điều hướng sau khi thành công
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                await JS.InvokeVoidAsync("toastr.error", "Không thể sửa công nghệ dệt. Vui lòng thử lại."); // Hiển thị thông báo lỗi
+            }
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể sửa công nghệ dệt. Vui lòng thử lại."); // Hiển thị thông báo lỗi
+            return;
         }
     }
 }
