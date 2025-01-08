@@ -2,6 +2,7 @@
 @inject NavigationManager nav
 @inject IColorServices sevcolor
 @inject IJSRuntime JS
+ @using BlazorBootstrap
 
 <EditForm Model="color" OnValidSubmit="SubmitFormMau" FormName="coadd">
     <DataAnnotationsValidator></DataAnnotationsValidator>
@@ -39,7 +40,7 @@
                                 <div class="form-group mb-3">
                                     <label for="color-picker" class="form-label">Bảng mã màu</label>
                                     <input type="color" id="color-picker" class="form-control form-control-color" value="#000000"
-                                           @onchange="OnColorChange" />
+                                    @onchange="OnColorChange" />
                                 </div>
                                 <div class="form-group mb-3">
                                     <label for="attribute-color_code" class="form-label">Mã màu <span class="text-danger">*</span></label>
@@ -67,9 +68,10 @@
         </div>
     </div>
 </EditForm>
-
+<ConfirmDialog @ref="dialog" />
 @code {
     private Color color = new Color();
+    private ConfirmDialog dialog = default!;
     private void GenerateSlug(ChangeEventArgs e)
     {
         if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
@@ -109,16 +111,35 @@
     }
     private async Task SubmitFormMau()
     {
-        try
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
+
+        var confirmation = await dialog.ShowAsync(
+            title: "Đưa ra sự lựa chọn",
+            message1: "Bạn có muốn thêm màu sắc?",
+            confirmDialogOptions: options);
+        if (confirmation)
         {
-            await sevcolor.Create(color); // Gọi API để tạo màu sắc
-            await JS.InvokeVoidAsync("toastr.success", "Màu sắc đã được thêm thành công"); // Hiển thị thông báo thành công
-            nav.NavigateTo("/admin/color");
+            try
+            {
+                await sevcolor.Create(color); // Gọi API để tạo màu sắc
+                await JS.InvokeVoidAsync("toastr.success", "Màu sắc đã được thêm thành công"); // Hiển thị thông báo thành công
+                nav.NavigateTo("/admin/color");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                await JS.InvokeVoidAsync("toastr.error", "Không thể thêm màu sắc. Vui lòng thử lại."); // Hiển thị thông báo lỗi
+            }
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm màu sắc. Vui lòng thử lại."); // Hiển thị thông báo lỗi
+            return;
         }
     }
 

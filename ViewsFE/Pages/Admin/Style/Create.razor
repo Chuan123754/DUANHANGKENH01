@@ -2,10 +2,10 @@
 @inject NavigationManager nav
 @inject IStyleServices sev
 @inject IJSRuntime JS
-
+ @using BlazorBootstrap
 <EditForm Model="style" OnValidSubmit="SubmitForm" FormName="styleadd">
     <DataAnnotationsValidator></DataAnnotationsValidator>
-   
+
     <div class="page-wrapper">
         <div class="page-header d-print-none">
             <div class="container-xl">
@@ -56,9 +56,10 @@
         </div>
     </div>
 </EditForm>
+<ConfirmDialog @ref="dialog" />
 @code {
     private Style style = new Style();
-
+    private ConfirmDialog dialog = default!;
     private void GenerateSlug(ChangeEventArgs e)
     {
         if (e.Value is string title && !string.IsNullOrWhiteSpace(title))
@@ -99,17 +100,36 @@
 
     private async Task SubmitForm()
     {
-        style.Create_at = DateTime.Now;
-        try
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
+
+        var confirmation = await dialog.ShowAsync(
+            title: "Đưa ra sự lựa chọn",
+            message1: "Bạn có muốn thêm phong cách?",
+            confirmDialogOptions: options);
+        if (confirmation)
         {
-            await sev.Create(style); // Gọi API để tạo thuộc tính
-            await JS.InvokeVoidAsync("toastr.success", "Phong cách đã được thêm thành công"); // Hiển thị thông báo thành công
-            nav.NavigateTo("/admin/style"); // Điều hướng sau khi thành công
+            style.Create_at = DateTime.Now;
+            try
+            {
+                await sev.Create(style); // Gọi API để tạo thuộc tính
+                await JS.InvokeVoidAsync("toastr.success", "Phong cách đã được thêm thành công"); // Hiển thị thông báo thành công
+                nav.NavigateTo("/admin/style"); // Điều hướng sau khi thành công
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                await JS.InvokeVoidAsync("toastr.error", "Không thể thêm phong cách. Vui lòng thử lại."); // Hiển thị thông báo lỗi
+            }
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm phong cách. Vui lòng thử lại."); // Hiển thị thông báo lỗi
+            return;
         }
     }
 }

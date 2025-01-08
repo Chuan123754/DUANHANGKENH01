@@ -2,6 +2,7 @@
 @inject NavigationManager nav
 @inject IColorServices sev
 @inject IJSRuntime JS
+ @using BlazorBootstrap
 
 <EditForm Model="color" OnValidSubmit="SubmitForm" FormName="coloredit">
     <DataAnnotationsValidator></DataAnnotationsValidator>
@@ -71,10 +72,11 @@
         </div>
     </div>
 </EditForm>
-
+<ConfirmDialog @ref="dialog" />
 @code {
     [Parameter]
     public long Id { get; set; }
+    private ConfirmDialog dialog = default!;
     private Color color = new Color();
     private void GenerateSlug(ChangeEventArgs e)
     {
@@ -120,16 +122,35 @@
 
     private async Task SubmitForm()
     {
-        try
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
+
+        var confirmation = await dialog.ShowAsync(
+            title: "Đưa ra sự lựa chọn",
+            message1: "Bạn có muốn sửa màu sắc?",
+            confirmDialogOptions: options);
+        if (confirmation)
         {
-            await sev.Update(color); // Gọi API để cập nhật màu sắc
-            await JS.InvokeVoidAsync("toastr.success", "Màu sắc đã được sửa thành công"); // Hiển thị thông báo thành công
-            nav.NavigateTo("/admin/color"); // Điều hướng sau khi thành công
+            try
+            {
+                await sev.Update(color); // Gọi API để cập nhật màu sắc
+                await JS.InvokeVoidAsync("toastr.success", "Màu sắc đã được sửa thành công"); // Hiển thị thông báo thành công
+                nav.NavigateTo("/admin/color"); // Điều hướng sau khi thành công
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                await JS.InvokeVoidAsync("toastr.error", "Không thể sửa màu sắc. Vui lòng thử lại."); // Hiển thị thông báo lỗi
+            }
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể sửa màu sắc. Vui lòng thử lại."); // Hiển thị thông báo lỗi
+            return;
         }
     }
 }
