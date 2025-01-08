@@ -22,5 +22,7 @@ namespace appAPI.IRepository
         Task<int> GetTotalCountAsync(string searchTerm);
 
         Task Restore(long id);
+        Task BatchUpdateAsync(IEnumerable<Product_Attributes> productAttributes);
+
     }
 }

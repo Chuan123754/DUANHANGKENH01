@@ -1,97 +1,132 @@
-﻿//using appAPI.Models;
-//using appAPI.IRepository;
-//using Microsoft.Extensions.DependencyInjection;
-//using Microsoft.Extensions.Hosting;
-//using System;
-//using System.Linq;
-//using System.Threading;
-//using System.Threading.Tasks;
-//using appAPI.Repository;
+﻿using appAPI.Models;
+using appAPI.IRepository;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using appAPI.Repository;
 
-//namespace appAPI.Background_Service
-//{
-//    public class DiscountStatusChecker : BackgroundService
-//    {
-//        private readonly IServiceProvider _serviceProvider;
-//        private readonly TimeSpan _checkInterval = TimeSpan.FromMinutes(1);
+namespace appAPI.Background_Service
+{
+    public class DiscountStatusChecker : BackgroundService
+    {
+        private readonly IServiceProvider _serviceProvider;
+        private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(30); // Tăng khoảng thời gian kiểm tra để giảm tải
 
-//        public DiscountStatusChecker(IServiceProvider serviceProvider)
-//        {
-//            _serviceProvider = serviceProvider;
-//        }
+        public DiscountStatusChecker(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
 
-//        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-//        {
-//            while (!stoppingToken.IsCancellationRequested)
-//            {
-//                using (var scope = _serviceProvider.CreateScope())
-//                {
-//                    var discountRepository = scope.ServiceProvider.GetRequiredService<IRepository<Discount>>();
-//                    var productAttributesRepository = scope.ServiceProvider.GetRequiredService<IProductAttributesRepository>();
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                using (var scope = _serviceProvider.CreateScope())
+                {
+                    var discountRepository = scope.ServiceProvider.GetRequiredService<IRepository<Discount>>();
+                    var productAttributesRepository = scope.ServiceProvider.GetRequiredService<IProductAttributesRepository>();
+                    var productDiscountRepository = scope.ServiceProvider.GetRequiredService<IProductAttributeDiscountRepository>();
 
-//                    // Lấy tất cả các chiết khấu
-//                    var discounts = discountRepository.GetAll();
+                    try
+                    {
+                        var today = DateTime.Now;
 
-//                    foreach (var discount in discounts)
-//                    {
-//                        // Kiểm tra trạng thái chiết khấu dựa trên ngày kết thúc
-//                        if (discount.End_date <= DateTime.Now && discount.Status != "Đã kết thúc")
-//                        {
-//                            discount.Status = "Đã kết thúc";
-//                            discountRepository.Update(discount);
+                        // Lấy các chiết khấu cần cập nhật (lọc trước để giảm dữ liệu)
+                        var discounts = discountRepository.GetAll()
+                            .Where(d => d.Status != "Đã kết thúc" || (d.Start_date <= today && d.End_date >= today))
+                            .ToList();
 
-//                            // Cập nhật các `P_attribute_discount` liên quan
-//                            foreach (var attributeDiscount in discount.PAttributeDiscounts)
-//                            {
-//                                if (attributeDiscount.Status != "Đã kết thúc")
-//                                {
-//                                    attributeDiscount.Status = "Đã kết thúc";
+                        var discountsToUpdate = new List<Discount>();
+                        var productsToUpdate = new List<Product_Attributes>();
 
-//                                    // Xóa giá bán liên quan đến biến thể sản phẩm
-//                                    if (attributeDiscount.ProductAttributes != null)
-//                                    {
-//                                        attributeDiscount.ProductAttributes.Sale_price = null;
-//                                        await productAttributesRepository.Update(attributeDiscount.ProductAttributes, attributeDiscount.ProductAttributes.Id);
-//                                    }
-//                                }
-//                            }
-//                        }
-//                        else if (discount.Status == "Đang diễn ra")
-//                        {
-//                            foreach (var attributeDiscount in discount.PAttributeDiscounts)
-//                            {
-//                                if (attributeDiscount.Status != "Đang diễn ra")
-//                                {
-//                                    attributeDiscount.Status = "Đang diễn ra";
+                        foreach (var discount in discounts)
+                        {
+                            // Cập nhật trạng thái chiết khấu
+                            if (discount.End_date >= today && discount.Start_date <= today)
+                            {
+                                discount.Status = "Đang diễn ra";
+                            }
+                            else if (discount.End_date < today)
+                            {
+                                discount.Status = "Đã kết thúc";
+                            }
+                            else
+                            {
+                                discount.Status = "Sắp diễn ra";
+                            }
+                            discountsToUpdate.Add(discount);
 
-//                                    // Cập nhật giá bán cho biến thể sản phẩm
-//                                    if (attributeDiscount.ProductAttributes != null)
-//                                    {
-//                                        attributeDiscount.ProductAttributes.Sale_price = CalculateSalePrice(
-//                                            attributeDiscount.ProductAttributes.Regular_price,
-//                                            discount.Type_of_promotion,
-//                                            discount.Discount_value
-//                                        );
-//                                        await productAttributesRepository.Update(attributeDiscount.ProductAttributes, attributeDiscount.ProductAttributes.Id);
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
+                            // Lấy danh sách sản phẩm liên quan
+                            var productIds = await productDiscountRepository.GetByIdDiscount(discount.Id);
 
-//                // Tạm dừng trước lần kiểm tra tiếp theo
-//                await Task.Delay(_checkInterval, stoppingToken);
-//            }
-//        }
+                            foreach (var productId in productIds)
+                            {
+                                var product = await productAttributesRepository.GetProductAttributesById(productId.ProductAttributes.Id);
+                                if (product != null)
+                                {
+                                    if (discount.Status == "Đang diễn ra")
+                                    {
+                                        product.Sale_price = (long?)Math.Round(CalculateSalePrice(
+                                            product.Regular_price ?? 0,
+                                            discount.Discount_value,
+                                            discount.Type_of_promotion
+                                        ));
+                                    }
+                                    else
+                                    {
+                                        product.Sale_price = null; // Khôi phục giá gốc
+                                    }
+                                    productsToUpdate.Add(product);
+                                }
+                            }
+                        }
 
-//        private long? CalculateSalePrice(long? regularPrice, string? discountType, decimal discountValue)
-//        {
-//            if (regularPrice == null) return null;
+                        // Batch update chiết khấu
+                        if (discountsToUpdate.Any())
+                        {
+                            await discountRepository.BatchUpdateAsync(discountsToUpdate);
+                        }
 
-//            return discountType == "Percentage"
-//                ? (long)Math.Max(regularPrice.Value - (regularPrice.Value * (decimal)discountValue / 100), 0)
-//                : (long)Math.Max(regularPrice.Value - discountValue, 0);
-//        }
-//    }
-//}
+                        // Batch update sản phẩm
+                        if (productsToUpdate.Any())
+                        {
+                            await productAttributesRepository.BatchUpdateAsync(productsToUpdate);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Error: {ex.Message}");
+                    }
+                }
+
+                // Tạm dừng trước lần kiểm tra tiếp theo
+                await Task.Delay(_checkInterval, stoppingToken);
+            }
+        }
+
+        private decimal CalculateSalePrice(decimal regularPrice, decimal discountValue, string discountType)
+        {
+            if (discountType == "Percentage")
+            {
+                return regularPrice - (regularPrice * discountValue / 100);
+            }
+            else if (discountType == "Fixed")
+            {
+                if(discountValue>= regularPrice)
+                {
+                    return 1000;
+                }   
+                else
+                {
+                    return regularPrice - discountValue;
+                }    
+          
+            }
+            return regularPrice;
+        }
+    }
+}
