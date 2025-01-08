@@ -1014,6 +1014,7 @@
 
 
         var order = await orderService.GetByIdOrders(OrderId);
+
         var user = await userService.GetById(order.User_id ?? 0);
         if (result == "Thêm mới thành công.")
         {

@@ -1788,7 +1788,7 @@
         modalVoucher = false;
     }
 
-   private async Task SelectedVoucher(long id)
+    private async Task SelectedVoucher(long id)
     {
         if (!orderVouchers.ContainsKey(selectedOrderId))
         {
@@ -1826,7 +1826,6 @@
         CalculateTotalMoney();
         StateHasChanged(); 
     }
-
 
     private async Task RecalculateVoucherAmount()
     {
@@ -1868,7 +1867,6 @@
 
         StateHasChanged();
     }
-
 
     private decimal CalculateVoucher(Vouchers voucher)
     {
@@ -2163,7 +2161,7 @@
             };
         feeShipping = await address_Service.CalculateShippingFee(shippingRequest);
         CalculateTotalMoney();
-               StateHasChanged();
+        StateHasChanged();
     }
     private void ClearInfoAddress()
     {
@@ -2193,7 +2191,6 @@
         }
 
     }
-
 
     private async Task CancelPayByCash()
     {
@@ -2225,12 +2222,12 @@
                     await userVoucherServies.Update(voucher); // Cập nhật trạng thái `IsApplied`
                 }
             }
-             var allVouchers = await userVoucherServies.GetAll();
-                userVouchers_lst = allVouchers
-                    .Where(v => v.UserId == orders.User_id && v.IsApplied == false)
-                    .ToList();
+            var allVouchers = await userVoucherServies.GetAll();
+            userVouchers_lst = allVouchers
+                .Where(v => v.UserId == orders.User_id && v.IsApplied == false)
+                .ToList();
 
-                // Cập nhật giao diện
+            // Cập nhật giao diện
             modalPayByCash = false;
             StateHasChanged();
         }
@@ -2244,6 +2241,7 @@
             CheckOut("momo");
         }
     }
+
     private async Task CheckOut(string paymentMethod)
     {
         if (isDeliveryVisible && selectedAddress == null)
@@ -2258,6 +2256,7 @@
         }
 
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
+
         if (orderToUpdate != null)
         {
             orderToUpdate.TotalAmount = totalAmount; // tiền hàng đã giảm
@@ -2280,7 +2279,10 @@
                 orderToUpdate.Address_Id = null;
             }
             await orderService.Update(orderToUpdate, orderToUpdate.Id);
-
+            foreach(var item in lst_OrderDetail)
+            {
+                UpdateOrderDetail(item);
+            }
             if (paymentMethod == "momo")
             {
                 try
@@ -2339,8 +2341,6 @@
                     };
                 await orderTrackingService.AddOrderTracking(newOrderTracking);
             }
-
-
 
             if (selectedCustomer != null && orderToUpdate.Status == "Đã thanh toán")
             {
