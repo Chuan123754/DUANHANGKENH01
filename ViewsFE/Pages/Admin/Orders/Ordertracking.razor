@@ -1014,23 +1014,32 @@
 
 
         var order = await orderService.GetByIdOrders(OrderId);
-
-        var user = await userService.GetById(order.User_id ?? 0);
-        if (result == "Thêm mới thành công.")
+        if (order.User_id == null)
         {
             await ReloadTrackingData();
             await JS.InvokeVoidAsync("toastr.success", $"Trạng thái mới được thêm: {newStatus}");
-        }
+            return;
+        } 
         else
         {
-            await JS.InvokeVoidAsync("toastr.error", result);
-        }
-        ReloadTrackingData();
-        if (user != null)
-        {
-            var emailUser = user.Email;
-            string emailSubject = "ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC CẬP NHẬT";
-            string emailMessage = $@"
+            var user = await userService.GetById(order.User_id ?? 0);
+
+            if (result == "Thêm mới thành công.")
+            {
+                await ReloadTrackingData();
+                await JS.InvokeVoidAsync("toastr.success", $"Trạng thái mới được thêm: {newStatus}");
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("toastr.error", result);
+            }
+
+            await ReloadTrackingData();
+            if (user != null)
+            {
+                var emailUser = user.Email;
+                string emailSubject = "ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC CẬP NHẬT";
+                string emailMessage = $@"
                 <!DOCTYPE html>
                 <html>
                 <head>
@@ -1050,10 +1059,11 @@
                 </body>
                 </html>
             ";
-            await email.SendEmailAsync(emailUser, emailSubject, emailMessage);
+                await email.SendEmailAsync(emailUser, emailSubject, emailMessage);
+            }
+
+
         }
-
-
-
+        
     }
 }

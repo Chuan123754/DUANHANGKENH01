@@ -165,19 +165,11 @@ namespace appAPI.Controllers
                 }
             }
             else
-            {
-                if (!string.IsNullOrEmpty(user.Password))
-                {
-                    // Nếu số điện thoại không tồn tại và mật khẩu được cung cấp, tạo mới bản ghi
-                    context.Users.Add(user);
-                    context.SaveChanges();
+            {    
+                context.Users.Add(user);
+                context.SaveChanges();
 
-                    return Ok(new { message = "Tài khoản mới đã được tạo thành công.", user });
-                }
-                else
-                {
-                    return BadRequest(new { message = "Dữ liệu không hợp lệ. Vui lòng cung cấp mật khẩu." });
-                }
+                return Ok(new { message = "Tài khoản mới đã được tạo thành công.", user });              
             }
         }
 
