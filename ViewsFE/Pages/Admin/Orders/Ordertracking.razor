@@ -1,9 +1,11 @@
 ﻿@page "/ordertracking/{OrderId:long}"
 @inject IOrderIServices orderService
+@inject OrderDetailsIServices orderDetailsService
 @inject IOrderTrackingService orderTrackingService
 @inject NavigationManager NavigationManager
 @inject IAddressServices addressService
 @inject IAccountService accountService
+@inject IProductAttributeServices productAttributeService
 @inject IUserService userService
 @using ViewsFE.BackgroundServices
 @inject EmailNotification email
@@ -253,9 +255,9 @@
                     <h4>Thông Tin Tổng Tiền</h4>
                     <p><strong>Tổng tiền hàng:</strong> @OrderTracking.TotalPrincipal.ToString("N0") VND</p>
                     <p style="color: red;"><strong>Tổng tiền chiết khấu:</strong> @OrderTracking.TotalDiscount.ToString("N0") VND</p>
-                    <p><strong>Phí giao hàng:</strong> @OrderTracking.FeeShipping.ToString("N0") VND</p>
                     <p><strong>Tổng tiền hàng đã giảm:</strong> @OrderTracking.TotalAmount.ToString("N0") VND</p>
                     <p style="color: red;"><strong>Giảm giá Voucher:</strong> @OrderTracking.TotalVoucher.ToString("N0") VND</p>
+                    <p><strong>Phí giao hàng:</strong> @OrderTracking.FeeShipping.ToString("N0") VND</p>
                     <p style="color: green;"><strong>Tổng tiền cần thanh toán:</strong> @OrderTracking.TotalMoney.ToString("N0") VND</p>
                 </div>
                 <div class="customer-info" style="flex: 1; padding-left: 20px;">
@@ -366,6 +368,7 @@
     private OrderTrackingDTO? OrderTracking { get; set; }
     private Orders? Order { get; set; }
     private Orders? OrderAddress { get; set; }
+    private List<Order_details> lst_OrderDetails = new List<Order_details>();
     private Address Address = new Address();
     private Account Admin = new Account();
     private string currentStatus;
@@ -1019,11 +1022,7 @@
             await ReloadTrackingData();
             await JS.InvokeVoidAsync("toastr.success", $"Trạng thái mới được thêm: {newStatus}");
             return;
-        } 
-        else
-        {
             var user = await userService.GetById(order.User_id ?? 0);
-
             if (result == "Thêm mới thành công.")
             {
                 await ReloadTrackingData();
@@ -1033,13 +1032,25 @@
             {
                 await JS.InvokeVoidAsync("toastr.error", result);
             }
-
-            await ReloadTrackingData();
-            if (user != null)
+                ReloadTrackingData();
+            } 
+        else
+        {
+            var user = await userService.GetById(order.User_id ?? 0);
+            if (result == "Thêm mới thành công.")
             {
-                var emailUser = user.Email;
-                string emailSubject = "ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC CẬP NHẬT";
-                string emailMessage = $@"
+                await ReloadTrackingData();
+                await JS.InvokeVoidAsync("toastr.success", $"Trạng thái mới được thêm: {newStatus}");
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("toastr.error", result);
+            }
+        if (user != null)
+        {
+            var emailUser = user.Email;
+            string emailSubject = "ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC CẬP NHẬT";
+            string emailMessage = $@"
                 <!DOCTYPE html>
                 <html>
                 <head>

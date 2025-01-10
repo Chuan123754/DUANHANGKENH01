@@ -1922,6 +1922,10 @@
         discountAmount = totalPrincipal - totalAmount;
         totalQuantity = lst_OrderDetail.Sum(item => item.Quantity);
         totalMoney = isDeliveryVisible ? (feeShipping + totalAmount  - voucherAmount) : (totalAmount - voucherAmount);
+        if(totalMoney <= 0)
+        {
+            totalMoney = 0;
+        }
         StateHasChanged();
     }
 
