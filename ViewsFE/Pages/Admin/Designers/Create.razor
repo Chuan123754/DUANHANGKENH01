@@ -3,7 +3,7 @@
 @inject NavigationManager nav
 @inject IJSRuntime JS
 @inject IBannerServices bnser
-
+ @using BlazorBootstrap
 <div class="page-wrapper">
     <div class="page-header d-print-none">
         <div class="container-xl">
@@ -262,7 +262,7 @@
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 <Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
-
+<ConfirmDialog @ref="dialog" />
 @code {
     private Designer designer = new Designer();
     private MetaData metaData = new MetaData();
@@ -271,6 +271,7 @@
     private Media_modal mediaModalRef;
     private Modal_NImg mediaLibraryModal;
     private Media_manager media_ManagerRef;
+    private ConfirmDialog dialog = default!;
     private bool tinyMCEInitialized = false;
     private long postId;
 
@@ -383,8 +384,19 @@
     }
     private async Task SubmitForm()
     {
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận thêm nhà thiết kế ?");
-        if (confirmed)
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
+
+        var confirmation = await dialog.ShowAsync(
+            title: "Đưa ra sự lựa chọn",
+            message1: "Bạn có muốn thêm nhà thiết kế?",
+            confirmDialogOptions: options);
+        if (confirmation)
         {
             designer.description = await JS.InvokeAsync<string>("getTinyMCEContent");
             bool isSlugUnique = await IsSlugUnique(designer.slug ?? string.Empty);
@@ -409,6 +421,9 @@
                 await JS.InvokeVoidAsync("toastr.error", "Không thể thêm nhà thiết kế. Vui lòng thử lại.");
             }
         }
-
+        else
+        {
+            return;
+        }
     }
 }
