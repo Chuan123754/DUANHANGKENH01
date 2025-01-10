@@ -41,7 +41,7 @@
         <div class="container-xl">
             <div class="row g-2 align-items-center">
                 <div class="col d-flex gap-3">
-                    <h2 class="page-title">Quản Lý Voucher</h2>
+                    <h2 class="page-title">Quản Lý Mã Khuyến Mãi</h2>
                 </div>
             </div>
             <div id="breadcrumb">
@@ -244,12 +244,26 @@
                                                     </td>
                                                     <td>@(int.TryParse(voucher.MaxDiscountValue, out var maxValue) ? maxValue.ToString("N0").Replace(".", ",") : "%") </td>
                                                     <td>@(int.TryParse(voucher.Condition, out var condition) ? condition.ToString("N0").Replace(".", ",") : "Invalid") VNĐ</td>
-                               @*                      <td>@voucher.Quantity</td> *@
                                                     <td>@voucher.Status</td>
                                                     <td>
                                                         <button class="btn btn-primary" @onclick="() => EditVoucher(voucher.Id)">Sửa</button>
 
-                                                        <button class="btn btn-danger" @onclick="() => ConfirmDelete(voucher.Id)">Dừng</button>
+                                                        @if (voucher.Status == "Tạm dừng")
+                                                        {
+                                                            <button class="btn btn-warning btn-end"
+                                                                    @onclick="() => ContinuteVoucher(voucher.Id)">
+                                                                Tiếp tục
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button class="btn btn-danger btn-end"
+                                                                    @onclick="() => ConfirmDelete(voucher.Id)"
+                                                                    style="opacity: @(voucher.End_time > DateTime.Now ? 1 : 0.5); cursor: @(voucher.End_time > DateTime.Now);"
+                                                                    disabled="@(!(voucher.End_time > DateTime.Now))">
+                                                                Tạm dừng
+                                                            </button>
+                                                        }
                                                     </td>
                                                 </tr>
                                             }
@@ -523,25 +537,13 @@
                 return;
             }
 
-            // kiểm tra thời gian.
-            if (DateTime.Now < voucher.Start_time)
-            {
-                voucher.Status = "Chưa kích hoạt";
-            }
-
             // kiểm tra thời gian kết thúc
-            if (voucher.End_time < voucher.Start_time)
+            if (voucher.End_time <= voucher.Start_time)
             {
                 errorMessage = "Thời gian kết thúc phải lớn hơn thời gian bắt đầu";
                 return;
 
             }
-
-            if (voucher.Status == "Không hoạt động")
-            {
-                errorMessage = "Voucher đang không hoạt động. Không thể thêm khách hàng.";
-                return;
-            } 
 
             var today = DateTime.Now;
             if (voucher.End_time < today)
@@ -622,13 +624,12 @@
                     Update_at = DateTime.Now,
                     Start_time = DateTime.Now,
                     End_time = DateTime.Now.AddDays(1),
-                    Status = "Hoạt động"
+                    Status = "Đang diễn ra"
                 };
 
             selectedUserIds.Clear();
             selectedUserCount = 0;
-
-            errorMessage = "Đã tạo mới voucher thành công!";
+            await JS.InvokeVoidAsync("toastr.success", "Đã tạo mới voucher thành công!");
         }
         catch (Exception ex)
         {
@@ -712,12 +713,6 @@
                 return;
             }
 
-            // kiểm tra thời gian.
-            if (DateTime.Now < voucher.Start_time)
-            {
-                voucher.Status = "Chưa kích hoạt";
-            }
-
             // kiểm tra thời gian kết thúc
             if (voucher.End_time < voucher.Start_time)
             {
@@ -785,8 +780,7 @@
             selectedUserIds.Clear();
             initialUserIds.Clear();
             selectedUserCount = 0;
-
-            errorMessage = "Cập nhật voucher và danh sách khách hàng thành công!";
+            await JS.InvokeVoidAsync("toastr.success", "Cập nhật voucher và danh sách khách hàng thành công!");
         }
         catch (Exception ex)
         {
@@ -808,9 +802,6 @@
     }
 
 
-
-
-
     private async Task ConfirmUpdateVoucher()
     {
         bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn cập nhật voucher này?");
@@ -824,7 +815,7 @@
 
     private async Task ConfirmDelete(long id)
     {
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn cập nhật trạng thái voucher này thành 'Không hoạt động'?");
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận TẠM DỪNG Voucher?");
 
         if (confirmed)
         {
@@ -832,18 +823,40 @@
 
             if (voucherToUpdate != null)
             {
-                voucherToUpdate.Status = "Không hoạt động";
+                voucherToUpdate.Status = "Tạm dừng";
                 await VoucherService.Update(voucherToUpdate);
-
-                errorMessage = "Voucher đã được cập nhật trạng thái thành 'Không hoạt động'.";
+                await JS.InvokeVoidAsync("toastr.success", "Voucher đã được cập nhật trạng thái thành 'TẠM DỪNG'.");
                 await LoadVouchers();
             }
             else
             {
-                errorMessage = "Không tìm thấy voucher để cập nhật.";
+                await JS.InvokeVoidAsync("toastr.error", "Mã khuyến mãi không tồn tại!");
             }
         }
     }
+
+        private async Task ContinuteVoucher(long id)
+    {
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận TIẾP TỤC hoạt động Voucher?");
+
+        if (confirmed)
+        {
+            var voucherToUpdate = await VoucherService.Details(id);
+
+            if (voucherToUpdate != null)
+            {
+                voucherToUpdate.Status = "Đang diễn ra";
+                await VoucherService.Update(voucherToUpdate);
+                await JS.InvokeVoidAsync("toastr.success", "Cập nhật trạng thái VOUCHER thành công.");
+                await LoadVouchers();
+            }
+            else
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Mã khuyến mãi không tồn tại!");
+            }
+        }
+    }
+
     private async Task SearchVouchers()
     {
         if (string.IsNullOrEmpty(searchText))
