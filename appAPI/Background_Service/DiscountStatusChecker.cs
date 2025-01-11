@@ -14,7 +14,7 @@ namespace appAPI.Background_Service
     public class DiscountStatusChecker : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(30); // Tăng khoảng thời gian kiểm tra để giảm tải
+        private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(5); // Tăng khoảng thời gian kiểm tra để giảm tải
 
         public DiscountStatusChecker(IServiceProvider serviceProvider)
         {
@@ -46,15 +46,15 @@ namespace appAPI.Background_Service
                         foreach (var discount in discounts)
                         {
                             // Cập nhật trạng thái chiết khấu
-                            if (discount.End_date >= today && discount.Start_date <= today)
+                            if (discount.End_date >= today && discount.Start_date <= today && discount.Status != "Đã dừng")
                             {
                                 discount.Status = "Đang diễn ra";
                             }
-                            else if (discount.End_date < today)
+                            else if (discount.End_date < today && discount.Status != "Đã dừng")
                             {
                                 discount.Status = "Đã kết thúc";
                             }
-                            else
+                            else if (discount.Start_date < today && discount.Status != "Đã dừng")
                             {
                                 discount.Status = "Sắp diễn ra";
                             }
@@ -68,7 +68,7 @@ namespace appAPI.Background_Service
                                 var product = await productAttributesRepository.GetProductAttributesById(productId.ProductAttributes.Id);
                                 if (product != null)
                                 {
-                                    if (discount.Status == "Đang diễn ra")
+                                    if (discount.Status == "Đang diễn ra" && discount.Status != "Đã dừng")
                                     {
                                         product.Sale_price = (long?)Math.Round(CalculateSalePrice(
                                             product.Regular_price ?? 0,
@@ -116,15 +116,15 @@ namespace appAPI.Background_Service
             }
             else if (discountType == "Fixed")
             {
-                if(discountValue>= regularPrice)
+                if (discountValue >= regularPrice)
                 {
                     return 1000;
-                }   
+                }
                 else
                 {
                     return regularPrice - discountValue;
-                }    
-          
+                }
+
             }
             return regularPrice;
         }
