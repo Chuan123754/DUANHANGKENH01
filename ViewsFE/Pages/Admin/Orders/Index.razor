@@ -113,6 +113,28 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a @onclick="async () => await GetOnlineOrders()"
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Đơn hàng Online</strong>
+                                        <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
+                                            @orderOnline
+                                        </span>
+
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a @onclick="async () => await GetCounterOrders()"
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Đơn bán tại quầy</strong>
+                                        <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
+                                            @orderCounter
+                                        </span>
+
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a @onclick="async () => await GetCompleteOrders()"
                                        class="order-tab-click nav-link"
                                        data-bs-toggle="tab">
@@ -149,10 +171,10 @@
                                 <thead>
                                     <tr>
                                         <th>Id đơn hàng</th>
-                                        <th>Người tạo</th>
+                                        <th>NV bán hàng</th>
                                         <th>Tên khách hàng</th>
                                         <th>Số điện thoại</th>
-                                        <th>Loại hóa đơn</th>
+                                        <th>Loại đơn hàng</th>
                                         <th>Tổng tiền</th>
                                         <th>Ngày tạo</th>
                                         <th>Trạng thái</th>
@@ -170,7 +192,7 @@
                                                 <td>
                                                     @if (item.CreatedByAdminId == null)
                                                     {
-                                                        <span style="color:green"><strong>Online</strong></span>
+                                                        <span style="color:green"><strong>Hệ thống</strong></span>
                                                     }
                                                     else
                                                     {
@@ -199,9 +221,20 @@
                                                     }
                                                 </td>
                                                 <td>
-                                                    <span class="@GetNoteClass(item.Note)">
-                                                        @item.Note
-                                                    </span>
+                                                    @if(item.Note=="Giao hàng" && item.CreatedByAdminId==null)
+                                                    {
+                                                        <span>
+                                                            Online
+                                                        </span>
+                                                    }
+                                                    else 
+                                                    {
+                                                        <span>
+                                                            Tại quầy
+                                                        </span>
+                                                    }
+
+
                                                 </td>
 
                                                 <td>
@@ -256,24 +289,14 @@
     private int totalProcessing = 0; // tổng đơn hàng đang xử lý
     private int orderShippingComplete = 0; // đơn hàng hoàn thành
     private int orderCounterComplete = 0; // đơn hàng hoàn thành
+    private int orderOnline = 0; // đơn online
+    private int orderCounter = 0; // đơn online
     private int totalComplete = 0; // đơn hàng hoàn thành
     private decimal canceledOrders = 0; // bị hủy
 
     private DateTime? startDate;
     private DateTime? endDate;
 
-    private string GetNoteClass(string note)
-    {
-        if (note == "Tại quầy")
-        {
-            return "badge bg-taiquay";
-        }
-        else if (note == "Giao hàng")
-        {
-            return "badge bg-giaohang";
-        }
-        return "badge bg-secondary";
-    }
     private void LoadPagedOrders()
     {
         totalPages = (int)Math.Ceiling((double)lst_Orders.Count / pageSize);
@@ -333,9 +356,9 @@
         // sắp xếp
         lst_Orders = lst_OrdersShipping
        .OrderByDescending(o => o.Status == "Hóa đơn treo")
-       .ThenByDescending(o => o.Status == "Đã thanh toán")
        .ThenByDescending(o => o.Status == "Chờ xác nhận")
        .ThenByDescending(o => o.Status == "Đã xác nhận")
+       .ThenByDescending(o => o.Status == "Đã thanh toán")
        .ThenByDescending(o => o.Status == "Đã chuẩn bị hàng")
        .ThenByDescending(o => o.Status == "Đã lấy hàng")
        .ThenByDescending(o => o.Status == "Đang vận chuyển")
@@ -349,10 +372,12 @@
         // Tính toán thống kê
         totalOrders = lst_Orders.Count;
         canceledOrders = lst_Orders
-    .Where(o => o.Status == "Đơn hủy")
-    .Sum(o => o.Totalmoney ?? 0);
+            .Where(o => o.Status == "Đơn hủy")
+            .Sum(o => o.Totalmoney ?? 0);
         orderShippingComplete = lst_Orders.Count(o => o.Status == "Hoàn tất đơn");
         orderCounterComplete = lst_Orders.Where(o => o.Status == "Đã thanh toán").Where(o=>o.Note=="Tại quầy").Count();
+        orderOnline = lst_Orders.Where(o => o.CreatedByAdminId == null).Count();
+        orderCounter = lst_Orders.Where(o => o.CreatedByAdminId != null).Count();
         totalComplete = orderShippingComplete + orderCounterComplete;
 
         totalProcessing = lst_Orders.Where(o =>
@@ -419,6 +444,18 @@
     {
         var lstOrders = await orderService.GetAll();
         lst_Orders = lstOrders.Where(o => o.Status == "Hoàn tất đơn" || (o.Status == "Đã thanh toán" && o.Note == "Tại quầy")).OrderByDescending(o => o.Created_at).ToList();
+        LoadPagedOrders();
+    }
+    private async Task GetOnlineOrders()
+    {
+        var lstOrders = await orderService.GetAll();
+        lst_Orders = lstOrders.Where(o => o.CreatedByAdminId==null).OrderByDescending(o => o.Created_at).ToList();
+        LoadPagedOrders();
+    }
+    private async Task GetCounterOrders()
+    {
+        var lstOrders = await orderService.GetAll();
+        lst_Orders = lstOrders.Where(o => o.CreatedByAdminId != null).OrderByDescending(o => o.Created_at).ToList();
         LoadPagedOrders();
     }
     private async Task GetCanceledOrders()

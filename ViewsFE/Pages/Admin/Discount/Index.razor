@@ -74,7 +74,7 @@
         <div class="container-xl">
             <div class="row g-2 align-items-center">
                 <div class="col d-flex gap-3">
-                    <h2 class="page-title">Quản Lý Khuyến Mãi</h2>
+                    <h2 class="page-title">Quản Lý Đợt Khuyến Mãi</h2>
                 </div>
             </div>
             <div id="breadcrumb">
@@ -221,10 +221,22 @@
                                                             @onclick="() => EditDiscount(discount.Id)">
                                                         Sửa
                                                     </button>
-                                                    <button class="btn btn-danger btn-end"
-                                                            @onclick="() => EndDiscount(discount.Id)">
-                                                        Kết thúc
-                                                    </button>
+                                                    @if (discount.Status == "Đã dừng")
+                                                    {
+                                                        <button class="btn btn-warning btn-end"
+                                                                @onclick="() => ContinueDiscount(discount.Id)">
+                                                            Tiếp tục
+                                                        </button>
+                                                    }
+                                                    else
+                                                    {
+                                                        <button class="btn btn-danger btn-end"
+                                                                @onclick="() => EndDiscount(discount.Id)"
+                                                                style="opacity: @(discount.End_date > DateTime.Now ? 1 : 0.5); cursor: @(discount.End_date > DateTime.Now);"
+                                                                disabled="@(!(discount.End_date > DateTime.Now))">
+                                                            Tạm dừng
+                                                        </button>
+                                                    }
                                                 </td>
                                             </tr>
                                         }
@@ -398,7 +410,7 @@
     private int totalProductPages = 1;
 
     private EditContext editContext;
-   
+
     protected override void OnInitialized()
     {
         editContext = new EditContext(discount);
@@ -419,7 +431,7 @@
         selectedColorId = e.Value?.ToString() ?? string.Empty;
         await ApplyFilters();
     }
-  
+
     private async Task ApplyFilters()
     {
         var filteredProducts = await productAttributeService.GetAllProductAttributes();
@@ -976,33 +988,32 @@
                 return;
             }
 
-            promotion.Status = "Đã dừng";
-            promotion.End_date = DateTime.Now;
-
-            bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn KẾT THỨC đợt khuyến mãi này?");
+            bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn TẠM DỪNG đợt khuyến mãi này?");
             if (confirmed)
             {
+                promotion.Status = "Đã dừng";
                 await DiscountService.Update(promotion);
-                var productDiscounts = await AttributeDiscountService.GetByIdDiscount(id);
-                foreach (var productDiscount in productDiscounts)
-                {
-                    // Lấy sản phẩm
-                    var product = await productAttributeService.GetProductAttributesById(productDiscount.P_attribute_Id ?? 0);
-                    if (product != null)
-                    {
-                        // Đặt Sale_price về null
-                        product.Sale_price = null;
-                        await productAttributeService.Update(product, productDiscount.P_attribute_Id ?? 0);
-                    }
+                // var productDiscounts = await AttributeDiscountService.GetByIdDiscount(id);
+                // foreach (var productDiscount in productDiscounts)
+                // {
+                //     // Lấy sản phẩm
+                //     var product = await productAttributeService.GetProductAttributesById(productDiscount.P_attribute_Id ?? 0);
+                //     if (product != null)
+                //     {
+                //         // Đặt Sale_price về null
+                //         product.Sale_price = null;
+                //         await productAttributeService.Update(product, productDiscount.P_attribute_Id ?? 0);
+                //     }
 
-                    // Xóa liên kết sản phẩm-khuyến mãi
-                    await AttributeDiscountService.Delete(productDiscount.Id);
-                }
+                //     // Xóa liên kết sản phẩm-khuyến mãi
+                //     await AttributeDiscountService.Delete(productDiscount.Id);
+                // }
                 await LoadDiscounts();
                 LoadPagedDiscounts();
                 await UpdateProductPricesBasedOnDiscounts();
+                await JS.InvokeVoidAsync("toastr.success", " Đợt khuyến mãi đã được TẠM DỪNG!");
             }
-            await JS.InvokeVoidAsync("toastr.success", " Đợt khuyến mãi đã được kết thúc!");
+            
         }
         catch (Exception ex)
         {
@@ -1010,6 +1021,51 @@
             await JS.InvokeVoidAsync("toastr.error", errorMessage);
         }
 
+    }
+
+    private async Task ContinueDiscount(long id)
+    {
+        try
+        {
+            var promotion = discounts.FirstOrDefault(d => d.Id == id);
+            if (promotion == null)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Khuyến mãi không tồn tại!");
+                return;
+            }
+
+            bool confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc chắn muốn TIẾP TỤC đợt khuyến mãi này?");
+            if (confirmed)
+            {
+                promotion.Status = "Đang diễn ra";
+                await DiscountService.Update(promotion);
+                // var productDiscounts = await AttributeDiscountService.GetByIdDiscount(id);
+                // foreach (var productDiscount in productDiscounts)
+                // {
+                //     // Lấy sản phẩm
+                //     var product = await productAttributeService.GetProductAttributesById(productDiscount.P_attribute_Id ?? 0);
+                //     if (product != null)
+                //     {
+                //         // Đặt Sale_price về null
+                //         product.Sale_price = null;
+                //         await productAttributeService.Update(product, productDiscount.P_attribute_Id ?? 0);
+                //     }
+
+                //     // Xóa liên kết sản phẩm-khuyến mãi
+                //     await AttributeDiscountService.Delete(productDiscount.Id);
+                // }
+                await LoadDiscounts();
+                LoadPagedDiscounts();
+                await UpdateProductPricesBasedOnDiscounts();
+                await JS.InvokeVoidAsync("toastr.success", " Đợt khuyến mãi đã được TIẾP TỤC!");
+            }
+ 
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Đã xảy ra lỗi: {ex.Message}";
+            await JS.InvokeVoidAsync("toastr.error", errorMessage);
+        }
     }
 
     private async Task SearchDiscounts()

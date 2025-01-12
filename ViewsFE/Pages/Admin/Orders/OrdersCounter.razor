@@ -114,10 +114,10 @@
                                 <thead>
                                     <tr>
                                         <th>Id đơn hàng</th>
-                                        <th>Người tạo</th>
+                                        <th>NV bán hàng</th>
                                         <th>Tên khách hàng</th>
                                         <th>Số điện thoại</th>
-                                        <th>Loại hóa đơn</th>
+                @*                         <th>Loại hóa đơn</th> *@
                                         <th>Tổng tiền</th>
                                         <th>Ngày tạo</th>
                                         <th>Trạng thái</th>
@@ -163,11 +163,11 @@
                                                         @item.Users.Phone
                                                     }
                                                 </td>
-                                                <td>
+                                @*                 <td>
                                                     <span class="@GetNoteClass(item.Note)">
                                                         @item.Note
                                                     </span>
-                                                </td>
+                                                </td> *@
                                                 <td>
                                                     @string.Format("{0:N0}", (item.TotalAmount)).Replace(".", ",") VNĐ
                                                 </td>
@@ -215,6 +215,10 @@
                                                             <div class="d-flex justify-content-between">
                                                                 <span>Tổng tiền chiết khấu:</span>
                                                                 <span style="color: red;">- @string.Format("{0:N0}", orders.TotalPrincipal - orders.TotalAmount) VNĐ</span>
+                                                            </div>
+                                                            <div class="d-flex justify-content-between">
+                                                                <span>Giảm giá voucher:</span>
+                                                                <span style="color: red;">- @string.Format("{0:N0}", orders.TotalVoucher) VNĐ</span>
                                                             </div>
                                                             <div class="d-flex justify-content-between">
                                                                 <span>Phí giao hàng:</span>

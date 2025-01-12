@@ -123,6 +123,7 @@ builder.Services.AddServerSideBlazor(options => options.DetailedErrors = true);
 builder.Services.AddScoped<IContacServices, ContacServices>();
 builder.Services.AddScoped<IAccsessViewscsServices, AccsessViewsServices>();
 builder.Services.AddScoped<IProductsReturnedService, ProductsReturnedService>();
+builder.Services.AddScoped<IOrderVoucherServices, OrderVoucherService>();
 builder.Services.AddScoped<RoleService>();
 
 var app = builder.Build();

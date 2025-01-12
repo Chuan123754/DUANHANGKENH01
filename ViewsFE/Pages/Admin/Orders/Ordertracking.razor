@@ -1356,9 +1356,28 @@
             ";
                 await email.SendEmailAsync(emailUser, emailSubject, emailMessage);
             }
+        } 
+        if(order.Status=="Đã xác nhận")
+        {
+            var lst_orderDetails = await orderDetailsService.GetOrderDetailsByOrderId(order.Id);
+            foreach(var item in lst_orderDetails)
+            {
+                var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
+                if(product.Stock < item.Quantity)
+                {
+                    await JS.InvokeVoidAsync("toastr.error", $"Sản phẩm {product.Posts.Title} {product.Size.Title} {product.Color.Title} hiện không đủ số lượng trong kho ");
+                    return;
+                }
+                else
+                {
+                    product.Stock -= item.Quantity;
+                    await productAttributeService.Update(product, product.Id);
+                }
 
-
+            }
         }
+        StateHasChanged();
 
+        
     }
 }
