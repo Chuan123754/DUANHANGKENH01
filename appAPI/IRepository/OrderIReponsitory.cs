@@ -19,6 +19,7 @@ namespace appAPI.IRepository
         Task<decimal> GetTotalPiceToday();
         Task<decimal> GetTotalPiceWeek();
         Task<decimal> GetTotalPiceMonth();
+        Task<decimal> GetTotalKhoangThoiGian(DateTime? TuNgay, DateTime? DenNgay);
         public Task<Dictionary<int, decimal>> GetTotalRevenuePerYear();
         public Task<Dictionary<string, int>> GetTotalMonth();
 

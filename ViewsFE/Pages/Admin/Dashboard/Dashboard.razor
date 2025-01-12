@@ -1,7 +1,7 @@
 ﻿ @page "/"
  @using BlazorBootstrap
  @inject IPostSer sev
- @* @inject IProductVariantServices varian *@
+@* @inject IProductVariantServices varian *@
  @inject IAccountService accountService
  @inject IOrderIServices orde
  @inject OrderDetailsIServices ordedatil
@@ -28,6 +28,11 @@
                 <h2 class="page-title">
                     Thống kê
                 </h2>
+            </div>
+            <div class="d-flex justify-content-end align-items-center gap-2 mb-3">
+                <input type="date" id="startDate" @bind="startDate" class="form-control" placeholder="Ngày bắt đầu" style="max-width: 200px;" />
+                <input type="date" id="endDate" @bind="endDate" class="form-control" placeholder="Ngày kết thúc" style="max-width: 200px;" />
+                <button class="btn btn-primary" @onclick="FilterByDateRange">Lọc theo thời gian</button>
             </div>
         </div>
     </div>
@@ -60,7 +65,7 @@
                         <div class="mb-3"></div>
                         <div class="h1 mb-3">
                             @DisplayRevenue()
-                        </div>                 
+                        </div>
                     </div>
                 </div>
             </div>
@@ -74,7 +79,7 @@
                             <div class="ms-auto lh-1">
                                 <div class="dropdown" id="dropdown-users">
                                     <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                      Khách hàng
+                                        Khách hàng
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-end">
                                         <a class="dropdown-item @(selectedModeUser == "dayUser" ? "active" : "")" href="#" @onclick='() => SetModeUser("dayUser")'>
@@ -91,25 +96,10 @@
                         <div class="d-flex align-items-baseline">
                             <div class="h1 mb-0 me-2">
                                 @DisplayRevenueUser()
-                            </div>                      
+                            </div>
                         </div>
                     </div>
-          
-                </div>
-            </div>
-            <div class="col-sm-6 col-lg-3">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="subheader">Tổng số lượt truy cập trang</div>
-                        </div>
-                        <div class="mb-3"></div>
-                        <div class="d-flex align-items-baseline">
-                            <div class="h1 mb-3 me-2">@totalViews</div>
-                                                   
-                        </div>
-                   
-                    </div>
+
                 </div>
             </div>
             <div class="col-sm-6 col-lg-3">
@@ -117,14 +107,29 @@
                     <div class="card-body">
                         <div class="d-flex align-items-center">
                             <div class="subheader">Tổng số đơn đã bán</div>
-                           
                         </div>
                         <div class="mb-3"></div>
                         <div class="d-flex align-items-baseline">
                             <div class="h1 mb-3 me-2">@totalOrder</div>
-                 
                         </div>
-                       
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="subheader">Doanh thu theo khoảng thời gian</div>
+
+                        </div>
+                        <div class="mb-3"></div>
+                        <div class="d-flex align-items-baseline">
+                            <div class="h1 mb-3 me-2">
+                                @(total != null ? string.Format("{0:0.##}", total) : "Không có dữ liệu")
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -209,10 +214,10 @@
                                     </div>
                                     <div class="col">
                                         <div class="font-weight-medium">
-                                            Tổng số dự án
+                                            Tổng số lượt truy cập trang
                                         </div>
                                         <div class="text-secondary">
-                                            @totalProjetc
+                                            @totalViews
                                         </div>
                                     </div>
                                 </div>
@@ -255,7 +260,7 @@
                         <div class="ms-auto lh-1">
                             <div class="dropdown" id="dropdown-users">
                                 <a class="dropdown-toggle text-secondary" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    Top 5 khách hàng 
+                                    Top 5 khách hàng
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end">
                                     <a class="dropdown-item @(selectedTop5User == "top5all" ? "active" : "")" href="#" @onclick='() => SetModeUserTop5("top5all")'>
@@ -269,7 +274,7 @@
                                     </a>
                                     <a class="dropdown-item @(selectedTop5User == "top5year" ? "active" : "")" href="#" @onclick='() => SetModeUserTop5("top5year")'>
                                         Top 5 khách hàng mua nhiều đơn năm nay
-                                    </a>                     
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -284,7 +289,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if (top5Customers != null && top5Customers.Any())
+                                @if (top5Customers != null)
                                 {
                                     @foreach (var customer in top5Customers)
                                     {
@@ -312,7 +317,7 @@
                     <div class="card-header">
                         <div class="subheader">
                             <h3>Top 5 sản phẩm bán chạy</h3>
-                        </div>                     
+                        </div>
                     </div>
                     <div class="card-table table-responsive">
                         <table class="table table-vcenter">
@@ -329,7 +334,7 @@
                                     {
                                         <tr>
                                             <td>@top5sp.ProductName</td>
-                                            <td class="text-secondary">@top5sp.TotalQuantitySold</td> 
+                                            <td class="text-secondary">@top5sp.TotalQuantitySold</td>
                                         </tr>
                                     }
                                 }
@@ -346,7 +351,7 @@
             </div>
 
 
-        
+
         </div>
     </div>
 </div>
@@ -376,8 +381,9 @@
     private List<TopSellingProductDtoSV> topSellingProductDtos = new List<TopSellingProductDtoSV>();
     private bool isAdmin = false;
     private bool isEmployee = false;
-
-
+    private DateTime? startDate;
+    private DateTime? endDate;
+    private decimal? total;
     private async Task LoadPosts()
     {
         totalPost = await sev.GetTotalType("post");
@@ -398,6 +404,22 @@
         topSellingProductDtos = await ordedatil.GetTop5SellingProductsAsync();
         await DrawChart();
         StateHasChanged();
+    }
+    private async Task FilterByDateRange()
+    {
+        if (startDate >= endDate)
+        {
+            await JS.InvokeVoidAsync("toastr.warning", "Vui lòng nhập thời gian hợp lệ");
+            return;
+        }
+        else
+        {
+            if (startDate.HasValue && endDate.HasValue)
+            {
+                total = await orde.GetTotalKhoangThoiGian(startDate, endDate);
+            }
+
+        }
     }
     private void SetMode(string mode)
     {
@@ -515,13 +537,13 @@
                 height = "350"
             },
             series = new[]
-            {
-                new
-                {
-                    name = "Doanh thu",
-                    data = revenues
-                }
-            },
+        {
+    new
+    {
+    name = "Doanh thu",
+    data = revenues
+    }
+    },
             xaxis = new
             {
                 categories = years
@@ -547,15 +569,15 @@
             {
                 labels = months,
                 datasets = new[]
-                {
-                new
-                {
-                    label = "Số lượng đơn hàng",
-                    data = orderCounts,
-                    backgroundColor = new[] { "#FFB84C" ,"#FF6F61", "#FF7F50", "#6B8E23", "#48C9B0", "#F39C12", "#8E44AD" }, // Các màu sắc cho các phần trong Doughnut chart
-                    hoverBackgroundColor = new[] { "#FFA500",  "#FF4500", "#FF6347", "#556B2F", "#20B2AA", "#DFFF00", "#8B008B" }
-                }
-            }
+        {
+    new
+    {
+    label = "Số lượng đơn hàng",
+    data = orderCounts,
+    backgroundColor = new[] { "#FFB84C" ,"#FF6F61", "#FF7F50", "#6B8E23", "#48C9B0", "#F39C12", "#8E44AD" }, // Các màu sắc cho các phần trong Doughnut chart
+    hoverBackgroundColor = new[] { "#FFA500",  "#FF4500", "#FF6347", "#556B2F", "#20B2AA", "#DFFF00", "#8B008B" }
+    }
+    }
             },
             options = new
             {
@@ -615,7 +637,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-       
+
         selectedMode = "day";
         selectedModeUser = "dayUser";
         await LoadPosts();

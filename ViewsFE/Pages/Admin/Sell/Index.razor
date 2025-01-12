@@ -2386,21 +2386,7 @@
                         // Hiển thị modal QR code MoMo
                         orderToUpdate.TypePayment = "Chuyển khoản MoMo";
                         ShowMomoModal(momoResponse.PayUrl);
-                        await orderService.Update(orderToUpdate, orderToUpdate.Id);
-
-                        if (orderToUpdate.Status == "Đã xác nhận")
-                        {
-                            var newOrderTracking = new order_trackings
-                                {
-                                    OrderId = orderToUpdate.Id,
-                                    Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
-                                    Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" : " Đã xác nhận",
-                                    Created_at = DateTime.Now,
-                                    Created_by = adminId
-                                };
-                            await orderTrackingService.AddOrderTracking(newOrderTracking);
-                        }
-
+                        await orderService.Update(orderToUpdate, orderToUpdate.Id);                     
 
                     }
                     else

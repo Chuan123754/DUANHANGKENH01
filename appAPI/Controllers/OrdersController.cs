@@ -207,6 +207,11 @@ namespace appAPI.Controllers
             return Ok(totalOrdersPerMonth);
         }
 
-
+        [HttpGet("GetTotalKhoangThoiGian")]
+        public async Task<IActionResult> GetTotalKhoangThoiGian(DateTime? TuNgay, DateTime? DenNgay)
+        {
+            var totalOrdersPerMonth = await _repo.GetTotalKhoangThoiGian(TuNgay, DenNgay);
+            return Ok(totalOrdersPerMonth);
+        }
     }
 }
