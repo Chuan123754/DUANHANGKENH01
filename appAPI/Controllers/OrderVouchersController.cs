@@ -21,6 +21,13 @@ namespace appAPI.Controllers
         {
             return Ok(_orderVoucherRepository.GetAll());
         }
+        [HttpGet("GetByIdOrderAndIdVoucher")]
+        public IActionResult Get(long idOrder ,long idVoucher)
+        {
+            var allVoucherOrders = _orderVoucherRepository.GetAll();
+            var voucherOrder = allVoucherOrders.Where(o=>o.OrderId==idOrder && o.VoucherId==idVoucher ).FirstOrDefault();
+            return Ok(voucherOrder);
+        }
 
         [HttpGet("{id}")]
         public IActionResult Get(long id)
@@ -30,7 +37,7 @@ namespace appAPI.Controllers
             return Ok(orderVoucher);
         }
 
-        [HttpPost]
+        [HttpPost("Create")]
         public IActionResult Post(Order_Vouchers orderVoucher)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
