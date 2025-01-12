@@ -372,8 +372,8 @@
         // Tính toán thống kê
         totalOrders = lst_Orders.Count;
         canceledOrders = lst_Orders
-            .Where(o => o.Status == "Đơn hủy")
-            .Sum(o => o.Totalmoney ?? 0);
+            .Where(o => o.Status == "Đơn hủy").Count();
+
         orderShippingComplete = lst_Orders.Count(o => o.Status == "Hoàn tất đơn");
         orderCounterComplete = lst_Orders.Where(o => o.Status == "Đã thanh toán").Where(o=>o.Note=="Tại quầy").Count();
         orderOnline = lst_Orders.Where(o => o.CreatedByAdminId == null).Count();
