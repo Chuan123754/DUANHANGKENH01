@@ -242,5 +242,16 @@ namespace ViewsFE.Services
 
             return revenueData;
         }
+
+        public async Task<decimal> GetTotalKhoangThoiGian(DateTime? TuNgay, DateTime? DenNgay)
+        {
+
+            var url = $"{_baseUrl}/api/Orders/GetTotalKhoangThoiGian?TuNgay={TuNgay}&DenNgay={DenNgay}";
+            var response = await _client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var count = await response.Content.ReadFromJsonAsync<decimal>();
+            return count;
+        }
     }
 }

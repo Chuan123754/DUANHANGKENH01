@@ -233,5 +233,21 @@ namespace appAPI.Repository
 
             }
         }
+        public async Task<decimal> GetTotalKhoangThoiGian(DateTime? TuNgay, DateTime? DenNgay)
+        {
+            // Đảm bảo TuNgay và DenNgay là ngày bắt đầu và kết thúc của ngày tương ứng
+            // Kiểm tra nếu TuNgay và DenNgay không null
+            var startDate = TuNgay.HasValue ? TuNgay.Value.Date : (DateTime?)null;
+            var endDate = DenNgay.HasValue ? DenNgay.Value.Date.AddDays(1).AddTicks(-1) : (DateTime?)null;
+
+            return await _context.Orders
+                .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Pending" &&
+                            p.Status != "Đơn huỷ" && p.Status != "Giao thất bại" &&
+                            p.Created_at.HasValue &&
+                            p.Created_at.Value >= startDate &&
+                            p.Created_at.Value <= endDate) // Lọc hóa đơn trong khoảng thời gian
+                .SumAsync(p => p.TotalAmount ?? 0); // Tổng giá trị TotalAmount, mặc định là 0 nếu null
+        }
+
     }
 }

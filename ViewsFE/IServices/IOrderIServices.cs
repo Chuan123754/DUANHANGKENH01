@@ -25,5 +25,6 @@ namespace ViewsFE.IServices
         public Task<Dictionary<int, decimal>> GetTotalRevenuePerYear();
         public Task<Dictionary<string, int>> GetTotalMonth();
         Task UpdateStrees(Orders orders, long id);
+        Task<decimal> GetTotalKhoangThoiGian(DateTime? TuNgay, DateTime? DenNgay);
     }
 }
