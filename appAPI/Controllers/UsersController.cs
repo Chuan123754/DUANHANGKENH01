@@ -169,7 +169,7 @@ namespace appAPI.Controllers
                 context.Users.Add(user);
                 context.SaveChanges();
 
-                return Ok(new { message = "Tài khoản mới đã được tạo thành công.", user });
+                return Ok(new { message = "Tài khoản mới đã được tạo thành công.", user.Id});
             }
         }
 

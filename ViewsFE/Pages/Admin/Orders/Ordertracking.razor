@@ -65,7 +65,7 @@
                                 <button class="btn btn-sm btn-success" @onclick="OpenSussStatusModal">Giao thành công</button>
                                 <button class="btn btn-sm btn-danger" @onclick="() => OpenFailTransactionModal()">Giao thất bại</button>
                             }
-                            else if (OrderTracking.Status == "Đã chuẩn bị hàng")
+                            else if (OrderTracking.Status == "Đã chuẩn bị hàng" || OrderTracking.Status == "Chờ xác nhận")
                             {
                                 <button class="btn btn-sm btn-dark" @onclick="() => OpenFailureReasonModal()">Hủy Đơn</button>
                             }
@@ -287,25 +287,32 @@
                             <span> Đơn hàng được bán tại cửa hàng</span>
                         }
                     </div>
-                    @if (Order.Users != null)
+                    @if (Address != null)
                     {
-                        <p><strong>Tên khách hàng:</strong>@Order.Users.Name</p>
-                        <p><strong>Số điện thoại:</strong> @Order.Users.Phone</p>
-                        <p><strong>E-mail:</strong> @Order.Users.Email</p>
-
-                        @if (Address != null)
+                        <p><strong>Tên Người nhận hàng:</strong>@Address.Name </p>
+                        <p><strong>Địa chỉ nhận hàng:</strong>  @Address.Street</p>
+                        <p><strong>Ghi chú:</strong>  @Address.Status </p>
+                        <p><strong>Số điện thoại người nhận:</strong>@Address.Phone</p>
+                    }
+                    else if (Order.Address_Id != null)
+                    {
+                        if (Address != null)
                         {
                             <p><strong>Tên Người nhận hàng:</strong>@Address.Name </p>
-                            <p><strong>Địa chỉ nhận hàng :</strong>  @Order.Strees</p>
-                            <p><strong>Ghi chú :</strong>  @Address.Status </p>
+                            <p><strong>Địa chỉ nhận hàng:</strong>  @Address.Street</p>
+                            <p><strong>Ghi chú:</strong>  @Address.Status </p>
                             <p><strong>Số điện thoại người nhận:</strong>@Address.Phone</p>
+                        }
+                        else
+                        {
+                            <p><strong>Địa chỉ nhận hàng:</strong> Không có thông tin địa chỉ.</p>
                         }
                     }
                     else
                     {
-                        <p><strong>Tên khách hàng:</strong>Khách lẻ</p>
-                        <p><strong>Số điện thoại:</strong> #N/A</p>
+                        <p><strong>Địa chỉ nhận hàng:</strong> Không có thông tin địa chỉ.</p>
                     }
+
 
                 </div>
             </div>
@@ -497,34 +504,50 @@
     private Address TempAddress;
     private bool modalUpdateAddress = false;
 
+    private async Task<Address> GetAddressAsync()
+    {
+        if (Address == null && Order?.Address_Id != null)
+        {
+            return await addressService.GetAddressById(Order.Address_Id.Value);
+        }
+        return Address;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Address = await GetAddressAsync();
+            StateHasChanged();
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
             var currentUserId = await _authStateProvider.GetCurrentUserId();
-            if (currentUserId == null)
-            {
-                adminId = null;
-            }
-            else
-            {
-                adminId = currentUserId;
-            }
+            adminId = currentUserId ?? null;
+
             Order = await orderService.GetByIdOrders(OrderId);
             OrderTracking = await orderTrackingService.GetBy(OrderId);
             OrderAddress = await orderService.OrdersAddress(OrderId);
-            Address = await addressService.GetAddressById(Order.Address_Id ?? 0);
+
+            if (Order.Address_Id != null)
+            {
+                Address = await addressService.GetAddressById(Order.Address_Id.Value);
+            }
 
             provinces = await address_Service.GetProvincesAsync();
+
             if (OrderTracking != null && OrderTracking.OrderTrackings.Any())
             {
-                // Sắp xếp theo Created_at giảm dần và lấy bản ghi mới nhất
                 var latestTracking = OrderTracking.OrderTrackings
                     .OrderByDescending(t => t.CreatedAt)
                     .FirstOrDefault();
                 Admin = await accountService.GetAccountById(adminId);
                 OrderTracking.Status = latestTracking?.Status;
-                selectedTrackingId = latestTracking?.Id ?? 0; // Lấy ID của bản ghi mới nhất
+                selectedTrackingId = latestTracking?.Id ?? 0;
             }
             else
             {
@@ -539,6 +562,7 @@
             Console.WriteLine($"Lỗi tải thông tin vận chuyển: {ex.Message}");
         }
     }
+
     private async void OpenModalUpdateAddress()
     {
         Address = await addressService.GetAddressById(Order.Address_Id ?? 0);
@@ -1275,7 +1299,7 @@
             "Đã lấy hàng" => "Đang vận chuyển",
             "Đang vận chuyển" => "Giao thành công",
             "Giao thành công" => "Hoàn tất đơn",
-            "Đơn hủy" => "Đã chuẩn bị hàng",
+            "Đơn hủy" => "Đã xác nhận",
             _ => "Không rõ"
         };
 
