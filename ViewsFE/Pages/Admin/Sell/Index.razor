@@ -319,9 +319,13 @@
                                             <td>@item.ProductAttributes.Size.Title</td>
                                             <td>
                                                 <button class="btn btn-sm btn-outline-secondary" @onclick="() => UpdateQuantityView(item.Id, item.Quantity - 1)">-</button>
-                                                <span class="mx-2">@item.Quantity</span>
+                                              <input type="number" class="form-control d-inline mx-2 no-arrows" style="width: 50px; height:25px; text-align: center;" 
+                                                @bind="item.Quantity"
+                                                @bind:event="oninput" 
+                                                @onchange="(e) => OnQuantityChange(e, item)" />
                                                 <button class="btn btn-sm btn-outline-secondary" @onclick="() => UpdateQuantityView(item.Id, item.Quantity + 1)">+</button>
                                             </td>
+
                                             <td class="text-start">
                                                 @if (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
                                                 {
@@ -345,6 +349,7 @@
                                                     </div>
                                                 }
                                             </td>
+
                                             <td class="text-start">
                                                 @if (item.ProductAttributes.Sale_price != null && item.ProductAttributes.Sale_price > 0)
                                                 {
@@ -1960,6 +1965,49 @@
         StateHasChanged();
     }
 
+    private async Task OnQuantityChange(ChangeEventArgs e, ViewsFE.Models.Order_details item)
+    {
+        if (int.TryParse(e.Value.ToString(), out int newQuantity))
+        {
+            if (newQuantity < 1)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Số lượng không thể nhỏ hơn 1.");
+                item.Quantity = 1;
+                 await orderDetailService.Update(item, item.Id);
+            }
+            else if (newQuantity > item.ProductAttributes.Stock)
+            {
+                await JS.InvokeVoidAsync("toastr.error", $"Số lượng không thể lớn hơn {item.ProductAttributes.Stock}.");
+                item.Quantity = item.ProductAttributes.Stock ?? 0;
+                 await orderDetailService.Update(item, item.Id);
+            }
+            else
+            {
+                int quantityChange = newQuantity - item.Quantity;
+
+                // Cập nhật stock sản phẩm
+                item.ProductAttributes.Stock -= quantityChange;
+                item.Quantity = newQuantity;
+
+                // Lưu cập nhật vào database
+                await productAttributeService.Update(item.ProductAttributes, item.ProductAttributes.Id);
+                await orderDetailService.Update(item, item.Id);
+
+                // Cập nhật lại tổng tiền và thông tin đơn hàng
+                await LoadProducts();
+                await LoadOrderDetails();
+                CalculateTotalMoney();
+            }
+
+            // Cập nhật lại giao diện sau khi cập nhật số lượng
+            StateHasChanged();
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Giá trị không hợp lệ.");
+        }
+    }
+
     private async void CreateCustomer()
     {
         var phoneRegex = new System.Text.RegularExpressions.Regex(@"^0\d{9}$");
@@ -2413,4 +2461,16 @@
         await ResetViewState();
     }
 
-}       
+}     
+<style>
+    /* CSS để ẩn mũi tên tăng giảm trong các trình duyệt khác nhau */
+    input[type="number"].no-arrows::-webkit-inner-spin-button,
+    input[type="number"].no-arrows::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    input[type="number"].no-arrows {
+        -moz-appearance: textfield; /* Ẩn mũi tên trên Firefox */
+    }
+</style>

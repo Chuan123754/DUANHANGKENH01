@@ -301,13 +301,17 @@
                                 <table class="table table-striped">
                                     <thead>
                                         <tr>
-                                            <th>Tích</th>
+                                            <th>
+                                                <input type="checkbox" @onchange="ToggleSelectAllUsers" />
+                                                Tích All
+                                            </th>
                                             <th>Mã KH</th>
                                             <th>Tên Người Dùng</th>
                                             <th>Email</th>
                                             <th>Số Điện Thoại</th>
                                         </tr>
                                     </thead>
+
                                     <tbody>
                                         @if (pagedUsers == null || !pagedUsers.Any())
                                         {
@@ -331,6 +335,8 @@
                                                 </tr>
                                             }
                                         }
+                                        
+
                                     </tbody>
                                 </table>
 
@@ -380,6 +386,26 @@
     private int customerPageSize = 5;
     private int totalCustomerPages = 1;
     private List<Users> pagedUsers = new List<Users>();
+
+    private bool selectAllUsers = false;
+
+    private void ToggleSelectAllUsers(ChangeEventArgs e)
+    {
+        selectAllUsers = e.Value is bool && (bool)e.Value;
+
+        if (selectAllUsers)
+        {
+            selectedUserIds = pagedUsers.Select(u => u.Id).ToList();
+        }
+        else
+        {
+            selectedUserIds.Clear();
+        }
+
+        // Cập nhật trạng thái tích của từng checkbox
+        StateHasChanged();
+    }
+
 
     private void ToggleUserSelection(long userId, bool isChecked)
     {
@@ -530,6 +556,13 @@
     {
         try
         {
+            // Kiểm tra nếu không có khách hàng được chọn
+            if (!selectedUserIds.Any())
+            {
+                errorMessage = "Không có khách hàng nào được chọn. Vui lòng chọn ít nhất một khách hàng trước khi tạo voucher.";
+                return;
+            }
+
             // Kiểm tra trùng mã Code
             if (vouchers.Any(v => v.Code.Equals(voucher.Code, StringComparison.OrdinalIgnoreCase)))
             {
@@ -557,6 +590,11 @@
             else
             {
                 voucher.Status = "Đang diễn ra";
+            }
+
+            if (selectedTypeVoucher == "Fixed")
+            {
+                voucher.MaxDiscountValue = voucherValue.ToString();
             }
 
             // Nếu có khách hàng riêng, gán số lượng bằng số lượng khách hàng đã tích
@@ -639,11 +677,21 @@
 
     private async Task EditVoucher(long id)
     {
-        voucher = await VoucherService.Details(id);
-
         try
         {
-            // Lấy khách hàng có voucher
+            voucher = await VoucherService.Details(id);
+            selectedTypeVoucher = voucher.Description;
+
+            // Load discountValue dựa trên loại voucher
+            if (selectedTypeVoucher == "Percentage")
+            {
+                voucherValue = decimal.TryParse(voucher.Percent, out var percentValue) ? percentValue : 0;
+            }
+            else if (selectedTypeVoucher == "Fixed")
+            {
+                voucherValue = decimal.TryParse(voucher.Percent, out var fixedValue) ? fixedValue : 0;
+            }
+
             var userVouchers = await UserVoucherService.GetByVoucherId(id);
 
             selectedUserIds.Clear();
@@ -651,19 +699,25 @@
 
             foreach (var userVoucher in userVouchers)
             {
-                selectedUserIds.Add(userVoucher.UserId); // Lưu danh sách ban đầu trước khi chỉnh sửa
-                initialUserIds = selectedUserIds.ToList();
+                selectedUserIds.Add(userVoucher.UserId);
+                initialUserIds.Add(userVoucher.UserId);
             }
 
             selectedUserCount = selectedUserIds.Count;
+
+            // Cập nhật trạng thái tích all nếu tất cả khách hàng đều được tích
+            selectAllUsers = selectedUserIds.Count == users.Count;
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
+            errorMessage = "Không tìm thấy voucher để chỉnh sửa.";
             selectedUserIds.Clear();
             initialUserIds.Clear();
             selectedUserCount = 0;
         }
     }
+
+
 
     private void ValidateVoucherValue(ChangeEventArgs e)
     {
@@ -706,6 +760,13 @@
     {
         try
         {
+            // Kiểm tra nếu không có khách hàng được chọn
+            if (!selectedUserIds.Any())
+            {
+                errorMessage = "Không có khách hàng nào được chọn. Vui lòng chọn ít nhất một khách hàng trước khi cập nhật voucher.";
+                return;
+            }
+
             // Kiểm tra trùng mã Code trừ ID hiện tại.
             if (vouchers.Any(v => v.Code.Equals(voucher.Code, StringComparison.OrdinalIgnoreCase) && v.Id != voucher.Id))
             {

@@ -15,7 +15,6 @@ namespace ViewsFE.IServices
         Task UpdateStatus(Orders orders, long id);
         Task Delete(long id);
         Task<byte[]> ExportInvoice(long orderId);
-
         Task<MomoPaymentResponse> CreateMomoPaymentUrl(string fullName, decimal amount, string orderInfo);
         Task<MomoPaymentResponse> QueryPaymentStatus(string orderId);
         Task<int> GetTotal();
@@ -25,6 +24,6 @@ namespace ViewsFE.IServices
         Task<decimal> GetTotalPiceMonth();
         public Task<Dictionary<int, decimal>> GetTotalRevenuePerYear();
         public Task<Dictionary<string, int>> GetTotalMonth();
-
+        Task UpdateStrees(Orders orders, long id);
     }
 }

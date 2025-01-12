@@ -139,15 +139,15 @@ namespace appAPI.Background_Service
             }
             else if (discountType == "Fixed")
             {
-                if(discountValue>= regularPrice)
+                if (discountValue >= regularPrice)
                 {
                     return 1000;
-                }   
+                }
                 else
                 {
                     return regularPrice - discountValue;
-                }    
-          
+                }
+
             }
             return regularPrice;
         }

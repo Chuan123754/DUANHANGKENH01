@@ -109,7 +109,7 @@ namespace appAPI.Repository
         public async Task<List<TopSellingProductDto>> GetTop5SellingProductsAsync()
         {
             var topSellingProducts = await _context.Order_Details
-                 .Where(p => p.Orders.Status != "Hóa đơn treo" && p.Orders.Status != "Chờ xác nhận" && p.Orders.Status != "Đơn huỷ" && p.Orders.Status != "Giao thất bại")
+                 .Where(p => p.Orders.Status != "Hóa đơn treo" && p.Orders.Status != "Chờ xác nhận" && p.Orders.Status != "Đơn huỷ" && p.Orders.Status != "Giao thất bại" && p.Orders.Status != "Pending")
                 .GroupBy(od => od.ProductAttributes.Post_Id) // Nhóm theo Post_Id của Product_Variant
                 .Select(group => new
                 {
