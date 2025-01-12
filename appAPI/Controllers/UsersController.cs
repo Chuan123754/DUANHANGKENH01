@@ -157,7 +157,7 @@ namespace appAPI.Controllers
                     existingUser.Updated_at = DateTime.Now;
                     context.SaveChanges();
 
-                    return Ok(new { message = "Cập nhật tài khoản thành công.", existingUser.Id});
+                    return Ok(new { message = "Cập nhật tài khoản thành công.", existingUser.Id });
                 }
                 else
                 {
@@ -165,11 +165,11 @@ namespace appAPI.Controllers
                 }
             }
             else
-            {    
+            {
                 context.Users.Add(user);
                 context.SaveChanges();
 
-                return Ok(new { message = "Tài khoản mới đã được tạo thành công.", user });              
+                return Ok(new { message = "Tài khoản mới đã được tạo thành công.", user });
             }
         }
 
@@ -195,11 +195,11 @@ namespace appAPI.Controllers
             if (user != null && !string.IsNullOrEmpty(user.Password))
             {
                 // Nếu tìm thấy và có mật khẩu
-                return Ok(new { exists = true});
+                return Ok(new { exists = true });
             }
 
             // Không tìm thấy hoặc không có mật khẩu
-            return Ok(new { exists = false});
+            return Ok(new { exists = false });
         }
 
 
@@ -350,7 +350,7 @@ namespace appAPI.Controllers
                 var totalUsers = await context.Users
                     .Where(u => u.Created_at.HasValue && u.Created_at.Value >= startOfYear)
                     .CountAsync();
-                return Ok( totalUsers );
+                return Ok(totalUsers);
             }
             catch (Exception ex)
             {
@@ -365,7 +365,7 @@ namespace appAPI.Controllers
             try
             {
                 var totalUsers = await context.Users.CountAsync();
-                return Ok( totalUsers );
+                return Ok(totalUsers);
             }
             catch (Exception ex)
             {
@@ -386,6 +386,11 @@ namespace appAPI.Controllers
                         u.Name,
                         TotalOrders = u.Orders.Count,  // Đếm số đơn hàng của khách hàng
                         TotalMoneySpent = u.Orders
+                         .Where(o => o.Status != "Hóa đơn treo"
+                            && o.Status != "Chờ xác nhận"
+                            && o.Status != "Đơn huỷ"
+                            && o.Status != "Giao thất bại"
+                            && o.Status != "Pending")
                             .Sum(o => o.Totalmoney ?? 0)  // Tính tổng tiền đã chi (Totalmoney), xử lý trường hợp null
                     })
                     .OrderByDescending(u => u.TotalOrders)  // Sắp xếp theo số đơn hàng
@@ -417,8 +422,13 @@ namespace appAPI.Controllers
                         u.Name,
                         TotalOrders = u.Orders.Count(o => o.Created_at >= startOfWeek),  // Đếm số đơn hàng trong tuần
                         TotalMoneySpent = u.Orders
-                            .Where(o => o.Created_at >= startOfWeek)  // Chỉ tính đơn hàng trong tuần
-                            .Sum(o => o.Totalmoney)  // Tính tổng tiền đã chi (Totalmoney)
+                .Where(o => o.Created_at >= startOfWeek  // Lọc các đơn hàng trong tuần
+                    && o.Status != "Hóa đơn treo"
+                    && o.Status != "Chờ xác nhận"
+                    && o.Status != "Đơn huỷ"
+                    && o.Status != "Giao thất bại"
+                    && o.Status != "Pending")
+                .Sum(o => o.Totalmoney ?? 0)    // Tính tổng tiền đã chi (Totalmoney)
                     })
                     .OrderByDescending(u => u.TotalOrders)  // Sắp xếp theo số đơn hàng
                     .Take(5)  // Lấy 5 khách hàng có số lượng đơn hàng cao nhất
@@ -449,8 +459,14 @@ namespace appAPI.Controllers
                         u.Name,
                         TotalOrders = u.Orders.Count(o => o.Created_at >= startOfMonth), // Đếm số đơn hàng trong tháng này
                         TotalMoneySpent = u.Orders
-                            .Where(o => o.Created_at >= startOfMonth)  // Lọc các đơn hàng trong tháng này
-                            .Sum(o => o.Totalmoney ?? 0)  // Tính tổng tiền đã chi, xử lý trường hợp null
+    .Where(o => o.Created_at >= new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1)  // Lọc các đơn hàng trong tháng này
+                && o.Status != "Hóa đơn treo"
+                && o.Status != "Chờ xác nhận"
+                && o.Status != "Đơn huỷ"
+                && o.Status != "Giao thất bại"
+                && o.Status != "Pending")  // Loại bỏ các trạng thái không hợp lệ
+    .Sum(o => o.Totalmoney ?? 0)  // Tính tổng tiền đã chi (Totalmoney)
+                                  // Tính tổng tiền đã chi, xử lý trường hợp null
                     })
                     .OrderByDescending(u => u.TotalOrders)  // Sắp xếp theo số đơn hàng
                     .Take(5)  // Lấy 5 khách hàng có số lượng đơn hàng cao nhất
@@ -481,7 +497,12 @@ namespace appAPI.Controllers
                         u.Name,
                         TotalOrders = u.Orders.Count(o => o.Created_at >= startOfYear), // Đếm số đơn hàng trong năm này
                         TotalMoneySpent = u.Orders
-                            .Where(o => o.Created_at >= startOfYear)  // Lọc các đơn hàng trong năm này
+                            .Where(o => o.Created_at >= startOfYear
+                             && o.Status != "Hóa đơn treo"
+                && o.Status != "Chờ xác nhận"
+                && o.Status != "Đơn huỷ"
+                && o.Status != "Giao thất bại"
+                && o.Status != "Pending") // Lọc các đơn hàng trong năm này
                             .Sum(o => o.Totalmoney ?? 0)  // Tính tổng tiền đã chi, xử lý trường hợp null
                     })
                     .OrderByDescending(u => u.TotalOrders)  // Sắp xếp theo số đơn hàng

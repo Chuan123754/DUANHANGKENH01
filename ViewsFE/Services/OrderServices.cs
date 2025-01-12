@@ -223,7 +223,10 @@ namespace ViewsFE.Services
 
             return revenueData;
         }
-
+        public async Task UpdateStrees(Orders orders, long id)
+        {
+            await _client.PutAsJsonAsync($"{_baseUrl}/api/Orders/UpdateStrees?id={id}", orders);
+        }
         public async Task<Dictionary<string, int>> GetTotalMonth()
         {
             var url = $"{_baseUrl}/api/Orders/Get-Total-Orders-Per-Month";

@@ -261,7 +261,32 @@
                     <p style="color: green;"><strong>Tổng tiền cần thanh toán:</strong> @OrderTracking.TotalMoney.ToString("N0") VND</p>
                 </div>
                 <div class="customer-info" style="flex: 1; padding-left: 20px;">
-                    <h4>Thông Tin Khách Hàng</h4>
+                    <div class="header-container" style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4>Thông Tin Khách Hàng</h4>
+                        @if (Order.Address_Id != null)
+                        {
+                            @if (Order.Status == "Chờ xác nhận" || Order.Status == "Đã xác nhận" || Order.Status == "Đã thanh toán" || Order.Status == "Đã chuẩn bị hàng")
+                            {
+                                <button class="btn btn-warning" @onclick="OpenModalUpdateAddress">Thay đổi địa chỉ nhận hàng</button>
+                            }
+                            else if (Order.Status == "Đơn hủy")
+                            {
+                                <span style="color : red"> Đã hủy đơn</span>
+                            }
+                            else if (Order.Status == "Hoàn tất đơn")
+                            {
+                                <span> Hoàn thành</span>
+                            }
+                            else
+                            {
+                                <span> Đơn hàng đang trên đường giao tới bạn</span>
+                            }
+                        }
+                        else
+                        {
+                            <span> Đơn hàng được bán tại cửa hàng</span>
+                        }
+                    </div>
                     @if (Order.Users != null)
                     {
                         <p><strong>Tên khách hàng:</strong>@Order.Users.Name</p>
@@ -362,6 +387,87 @@
     </div>
     <div class="modal-backdrop fade show"></div>
 }
+@if (modalUpdateAddress)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 40%; width: auto;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cập nhật địa chỉ nhận hàng</h5>
+                </div>
+                <form class="p-4 bg-light rounded shadow">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Tên người nhận </label>
+                            <input type="text" @bind="Address.Name" class="form-control" placeholder="Nhập tên người nhận">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">SĐT </label>
+                            <input type="text" @bind="Address.Phone" class="form-control" placeholder="Nhập SĐT">
+                        </div>
+
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="city" class="form-label">Tỉnh/Thành phố</label>
+                            <select id="city" @onchange="OnProvinceChange" class="form-select">
+                                <option value="">Chọn Tỉnh</option>
+                                @if (provinces != null && provinces.Count > 0)
+                                {
+                                    @foreach (var province in provinces)
+                                    {
+                                        <option value="@province.ProvinceID">@province.ProvinceName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="district" class="form-label">Quận/Huyện</label>
+                            <select id="district" @onchange="OnDistrictChange" class="form-select" disabled="@(!hasDistricts)">
+                                <option value="">Chọn Huyện</option>
+                                @if (districts != null && districts.Count > 0)
+                                {
+                                    @foreach (var district in districts)
+                                    {
+                                        <option value="@district.DistrictID">@district.DistrictName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="ward" class="form-label">Xã/Phường/Thị trấn</label>
+                            <select id="ward" @onchange="OnWardChange" class="form-select" disabled="@(!hasWards)">
+                                <option value="">Chọn Xã</option>
+                                @if (wards != null && wards.Count > 0)
+                                {
+                                    @foreach (var ward in wards)
+                                    {
+                                        <option value="@ward.WardCode">@ward.WardName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <label for="address" class="form-label">Địa chỉ cụ thể</label>
+                            <input type="text" @bind="Address.Street" class="form-control" placeholder="Nhập địa chỉ cụ thể">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="note" class="form-label">Ghi chú</label>
+                            <input type="text" @bind="Address.Status" id="note" class="form-control" placeholder="Nhập ghi chú">
+                        </div>
+                    </div>
+
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="button" class="btn btn-sm btn-outline-primary" @onclick="ConfirmUpdateStrees">Xác nhận</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" @onclick="CloseModalUpdateAddress">Hủy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     [Parameter] public long OrderId { get; set; }
@@ -388,7 +494,8 @@
     private string currentModalTitle = string.Empty;
     private bool isModalOpen = false;
     private string adminId;
-
+    private Address TempAddress;
+    private bool modalUpdateAddress = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -408,7 +515,7 @@
             OrderAddress = await orderService.OrdersAddress(OrderId);
             Address = await addressService.GetAddressById(Order.Address_Id ?? 0);
 
-
+            provinces = await address_Service.GetProvincesAsync();
             if (OrderTracking != null && OrderTracking.OrderTrackings.Any())
             {
                 // Sắp xếp theo Created_at giảm dần và lấy bản ghi mới nhất
@@ -431,6 +538,183 @@
         {
             Console.WriteLine($"Lỗi tải thông tin vận chuyển: {ex.Message}");
         }
+    }
+    private async void OpenModalUpdateAddress()
+    {
+        Address = await addressService.GetAddressById(Order.Address_Id ?? 0);
+        TempAddress = new Address // Tạo bản sao để thao tác
+            {
+                Province_city = Address.Province_city,
+                District = Address.District,
+                Ward_commune = Address.Ward_commune,
+                Street = Address.Street
+            };
+        modalUpdateAddress = true;
+        StateHasChanged();
+    }
+    private async void CloseModalUpdateAddress()
+    {
+        modalUpdateAddress = false;
+        StateHasChanged();
+    }
+    private async Task ConfirmUpdateStrees()
+    {
+        try
+        {
+            int.TryParse(selectedDistrictId, out var toDistrictId);
+            var shippingRequest = new ShippingRequest
+                {
+                    service_type_id = 2,
+                    to_district_id = toDistrictId,
+                    to_ward_code = selectedWardId.ToString(),
+                    length = 100,
+                    width = 80,
+                    height = 8,
+                    weight = 2000,
+                    insurance_value = 500000,
+                    coupon = null,
+                    cod_failed_amount = null,
+                    cod_value = null
+                };
+            decimal newFeeShipping = await address_Service.CalculateShippingFee(shippingRequest);
+
+            // Hiển thị hộp thoại xác nhận
+            bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Phí giao hàng mới sẽ là {newFeeShipping.ToString("N0")} VNĐ. Xác nhận thay đổi địa chỉ giao hàng ?");
+            if (!confirmed) return;
+
+            // Chuyển đổi và tìm kiếm Province
+            if (!int.TryParse(selectedProvinceId, out int provinceId))
+            {
+                throw new Exception("Không thể chuyển đổi `selectedProvinceId` sang kiểu số nguyên.");
+            }
+            var province = provinces.FirstOrDefault(p => p.ProvinceID == provinceId);
+            if (province == null)
+            {
+                throw new Exception("Không tìm thấy tỉnh/thành phố với ID đã chọn.");
+            }
+
+            // Chuyển đổi và tìm kiếm District
+            if (!int.TryParse(selectedDistrictId, out int districtId))
+            {
+                throw new Exception("Không thể chuyển đổi `selectedDistrictId` sang kiểu số nguyên.");
+            }
+            var district = districts.FirstOrDefault(d => d.DistrictID == districtId);
+            if (district == null)
+            {
+                throw new Exception("Không tìm thấy quận/huyện với ID đã chọn.");
+            }
+
+            // Tìm kiếm Ward
+            var ward = wards.FirstOrDefault(w => w.WardCode == selectedWardId);
+            if (ward == null)
+            {
+                throw new Exception("Không tìm thấy xã/phường với mã đã chọn.");
+            }
+            Order.FeeShipping = newFeeShipping;
+            Order.Totalmoney = Order.TotalAmount + Order.FeeShipping - Order.TotalVoucher;
+            await orderService.Update(Order, Order.Id);
+            Order.Strees = $"{TempAddress.Street} - {ward.WardName} - {district.DistrictName} - {province.ProvinceName}";
+            await orderService.UpdateStrees(Order, Order.Id);
+            modalUpdateAddress = false;
+            await JS.InvokeVoidAsync("toastr.success", "Địa chỉ giao hàng đã được cập nhật thành công.");
+        }
+        catch (Exception ex)
+        {
+            // Hiển thị thông báo lỗi nếu xảy ra lỗi
+            await JS.InvokeVoidAsync("toastr.error", $"Cập nhật địa chỉ giao hàng thất bại: {ex.Message}");
+        }
+        StateHasChanged();
+    }
+    private List<Provinces> provinces = new List<Provinces>();
+    private List<Districts> districts = new List<Districts>();
+    private List<Wards> wards = new List<Wards>();
+    private bool hasDistricts = false;
+    private bool hasWards = false;
+    private decimal feeShipping = 0;
+    private string selectedProvinceId;
+    private string selectedDistrictId;
+    private string selectedWardId;
+    [Inject] private AddressService address_Service { get; set; }
+    private async Task OnProvinceChange(ChangeEventArgs e)
+    {
+        selectedProvinceId = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedProvinceId))
+        {
+            // Thiết lập tỉnh hiện tại và xóa các quận huyện, xã
+            TempAddress.Province_city = selectedProvinceId;
+            districts = await address_Service.GetDistrictsByProvinceAsync(int.Parse(selectedProvinceId));
+            hasDistricts = districts.Count > 0;
+            wards.Clear();
+            hasWards = false;
+        }
+    }
+    private async Task OnDistrictChange(ChangeEventArgs e)
+    {
+        selectedDistrictId = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedDistrictId))
+        {
+            TempAddress.District = selectedDistrictId;
+            wards = await address_Service.GetWardsByDistrictAsync(int.Parse(selectedDistrictId));
+            hasWards = wards.Count > 0;
+        }
+    }
+    private async Task OnWardChange(ChangeEventArgs e)
+    {
+        selectedWardId = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedWardId))
+        {
+            TempAddress.Ward_commune = selectedWardId;
+        }
+    }
+    // Các biến để bind vào form
+    private string city;
+    private string district;
+    private string ward;
+    private string street;
+    private string phone;
+    private Address selectedAddress;
+    private async Task SelectAddress(Address address)
+    {
+        ClearInfoAddress();
+        if (address != null)
+        {
+            selectedAddress = address;
+            city = address.Province_city;
+            district = address.District;
+            ward = address.Ward_commune;
+            street = address.Street;
+            phone = address.User?.Phone;
+        }
+        var orderPending = await orderService.GetByIdOrders(OrderId);
+        orderPending.Address_Id = selectedAddress.Id;
+        orderPending.CreatedByAdminId = null;
+        modalUpdateAddress = false;
+        var shippingRequest = new ShippingRequest
+            {
+                service_type_id = 2,
+                to_district_id = address.DistrictId,
+                to_ward_code = address.WardCode.ToString(),
+                length = 100,
+                width = 80,
+                height = 5,
+                weight = 1000,
+                insurance_value = 500000,
+                coupon = null,
+                cod_failed_amount = null,
+                cod_value = null
+            };
+        orderPending.FeeShipping = await address_Service.CalculateShippingFee(shippingRequest);
+        orderPending.Totalmoney = orderPending.TotalAmount + orderPending.FeeShipping;
+        await orderService.Update(orderPending, orderPending.Id);
+    }
+    private void ClearInfoAddress()
+    {
+        selectedAddress = null;
+        city = string.Empty;
+        district = string.Empty;
+        ward = string.Empty;
+        street = string.Empty;
+        phone = string.Empty;
     }
 
     private void OpenModal(string modalId, string modalTitle)
@@ -1032,8 +1316,8 @@
             {
                 await JS.InvokeVoidAsync("toastr.error", result);
             }
-                ReloadTrackingData();
-            } 
+            ReloadTrackingData();
+        }
         else
         {
             var user = await userService.GetById(order.User_id ?? 0);
@@ -1046,11 +1330,11 @@
             {
                 await JS.InvokeVoidAsync("toastr.error", result);
             }
-        if (user != null)
-        {
-            var emailUser = user.Email;
-            string emailSubject = "ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC CẬP NHẬT";
-            string emailMessage = $@"
+            if (user != null)
+            {
+                var emailUser = user.Email;
+                string emailSubject = "ĐƠN HÀNG CỦA BẠN ĐÃ ĐƯỢC CẬP NHẬT";
+                string emailMessage = $@"
                 <!DOCTYPE html>
                 <html>
                 <head>
@@ -1075,6 +1359,6 @@
 
 
         }
-        
+
     }
 }
