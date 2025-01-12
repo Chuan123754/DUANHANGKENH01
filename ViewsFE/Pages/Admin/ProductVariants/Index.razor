@@ -453,6 +453,7 @@
     {
 
         await LoadPosts();
+        product_posts = await post.GetByIdType(PostId,"product");
         colorList = await colorService.GetAll();
         sizeList = await sizeService.GetAll();
         Material_list = await MaterialService.GetAll();

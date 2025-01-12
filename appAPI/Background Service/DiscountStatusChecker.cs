@@ -28,6 +28,7 @@ namespace appAPI.Background_Service
                 using (var scope = _serviceProvider.CreateScope())
                 {
                     var discountRepository = scope.ServiceProvider.GetRequiredService<IRepository<Discount>>();
+                    var voucherRepository = scope.ServiceProvider.GetRequiredService<IRepository<Vouchers>>();
                     var productAttributesRepository = scope.ServiceProvider.GetRequiredService<IProductAttributesRepository>();
                     var productDiscountRepository = scope.ServiceProvider.GetRequiredService<IProductAttributeDiscountRepository>();
 
@@ -40,6 +41,11 @@ namespace appAPI.Background_Service
                             .Where(d => d.Status != "Đã kết thúc" || (d.Start_date <= today && d.End_date >= today))
                             .ToList();
 
+                        var vouchers = voucherRepository.GetAll()
+                             .Where(d => d.Status != "Đã kết thúc" || (d.Start_time <= today && d.End_time >= today))
+                             .ToList();
+
+                        var vouchersToUpdate = new List<Vouchers>();
                         var discountsToUpdate = new List<Discount>();
                         var productsToUpdate = new List<Product_Attributes>();
 
@@ -84,18 +90,35 @@ namespace appAPI.Background_Service
                                 }
                             }
                         }
-
                         // Batch update chiết khấu
                         if (discountsToUpdate.Any())
                         {
                             await discountRepository.BatchUpdateAsync(discountsToUpdate);
                         }
-
                         // Batch update sản phẩm
                         if (productsToUpdate.Any())
                         {
                             await productAttributesRepository.BatchUpdateAsync(productsToUpdate);
                         }
+
+                        foreach(var voucher in vouchers)
+                        {
+                            if (voucher.End_time >= today && voucher.Start_time <= today && voucher.Status != "Đã dừng")
+                            {
+                                voucher.Status = "Đang diễn ra";
+                            }
+                            else if (voucher.End_time < today && voucher.Status != "Đã dừng")
+                            {
+                                voucher.Status = "Đã kết thúc";
+                            }
+                            else if (voucher.Start_time < today && voucher.Status != "Đã dừng")
+                            {
+                                voucher.Status = "Sắp diễn ra";
+                            }
+                            voucherRepository.Update(voucher);
+                        }    
+
+
                     }
                     catch (Exception ex)
                     {
