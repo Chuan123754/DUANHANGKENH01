@@ -299,6 +299,7 @@
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 <Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
+<ConfirmDialog @ref="dialog" />
 <Modal @ref="modalcate" title="Thêm chuyên mục" IsVerticallyCentered="true">
     <BodyTemplate>
         <div class="category-add mt-2">
@@ -376,7 +377,7 @@
     private Modal_NImg mediaLibraryModal;
     private Media_manager media_ManagerRef;
     private long postId;
-
+    private ConfirmDialog dialog = default!;
     private Modal modalcate = default!;
     private Modal modaltags = default!;
 
@@ -456,12 +457,10 @@
     }
     private async Task LoadPosts()
     {
-
-     
         // Tải danh sách tags và categories
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAllType("project");
-     
+
         StateHasChanged();
     }
     protected override async Task OnInitializedAsync()
@@ -567,42 +566,72 @@
 
     private async Task HandleValidSubmit()
     {
-        Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
-        var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
-        if (!string.IsNullOrEmpty(tags))
-        {
-            SelectedTags = tags.Split(',')
-                .Select(id => long.TryParse(id, out long result) ? result : 0)
-                .Where(id => id > 0)
-                .ToList();
-        }
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
 
-        var categories = await JS.InvokeAsync<string>("getSelectedValues", "#categories");
-        if (!string.IsNullOrEmpty(categories))
+        var confirmation = await dialog.ShowAsync(
+            title: "Đưa ra sự lựa chọn",
+            message1: "Bạn có muốn thêm dự án?",
+            confirmDialogOptions: options);
+        if (confirmation)
         {
-            SelectedCategories = categories.Split(',')
-                .Select(id => long.TryParse(id, out long result) ? result : 0)
-                .Where(id => id > 0)
-                .ToList();
+            if (string.IsNullOrWhiteSpace(banner.Name))
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Tên banner là bắt buộc.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(banner.Meta_data))
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Ảnh của banner là bắt buộc.");
+                return;
+            }
+            Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
+            var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
+            if (!string.IsNullOrEmpty(tags))
+            {
+                SelectedTags = tags.Split(',')
+                    .Select(id => long.TryParse(id, out long result) ? result : 0)
+                    .Where(id => id > 0)
+                    .ToList();
+            }
+
+            var categories = await JS.InvokeAsync<string>("getSelectedValues", "#categories");
+            if (!string.IsNullOrEmpty(categories))
+            {
+                SelectedCategories = categories.Split(',')
+                    .Select(id => long.TryParse(id, out long result) ? result : 0)
+                    .Where(id => id > 0)
+                    .ToList();
+            }
+            bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty);
+            if (!isSlugUnique)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
+                return;
+            }
+            try
+            {
+                postId = await sev.CreateProject(Posts, SelectedTags, SelectedCategories);
+                banner.Type = "project";
+                await bnser.AddBannerToPost(postId, banner);
+                await JS.InvokeVoidAsync("toastr.success", "Thêm dự án thành công");
+                nav.NavigateTo("/admin/project");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                await JS.InvokeVoidAsync("toastr.error", "Không thể thêm dự án. Vui lòng thử lại.");
+            }
         }
-        bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty);
-        if (!isSlugUnique)
+        else
         {
-            await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
             return;
-        }
-        try
-        {
-            postId = await sev.CreateProject(Posts, SelectedTags, SelectedCategories);
-            banner.Type = "project";
-            await bnser.AddBannerToPost(postId, banner);
-            await JS.InvokeVoidAsync("toastr.success", "Thêm dự án thành công");
-            nav.NavigateTo("/admin/project");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể thêm dự án. Vui lòng thử lại.");
         }
     }
 }

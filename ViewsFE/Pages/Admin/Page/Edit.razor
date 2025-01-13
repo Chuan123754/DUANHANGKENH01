@@ -161,42 +161,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <!-- #endregion -->
-                            <!-- Từ khóa -->
-                           @*  <div class="accordion bg-white mb-3">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
-                                            Từ khóa
-                                        </button>
-                                    </h2>
-                                    <div id="tag" class="accordion-collapse collapse show">
-                                        <div class="accordion-body pt-0">
-                                            <select id="tags-selects" multiple class="form-control" placeholder="Nhập từ khoá">
-                                                @foreach (var tag in TagsList)
-                                                {
-                                                    <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
-                                                }
-                                            </select>
-                                            <a @onclick="OnShowModalClickTags"
-                                               class="mt-2 mb-2 d-block d-flex gap-1">
-                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                     class="icon icon-tabler icon-tabler-plus" width="10"
-                                                     height="10" viewBox="0 0 26 26" stroke-width="1"
-                                                     stroke="currentColor" fill="none" stroke-linecap="round"
-                                                     stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M12 5l0 14" />
-                                                    <path d="M5 12l14 0" />
-                                                </svg>
-                                                <span> Thêm từ khoá</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> *@
-                            <!-- #endregion  Từ khóa(tags) -->
+                            </div>                        
                         </div>
                     </div>
                 </div>
@@ -206,32 +171,8 @@
 </EditForm>
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
+<ConfirmDialog @ref="dialog" />
 
-
-@* <Modal @ref="modaltags" title="Thêm thẻ tags" IsVerticallyCentered="true">
-    <BodyTemplate>
-        <div class="category-add mt-2">
-            <div class="form-group mb-2">
-                <label for="category_title" class="form-label">
-                    Tiêu
-                    đề
-                    <span class="text-danger">*</span>
-                </label>
-                <input id="category_title" type="text"
-                       class="form-control" @bind="tags.Title" placeholder="Nhập tên tags">
-
-            </div>
-            <div class="form-group mb-3">
-                <label for="categories-description" class="form-label">Mô tả</label>
-                <textarea id="categories-description" class="form-control" @bind="tags.Description" rows="3" />
-            </div>
-        </div>
-    </BodyTemplate>
-    <FooterTemplate>
-        <Button class="btn btn-outline-secondary" @onclick="OnHideModalClickTags">Close</Button>
-        <Button class="btn btn-outline-primary" @onclick="SumbitTag">Tạo thẻ tags</Button>
-    </FooterTemplate>
-</Modal> *@
 @code {
     [Parameter]
     public long Id { get; set; }
@@ -245,7 +186,7 @@
     private Media_modal mediaModalRef;
     private Media_manager media_ManagerRef;
     private long postId;
-
+    private ConfirmDialog dialog = default!;
     private Modal modaltags = default!;
     private async Task OnShowModalClickTags()
     {
@@ -255,22 +196,7 @@
     {
         await modaltags.HideAsync();
     }
-    // private async void SumbitTag()
-    // {
-    //     try
-    //     {
-    //         await stag.Create(tags);
-    //         await JS.InvokeVoidAsync("toastr.success", "Thêm tags thành công");
-    //         await LoadPosts();
-    //         await modaltags.HideAsync();
-
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Console.WriteLine($"Error: {ex.Message}");
-    //         await JS.InvokeVoidAsync("toastr.error", "Không thể thêm tags. Vui lòng thử lại.");
-    //     }
-    // }
+  
     private async Task HandleImageSelected(string imagePath)
     {
         Posts.Feature_image = imagePath ?? string.Empty;
@@ -310,13 +236,7 @@
             await JS.InvokeVoidAsync("initTinyMCE");
             tinyMCEInitialized = true;
             StateHasChanged();
-        }
-        // if (TagsList?.Count > 0)
-        // {
-        //     await JS.InvokeVoidAsync("initializeTagsList", TagsList);
-        //     await JS.InvokeVoidAsync("initializeTomSelect", "#tags-selects");
-        // }
-
+        }      
     }
     public async ValueTask DisposeAsync()
     {
@@ -362,7 +282,7 @@
         }
         return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
-    
+
     private async Task<bool> IsSlugUnique(string slug, long postId)
     {
         if (string.IsNullOrWhiteSpace(slug)) return false;
@@ -376,34 +296,64 @@
 
     private async void HandleValidSubmit()
     {
-        try
-        {
-            // Lấy nội dung từ TinyMCE
-            Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
-
-            var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
-            SelectedTags = string.IsNullOrEmpty(tags)
-                ? new List<long>()
-                : tags.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
-
-            bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty, Posts.Id);
-            if (!isSlugUnique)
+        var options = new ConfirmDialogOptions
             {
-                await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
+
+        var confirmation = await dialog.ShowAsync(
+            title: "Đưa ra sự lựa chọn",
+            message1: "Bạn có muốn sửa trang?",
+            confirmDialogOptions: options);
+        if (confirmation)
+        {
+            if (string.IsNullOrWhiteSpace(banner.Name))
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Tên banner là bắt buộc.");
                 return;
             }
 
-    
-            postId = await sev.Update(Posts, SelectedTags);
-            await bnser.Update(banner, postId);
+            if (string.IsNullOrWhiteSpace(banner.Meta_data))
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Ảnh của banner là bắt buộc.");
+                return;
+            }
+            try
+            {
+                // Lấy nội dung từ TinyMCE
+                Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
 
-            await JS.InvokeVoidAsync("toastr.success", "Sửa trang thành công");
-            nav.NavigateTo("/admin/page");
+                var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
+                SelectedTags = string.IsNullOrEmpty(tags)
+                    ? new List<long>()
+                    : tags.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
+
+                bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty, Posts.Id);
+                if (!isSlugUnique)
+                {
+                    await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
+                    return;
+                }
+
+
+                postId = await sev.Update(Posts, SelectedTags);
+                await bnser.Update(banner, postId);
+
+                await JS.InvokeVoidAsync("toastr.success", "Sửa trang thành công");
+                nav.NavigateTo("/admin/page");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                await JS.InvokeVoidAsync("toastr.error", "Không thể sửa trang. Vui lòng thử lại.");
+            }
         }
-        catch (Exception ex)
+        else
         {
-            Console.WriteLine($"Error: {ex.Message}");
-            await JS.InvokeVoidAsync("toastr.error", "Không thể sửa trang. Vui lòng thử lại.");
+            return;
         }
     }
 }

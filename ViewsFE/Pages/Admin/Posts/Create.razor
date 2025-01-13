@@ -297,7 +297,7 @@
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 <Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
-
+<ConfirmDialog @ref="dialog" />
 
 <Modal @ref="modalcate" title="Thêm chuyên mục" IsVerticallyCentered="true">
     <BodyTemplate>
@@ -376,7 +376,7 @@
     private Modal_NImg mediaLibraryModal;
     private Media_manager media_ManagerRef;
     private long postId;
-
+    private ConfirmDialog dialog = default!;
 
     private Modal modalcate = default!;
     private Modal modaltags = default!;
@@ -557,9 +557,31 @@
     }
     private async void HandleValidSubmit()
     {
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận tạo bài viết ?");
-        if (confirmed)
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
+
+        var confirmation = await dialog.ShowAsync(
+            title: "Đưa ra sự lựa chọn",
+            message1: "Bạn có muốn thêm bài viết?",
+            confirmDialogOptions: options);
+        if (confirmation)
         {
+            if (string.IsNullOrWhiteSpace(banner.Name))
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Tên banner là bắt buộc.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(banner.Meta_data))
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Ảnh của banner là bắt buộc.");
+                return;
+            }
             Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
             var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
             if (!string.IsNullOrEmpty(tags))
@@ -598,6 +620,9 @@
                 await JS.InvokeVoidAsync("toastr.error", "Không thể thêm bài viết. Vui lòng thử lại.");
             }
         }
-
+        else
+        {
+            return;
+        }
     }
 }
