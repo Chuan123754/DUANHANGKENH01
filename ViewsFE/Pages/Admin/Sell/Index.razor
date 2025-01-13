@@ -1271,81 +1271,7 @@
     }
 
 
-    private void ShowMomoModal(string momoUrl)
-    {
-        payUrl = momoUrl;
 
-        isMomoModalVisible = true;
-        StateHasChanged();
-    }
-
-    // Xử lý khi nhấn nút "Hủy"
-    private async Task CancelMomoPayment()
-    {
-        var updateitem = await orderService.GetByIdOrders(selectedOrderId);
-        if (updateitem.Status == "Đã thanh toán")
-        {
-            await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
-            isMomoModalVisible = false;
-
-            var appliedVouchers = orderVouchers[selectedOrderId];
-            foreach (var voucherId in appliedVouchers)
-            {
-                var voucher = await userVoucherServies.GetByVoucherIdAndUserId(voucherId,selectedCustomer.Id);
-                if (voucher != null)
-                {
-                    voucher.IsApplied = true;
-                    await userVoucherServies.Update(voucher); // Cập nhật trạng thái `IsApplied`
-                }
-            }
-            var allVouchers = await userVoucherServies.GetAll();
-            userVouchers_lst = allVouchers
-                .Where(v => v.UserId == orders.User_id && v.IsApplied == false)
-                .ToList();
-            StateHasChanged();
-
-            await ResetViewState();
-        }
-        else
-        {
-            isMomoModalVisible = false;
-            await LoadOrders();
-            StateHasChanged();
-        }
-
-    }
-
-    // Xử lý khi nhấn nút "Xác nhận thanh toán"
-    private async Task ConfirmMomoPayment()
-    {
-        var updateitem = await orderService.GetByIdOrders(selectedOrderId);
-        if (updateitem.Status == "Đã thanh toán")
-        {
-            await JS.InvokeVoidAsync("toastr.success", $"Thanh toán thành công");
-            isMomoModalVisible = false;
-            var appliedVouchers = orderVouchers[selectedOrderId];
-            foreach (var voucherId in appliedVouchers)
-            {
-                var voucher = await userVoucherServies.GetByVoucherIdAndUserId(voucherId,selectedCustomer.Id);
-                if (voucher != null)
-                {
-                    voucher.IsApplied = true;
-                    await userVoucherServies.Update(voucher); // Cập nhật trạng thái `IsApplied`
-                }
-            }
-            var allVouchers = await userVoucherServies.GetAll();
-            userVouchers_lst = allVouchers
-                .Where(v => v.UserId == orders.User_id && v.IsApplied == false)
-                .ToList();
-            StateHasChanged();
-            await ResetViewState();
-        }
-        else
-        {
-            await JS.InvokeVoidAsync("toastr.error", $"Đơn hàng chưa được thanh toán");
-        }
-
-    }
 
     // Reset trạng thái sau khi thanh toán xong
     private async Task ResetViewState()
@@ -1686,6 +1612,7 @@
                 }
 
                 _ = UpdateOrderNote();
+                CalculateTotalMoney();
                 StateHasChanged();
             }
         }
@@ -1957,11 +1884,14 @@
         await RecalculateVoucherAmount();
         discountAmount = totalPrincipal - totalAmount;
         totalQuantity = lst_OrderDetail.Sum(item => item.Quantity);
-        totalMoney = isDeliveryVisible ? (feeShipping + totalAmount  - voucherAmount) : (totalAmount - voucherAmount);
-        if(totalMoney <= 0)
+        // thanh toán phí ship vơi bên thứ 3
+        var totalMoneyAfterVoucher =isDeliveryVisible ? (feeShipping + (totalAmount  - voucherAmount)) : (totalAmount - voucherAmount);
+        if(totalMoneyAfterVoucher <= 0)
         {
-            totalMoney = 0;
+            totalMoneyAfterVoucher = 0;
         }
+        totalMoney = isDeliveryVisible ? (feeShipping + totalMoneyAfterVoucher) : (totalMoneyAfterVoucher);
+
         StateHasChanged();
     }
 
@@ -1973,13 +1903,13 @@
             {
                 await JS.InvokeVoidAsync("toastr.error", "Số lượng không thể nhỏ hơn 1.");
                 item.Quantity = 1;
-                 await orderDetailService.Update(item, item.Id);
+                await orderDetailService.Update(item, item.Id);
             }
             else if (newQuantity > item.ProductAttributes.Stock)
             {
                 await JS.InvokeVoidAsync("toastr.error", $"Số lượng không thể lớn hơn {item.ProductAttributes.Stock}.");
                 item.Quantity = item.ProductAttributes.Stock ?? 0;
-                 await orderDetailService.Update(item, item.Id);
+                await orderDetailService.Update(item, item.Id);
             }
             else
             {
@@ -2257,6 +2187,97 @@
         phone = string.Empty;
     }
 
+    private void ShowMomoModal(string momoUrl)
+    {
+        payUrl = momoUrl;
+        isMomoModalVisible = true;
+    }
+
+    // Xử lý khi nhấn nút "Hủy"
+    private async Task CancelMomoPayment()
+    {
+        var updateitem = await orderService.GetByIdOrders(selectedOrderId);
+        if (updateitem.Status == "Đã thanh toán")
+        {
+            await JS.InvokeVoidAsync("toastr.success", $"Đơn hàng đã được thanh toán thành công trước đó");
+            isMomoModalVisible = false;
+            var newOrderTracking = new order_trackings
+            {
+                OrderId = selectedOrderId,
+                Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
+                Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" : " Đã xác nhận",
+                Created_at = DateTime.Now,
+                Created_by = adminId
+            };
+            await orderTrackingService.AddOrderTracking(newOrderTracking);
+            var appliedVouchers = orderVouchers[selectedOrderId];
+            foreach (var voucherId in appliedVouchers)
+            {
+                var voucher = await userVoucherServies.GetByVoucherIdAndUserId(voucherId,selectedCustomer.Id);
+                if (voucher != null)
+                {
+                    voucher.IsApplied = true;
+                    await userVoucherServies.Update(voucher); // Cập nhật trạng thái `IsApplied`
+                }
+            }
+            var allVouchers = await userVoucherServies.GetAll();
+            userVouchers_lst = allVouchers
+                .Where(v => v.UserId == orders.User_id && v.IsApplied == false)
+                .ToList();
+            StateHasChanged();
+            await ResetViewState();
+        }
+        else
+        {
+            isMomoModalVisible = false;
+            await LoadOrders();
+            StateHasChanged();
+        }
+
+    }
+
+    // Xử lý khi nhấn nút "Xác nhận thanh toán"
+    private async Task ConfirmMomoPayment()
+    {
+        var updateitem = await orderService.GetByIdOrders(selectedOrderId);
+        if (updateitem.Status == "Đã thanh toán")
+        {
+            var newOrderTracking = new order_trackings
+            {
+                OrderId = selectedOrderId,
+                Status = isDeliveryVisible ? "Đã thanh toán" : "Đã hoàn thành",
+                Note = isDeliveryVisible ? "Đã xác nhận đơn hàng Tại quầy , Khách hàng đã thanh toán" : " Đã xác nhận",
+                Created_at = DateTime.Now,
+                Created_by = adminId
+            };
+            await orderTrackingService.AddOrderTracking(newOrderTracking);
+            await JS.InvokeVoidAsync("toastr.success", $"Thanh toán qua MOMO thành công");
+            isMomoModalVisible = false;
+
+            var appliedVouchers = orderVouchers[selectedOrderId];
+            foreach (var voucherId in appliedVouchers)
+            {
+                var voucher = await userVoucherServies.GetByVoucherIdAndUserId(voucherId,selectedCustomer.Id);
+                if (voucher != null)
+                {
+                    voucher.IsApplied = true;
+                    await userVoucherServies.Update(voucher); // Cập nhật trạng thái `IsApplied`
+                }
+            }
+            var allVouchers = await userVoucherServies.GetAll();
+            userVouchers_lst = allVouchers
+                .Where(v => v.UserId == orders.User_id && v.IsApplied == false)
+                .ToList();
+            StateHasChanged();
+            await ResetViewState();
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("toastr.error", $"Đơn hàng chưa được thanh toán");
+        }
+
+    }
+
     private async Task OpenModalPayByCash()
     {
         if (lst_OrderDetail.Count == 0)
@@ -2322,6 +2343,7 @@
             // Cập nhật giao diện
             modalPayByCash = false;
             StateHasChanged();
+            await ResetViewState();
         }
     }
 
@@ -2440,10 +2462,8 @@
             }
 
         }
-        isDeliveryVisible = false;
         await LoadOrderDetails();
         await LoadOrders();
-        await ResetViewState();
     }
 
 }     

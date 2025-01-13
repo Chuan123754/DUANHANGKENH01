@@ -281,7 +281,26 @@
                             <span> Đơn hàng được bán tại cửa hàng</span>
                         }
                     </div>
-                    @if (Address != null)
+
+                    @if (Order.Users != null)
+                    {
+                        <p><strong>Tên khách hàng:</strong>@Order.Users.Name</p>
+                        <p><strong>Số điện thoại:</strong> @Order.Users.Phone</p>
+                        <p><strong>E-mail:</strong> @Order.Users.Email</p>
+                        @if (Address != null)
+                        {
+                            <p><strong>Tên Người nhận hàng:</strong>@Address.Name </p>
+                            <p><strong>Địa chỉ nhận hàng :</strong>  @Order.Strees</p>
+                            <p><strong>Ghi chú :</strong>  @Address.Status </p>
+                            <p><strong>Số điện thoại người nhận:</strong>@Address.Phone</p>
+                        }
+                    }
+                    else
+                    {
+                        <p><strong>Tên khách hàng:</strong>Khách lẻ</p>
+                        <p><strong>Số điện thoại:</strong> #N/A</p>
+                    }
+  @*                   @if (Address != null)
                     {
                         <p><strong>Tên Người nhận hàng:</strong>@Address.Name </p>
                         <p><strong>Địa chỉ nhận hàng:</strong>  @Address.Street</p>
@@ -305,7 +324,7 @@
                     else
                     {
                         <p><strong>Địa chỉ nhận hàng:</strong> Không có thông tin địa chỉ.</p>
-                    }
+                    } *@
 
 
                 </div>
@@ -507,9 +526,8 @@
         {
             var currentUserId = await _authStateProvider.GetCurrentUserId();
             adminId = currentUserId ?? null;
-
-            Order = await orderService.GetByIdOrders(OrderId);
             OrderTracking = await orderTrackingService.GetBy(OrderId);
+            Order = await orderService.GetByIdOrders(OrderId);
             OrderAddress = await orderService.OrdersAddress(OrderId);
 
             if (Order.Address_Id != null)
@@ -618,15 +636,17 @@
             await orderService.Update(Order, Order.Id);
             Order.Strees = $"{TempAddress.Street} - {ward.WardName} - {district.DistrictName} - {province.ProvinceName}";
             await orderService.UpdateStrees(Order, Order.Id);
+            StateHasChanged();
             modalUpdateAddress = false;
             await JS.InvokeVoidAsync("toastr.success", "Địa chỉ giao hàng đã được cập nhật thành công.");
+
         }
         catch (Exception ex)
         {
             // Hiển thị thông báo lỗi nếu xảy ra lỗi
             await JS.InvokeVoidAsync("toastr.error", $"Cập nhật địa chỉ giao hàng thất bại: {ex.Message}");
         }
-        StateHasChanged();
+
     }
     private List<Provinces> provinces = new List<Provinces>();
     private List<Districts> districts = new List<Districts>();
