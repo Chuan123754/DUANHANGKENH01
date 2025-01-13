@@ -1138,6 +1138,9 @@
             "Hoàn tất đơn" => "badge bg-success",
             "Đổi sản phẩm" => "badge bg-warning",
             "Trả sản phẩm" => "badge bg-warning",
+            "Đơn hủy" => "badge bg-dark",
+            "Đơn đã bị hủy" => "badge bg-dark",
+            "Giao hàng không thành công" => "badge bg-dark",
             "Cập nhật đổi sản phẩm" => "badge bg-warning",
             "Cập nhật trả sản phẩm" => "badge bg-warning",
             "Tại quầy" => "badge bg-success",
@@ -1175,8 +1178,9 @@
             "Đã chuẩn bị hàng" => "Lấy hàng",
             "Đã lấy hàng" => "Vận chuyển",
             "Đang vận chuyển" => null,
-            "Giao thất bại" => "Hóa đơn đã hoàn thành",
+            "Giao thất bại" => "Giao hàng không thành công",
             "Giao thành công" => "Hoàn tất đơn",
+            "Đơn hủy" => "Đơn đã bị hủy",
             "Giao dịch thất bại" => null,
             _ => "Hóa đơn đã hoàn thành"
         };
@@ -1198,7 +1202,18 @@
         // Nếu nhãn nút là "Hóa đơn đã hoàn thành", chỉ hiển thị thông báo
         if (currentButtonLabel == "Hóa đơn đã hoàn thành")
         {
-            await JS.InvokeVoidAsync("toastr.info", "Hóa đơn đã hoàn thành, không thể cập nhật trạng thái.");
+            await JS.InvokeVoidAsync("toastr.warning", "Hóa đơn đã hoàn thành, không thể cập nhật trạng thái.");
+            return;
+        }
+
+        if (currentButtonLabel == "Đơn đã bị hủy")
+        {
+            await JS.InvokeVoidAsync("toastr.warning", "Hóa đơn đã hủy, không thể cập nhật trạng thái.");
+            return;
+        }
+        if (currentButtonLabel == "Giao hàng không thành công")
+        {
+            await JS.InvokeVoidAsync("toastr.warning", "Đơn giao không thành công, Không thể cập nhật trạng thái.");
             return;
         }
 
