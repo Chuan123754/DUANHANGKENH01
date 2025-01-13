@@ -150,7 +150,7 @@ namespace appAPI.Repository
                 .Where(p => p.Status != "Hóa đơn treo" && p.Status != "Chờ xác nhận" && p.Status != "Pending" && p.Status != "Đơn hủy" && p.Status != "Giao thất bại" &&
                             p.Created_at.HasValue &&
                             p.Created_at.Value.Date == today) // So sánh phần ngày
-                .SumAsync(p => (p.TotalAmount ?? 0) - (p.TotalVoucher ?? 0));  // Tổng giá trị TotalAmount, mặc định là 0 nếu null
+                .SumAsync(p => (p.Totalmoney ?? 0) - (p.FeeShipping ?? 0));  // Tổng giá trị TotalAmount, mặc định là 0 nếu null
         }
         public async Task<decimal> GetTotalPiceWeek()
         {
@@ -163,7 +163,7 @@ namespace appAPI.Repository
                             p.Created_at.HasValue &&
                             p.Created_at.Value.Date >= startOfWeek &&
                             p.Created_at.Value.Date <= endOfWeek) // Lọc các hóa đơn trong tuần hiện tại
-                .SumAsync(p => (p.TotalAmount ?? 0) - (p.TotalVoucher ?? 0)); // Tổng giá trị TotalAmount, mặc định là 0 nếu null
+                .SumAsync(p => (p.Totalmoney ?? 0) - (p.FeeShipping ?? 0)); // Tổng giá trị TotalAmount, mặc định là 0 nếu null
         }
 
         public async Task<decimal> GetTotalPiceMonth()
@@ -177,7 +177,7 @@ namespace appAPI.Repository
                             p.Created_at.HasValue &&
                             p.Created_at.Value.Date >= startOfMonth &&
                             p.Created_at.Value.Date <= endOfMonth) // Lọc hóa đơn trong tháng hiện tại
-                 .SumAsync(p => (p.TotalAmount ?? 0) - (p.TotalVoucher ?? 0));  // Tổng giá trị TotalAmount, mặc định là 0 nếu null
+                 .SumAsync(p => (p.Totalmoney ?? 0) - (p.FeeShipping ?? 0));  // Tổng giá trị TotalAmount, mặc định là 0 nếu null
         }
         public async Task<Dictionary<int, decimal>> GetTotalRevenuePerYear()
         {
@@ -187,7 +187,7 @@ namespace appAPI.Repository
                 .Select(g => new
                 {
                     Year = g.Key,
-                    TotalRevenue = g.Sum(p => (p.TotalAmount ?? 0) - (p.TotalVoucher ?? 0)) // Tính tổng doanh thu cho từng năm
+                    TotalRevenue = g.Sum(p => (p.Totalmoney ?? 0) - (p.FeeShipping ?? 0)) // Tính tổng doanh thu cho từng năm
                 })
                 .ToListAsync();
 
@@ -246,7 +246,7 @@ namespace appAPI.Repository
                             p.Created_at.HasValue &&
                             p.Created_at.Value >= startDate &&
                             p.Created_at.Value <= endDate) // Lọc hóa đơn trong khoảng thời gian
-                .SumAsync(p => (p.TotalAmount ?? 0) - (p.TotalVoucher ?? 0)); // Tổng giá trị TotalAmount, mặc định là 0 nếu null
+                .SumAsync(p => (p.Totalmoney ?? 0) - (p.FeeShipping ?? 0)); // Tổng giá trị TotalAmount, mặc định là 0 nếu null
         }
 
     }

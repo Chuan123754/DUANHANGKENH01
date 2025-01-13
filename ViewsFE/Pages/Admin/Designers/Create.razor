@@ -115,6 +115,7 @@
                                             <label for="title" class="form-label">Tiêu đề<span class="text-danger">*</span></label>
                                             <input type="text" class="form-control" @bind-value="banner.Name"
                                                    placeholder="Tiêu đề">
+                                            <ValidationMessage For="@(() => banner.Name)" />
                                         </div>
                                         <div>
 
@@ -138,6 +139,7 @@
                                                         </svg>
                                                     </div>
                                                 }
+                                                <ValidationMessage For="@(() => banner.Meta_data)" />
                                             </div>
                                         </div>
                                     </div>

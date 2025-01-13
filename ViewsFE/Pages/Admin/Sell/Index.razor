@@ -321,8 +321,7 @@
                                                 <button class="btn btn-sm btn-outline-secondary" @onclick="() => UpdateQuantityView(item.Id, item.Quantity - 1)">-</button>
                                               <input type="number" class="form-control d-inline mx-2 no-arrows" style="width: 50px; height:25px; text-align: center;" 
                                                 @bind="item.Quantity"
-                                                @bind:event="oninput" 
-                                                @onchange="(e) => OnQuantityChange(e, item)" />
+                                                @onclick="() => OpenModalInputQuantity(item)" />
                                                 <button class="btn btn-sm btn-outline-secondary" @onclick="() => UpdateQuantityView(item.Id, item.Quantity + 1)">+</button>
                                             </td>
 
@@ -382,6 +381,30 @@
                                 </tbody>
                             </table>
                         </div>
+                        @if(modalInputQuantity)
+                        {
+                             <div class="modal fade show d-block" tabindex="-1" role="dialog">
+                                <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 35%">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Nhập số lượng</h5>
+                                            <button type="button" class="btn-close" @onclick="CloseModalInputQuantity" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="quantityInput" class="form-label">Số lượng</label>
+                                                <input type="number" id="quantityInput" class="form-control" @bind="@order_Details.Quantity" min="1" />
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" @onclick="CloseModalInputQuantity">Hủy</button>
+                                            <button type="button" class="btn btn-primary" @onclick="() => InputQuantity(order_Details)">Xác nhận</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <div class="modal-backdrop fade show"></div>
+                        }
                         <div class="card-header d-flex align-items-center justify-content-between">
                             <h2 class="card-title">Tổng tiền: @totalAmount.ToString("N0").Replace(".", ",") VNĐ</h2>
                         </div>
@@ -1895,47 +1918,61 @@
         StateHasChanged();
     }
 
-    private async Task OnQuantityChange(ChangeEventArgs e, ViewsFE.Models.Order_details item)
+
+    private bool modalInputQuantity = false;
+    private async Task OpenModalInputQuantity(Order_details item)
     {
-        if (int.TryParse(e.Value.ToString(), out int newQuantity))
+        order_Details = item;
+        modalInputQuantity = true;
+    }
+
+    private async Task CloseModalInputQuantity()
+    {
+        order_Details = null;
+        modalInputQuantity = false;
+    }
+
+    private async Task InputQuantity(Order_details item)
+    {
+        var order_Details = await orderDetailService.GetByIdOrderdetails(item.Id);
+
+        var productAttribute = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
+        int oldQuantity = order_Details.Quantity;
+        if(item.Quantity<=0)
+        {                        
+            await JS.InvokeVoidAsync("toastr.error", "Số lượng không được nhỏ hơn 0 .");
+            item.Quantity = 1;
+            return;
+        }
+        else if(item.Quantity > item.ProductAttributes.Stock)
         {
-            if (newQuantity < 1)
-            {
-                await JS.InvokeVoidAsync("toastr.error", "Số lượng không thể nhỏ hơn 1.");
-                item.Quantity = 1;
-                await orderDetailService.Update(item, item.Id);
-            }
-            else if (newQuantity > item.ProductAttributes.Stock)
-            {
-                await JS.InvokeVoidAsync("toastr.error", $"Số lượng không thể lớn hơn {item.ProductAttributes.Stock}.");
-                item.Quantity = item.ProductAttributes.Stock ?? 0;
-                await orderDetailService.Update(item, item.Id);
-            }
-            else
-            {
-                int quantityChange = newQuantity - item.Quantity;
-
-                // Cập nhật stock sản phẩm
-                item.ProductAttributes.Stock -= quantityChange;
-                item.Quantity = newQuantity;
-
-                // Lưu cập nhật vào database
-                await productAttributeService.Update(item.ProductAttributes, item.ProductAttributes.Id);
-                await orderDetailService.Update(item, item.Id);
-
-                // Cập nhật lại tổng tiền và thông tin đơn hàng
-                await LoadProducts();
-                await LoadOrderDetails();
-                CalculateTotalMoney();
-            }
-
-            // Cập nhật lại giao diện sau khi cập nhật số lượng
-            StateHasChanged();
+            await JS.InvokeVoidAsync("toastr.error",$"số lượng tối đa có thể thêm là {item.ProductAttributes.Stock} !");
+            item.Quantity = 1;
+            return;
         }
         else
         {
-            await JS.InvokeVoidAsync("toastr.error", "Giá trị không hợp lệ.");
+            await orderDetailService.Update(item, item.Id);
+            int newQuantity = item.Quantity;
+            if(oldQuantity < newQuantity)
+            {
+                productAttribute.Stock -= newQuantity - oldQuantity;
+            }
+            else if(oldQuantity > newQuantity)
+            {
+                productAttribute.Stock += oldQuantity - newQuantity;
+            }
+
+            await productAttributeService.Update(productAttribute, productAttribute.Id);
+
+
+            await LoadProducts();
+            await LoadOrderDetails();
+            CalculateTotalMoney();
+            modalInputQuantity = false;
+            StateHasChanged();
         }
+        
     }
 
     private async void CreateCustomer()

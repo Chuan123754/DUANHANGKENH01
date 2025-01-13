@@ -236,7 +236,7 @@ namespace appAPI.Repository
         public async Task<Product_Posts> GetByIdAndType(long id, string type)
         {
             return await _context.Posts
-                .Where(p => p.Id == id && p.Type == type && p.Status == "publish")
+                .Where(p => p.Id == id && p.Type == type)
                 .Include(p => p.Post_tags).ThenInclude(pt => pt.Tag)
                 .Include(p => p.Post_categories).ThenInclude(pc => pc.Categories)
                 .OrderByDescending(p => p.Id)
@@ -455,7 +455,7 @@ namespace appAPI.Repository
                         (idColor == null || !idColor.Any() || p.Product_Attributes.Any(a => idColor.Contains(a.Color_Id))) &&
                         (idCategory == null || !idCategory.Any() || p.Post_categories.Any(a => idCategory.Contains(a.Category_Id))) &&
                         (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) &&
-                        p.Status == "publish")
+                        p.Status == "publish" && p.Type == "product")
                         .Include(pc => pc.Post_categories) // Bao gồm bảng Post_categories từ Posts
                         .ThenInclude(pc => pc.Categories) // Bao gồm Categories từ Post_categories
                     .Include(pt => pt.Post_tags) // Bao gồm bảng Post_tags từ Posts
@@ -507,6 +507,7 @@ namespace appAPI.Repository
                         (idColor == null || !idColor.Any() || p.Product_Attributes.Any(a => idColor.Contains(a.Color_Id))) &&
                         (idCategory == null || !idCategory.Any() || p.Post_categories.Any(a => idCategory.Contains(a.Category_Id))) &&
                         p.Status == "publish" &&
+                        p.Type == "product" && 
                         (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
         }
 
