@@ -391,7 +391,7 @@ namespace appAPI.Controllers
                             && o.Status != "Đơn huỷ"
                             && o.Status != "Giao thất bại"
                             && o.Status != "Pending")
-                            .Sum(o => o.Totalmoney ?? 0)  // Tính tổng tiền đã chi (Totalmoney), xử lý trường hợp null
+                          .Sum(o => (o.TotalAmount ?? 0) - (o.TotalVoucher ?? 0))   // Tính tổng tiền đã chi (Totalmoney), xử lý trường hợp null
                     })
                     .OrderByDescending(u => u.TotalOrders)  // Sắp xếp theo số đơn hàng
                     .Take(5)  // Lấy 5 khách hàng có số lượng đơn hàng cao nhất
@@ -428,7 +428,7 @@ namespace appAPI.Controllers
                     && o.Status != "Đơn huỷ"
                     && o.Status != "Giao thất bại"
                     && o.Status != "Pending")
-                .Sum(o => o.Totalmoney ?? 0)    // Tính tổng tiền đã chi (Totalmoney)
+               .Sum(o => (o.TotalAmount ?? 0) - (o.TotalVoucher ?? 0))    // Tính tổng tiền đã chi (Totalmoney)
                     })
                     .OrderByDescending(u => u.TotalOrders)  // Sắp xếp theo số đơn hàng
                     .Take(5)  // Lấy 5 khách hàng có số lượng đơn hàng cao nhất
@@ -465,7 +465,7 @@ namespace appAPI.Controllers
                 && o.Status != "Đơn huỷ"
                 && o.Status != "Giao thất bại"
                 && o.Status != "Pending")  // Loại bỏ các trạng thái không hợp lệ
-    .Sum(o => o.Totalmoney ?? 0)  // Tính tổng tiền đã chi (Totalmoney)
+    .Sum(o => (o.TotalAmount ?? 0) - (o.TotalVoucher ?? 0))  // Tính tổng tiền đã chi (Totalmoney)
                                   // Tính tổng tiền đã chi, xử lý trường hợp null
                     })
                     .OrderByDescending(u => u.TotalOrders)  // Sắp xếp theo số đơn hàng
@@ -503,7 +503,7 @@ namespace appAPI.Controllers
                 && o.Status != "Đơn huỷ"
                 && o.Status != "Giao thất bại"
                 && o.Status != "Pending") // Lọc các đơn hàng trong năm này
-                            .Sum(o => o.Totalmoney ?? 0)  // Tính tổng tiền đã chi, xử lý trường hợp null
+                            .Sum(o => (o.TotalAmount ?? 0) - (o.TotalVoucher ?? 0))   // Tính tổng tiền đã chi, xử lý trường hợp null
                     })
                     .OrderByDescending(u => u.TotalOrders)  // Sắp xếp theo số đơn hàng
                     .Take(5)  // Lấy 5 khách hàng có số lượng đơn hàng cao nhất
