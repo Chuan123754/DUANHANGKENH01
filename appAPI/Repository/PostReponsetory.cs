@@ -197,7 +197,7 @@ namespace appAPI.Repository
         public async Task<List<Product_Posts>> GetAllByClient()
         {
             return await _context.Posts
-                .Where(p => p.Status == "publish")
+                .Where(p => p.Status == "publish" && p.Type == "product")
                 .Include(pc => pc.Post_categories).ThenInclude(pc => pc.Categories) // Bao gồm Categories từ Post_categories
                 .Include(pt => pt.Post_tags).ThenInclude(pt => pt.Tag) // Bao gồm Tags từ Post_tags
                 .Include(pd => pd.Designer) // Bao gồm Designer từ Posts
@@ -446,7 +446,7 @@ namespace appAPI.Repository
         public async Task<List<Product_Posts>> GetByTypeAsyncFilter(List<long?> idDesigner, List<long?> idColor, List<long?> idMaterial, List<long?> idTextile_technology, List<long?> idStyle, List<long?> idSize, List<long?> idCategory, int pageNumber, int pageSize, string searchTerm)
         {
             return await _context.Posts
-                        .Where(p =>
+                        .Where(p => p.Type == "Product" &&
                         (idDesigner == null || !idDesigner.Any() || idDesigner.Contains(p.AuthorId)) && // Lọc theo danh sách tác giả
                         (idTextile_technology == null || !idTextile_technology.Any() || p.Product_Attributes.Any(a => idTextile_technology.Contains(a.Textile_technology_id))) &&
                         (idStyle == null || !idStyle.Any() || p.Product_Attributes.Any(a => idStyle.Contains(a.Style_id))) &&
@@ -498,7 +498,7 @@ namespace appAPI.Repository
         public async Task<int> GetTotalCountAsyncFilter(List<long?> idDesigner, List<long?> idColor, List<long?> idMaterial, List<long?> idTextile_technology, List<long?> idStyle, List<long?> idSize, List<long?> idCategory, string searchTerm)
         {
             return await _context.Posts
-              .CountAsync(p =>
+              .CountAsync(p => p.Type == "Product" &&
                         (idDesigner == null || !idDesigner.Any() || idDesigner.Contains(p.AuthorId)) && // Lọc theo danh sách tác giả
                         (idTextile_technology == null || !idTextile_technology.Any() || p.Product_Attributes.Any(a => idTextile_technology.Contains(a.Textile_technology_id))) &&
                         (idStyle == null || !idStyle.Any() || p.Product_Attributes.Any(a => idStyle.Contains(a.Style_id))) &&

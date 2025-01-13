@@ -3,7 +3,7 @@
 @inject NavigationManager nav
 @inject IJSRuntime JS
 @inject IBannerServices bnser
-
+ @using BlazorBootstrap
 
 <div class="page-wrapper">
     <div class="page-header d-print-none">
@@ -259,7 +259,7 @@
         </div>
     </div>
 </div>
-
+<ConfirmDialog @ref="dialog" />
 @code {
     [Parameter]
     public long Id { get; set; }
@@ -272,6 +272,7 @@
     private Media_manager media_ManagerRef;
     private bool tinyMCEInitialized = false;
     private long postId;
+    private ConfirmDialog dialog = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -373,9 +374,32 @@
     }
     private async Task SubmitForm()
     {
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận cập nhật thông tin nhà thiết kế ?");
-        if (confirmed)
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
+
+        var confirmation = await dialog.ShowAsync(
+            title: "Đưa ra sự lựa chọn",
+            message1: "Bạn có muốn sửa nhà thiết kế?",
+            confirmDialogOptions: options);
+        if (confirmation)
         {
+            if (string.IsNullOrWhiteSpace(banner.Name))
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Tên banner là bắt buộc.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(banner.Meta_data))
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Ảnh của banner là bắt buộc.");
+                return;
+            }
+
             designer.description = await JS.InvokeAsync<string>("getTinyMCEContent");
 
             bool isSlugUnique = await IsSlugUnique(designer.slug ?? string.Empty, designer.id_Designer);

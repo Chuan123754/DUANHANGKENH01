@@ -295,7 +295,7 @@
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 <Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
-
+<ConfirmDialog @ref="dialog" />
 
 
 <Modal @ref="modalcate" title="Thêm chuyên mục" IsVerticallyCentered="true">
@@ -377,7 +377,7 @@
     private Media_manager media_ManagerRef;
     private long postId;
 
-
+    private ConfirmDialog dialog = default!;
     private Modal modalcate = default!;
     private Modal modaltags = default!;
 
@@ -559,9 +559,31 @@
     }
     private async void HandleValidSubmit()
     {
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận cập nhật bài viết ?");
-        if (confirmed)
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
+
+        var confirmation = await dialog.ShowAsync(
+            title: "Đưa ra sự lựa chọn",
+            message1: "Bạn có muốn sửa bài viết?",
+            confirmDialogOptions: options);
+        if (confirmation)
         {
+            if (string.IsNullOrWhiteSpace(banner.Name))
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Tên banner là bắt buộc.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(banner.Meta_data))
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Ảnh của banner là bắt buộc.");
+                return;
+            }
             Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
 
             var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
@@ -573,7 +595,7 @@
             SelectedCategories = string.IsNullOrEmpty(categories)
                 ? new List<long>() // Nếu categories rỗng, tạo danh sách trống
                 : categories.Split(',').Select(id => long.TryParse(id, out long result) ? result : 0).Where(id => id > 0).ToList();
-         
+
             bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty, Posts.Id);
             if (!isSlugUnique)
             {
@@ -595,6 +617,9 @@
             }
         }
 
-
+        else
+        {
+            return;
+        }
     }
 }

@@ -62,7 +62,7 @@
                                     <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                             data-bs-target="#banner_block" aria-expanded="true">
                                         Cấu hình banner
-                                       
+
                                     </button>
                                 </h2>
                                 <div id="banner_block" class="accordion-collapse collapse show">
@@ -111,7 +111,7 @@
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
                                         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#action-1" aria-expanded="true">
-                                        Khởi tạo
+                                            Khởi tạo
                                         </button>
                                     </h2>
                                     <div id="action-1" class="accordion-collapse collapse show" data-bs-parent="#accordion-example">
@@ -133,13 +133,13 @@
                                             <div class="form-group mb-3">
                                                 <label class="form-label">Nhà thiết kế<span class="text-danger">*</span></label>
                                                 <select @bind="Posts.AuthorId" class="form-control">
-                                                  
+
                                                     @foreach (var desi in designersList)
                                                     {
                                                         <option value="@desi.id_Designer">@desi.Name</option>
                                                     }
                                                 </select>
-                                              
+
                                             </div>
                                             <!-- #endregion -->
                                             <button type="submit" class="btn btn-primary" style="float: right">Tạo sản phẩm</button>
@@ -287,7 +287,7 @@
                                                         <path d="M5 12l14 0" />
                                                     </svg>
                                                     <span> Thêm danh mục</span>
-                                                </a>                                           
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -304,6 +304,7 @@
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 <Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
+<ConfirmDialog @ref="dialog" />
 <Modal @ref="modalcate" title="Thêm chuyên mục" IsVerticallyCentered="true">
     <BodyTemplate>
         <div class="category-add mt-2">
@@ -384,7 +385,7 @@
     private long postId;
     private Modal modalcate = default!;
     private Modal modaltags = default!;
-
+    private ConfirmDialog dialog = default!;
     private async Task OnShowModalClick()
     {
         await modalcate.ShowAsync();
@@ -461,10 +462,10 @@
         await JS.InvokeVoidAsync("openMediaModalN", isMultiple, referId);
     }
     private async Task LoadPosts()
-    {   
+    {
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAllType("product");
-      
+
         StateHasChanged();
     }
     protected override async Task OnInitializedAsync()
@@ -568,10 +569,32 @@
     }
     private async void HandleValidSubmit()
     {
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận thêm mới sản phẩm ?");
-        if (confirmed)
+        var options = new ConfirmDialogOptions
+            {
+                YesButtonText = "OK",
+                YesButtonColor = ButtonColor.Success,
+                NoButtonText = "CANCEL",
+                NoButtonColor = ButtonColor.Danger
+            };
+
+        var confirmation = await dialog.ShowAsync(
+            title: "Đưa ra sự lựa chọn",
+            message1: "Bạn có muốn thêm sản phẩm?",
+            confirmDialogOptions: options);
+        if (confirmation)
         {
-             Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
+            if (string.IsNullOrWhiteSpace(banner.Name))
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Tên banner là bắt buộc.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(banner.Meta_data))
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Ảnh của banner là bắt buộc.");
+                return;
+            }
+            Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
             var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
             if (!string.IsNullOrEmpty(tags))
             {
@@ -589,25 +612,29 @@
                     .Where(id => id > 0)
                     .ToList();
             }
-                bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty);
-                if (!isSlugUnique)
-                {
-                    await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
-                    return;
-                }
+            bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty);
+            if (!isSlugUnique)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
+                return;
+            }
             try
             {
                 postId = await sev.CreateProduct(Posts, SelectedTags, SelectedCategories);
                 banner.Type = "product";
                 await bnser.AddBannerToPost(postId, banner);
                 await JS.InvokeVoidAsync("toastr.success", "Thêm sản phẩm thành công");
-                nav.NavigateTo($"/admin/productVariant/Create/{postId}"); 
+                nav.NavigateTo($"/admin/productVariant/Create/{postId}");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}");
                 await JS.InvokeVoidAsync("toastr.error", "Không thể thêm sản phẩm. Vui lòng thử lại.");
-            }            
+            }
+        }
+        else
+        {
+            return;
         }
     }
 }
