@@ -1821,7 +1821,7 @@
             return;
         }
 
-        var vouchers = orderVouchers[selectedOrderId].ToList(); // Tạo bản sao để tránh sửa đổi trực tiếp
+        var vouchers = orderVouchers[selectedOrderId].ToList(); 
         var invalidVouchers = new List<long>();
         voucherAmount = 0;
 
@@ -1832,7 +1832,7 @@
             // Kiểm tra điều kiện của voucher
             if (totalAmount < Convert.ToDecimal(voucher.Condition ?? "0"))
             {
-                invalidVouchers.Add(voucherId); // Thêm vào danh sách xóa
+                invalidVouchers.Add(voucherId); 
             }
             else
             {
@@ -1904,7 +1904,7 @@
         {
             orderVouchers[selectedOrderId] = new List<long>();
         }
-        await RecalculateVoucherAmount();
+         await RecalculateVoucherAmount();
         discountAmount = totalPrincipal - totalAmount;
         totalQuantity = lst_OrderDetail.Sum(item => item.Quantity);
         // thanh toán phí ship vơi bên thứ 3
