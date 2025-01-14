@@ -681,6 +681,7 @@
     {
         try
         {
+
             voucher = await VoucherService.Details(id);
             selectedTypeVoucher = voucher.Description;
 
@@ -762,6 +763,11 @@
     {
         try
         {
+            if (selectedTypeVoucher == "Percentage" && voucherValue > 100)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Gía trị Voucher không hợp lệ!");
+                return;
+            }
             // Kiểm tra nếu không có khách hàng được chọn
             if (!selectedUserIds.Any())
             {
