@@ -1290,6 +1290,7 @@
             await JS.InvokeVoidAsync("toastr.warning", "Hóa đơn đã hủy, không thể cập nhật trạng thái.");
             return;
         }
+
         if (currentButtonLabel == "Giao hàng không thành công")
         {
             await JS.InvokeVoidAsync("toastr.warning", "Đơn giao không thành công, Không thể cập nhật trạng thái.");
@@ -1409,8 +1410,5 @@
                 }
             }
         }
-        StateHasChanged();
-
-        
     }
 }

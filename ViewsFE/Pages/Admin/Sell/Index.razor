@@ -319,9 +319,11 @@
                                             <td>@item.ProductAttributes.Size.Title</td>
                                             <td>
                                                 <button class="btn btn-sm btn-outline-secondary" @onclick="() => UpdateQuantityView(item.Id, item.Quantity - 1)">-</button>
-                                              <input type="number" class="form-control d-inline mx-2 no-arrows" style="width: 50px; height:25px; text-align: center;" 
-                                                @bind="item.Quantity"
-                                                @onclick="() => OpenModalInputQuantity(item)" />
+                                                <div class="d-inline mx-2 text-center" 
+                                                     style="width: 50px; height: 25px; line-height: 25px; border: 1px solid #ced4da; border-radius: 4px; cursor: pointer;" 
+                                                     @onclick="() => OpenModalInputQuantity(item)">
+                                                    @item.Quantity
+                                                </div>
                                                 <button class="btn btn-sm btn-outline-secondary" @onclick="() => UpdateQuantityView(item.Id, item.Quantity + 1)">+</button>
                                             </td>
 
@@ -393,12 +395,12 @@
                                         <div class="modal-body">
                                             <div class="mb-3">
                                                 <label for="quantityInput" class="form-label">Số lượng</label>
-                                                <input type="number" id="quantityInput" class="form-control" @bind="@order_Details.Quantity" min="1" />
+                                                <input type="number" id="quantityInput" class="form-control" @bind="tempQuantity" min="1" />
                                             </div>
                                         </div>
                                         <div class="modal-footer">
                                             <button type="button" class="btn btn-secondary" @onclick="CloseModalInputQuantity">Hủy</button>
-                                            <button type="button" class="btn btn-primary" @onclick="() => InputQuantity(order_Details)">Xác nhận</button>
+                                            <button type="button" class="btn btn-primary" @onclick="() => InputQuantity(tempQuantity)">Xác nhận</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1503,7 +1505,6 @@
             }
             await orderDetailService.Delete(orderDetail.Id);
             await orderService.Delete(id);
-            await JS.InvokeVoidAsync("toastr.success", "Xóa đơn hàng và cập nhật kho thành công.");
         }
         selectedOrderId = 0;
         // Làm mới danh sách Orders
@@ -1836,7 +1837,7 @@
             }
             else
             {
-                voucherAmount += CalculateVoucher(voucher);
+                voucherAmount = CalculateVoucher(voucher);
             }
         }
 
@@ -1920,9 +1921,11 @@
 
 
     private bool modalInputQuantity = false;
+    private int tempQuantity;
     private async Task OpenModalInputQuantity(Order_details item)
     {
         order_Details = item;
+        tempQuantity = item.Quantity;
         modalInputQuantity = true;
     }
 
@@ -1932,47 +1935,45 @@
         modalInputQuantity = false;
     }
 
-    private async Task InputQuantity(Order_details item)
+    private async Task InputQuantity(int newQuantity)
     {
-        var order_Details = await orderDetailService.GetByIdOrderdetails(item.Id);
+        // Kiểm tra tính hợp lệ của số lượng mới
+        if (newQuantity <= 0)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Số lượng không được nhỏ hơn 0.");
+            return;
+        }
+        else if (newQuantity > order_Details.ProductAttributes.Stock)
+        {
+            await JS.InvokeVoidAsync("toastr.error", $"Số lượng tối đa có thể thêm là {order_Details.ProductAttributes.Stock}!");
+            return;
+        }
 
-        var productAttribute = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
+        // Nếu hợp lệ, cập nhật số lượng
         int oldQuantity = order_Details.Quantity;
-        if(item.Quantity<=0)
-        {                        
-            await JS.InvokeVoidAsync("toastr.error", "Số lượng không được nhỏ hơn 0 .");
-            item.Quantity = 1;
-            return;
-        }
-        else if(item.Quantity > item.ProductAttributes.Stock)
+        order_Details.Quantity = newQuantity;
+
+        await orderDetailService.Update(order_Details, order_Details.Id);
+
+        var productAttribute = await productAttributeService.GetProductAttributesById(order_Details.Product_Attribute_Id);
+
+        if (oldQuantity < newQuantity)
         {
-            await JS.InvokeVoidAsync("toastr.error",$"số lượng tối đa có thể thêm là {item.ProductAttributes.Stock} !");
-            item.Quantity = 1;
-            return;
+            productAttribute.Stock -= newQuantity - oldQuantity;
         }
-        else
+        else if (oldQuantity > newQuantity)
         {
-            await orderDetailService.Update(item, item.Id);
-            int newQuantity = item.Quantity;
-            if(oldQuantity < newQuantity)
-            {
-                productAttribute.Stock -= newQuantity - oldQuantity;
-            }
-            else if(oldQuantity > newQuantity)
-            {
-                productAttribute.Stock += oldQuantity - newQuantity;
-            }
-
-            await productAttributeService.Update(productAttribute, productAttribute.Id);
-
-
-            await LoadProducts();
-            await LoadOrderDetails();
-            CalculateTotalMoney();
-            modalInputQuantity = false;
-            StateHasChanged();
+            productAttribute.Stock += oldQuantity - newQuantity;
         }
-        
+
+        await productAttributeService.Update(productAttribute, productAttribute.Id);
+
+        await LoadProducts();
+        await LoadOrderDetails();
+        CalculateTotalMoney();
+
+        modalInputQuantity = false;
+        StateHasChanged();
     }
 
     private async void CreateCustomer()
