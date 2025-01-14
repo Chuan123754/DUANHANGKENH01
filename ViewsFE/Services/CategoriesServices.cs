@@ -3,6 +3,7 @@ using ViewsFE.Models;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System.Net.Http;
+using Org.BouncyCastle.Ocsp;
 
 namespace ViewsFE.Services
 {
@@ -82,6 +83,34 @@ namespace ViewsFE.Services
         public async Task<List<Categories>> GetAllType(string type)
         {
             return await _client.GetFromJsonAsync<List<Categories>>($"{_baseUrl}/api/Category/GetAllType?type={type}");
+        }
+
+        public async Task<bool> CheckSlug(string slug)
+        {
+            var response = await _client.GetAsync($"{_baseUrl}/api/Category/checkslug?slug={slug}");
+            response.EnsureSuccessStatusCode();
+            return bool.Parse(await response.Content.ReadAsStringAsync());
+        }
+
+        public async Task<bool> CheckSlugForUpdate (long cateId,string slug)
+        {
+            try
+            {
+                // Gửi request đến API
+                var response = await _client.GetFromJsonAsync<ApiResponse>($"{_baseUrl}/api/Category/check-slug-for-update?slug={slug}&cateid={cateId}");
+
+                // Nếu response hợp lệ, trả về giá trị `IsUnique`
+                return response?.IsUnique ?? false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error calling CheckSlugForUpdate API: {ex.Message}");
+                return false; // Trả về false trong trường hợp lỗi
+            }
+        }
+        public class ApiResponse
+        {
+            public bool IsUnique { get; set; }
         }
     }
 }

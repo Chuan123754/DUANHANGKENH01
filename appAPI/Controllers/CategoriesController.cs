@@ -1,5 +1,6 @@
 ﻿using appAPI.IRepository;
 using appAPI.Models;
+using iText.Commons.Actions.Contexts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,13 +12,42 @@ namespace appAPI.Controllers
     {
 
         private readonly ICategoriesRepository _repo;
-
+        APP_DATA_DATN _context;
         public CategoryController(ICategoriesRepository repo, APP_DATA_DATN context)
         {
             _repo = repo;
-         
+            _context = context;
         }
+        [HttpGet("checkslug")]
+        public async Task<IActionResult> CheckSlug(string slug)
+        {
+            if (string.IsNullOrWhiteSpace(slug))
+            {
+                return BadRequest("Slug không được để trống.");
+            }
 
+            bool exists = await _context.Categories.Where(p => p.Deleted == false).AnyAsync(x => x.Slug == slug);
+            return Ok(!exists);
+        }
+        [HttpGet("check-slug-for-update")]
+        public async Task<IActionResult> CheckSlugForUpdate([FromQuery] string slug, [FromQuery] long cateid)
+        {
+            if (string.IsNullOrEmpty(slug))
+            {
+                return BadRequest(new { message = "Slug không được để trống." });
+            }
+
+            try
+            {
+                bool isUnique = await _repo.CheckSlugForUpdate(cateid, slug);
+
+                return Ok(new { isUnique }); // Trả về true nếu Slug hợp lệ, false nếu trùng
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Lỗi xảy ra: {ex.Message}" });
+            }
+        }
         // GET: api/Category/show
         [HttpGet("show")]
         public async Task<ActionResult<List<Categories>>> GetAll()
@@ -109,7 +139,7 @@ namespace appAPI.Controllers
                 }
 
                 existingCategory.Title = c.Title;
-                existingCategory.Short_title = c.Description;
+                existingCategory.Short_title = c.Short_title;
                 existingCategory.Slug = c.Slug;
                 existingCategory.Parent_id = c.Parent_id;
                 existingCategory.Dept = c.Dept;
