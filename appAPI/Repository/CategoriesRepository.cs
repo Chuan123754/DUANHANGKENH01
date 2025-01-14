@@ -71,7 +71,7 @@ namespace appAPI.Repository
         public async Task<List<Categories>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm)
         {
             return await _context.Categories
-                .Where(p => p.Type == type && (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) &&   p.Deleted == false)
+                .Where(p => p.Type == type && (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)) && p.Deleted == false)
                 .OrderBy(p => p.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
@@ -81,30 +81,38 @@ namespace appAPI.Repository
         public async Task<int> GetTotalCountAsync(string type, string searchTerm)
         {
             return await _context.Categories
-                .CountAsync(p => p.Type == type &&   p.Deleted == false &&
+                .CountAsync(p => p.Type == type && p.Deleted == false &&
                                 (string.IsNullOrEmpty(searchTerm) || p.Title.Contains(searchTerm)));
         }
 
         public async Task Update(Categories c)
         {
-            var item = await _context.Categories.FindAsync(c.Id);
-            if (_context.Categories.Any(c => c.Id == c.Id))
+            var item = _context.Categories.Find(c.Id);
+            if (item == null)
             {
-                _context.Entry(c).State = EntityState.Modified;
-                if (item == null) return;
-                item.Short_title = c.Short_title;
-                item.Description = c.Description;
-                item.Title = c.Title;
-                item.Slug = c.Slug;
-                item.Parent_id = c.Parent_id;
-                item.Updated_at = DateTime.Now;
-                await _context.SaveChangesAsync();
+                return;
             }
+
+            item.Short_title = c.Short_title;
+            item.Description = c.Description;
+            item.Title = c.Title;
+            item.Slug = c.Slug;
+            item.Updated_at = DateTime.Now;
+            _context.Categories.Update(item);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<List<Categories>> GetAllType(string type)
         {
-            return await _context.Categories.Where(p => p.Type == type &&   p.Deleted == false).ToListAsync();
+            return await _context.Categories.Where(p => p.Type == type && p.Deleted == false).ToListAsync();
+        }
+        public async Task<bool> CheckSlugForUpdate(long cateid, string slug)
+        {
+            if (string.IsNullOrWhiteSpace(slug))
+                return false;
+
+            return await _context.Categories
+                    .AnyAsync(p => p.Slug == slug && p.Deleted == false && p.Id != cateid);
         }
     }
 }

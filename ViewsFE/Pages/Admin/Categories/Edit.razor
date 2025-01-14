@@ -138,6 +138,16 @@ else
         }
     }
 
+    private async Task<bool> IsSlugUnique(long cateId, string slug)
+    {
+        if (string.IsNullOrWhiteSpace(slug)) return false;
+
+        Console.WriteLine($"Checking Slug: {slug}, CateId: {cateId}");
+
+        // Gọi API kiểm tra Slug trùng lặp
+        bool exists = await sev.CheckSlugForUpdate(cateId, slug);
+        return !exists; // Nếu không tồn tại ở bản ghi khác => duy nhất
+    }
     private async Task SubmitForm()
     {
         var options = new ConfirmDialogOptions
@@ -154,6 +164,12 @@ else
             confirmDialogOptions: options);
         if (confirmation)
         {
+            bool isSlugUnique = await IsSlugUnique(categorie.Id,categorie.Slug ?? string.Empty);
+            if (!isSlugUnique)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
+                return;
+            }
             try
             {
                 await sev.Update(categorie);

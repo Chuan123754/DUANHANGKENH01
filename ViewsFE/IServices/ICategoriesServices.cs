@@ -16,5 +16,7 @@ namespace ViewsFE.IServices
         Task Delete(long id);
         Task<List<Categories>> GetByTypeAsync(string type, int pageNumber, int pageSize, string searchTerm);
         Task<int> GetTotalCountAsync(string type, string searchTerm);
+        Task<bool> CheckSlug(string slug);
+        Task<bool> CheckSlugForUpdate( long cateId, string slug);
     }
 }

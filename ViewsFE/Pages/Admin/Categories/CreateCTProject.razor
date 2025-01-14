@@ -112,6 +112,18 @@
         }
         return stringBuilder.ToString().Normalize(System.Text.NormalizationForm.FormC);
     }
+    private async Task<bool> IsSlugUnique(string slug)
+    {
+        try
+        {
+            return await sev.CheckSlug(slug); // Gọi API kiểm tra Slug
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error checking slug: {ex.Message}");
+            return false;
+        }
+    }
     private async void HandleValidSubmit()
     {
         var options = new ConfirmDialogOptions
@@ -128,6 +140,12 @@
             confirmDialogOptions: options);
         if (confirmation)
         {
+            bool isSlugUnique = await IsSlugUnique(categories.Slug ?? string.Empty);
+            if (!isSlugUnique)
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Slug đã tồn tại. Vui lòng chọn Slug khác."); // Thông báo lỗi
+                return;
+            }
             try
             {
                 await sev.CreateTypeProject(categories);
