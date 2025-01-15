@@ -29,8 +29,8 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <label for="title" class="form-label">Tên trang<span class="text-danger">*</span></label>
-                                    <InputText id="title" class="form-control" @bind-Value="Posts.Title" placeholder="Tên trang" @onchange="GenerateSlug" />
+                                    <label for="title" class="form-label">Tên bài viết<span class="text-danger">*</span></label>
+                                    <input id="title" class="form-control" @bind="Posts.Title" placeholder="Tên trang" @oninput="GenerateSlug" />
                                     <ValidationMessage For="@(() => Posts.Title)" />
                                 </div>
 
@@ -164,41 +164,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <!-- #endregion -->
-                            <!-- Từ khóa -->
-                            @*    <div class="accordion bg-white mb-3">
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#tag" aria-expanded="true">
-                                            Từ khóa
-                                        </button>
-                                    </h2>
-                                    <div id="tag" class="accordion-collapse collapse show">
-                                        <div class="accordion-body pt-0">
-                                            <select id="tags-selects" multiple class="form-control" placeholder="Nhập từ khoá">
-                                                @foreach (var tag in TagsList)
-                                                {
-                                                    <option value="@tag.Id" selected="@SelectedTags.Contains(tag.Id)">@tag.Title</option>
-                                                }
-                                            </select>
-                                            <a @onclick="OnShowModalClickTags"
-                                               class="mt-2 mb-2 d-block d-flex gap-1">
-                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                     class="icon icon-tabler icon-tabler-plus" width="10"
-                                                     height="10" viewBox="0 0 26 26" stroke-width="1"
-                                                     stroke="currentColor" fill="none" stroke-linecap="round"
-                                                     stroke-linejoin="round">
-                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                    <path d="M12 5l0 14" />
-                                                    <path d="M5 12l14 0" />
-                                                </svg>
-                                                <span> Thêm từ khoá</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> *@
+                            </div>                          
                         </div>
                     </div>
                 </div>
@@ -358,15 +324,7 @@
                 await JS.InvokeVoidAsync("toastr.error", "Ảnh của banner là bắt buộc.");
                 return;
             }
-            Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");
-            var tags = await JS.InvokeAsync<string>("getSelectedValues", "#tags-selects");
-            if (!string.IsNullOrEmpty(tags))
-            {
-                SelectedTags = tags.Split(',')
-                    .Select(id => long.TryParse(id, out long result) ? result : 0)
-                    .Where(id => id > 0)
-                    .ToList();
-            }
+            Posts.Description = await JS.InvokeAsync<string>("getTinyMCEContent");       
             bool isSlugUnique = await IsSlugUnique(Posts.Slug ?? string.Empty);
             if (!isSlugUnique)
             {
