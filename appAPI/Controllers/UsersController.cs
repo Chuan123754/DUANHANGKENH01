@@ -378,7 +378,7 @@ namespace appAPI.Controllers
         {
             try
             {
-                var topCustomers = await context.Users
+                var topCustomers = await context.Users.Where(p => p.Name != null)
                     .Include(u => u.Orders)  // Bao gồm các đơn hàng của khách hàng
                     .Select(u => new
                     {
@@ -414,7 +414,7 @@ namespace appAPI.Controllers
             {
                 var startOfWeek = DateTime.UtcNow.Date.AddDays(-(int)DateTime.UtcNow.DayOfWeek);
 
-                var topCustomers = await context.Users
+                var topCustomers = await context.Users.Where(p => p.Name != null)
                     .Include(u => u.Orders)  // Bao gồm các đơn hàng của khách hàng
                     .Select(u => new
                     {
@@ -449,27 +449,26 @@ namespace appAPI.Controllers
         {
             try
             {
-                var startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1); // Lấy ngày đầu tháng hiện tại
+                var startOfMonth = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1);
 
-                var topCustomers = await context.Users
-                    .Include(u => u.Orders)
+                var topCustomers = await context.Users.Where(p => p.Name != null)
                     .Select(u => new
                     {
                         u.Id,
                         u.Name,
-                        TotalOrders = u.Orders.Count(o => o.Created_at >= startOfMonth), // Đếm số đơn hàng trong tháng này
+                        TotalOrders = u.Orders.Count(o => o.Created_at >= startOfMonth),
                         TotalMoneySpent = u.Orders
-    .Where(o => o.Created_at >= new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, 1)  // Lọc các đơn hàng trong tháng này
-                && o.Status != "Hóa đơn treo"
-                && o.Status != "Chờ xác nhận"
-                && o.Status != "Đơn huỷ"
-                && o.Status != "Giao thất bại"
-                && o.Status != "Pending")  // Loại bỏ các trạng thái không hợp lệ
-    .Sum(o => (o.TotalAmount ?? 0) - (o.TotalVoucher ?? 0))  // Tính tổng tiền đã chi (Totalmoney)
-                                  // Tính tổng tiền đã chi, xử lý trường hợp null
+                            .Where(o => o.Created_at >= startOfMonth &&
+                                        o.Status != "Hóa đơn treo" &&
+                                        o.Status != "Chờ xác nhận" &&
+                                        o.Status != "Đơn huỷ" &&
+                                        o.Status != "Giao thất bại" &&
+                                        o.Status != "Pending"
+                                       )
+                            .Sum(o => (o.TotalAmount ?? 0) - (o.TotalVoucher ?? 0))
                     })
-                    .OrderByDescending(u => u.TotalOrders)  // Sắp xếp theo số đơn hàng
-                    .Take(5)  // Lấy 5 khách hàng có số lượng đơn hàng cao nhất
+                    .OrderByDescending(u => u.TotalOrders)
+                    .Take(5)
                     .ToListAsync();
 
                 return Ok(topCustomers);
@@ -478,8 +477,8 @@ namespace appAPI.Controllers
             {
                 return BadRequest(new { Message = ex.Message });
             }
-
         }
+
 
         // Top 5 khách hàng mua nhiều hóa đơn nhất trong năm
         [HttpGet("GetTop5CustomersYearly")]
@@ -489,7 +488,7 @@ namespace appAPI.Controllers
             {
                 var startOfYear = new DateTime(DateTime.UtcNow.Year, 1, 1); // Lấy ngày đầu năm hiện tại
 
-                var topCustomers = await context.Users
+                var topCustomers = await context.Users.Where(p => p.Name != null)
                     .Include(u => u.Orders)
                     .Select(u => new
                     {
