@@ -299,7 +299,6 @@
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 <Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
-<ConfirmDialog @ref="dialog" />
 <Modal @ref="modalcate" title="Thêm chuyên mục" IsVerticallyCentered="true">
     <BodyTemplate>
         <div class="category-add mt-2">
@@ -377,7 +376,7 @@
     private Modal_NImg mediaLibraryModal;
     private Media_manager media_ManagerRef;
     private long postId;
-    private ConfirmDialog dialog = default!;
+
     private Modal modalcate = default!;
     private Modal modaltags = default!;
 
@@ -457,6 +456,8 @@
     }
     private async Task LoadPosts()
     {
+
+
         // Tải danh sách tags và categories
         TagsList = await stag.GetAll();
         CategoriesList = await cate.GetAllType("project");
@@ -566,19 +567,8 @@
 
     private async Task HandleValidSubmit()
     {
-        var options = new ConfirmDialogOptions
-            {
-                YesButtonText = "OK",
-                YesButtonColor = ButtonColor.Success,
-                NoButtonText = "CANCEL",
-                NoButtonColor = ButtonColor.Danger
-            };
-
-        var confirmation = await dialog.ShowAsync(
-            title: "Đưa ra sự lựa chọn",
-            message1: "Bạn có muốn thêm dự án?",
-            confirmDialogOptions: options);
-        if (confirmation)
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận thêm dự án ?");
+        if (confirmed)
         {
             if (string.IsNullOrWhiteSpace(banner.Name))
             {
@@ -628,10 +618,6 @@
                 Console.WriteLine($"Error: {ex.Message}");
                 await JS.InvokeVoidAsync("toastr.error", "Không thể thêm dự án. Vui lòng thử lại.");
             }
-        }
-        else
-        {
-            return;
         }
     }
 }
