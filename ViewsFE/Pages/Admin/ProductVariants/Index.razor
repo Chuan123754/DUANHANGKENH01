@@ -83,7 +83,6 @@
                                        class="form-control"
                                        style="width: 300px"
                                        @bind="searchProductText"
-                                       @oninput="SearchProducts"
                                        placeholder="Tìm kiếm sản phẩm" />
                                 <button type="button"
                                         class="btn btn-outline-primary"
@@ -459,7 +458,6 @@
         Material_list = await MaterialService.GetAll();
         TextileTechnology_list = await Textile_technologyServices.GetAll();
         Style_list = await StyleServices.GetAll();
-
         selectedTextileTechnologyId = string.Empty;
         selectedMaterialId = string.Empty;
         selectedStyleId = string.Empty;
@@ -480,20 +478,25 @@
     {
         if (!string.IsNullOrEmpty(searchProductText))
         {
-            productAttributesList = productAttributesList.Where(p => p.Post_Id == PostId)
-                .Where(p => p.Posts?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true ||
-                            p.Textile_Technology?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true ||
-                            p.Material?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true ||
-                            p.Style?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true ||
-                            p.Color?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true ||
-                            p.Size?.Title.Contains(searchProductText, StringComparison.OrdinalIgnoreCase) == true)
+            // Tách chuỗi tìm kiếm thành các từ khoá dựa trên khoảng trắng
+            var searchKeywords = searchProductText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            productAttributesList = productAttributesList
+                .Where(p => searchKeywords.All(keyword =>
+                    (p.Posts?.Title?.Contains(keyword, StringComparison.OrdinalIgnoreCase) == true) ||
+                    (p.Textile_Technology?.Title?.Contains(keyword, StringComparison.OrdinalIgnoreCase) == true) ||
+                    (p.Material?.Title?.Contains(keyword, StringComparison.OrdinalIgnoreCase) == true) ||
+                    (p.Style?.Title?.Contains(keyword, StringComparison.OrdinalIgnoreCase) == true) ||
+                    (p.Color?.Title?.Contains(keyword, StringComparison.OrdinalIgnoreCase) == true) ||
+                    (p.Size?.Title?.Contains(keyword, StringComparison.OrdinalIgnoreCase) == true)))
                 .ToList();
         }
     }
+
     private async Task ApplyFilters()
     {
         // Lọc sản phẩm theo các điều kiện đã chọn
-        var filteredProducts = await productAttributeService.GetAllProductAttributes();
+        var filteredProducts = productAttributesList;
 
         if (!string.IsNullOrEmpty(selectedProductId))
         {

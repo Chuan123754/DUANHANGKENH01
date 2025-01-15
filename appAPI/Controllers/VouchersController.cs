@@ -60,6 +60,7 @@ namespace appAPI.Controllers
             }
 
             existing.Code = voucher.Code;
+            existing.Condition = voucher.Condition;
             existing.Description = voucher.Description;
             existing.Quantity = voucher.Quantity;
             existing.MaxDiscountValue = voucher.MaxDiscountValue;

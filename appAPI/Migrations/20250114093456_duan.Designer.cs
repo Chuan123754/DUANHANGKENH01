@@ -12,8 +12,13 @@ using appAPI.Models;
 namespace appAPI.Migrations
 {
     [DbContext(typeof(APP_DATA_DATN))]
+<<<<<<<< HEAD:appAPI/Migrations/20250114093456_duan.Designer.cs
     [Migration("20250114093456_duan")]
     partial class duan
+========
+    [Migration("20250114145846_ok")]
+    partial class ok
+>>>>>>>> f148ffdbd059e6c80a3069cf69d3ae6d3d7d2e7e:appAPI/Migrations/20250114145846_ok.Designer.cs
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

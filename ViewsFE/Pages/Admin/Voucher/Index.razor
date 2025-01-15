@@ -556,26 +556,30 @@
 
     private async Task CreateVoucher()
     {
+        if (selectedTypeVoucher == "Percentage" && voucherValue > 100 || selectedTypeVoucher == "Percentage" && voucherValue <= 0 || selectedTypeVoucher == "Fixed" && voucherValue <= 0)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Gía trị Voucher không hợp lệ!");
+            return;
+        }
         try
         {
-            // Kiểm tra nếu không có khách hàng được chọn
-            if (!selectedUserIds.Any())
-            {
-                errorMessage = "Không có khách hàng nào được chọn. Vui lòng chọn ít nhất một khách hàng trước khi tạo voucher.";
-                return;
-            }
 
             // Kiểm tra trùng mã Code
             if (vouchers.Any(v => v.Code.Equals(voucher.Code, StringComparison.OrdinalIgnoreCase)))
             {
-                errorMessage = "Mã voucher đã tồn tại, vui lòng nhập mã khác!";
+                await JS.InvokeVoidAsync("toastr.error", "Gía trị Voucher không hợp lệ!");
                 return;
+            }
+            if(voucher.Percent=="0")
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Gía trị Voucher không hợp lệ");
+
             }
 
             // kiểm tra thời gian kết thúc
             if (voucher.End_time <= voucher.Start_time)
             {
-                errorMessage = "Thời gian kết thúc phải lớn hơn thời gian bắt đầu";
+                await JS.InvokeVoidAsync("toastr.error", "Gía trị Voucher không hợp lệ!");
                 return;
 
             }
@@ -681,6 +685,7 @@
     {
         try
         {
+
             voucher = await VoucherService.Details(id);
             selectedTypeVoucher = voucher.Description;
 
@@ -738,7 +743,7 @@
             {
                 if (value <= 0)
                 {
-                    errorMessage = "Giảm giá cố định phải lớn hơn 0!";
+                    // errorMessage = "Giảm giá cố định phải lớn hơn 0!";
                     voucherValue = 0; // Reset giá trị nếu không hợp lệ
                     return;
                 }
@@ -748,7 +753,7 @@
         }
         else
         {
-            errorMessage = "Giá trị không hợp lệ!";
+            // errorMessage = "Giá trị không hợp lệ!";
             voucherValue = 0;
         }
     }
@@ -760,15 +765,13 @@
 
     private async Task UpdateVoucher()
     {
+        if (selectedTypeVoucher == "Percentage" && voucherValue > 100 || selectedTypeVoucher == "Percentage" && voucherValue <= 0 || selectedTypeVoucher == "Fixed" && voucherValue <= 0)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Gía trị Voucher không hợp lệ!");
+            return;
+        }
         try
         {
-            // Kiểm tra nếu không có khách hàng được chọn
-            if (!selectedUserIds.Any())
-            {
-                errorMessage = "Không có khách hàng nào được chọn. Vui lòng chọn ít nhất một khách hàng trước khi cập nhật voucher.";
-                return;
-            }
-
             // Kiểm tra trùng mã Code trừ ID hiện tại.
             if (vouchers.Any(v => v.Code.Equals(voucher.Code, StringComparison.OrdinalIgnoreCase) && v.Id != voucher.Id))
             {
@@ -807,7 +810,11 @@
             initialUserIds = initialUserIds.Distinct().ToList();
             voucher.Description = selectedTypeVoucher;
             voucher.Percent = voucherValue.ToString();
-            voucher.Condition = voucher.Condition;
+            if (selectedTypeVoucher == "Fixed")
+            {
+                voucher.MaxDiscountValue = voucherValue.ToString();
+            }
+
             await VoucherService.Update(voucher);
 
             foreach (var userId in selectedUserIds)
