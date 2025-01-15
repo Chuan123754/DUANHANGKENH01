@@ -36,5 +36,12 @@ namespace ViewsFE.Services
         {
             await _httpClient.GetStringAsync($"https://localhost:7011/api/OrderVouchers/GetByIdOrderAndIdVoucher?idOrder={orderId}&idVoucher={voucherId}");
         }
+        public async Task<List<Order_Vouchers>> GetAll()
+        {
+            string requestURL = "https://localhost:7011/api/OrderVouchers";
+            var response = await _httpClient.GetStringAsync(requestURL);
+            var orderVouchers = JsonConvert.DeserializeObject<List<Order_Vouchers>>(response);
+            return orderVouchers;
+        }
     }
 }

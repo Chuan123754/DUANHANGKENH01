@@ -175,16 +175,6 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a @onclick="async () => await GetFailedOrders()"
-                                       class="order-tab-click nav-link"
-                                       data-bs-toggle="tab">
-                                        <strong>Giao thất bại</strong>
-                                        <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
-                                            @failedOrders
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
                                     <a @onclick="async () => await GetCompleteOrders()"
                                        class="order-tab-click nav-link"
                                        data-bs-toggle="tab">
@@ -195,6 +185,17 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a @onclick="async () => await GetFailedOrders()"
+                                       class="order-tab-click nav-link"
+                                       data-bs-toggle="tab">
+                                        <strong>Giao thất bại</strong>
+                                        <span style="margin-left: 8px; font-size: 0.7rem; padding: 0.2em 0.4em; border-radius: 5px; background-color: #6c757d; color: white;">
+                                            @failedOrders
+                                        </span>
+                                    </a>
+                                </li>
+                          
+                      @*           <li class="nav-item">
                                     <a @onclick="async () => await GetCanceledOrders()"
                                        class="order-tab-click nav-link"
                                        data-bs-toggle="tab">
@@ -203,7 +204,7 @@
                                             @canceledOrders
                                         </span>
                                     </a>
-                                </li>
+                                </li> *@
                             </ul>
                         </div>
                         <div class="table-responsive">
