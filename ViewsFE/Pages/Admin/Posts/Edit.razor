@@ -295,7 +295,7 @@
 <Media_modal OnImageSelected="HandleImageSelected" @ref="mediaModalRef"></Media_modal>
 <Media_manager OnImageSelected="HandleImageSelectedBanner" @ref="media_ManagerRef"></Media_manager>
 <Modal_NImg OnImagesSelectedN="HandleImageSelectedN" @ref="mediaLibraryModal"></Modal_NImg>
-<ConfirmDialog @ref="dialog" />
+
 
 
 <Modal @ref="modalcate" title="Thêm chuyên mục" IsVerticallyCentered="true">
@@ -377,7 +377,7 @@
     private Media_manager media_ManagerRef;
     private long postId;
 
-    private ConfirmDialog dialog = default!;
+
     private Modal modalcate = default!;
     private Modal modaltags = default!;
 
@@ -559,19 +559,8 @@
     }
     private async void HandleValidSubmit()
     {
-        var options = new ConfirmDialogOptions
-            {
-                YesButtonText = "OK",
-                YesButtonColor = ButtonColor.Success,
-                NoButtonText = "CANCEL",
-                NoButtonColor = ButtonColor.Danger
-            };
-
-        var confirmation = await dialog.ShowAsync(
-            title: "Đưa ra sự lựa chọn",
-            message1: "Bạn có muốn sửa bài viết?",
-            confirmDialogOptions: options);
-        if (confirmation)
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", "Xác nhận cập nhật bài viết ?");
+        if (confirmed)
         {
             if (string.IsNullOrWhiteSpace(banner.Name))
             {
@@ -617,9 +606,6 @@
             }
         }
 
-        else
-        {
-            return;
-        }
+
     }
 }
