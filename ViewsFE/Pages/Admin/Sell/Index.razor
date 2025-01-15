@@ -188,7 +188,7 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    @foreach (var product in lst_ProductAttributes.Where(p => p.Status != "Đã xoá" && p.Posts.Status!="delete"))
+                                                    @foreach (var product in lst_ProductAttributes.Where(p => p.Status != "Đã xoá" && p.Posts.Status == "publish"))
                                                     {
                                                         <tr>
                                                             <td class="text-center">
@@ -1358,7 +1358,8 @@
     private async Task SelectOrder(long orderId) // chọn hóa đơn
     {
         selectedOrderId = orderId;
-        lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
+        var lst_oddt =  await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
+        lst_OrderDetail = lst_oddt.Where(p => p.ProductAttributes.Status != "Đã xoá" && p.ProductAttributes.Posts.Status == "publish").ToList();
         var orderToUpdate = await orderService.GetByIdOrders(selectedOrderId);
         orders = await orderService.GetByIdOrders(selectedOrderId);
         var allVoucher  = await userVoucherServies.GetAll();
@@ -1445,7 +1446,8 @@
 
     private async Task LoadOrderDetails() // danh sách đơn hàng chi tiết của đơn hàng được chọn
     {
-        lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
+        var lst_oddt =  await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
+        lst_OrderDetail = lst_oddt.Where(p => p.ProductAttributes.Status != "Đã xoá" && p.ProductAttributes.Posts.Status == "publish").ToList();
         CalculateTotalMoney();
         StateHasChanged();
     }
@@ -1759,7 +1761,8 @@
         var allVoucher  = await userVoucherServies.GetAll();
         userVouchers_lst = allVoucher.Where(v => v.UserId == selectedCustomer.Id && v.IsApplied==false).ToList();
         // Cập nhật lại thông tin đơn hàng
-        lst_OrderDetail = await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
+        var lst_oddt =  await orderDetailService.GetOrderDetailsByOrderId(selectedOrderId);
+        lst_OrderDetail = lst_oddt.Where(p => p.ProductAttributes.Status != "Đã xoá" && p.ProductAttributes.Posts.Status == "publish").ToList();
         await LoadOrders();
         CalculateTotalMoney();
         StateHasChanged();
