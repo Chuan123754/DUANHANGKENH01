@@ -1909,7 +1909,7 @@
         discountAmount = totalPrincipal - totalAmount;
         totalQuantity = lst_OrderDetail.Sum(item => item.Quantity);
         // thanh toán phí ship vơi bên thứ 3
-        var totalMoneyAfterVoucher =isDeliveryVisible ? (feeShipping + (totalAmount  - voucherAmount)) : (totalAmount - voucherAmount);
+        var totalMoneyAfterVoucher = totalAmount - voucherAmount;
         if(totalMoneyAfterVoucher <= 0)
         {
             totalMoneyAfterVoucher = 0;

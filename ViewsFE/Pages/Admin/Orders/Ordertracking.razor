@@ -1,7 +1,9 @@
 ﻿@page "/ordertracking/{OrderId:long}"
 @inject IOrderIServices orderService
 @inject OrderDetailsIServices orderDetailsService
+@inject IUserVoucherService userVoucherServices
 @inject IOrderTrackingService orderTrackingService
+@inject IOrderVoucherServices orderVoucherService
 @inject NavigationManager NavigationManager
 @inject IAddressServices addressService
 @inject IAccountService accountService
@@ -924,8 +926,8 @@
             await JS.InvokeVoidAsync("toastr.error", $"Lỗi khi cập nhật trạng thái: {ex.Message}");
         }
     }
-   
-    
+
+
 
     private async Task HandleModalConfirm()
     {
@@ -936,24 +938,12 @@
                 await JS.InvokeVoidAsync("toastr.error", "Vui lòng nhập lý do Hủy đơn.");
                 return;
             }
-            else
-            {
-                await UpdateStatus(selectedTrackingId, "Đơn hủy", currentStatus, failureReason);
-                CloseModal();
-                return;
-            }
         }
         if (currentModalId == "FailTransaction")
         {
             if (string.IsNullOrWhiteSpace(failTransaction))
             {
                 await JS.InvokeVoidAsync("toastr.error", "Vui lòng nhập lý do giao thất bại.");
-                return;
-            }
-            else
-            {
-                await UpdateStatus(selectedTrackingId, "Giao thất bại", currentStatus, failTransaction);
-                CloseModal();
                 return;
             }
         }
@@ -1000,7 +990,17 @@
                     await productAttributeService.Update(item.ProductAttributes,item.Product_Attribute_Id);
                 }
             }
-
+            if (orderUpdate.Status == "Chờ xác nhận")
+            {
+                var allOrderVoucher = await orderVoucherService.GetAll();
+                var voucherRollBack = allOrderVoucher.Where(o => o.OrderId == OrderId).FirstOrDefault();
+                if (voucherRollBack != null)
+                {
+                    var userVoucher = await userVoucherServices.GetByVoucherIdAndUserId(voucherRollBack.VoucherId, Order.User_id ?? 0);
+                    userVoucher.IsApplied = false;
+                    await userVoucherServices.Update(userVoucher);
+                }
+            }
             // Tạo bản ghi mới
             var newTracking = new order_trackings
                 {
@@ -1269,12 +1269,30 @@
 
     private async Task HandleButtonClick()
     {
+        var orderCurent = await orderService.GetByIdOrders(OrderId);
         var latestTracking = OrderTracking.OrderTrackings
             .OrderByDescending(t => t.CreatedAt)
             .FirstOrDefault();
 
         string currentStatus = latestTracking?.Status ?? "Chờ xác nhận";
-
+        if (orderCurent.Status == "Chờ xác nhận")
+        {
+            var lst_orderDetails = await orderDetailsService.GetOrderDetailsByOrderId(orderCurent.Id);
+            foreach (var item in lst_orderDetails)
+            {
+                var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
+                if (product.Stock < item.Quantity)
+                {
+                    await JS.InvokeVoidAsync("toastr.error", $"Sản phẩm {product.Posts.Title} {product.Size.Title} {product.Color.Title} hiện không đủ số lượng trong kho ");
+                    return;
+                }
+                else
+                {
+                    product.Stock -= item.Quantity;
+                    await productAttributeService.Update(product, product.Id);
+                }
+            }
+        }
         // Lấy nhãn nút hiện tại
         string currentButtonLabel = GetButtonLabel(currentStatus, latestTracking?.Note);
 
@@ -1313,7 +1331,7 @@
             "Giao thành công" => "Hoàn tất đơn",
             _ => "Không rõ"
         };
-
+       
         string note = string.Empty;
 
         if (newStatus == "Giao thất bại")
@@ -1392,23 +1410,7 @@
                 await email.SendEmailAsync(emailUser, emailSubject, emailMessage);
             }
         } 
-        if(order.Status=="Đã xác nhận")
-        {
-            var lst_orderDetails = await orderDetailsService.GetOrderDetailsByOrderId(order.Id);
-            foreach(var item in lst_orderDetails)
-            {
-                var product = await productAttributeService.GetProductAttributesById(item.Product_Attribute_Id);
-                if(product.Stock < item.Quantity)
-                {
-                    await JS.InvokeVoidAsync("toastr.error", $"Sản phẩm {product.Posts.Title} {product.Size.Title} {product.Color.Title} hiện không đủ số lượng trong kho ");
-                    return;
-                }
-                else
-                {
-                    product.Stock -= item.Quantity;
-                    await productAttributeService.Update(product, product.Id);
-                }
-            }
-        }
+        
+
     }
 }
