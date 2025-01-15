@@ -2,6 +2,7 @@
 @inject IOrderIServices orderService
 @inject OrderDetailsIServices orderDetailsService
 @inject IUserVoucherService userVoucherServices
+@inject IVoucherService voucherServices
 @inject IOrderTrackingService orderTrackingService
 @inject IOrderVoucherServices orderVoucherService
 @inject NavigationManager NavigationManager
@@ -252,7 +253,14 @@
                     <p><strong>Tổng tiền hàng:</strong> @OrderTracking.TotalPrincipal.ToString("N0") VND</p>
                     <p style="color: red;"><strong>Tổng tiền chiết khấu:</strong> @OrderTracking.TotalDiscount.ToString("N0") VND</p>
                     <p><strong>Tổng tiền hàng đã giảm:</strong> @OrderTracking.TotalAmount.ToString("N0") VND</p>
-                    <p style="color: red;"><strong>Giảm giá Voucher:</strong> @OrderTracking.TotalVoucher.ToString("N0") VND</p>
+                    @if (voucher == null)
+                    {
+                        <p style="color: red;"><strong>Giảm giá Voucher : </strong> @OrderTracking.TotalVoucher.ToString("N0") VND </p>
+                    }
+                    else
+                    {
+                        <p style="color: red;"><strong>Giảm giá Voucher : </strong> @OrderTracking.TotalVoucher.ToString("N0") VND || @voucher.Code</p>
+                    }
                     <p><strong>Phí giao hàng:</strong> @OrderTracking.FeeShipping.ToString("N0") VND</p>
                     <p style="color: green;"><strong>Tổng tiền cần thanh toán:</strong> @OrderTracking.TotalMoney.ToString("N0") VND</p>
                 </div>
@@ -301,6 +309,10 @@
                     {
                         <p><strong>Tên khách hàng:</strong>Khách lẻ</p>
                         <p><strong>Số điện thoại:</strong> #N/A</p>
+                        <p><strong>Tên Người nhận hàng:</strong>@Address.Name </p>
+                        <p><strong>Địa chỉ nhận hàng :</strong>  @Order.Strees</p>
+                        <p><strong>Ghi chú :</strong>  @Address.Status </p>
+                        <p><strong>Số điện thoại người nhận:</strong>@Address.Phone</p>
                     }
   @*                   @if (Address != null)
                     {
@@ -484,6 +496,7 @@
     private List<Order_details> lst_OrderDetails = new List<Order_details>();
     private Address Address = new Address();
     private Account Admin = new Account();
+    private Vouchers voucher = new Vouchers();
     private string currentStatus;
     private string previousStatus;
     private string restoreNote;
@@ -531,7 +544,16 @@
             OrderTracking = await orderTrackingService.GetBy(OrderId);
             Order = await orderService.GetByIdOrders(OrderId);
             OrderAddress = await orderService.OrdersAddress(OrderId);
-
+            var allOrderVoucher = await orderVoucherService.GetAll();
+            var voucherOrder = allOrderVoucher.Where(o => o.OrderId == OrderId).FirstOrDefault();
+            if (voucherOrder != null)
+            {
+                voucher = await voucherServices.Details(voucherOrder.VoucherId);
+            }
+            else
+            {
+                voucher = null;
+            }
             if (Order.Address_Id != null)
             {
                 Address = await addressService.GetAddressById(Order.Address_Id.Value);
