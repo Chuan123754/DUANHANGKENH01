@@ -39,13 +39,13 @@ namespace appAPI.Background_Service
 
                         // Lấy các chiết khấu cần cập nhật (lọc trước để giảm dữ liệu)
                         var discounts = discountRepository.GetAll()
-                             .AsNoTracking()
+                            .AsNoTracking()
                              .Where(d => d.Status != "Đã kết thúc" || (d.Start_date <= today && d.End_date >= today))
                              .ToList();
 
 
                         var vouchers = voucherRepository.GetAll()
-                             .AsNoTracking()
+                             
                              .Where(d => d.Status != "Đã kết thúc" || (d.Start_time <= today && d.End_time >= today))
                              .ToList();
 
