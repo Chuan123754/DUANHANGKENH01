@@ -1946,9 +1946,10 @@
             await JS.InvokeVoidAsync("toastr.error", "Số lượng không được nhỏ hơn 0.");
             return;
         }
-        else if (newQuantity > order_Details.ProductAttributes.Stock)
+        var maxAllowedQuantity = order_Details.Quantity + order_Details.ProductAttributes.Stock;
+        if (newQuantity > maxAllowedQuantity)
         {
-            await JS.InvokeVoidAsync("toastr.error", $"Số lượng tối đa có thể thêm là {order_Details.ProductAttributes.Stock}!");
+            await JS.InvokeVoidAsync("toastr.error", $"Số lượng tối đa có thể thêm là {maxAllowedQuantity}!");
             return;
         }
 
