@@ -60,12 +60,13 @@ namespace appAPI.Controllers
                     return NotFound(new { message = "Người dùng không tồn tại" });
                 }
 
-                //// Kiểm tra xem cart đã tồn tại chưa
-                //var existingCart = _cartRepository.Find(c => c.UserId == cart.UserId);
-                //if (existingCart != null)
-                //{
-                //    return Ok(new { message = "Giỏ hàng đã tồn tại. Không cần thêm mới." });
-                //}
+                // Kiểm tra xem cart đã tồn tại chưa
+                var existingCart = _cartRepository.Find(c => c.UserId == cart.UserId);
+                if (existingCart != null && existingCart.Count() > 0)
+                {
+                    return Ok(new { message = "Giỏ hàng đã tồn tại. Không cần thêm mới." });
+                }
+
 
                 _cartRepository.Add(cart);
                 return Ok(new { message = "Thêm vào giỏ hàng thành công." });
