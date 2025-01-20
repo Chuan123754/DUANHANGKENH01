@@ -915,6 +915,9 @@
                 selectedType = "";
                 discountValue = 0;
                 await JS.InvokeVoidAsync("toastr.success", "Cập nhật khuyến mãi thành công!");
+
+                await Task.Delay(1500);
+                nav.NavigateTo("/admin/discounts", forceLoad: true);
             }
             catch (Exception ex)
             {

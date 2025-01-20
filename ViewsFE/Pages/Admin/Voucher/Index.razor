@@ -2,6 +2,7 @@
 @using System.Text.RegularExpressions
 @inject IVoucherService VoucherService
 @inject IUserVoucherService UserVoucherService
+@inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 
 <style>
@@ -13,25 +14,25 @@
     }
 
     .info-icon .tooltip-text {
-        visibility: hidden;
-        width: 200px;
-        background-color: #333;
-        color: #fff;
-        text-align: center;
-        border-radius: 4px;
-        padding: 5px;
-        position: absolute;
-        z-index: 1;
-        bottom: 125%; /* Đẩy tooltip lên phía trên */
-        left: 50%;
-        transform: translateX(-50%);
-        opacity: 0;
-        transition: opacity 0.3s;
+    visibility: hidden;
+    width: 200px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 4px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%; /* Đẩy tooltip lên phía trên */
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
     }
 
     .info-icon:hover .tooltip-text {
-        visibility: visible;
-        opacity: 1;
+    visibility: visible;
+    opacity: 1;
     }
 
 </style>
@@ -86,18 +87,18 @@
                                     <label for="discountValue">Giá trị Voucher</label>
                                     <div class="input-group">
                                         <input type="number" id="discountValue"
-                                                @bind="voucherValue"
-                                                class="form-control"
-                                                placeholder="Nhập giá trị khuyến mãi"
-                                                @oninput="ValidateVoucherValue" />
+                                        @bind="voucherValue"
+                                        class="form-control"
+                                        placeholder="Nhập giá trị khuyến mãi"
+                                        @oninput="ValidateVoucherValue" />
                                         <span class="input-group-text">
                                             @((selectedTypeVoucher == "Percentage") ? "%" : "VNĐ")
                                         </span>
                                     </div>
                                     <ValidationMessage For="@(() => voucherValue)" />
                                 </div>
-                                
-@*                                 <div class="form-group mb-1">
+
+                                @*                                 <div class="form-group mb-1">
                                     <label for="quantity">
                                         Số Lượng
                                         <span class="info-icon">
@@ -209,7 +210,7 @@
                                             <th>Giá trị</th>
                                             <th>Giá trị tối đa</th>
                                             <th>Điều kiện</th>
-                           @*                  <th>Số lượng</th> *@
+                                            @*                  <th>Số lượng</th> *@
                                             <th>Trạng thái</th>
                                             <th>Thao tác</th>
                                         </tr>
@@ -239,10 +240,10 @@
                                                     </td>
                                                     <td>
                                                         @(voucher.Description == "Percentage"
-                                                            ? $"{voucher.Percent}%"
-                                                            : (decimal.TryParse(voucher.Percent, out var percentValue)
-                                                            ? $"{percentValue.ToString("#,##0").Replace(".", ",")} VNĐ"
-                                                            : ""))
+                                                                        ? $"{voucher.Percent}%"
+                                                                        : (decimal.TryParse(voucher.Percent, out var percentValue)
+                                                                        ? $"{percentValue.ToString("#,##0").Replace(".", ",")} VNĐ"
+                                                                        : ""))
                                                     </td>
                                                     <td>@(int.TryParse(voucher.MaxDiscountValue, out var maxValue) ? $"{maxValue.ToString("N0").Replace(".", ",")} VNĐ" : "") </td>
                                                     <td>@(int.TryParse(voucher.Condition, out var condition) ? condition.ToString("N0").Replace(".", ",") : "Invalid") VNĐ</td>
@@ -253,16 +254,16 @@
                                                         @if (voucher.Status == "Tạm dừng")
                                                         {
                                                             <button class="btn btn-warning btn-end"
-                                                                    @onclick="() => ContinuteVoucher(voucher.Id)">
+                                                            @onclick="() => ContinuteVoucher(voucher.Id)">
                                                                 Tiếp tục
                                                             </button>
                                                         }
                                                         else
                                                         {
                                                             <button class="btn btn-danger btn-end"
-                                                                    @onclick="() => ConfirmDelete(voucher.Id)"
-                                                                    style="opacity: @(voucher.End_time > DateTime.Now ? 1 : 0.5); cursor: @(voucher.End_time > DateTime.Now);"
-                                                                    disabled="@(!(voucher.End_time > DateTime.Now))">
+                                                            @onclick="() => ConfirmDelete(voucher.Id)"
+                                                            style="opacity: @(voucher.End_time > DateTime.Now ? 1 : 0.5); cursor: @(voucher.End_time > DateTime.Now);"
+                                                            disabled="@(!(voucher.End_time > DateTime.Now))">
                                                                 Tạm dừng
                                                             </button>
                                                         }
@@ -337,7 +338,7 @@
                                                 </tr>
                                             }
                                         }
-                                        
+
 
                                     </tbody>
                                 </table>
@@ -556,11 +557,31 @@
 
     private async Task CreateVoucher()
     {
+        if (!selectedUserIds.Any())
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Bạn phải chọn ít nhất một khách hàng trước khi tạo voucher!");
+            return;
+        }
         if (selectedTypeVoucher == "Percentage" && voucherValue > 100 || selectedTypeVoucher == "Percentage" && voucherValue <= 0 || selectedTypeVoucher == "Fixed" && voucherValue <= 0)
         {
             await JS.InvokeVoidAsync("toastr.error", "Gía trị Voucher không hợp lệ!");
             return;
         }
+        int conditionValue;
+        int maxValue;
+        if (int.TryParse(voucher.Condition, out conditionValue) && conditionValue == null || conditionValue <= 0)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Điều kiện của voucher không hợp lệ!");
+            return;
+        }
+        if (selectedTypeVoucher == "Percentage")
+        {
+            if (int.TryParse(voucher.MaxDiscountValue, out maxValue) && maxValue == null && voucher.Description != "Fixed" || maxValue <= 0 && voucher.Description != "Fixed")
+            {
+                await JS.InvokeVoidAsync("toastr.error", "Gía trị tối đa phải lớn hơn 0!");
+                return;
+            }
+        }    
         try
         {
 
@@ -573,7 +594,7 @@
             if(voucher.Percent=="0")
             {
                 await JS.InvokeVoidAsync("toastr.error", "Gía trị Voucher không hợp lệ");
-
+                return;
             }
 
             // kiểm tra thời gian kết thúc
@@ -734,7 +755,7 @@
             {
                 if (value <= 0 || value > 100)
                 {
-                    errorMessage = "Giảm theo phần trăm phải lớn hơn 0 và không quá 100!";
+                    //errorMessage = "Giảm theo phần trăm phải lớn hơn 0 và không quá 100!";
                     voucherValue = 0;
                     return;
                 }
@@ -765,11 +786,29 @@
 
     private async Task UpdateVoucher()
     {
+        if (!selectedUserIds.Any())
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Bạn phải chọn ít nhất một khách hàng trước khi tạo voucher!");
+            return;
+        }
         if (selectedTypeVoucher == "Percentage" && voucherValue > 100 || selectedTypeVoucher == "Percentage" && voucherValue <= 0 || selectedTypeVoucher == "Fixed" && voucherValue <= 0)
         {
             await JS.InvokeVoidAsync("toastr.error", "Gía trị Voucher không hợp lệ!");
             return;
         }
+        int conditionValue;
+        int maxValue;
+        if (int.TryParse(voucher.Condition, out conditionValue) && conditionValue == null || conditionValue <= 0  )
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Điều kiện của voucher không hợp lệ!");
+            return;
+        }
+        if (int.TryParse(voucher.MaxDiscountValue, out maxValue) && maxValue == null|| maxValue <= 0)
+        {
+            await JS.InvokeVoidAsync("toastr.error", "Gía trị tối đa phải lớn hơn 0!");
+            return;
+        }
+
         try
         {
             // Kiểm tra trùng mã Code trừ ID hiện tại.
@@ -851,6 +890,9 @@
             initialUserIds.Clear();
             selectedUserCount = 0;
             await JS.InvokeVoidAsync("toastr.success", "Cập nhật voucher và danh sách khách hàng thành công!");
+            await Task.Delay(1500);
+            NavigationManager.NavigateTo("/admin/vouchers", forceLoad: true);
+    
         }
         catch (Exception ex)
         {

@@ -154,6 +154,7 @@ namespace appAPI.Controllers
                     // Nếu mật khẩu là null, cập nhật mật khẩu mới
                     existingUser.Password = user.Password;
                     existingUser.Email = user.Email;
+                    existingUser.OTPCheck = true;
                     existingUser.Updated_at = DateTime.Now;
                     context.SaveChanges();
 

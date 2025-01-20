@@ -112,6 +112,14 @@ namespace appAPI.Repository
                 post.Status = "delete";
                 post.Deleted_at = DateTime.Now;
                 _context.Posts.Update(post);
+
+                var lst_Product = _context.Product_Attributes.Where(pa => pa.Post_Id == post.Id).ToList();
+                foreach(var item in lst_Product)
+                {
+                    item.Status = "Đã xoá";
+                    _context.Product_Attributes.Update(item);
+                    await _context.SaveChangesAsync();
+                }   
                 await _context.SaveChangesAsync();
             }
         }
@@ -149,9 +157,15 @@ namespace appAPI.Repository
             // Khôi phục bài viết
             post.Status = "publish";
             post.Deleted_at = null;
-
             // Lưu thay đổi
             _context.Posts.Update(post);
+            var lst_Product = _context.Product_Attributes.Where(pa => pa.Post_Id == post.Id).ToList();
+            foreach (var item in lst_Product)
+            {
+                item.Status = "Còn hàng";
+                _context.Product_Attributes.Update(item);
+                await _context.SaveChangesAsync();
+            }
             await _context.SaveChangesAsync();
         }
 

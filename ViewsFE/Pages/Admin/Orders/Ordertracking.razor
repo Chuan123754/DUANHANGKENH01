@@ -18,12 +18,12 @@
 
 <style>
     .card-header {
-        font-weight: bold;
-        background-color: #f8f9fa;
+    font-weight: bold;
+    background-color: #f8f9fa;
     }
 
     .table th, .table td {
-        vertical-align: middle;
+    vertical-align: middle;
     }
 
 </style>
@@ -43,7 +43,7 @@
                             @if (GetButtonLabel(OrderTracking.Status, OrderTracking.Note) != null)
                             {
                                 <button class="btn btn-sm @GetButtonClass(OrderTracking.Status)"
-                                        @onclick="HandleButtonClick">
+                                @onclick="HandleButtonClick">
                                     @GetButtonLabel(OrderTracking.Status, OrderTracking.Note)
                                 </button>
                             }
@@ -84,7 +84,7 @@
         </div>
 
         <!-- Modal nhận lý do -->
-@*         @if (isModalVisible)
+        @*         @if (isModalVisible)
         {
             <div class="modal fade show d-block" tabindex="-1" role="dialog">
                 <div class="modal-dialog modal-dialog-centered" role="document">
@@ -166,7 +166,15 @@
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center bg-light">
                 <h5 class="card-title mb-0">Danh sách sản phẩm</h5>
-                <button class="btn btn-outline-primary" style="margin-left: 10px;" @onclick="() => DownloadInvoice(OrderId)">Xuất hóa đơn</button>
+                @if(Order.Status =="Pending" || Order.Status=="Hóa đơn treo")
+                {
+                    <span>Hóa đơn </span>
+                }
+                else
+                {
+                    <button class="btn btn-outline-primary" style="margin-left: 10px;" @onclick="() => DownloadInvoice(OrderId)">Xuất hóa đơn</button>
+                }
+                
             </div>
             <div class="card-body">
                 <table class="table">
@@ -269,10 +277,14 @@
                         <h4>Thông Tin Khách Hàng</h4>
                         @if (Order.Address_Id != null)
                         {
-                            @if (Order.Status == "Chờ xác nhận" || Order.Status == "Đã xác nhận" || Order.Status == "Đã thanh toán" || Order.Status == "Đã chuẩn bị hàng")
+                            @if (Order.TypePayment == "Chuyển khoản MoMo" || Order.TypePayment == "Thanh toán tiền mặt")
+                            {
+                                <span style="color : red"> Đơn đã thanh toán không thay đổi địa chỉ</span>
+                            }
+                            else if (Order.Status == "Chờ xác nhận" || Order.Status == "Đã xác nhận" || Order.Status == "Đã thanh toán" || Order.Status == "Đã chuẩn bị hàng")
                             {
                                 <button class="btn btn-warning" @onclick="OpenModalUpdateAddress">Thay đổi địa chỉ nhận hàng</button>
-                            }
+                            }                               
                             else if (Order.Status == "Đơn hủy")
                             {
                                 <span style="color : red"> Đã hủy đơn</span>
@@ -286,7 +298,11 @@
                                 <span style="color : red"> Giao hàng không thành công</span>
                             }
                         }
-                        else
+                        else if(Order.Status=="Pending")
+                        {
+                            <span> Hóa đơn chờ của khách hàng</span>
+                        }
+                        else 
                         {
                             <span> Đơn hàng được bán tại cửa hàng</span>
                         }
@@ -376,7 +392,7 @@
                     else if (currentModalId == "SuccessPayment")
                     {
                         var confirmedTracking = OrderTracking.OrderTrackings
-                        .FirstOrDefault(t => t.Status == "Đã xác nhận");
+                        .FirstOrDefault(t => t.Status == "Đã xác nhận" || t.Status == "Đã thanh toán");
                         var paidTracking = OrderTracking.OrderTrackings
                         .FirstOrDefault(t => t.Status == "Đã thanh toán");
 

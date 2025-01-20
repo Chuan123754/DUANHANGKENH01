@@ -60,9 +60,21 @@ namespace appAPI.Controllers
         [HttpGet("Get-all-type")]
         public async Task<IActionResult> GetAllType(string type)
         {
+            if (string.IsNullOrWhiteSpace(type))
+            {
+                return BadRequest("Type parameter is required.");
+            }
+
             var list = await _postRepository.GetAllByType(type);
+
+            if (list == null || !list.Any())
+            {
+                return NotFound("No posts found for the given type.");
+            }
+
             return Ok(list);
         }
+
         [HttpGet("Get-all-client-type-cate")]
         public async Task<IActionResult> GetAllByClientTypeCate(string type, string cate)
         {

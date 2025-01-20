@@ -62,7 +62,7 @@ namespace appAPI.Controllers
                 PdfFont fontNormal = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
                 PdfFont fontBold = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
 
-                string imagePath = @"E:\HangKenh\appAPI\FileMedia\Logohk.jpg"; 
+                string imagePath = @"D:\DATN\DUANHANGKENH01\appAPI\FileMedia\Logohk.jpg"; 
                 if (!System.IO.File.Exists(imagePath)) return BadRequest("Hình ảnh không tồn tại tại đường dẫn: " + imagePath);
 
                 Image logoImage = new Image(ImageDataFactory.Create(imagePath)).SetWidth(50).SetHeight(50);
