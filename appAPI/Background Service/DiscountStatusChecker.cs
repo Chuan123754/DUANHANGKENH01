@@ -40,13 +40,13 @@ namespace appAPI.Background_Service
                         // Lấy các chiết khấu cần cập nhật (lọc trước để giảm dữ liệu)
                         var discounts = discountRepository.GetAll()
                             .AsNoTracking()
-                             .Where(d => d.Status != "Đã kết thúc" || (d.Start_date <= today && d.End_date >= today))
+                             .Where(d => d.Status != "Đã kết thúc")
                              .ToList();
 
 
                         var vouchers = voucherRepository.GetAll()
                              
-                             .Where(d => d.Status != "Đã kết thúc" || (d.Start_time <= today && d.End_time >= today))
+                             .Where(d => d.Status != "Đã kết thúc" )
                              .ToList();
 
                         var vouchersToUpdate = new List<Vouchers>();
@@ -69,6 +69,8 @@ namespace appAPI.Background_Service
                                 discount.Status = "Sắp diễn ra";
                             }
                             discountsToUpdate.Add(discount);
+                            discountRepository.Update(discount);
+
 
                             // Lấy danh sách sản phẩm liên quan
                             var productIds = await productDiscountRepository.GetByIdDiscount(discount.Id);

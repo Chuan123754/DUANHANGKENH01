@@ -195,7 +195,15 @@
                                                 }
                                             </td>
                                             <td class="sort-status">
-                                                <span class="@post.Status">@post.Status</span>
+                                                @if (post.Stock == 0 || post.Stock == null)
+                                                {
+                                                    <span style="color: red;">Hết hàng</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="@post.Status">@post.Status</span>
+                                                }
+                                             
                                             </td>
                                          
                                         </tr>

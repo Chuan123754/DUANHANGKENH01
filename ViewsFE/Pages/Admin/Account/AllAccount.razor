@@ -63,6 +63,7 @@
                                                 <br />
                                                 <div class="cell-action">
                                                 @*     <a class="cell-action-edit text-primary" @onclick="() => EditAccount(account.Account.Id)">Chỉnh sửa</a> *@
+
                                                     <a class="cell-action-delete text-warning" @onclick="() => ToggleLock(account.Account.Id)">Toggle Lock</a>
                                                     <a class="cell-action-delete text-green" @onclick="() => NavDetails(account.Account.Id)">Xem chi tiết</a>
                                                 </div>
